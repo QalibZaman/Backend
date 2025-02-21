@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+	    <CodeAnalysisRuleSet>..\CodeStyleRuleSets.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MediatR" Version="12.4.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+      <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
+      <ProjectReference Include="..\NettoRetail.Infrastructure\NettoRetail.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
