@@ -16,8 +16,8 @@ public static class SwaggerExtensions
                 "v1",
                 new OpenApiInfo()
                 {
-                    Title = "Netto Health",
-                    Description = "Web API Application for Netto Health",
+                    Title = "Netto Retail",
+                    Description = "Web API Application for Netto Retail",
                     Version = "v1",
                 });
 

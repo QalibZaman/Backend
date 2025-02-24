@@ -9,7 +9,7 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
-public class AdminController(IMediator mediator) : ControllerBase
+public class AdminsController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
     public async Task<IActionResult> SignUp(AdminSignUpModel model)
