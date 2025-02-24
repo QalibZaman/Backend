@@ -7,7 +7,7 @@ public class StaffEntity
     public required string LastName { get; set; }
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
-    public Guid RoleId { get; set; }
+    public int RoleId { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
 }

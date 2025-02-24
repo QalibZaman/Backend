@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.DataAccess.Configurations;
 
@@ -19,13 +18,13 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
             .HasForeignKey(c => c.RoleId);
 
         builder.HasData(
-            new RoleEntity { Id = RoleIdConstants.AdminId, RoleName = RoleEnum.Admin },
-            new RoleEntity { Id = RoleIdConstants.SalesManagerId, RoleName = RoleEnum.SalesManager },
-            new RoleEntity { Id = RoleIdConstants.CustomerId, RoleName = RoleEnum.Customer },
-            new RoleEntity { Id = RoleIdConstants.InventoryManagerId, RoleName = RoleEnum.InventoryManager },
-            new RoleEntity { Id = RoleIdConstants.PosCashierId, RoleName = RoleEnum.PosCashier },
-            new RoleEntity { Id = RoleIdConstants.ManagementStakeholderId, RoleName = RoleEnum.ManagementStakeholder },
-            new RoleEntity { Id = RoleIdConstants.ShipperId, RoleName = RoleEnum.Shipper },
-            new RoleEntity { Id = RoleIdConstants.CustomerSupportSpecialistId, RoleName = RoleEnum.CustomerSupportSpecialist });
+            new RoleEntity { Id = 1, RoleName = RoleEnum.Admin },
+            new RoleEntity { Id = 2, RoleName = RoleEnum.SalesManager },
+            new RoleEntity { Id = 3, RoleName = RoleEnum.Customer },
+            new RoleEntity { Id = 4, RoleName = RoleEnum.InventoryManager },
+            new RoleEntity { Id = 5, RoleName = RoleEnum.PosCashier },
+            new RoleEntity { Id = 6, RoleName = RoleEnum.ManagementStakeholder },
+            new RoleEntity { Id = 7, RoleName = RoleEnum.Shipper },
+            new RoleEntity { Id = 8, RoleName = RoleEnum.CustomerSupportSpecialist });
     }
 }

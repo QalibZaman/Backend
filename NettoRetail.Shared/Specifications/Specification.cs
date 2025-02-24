@@ -2,8 +2,6 @@ using System.Linq.Expressions;
 
 namespace NettoRetail.Shared.Specifications;
 
-public interface ISpecification { }
-
 public class Specification<TEntity>
     where TEntity : class
 {

@@ -25,6 +25,7 @@ public static class ServiceExtensions
 
         // Repositories
         services.AddScoped<IStaffRepository, StaffRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

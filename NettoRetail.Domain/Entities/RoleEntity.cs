@@ -4,7 +4,7 @@ namespace NettoRetail.Domain.Entities;
 
 public class RoleEntity
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public RoleEnum RoleName { get; set; }
 
     public ICollection<StaffEntity> StaffEntities { get; set; } = null!;

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250221143517_InitialMigration")]
+    [Migration("20250224171318_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -27,9 +27,11 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("RoleName")
                         .IsRequired()
@@ -43,42 +45,42 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8b93a835-8baf-400a-b8d1-356519e943ba"),
+                            Id = 1,
                             RoleName = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("203e66e0-1b9e-45cc-abac-2b1437583f19"),
+                            Id = 2,
                             RoleName = "SalesManager"
                         },
                         new
                         {
-                            Id = new Guid("e877e3f3-ce0a-4d15-b6aa-d01d85e161d1"),
+                            Id = 3,
                             RoleName = "Customer"
                         },
                         new
                         {
-                            Id = new Guid("56f63314-6dc2-4e6c-8794-565f89624ae9"),
+                            Id = 4,
                             RoleName = "InventoryManager"
                         },
                         new
                         {
-                            Id = new Guid("036c6c75-bd56-4438-af49-6e4ee8b6d501"),
+                            Id = 5,
                             RoleName = "PosCashier"
                         },
                         new
                         {
-                            Id = new Guid("7e2957a3-b522-48ef-b41e-6f72c1d3ac69"),
+                            Id = 6,
                             RoleName = "ManagementStakeholder"
                         },
                         new
                         {
-                            Id = new Guid("0ba232fd-cf7e-4569-a491-2a26d0331d8f"),
+                            Id = 7,
                             RoleName = "Shipper"
                         },
                         new
                         {
-                            Id = new Guid("caa8d7d8-2ac7-4be7-b273-36256c0f2a0a"),
+                            Id = 8,
                             RoleName = "CustomerSupportSpecialist"
                         });
                 });
@@ -109,8 +111,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
