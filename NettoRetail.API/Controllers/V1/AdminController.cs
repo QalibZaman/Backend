@@ -12,10 +12,12 @@ namespace NettoRetail.API.Controllers.V1;
 public class AdminController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
-    public async Task SignUp(AdminSignUpModel model)
+    public async Task<IActionResult> SignUp(AdminSignUpModel model)
     {
         var adminCreationCommand = new CreateAdminCommand(model);
 
         await mediator.Send(adminCreationCommand);
+
+        return NoContent();
     }
 }
