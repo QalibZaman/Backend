@@ -5,6 +5,6 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class StaffRepository(AppDbContext dbContext, IMapper mapper)
-    : BaseRepository<StaffEntity>(dbContext, mapper),
+public class StaffRepository(AppDbContext dbContext)
+    : BaseRepository<StaffEntity>(dbContext),
     IStaffRepository;

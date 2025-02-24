@@ -1,5 +1,4 @@
 using Mapster;
-using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -7,24 +6,15 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class BaseRepository<TEntity> : IBaseRepository<TEntity>
+public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<TEntity>
     where TEntity : class
 {
-    protected readonly DbSet<TEntity> _dbSet;
-    protected readonly AppDbContext _dbContext;
-    protected readonly IMapper _mapper;
-
-    protected BaseRepository(AppDbContext dbContext, IMapper mapper)
-    {
-        _dbContext = dbContext;
-        _dbSet = dbContext.Set<TEntity>();
-        _mapper = mapper;
-    }
+    private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
