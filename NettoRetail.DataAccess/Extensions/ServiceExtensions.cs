@@ -1,5 +1,4 @@
 using Azure.Storage.Blobs;
-using Mapster;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -23,6 +22,10 @@ public static class ServiceExtensions
             var connectionStrings = provider.GetRequiredService<IOptions<ConnectionStrings>>().Value;
             return new BlobServiceClient(connectionStrings.AzureConnection);
         });
+
+        // Repositories
+        services.AddScoped<IStaffRepository, StaffRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

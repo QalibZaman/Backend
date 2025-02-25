@@ -1,6 +1,0 @@
-@NettoHealth.API_HostAddress = http://localhost:5071
-
-GET {{NettoHealth.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
