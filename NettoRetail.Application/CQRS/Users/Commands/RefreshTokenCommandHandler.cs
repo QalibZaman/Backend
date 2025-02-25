@@ -5,14 +5,14 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
-public record RefreshTokenCommand(string RefreshToken) : IRequest<ServiceResponse<TokenResponse>>;
+public record RefreshTokenCommand(string RefreshToken) : IRequest<TokenResponse>;
 
 public class RefreshTokenCommandHandler(IJwtManager jwtManager)
-    : IRequestHandler<RefreshTokenCommand, ServiceResponse<TokenResponse>>
+    : IRequestHandler<RefreshTokenCommand, TokenResponse>
 {
-    public Task<ServiceResponse<TokenResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.ValidateRefreshToken(request.RefreshToken);
+        var claimsPrincipal = jwtManager.ValidateToken(request.RefreshToken);
 
         if (claimsPrincipal == null)
         {
@@ -24,6 +24,6 @@ public class RefreshTokenCommandHandler(IJwtManager jwtManager)
 
         var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken);
 
-        return Task.FromResult(new ServiceResponse<TokenResponse>("Token refreshed successfully", tokenResponse, true));
+        return Task.FromResult(tokenResponse);
     }
 }

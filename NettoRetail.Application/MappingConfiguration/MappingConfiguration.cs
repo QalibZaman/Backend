@@ -1,5 +1,5 @@
 using Mapster;
-using NettoRetail.Application.Models.Entities;
+using NettoRetail.Application.Models.Admin;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Application.MappingConfiguration;

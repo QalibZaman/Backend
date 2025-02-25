@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Application.Models.Entities;
+﻿namespace NettoRetail.Application.Models.Admin;
 
 public class AdminSignUpModel
 {

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
@@ -25,6 +26,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
             new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
 
         ctx.Response.StatusCode = error.Status;

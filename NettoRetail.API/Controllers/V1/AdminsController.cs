@@ -1,8 +1,9 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Users.Commands;
-using NettoRetail.Application.Models.Entities;
+using NettoRetail.Application.Models.Admin;
 
 namespace NettoRetail.API.Controllers.V1;
 

@@ -1,7 +1,7 @@
 using System.Net;
 using NettoRetail.API.Models.Error;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
@@ -50,5 +50,5 @@ public static class ApiExceptionHandler
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message));
     }
 
-    private static ServiceResponse GenerateResponse(string message) => new(message, false);
+    private static ApiResponse GenerateResponse(string message) => new(message);
 }
