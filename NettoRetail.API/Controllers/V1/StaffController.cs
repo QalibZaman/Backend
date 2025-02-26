@@ -21,7 +21,7 @@ public class StaffController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(loginCommand);
         var response = new ApiResponse<TokenResponse>(data);
 
-        return Ok(response.Data);
+        return Ok(response);
     }
 
     [HttpPost("refresh-token")]
@@ -31,6 +31,6 @@ public class StaffController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(command);
         var response = new ApiResponse<TokenResponse>(data);
 
-        return Ok(response.Data);
+        return Ok(response);
     }
 }
