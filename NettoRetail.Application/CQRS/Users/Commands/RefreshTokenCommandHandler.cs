@@ -12,7 +12,7 @@ public class RefreshTokenCommandHandler(IJwtManager jwtManager)
 {
     public Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.ValidateToken(request.RefreshToken);
+        var claimsPrincipal = jwtManager.Validate(request.RefreshToken);
 
         if (claimsPrincipal == null)
         {

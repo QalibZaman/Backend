@@ -36,7 +36,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return handler.WriteToken(token);
     }
 
-    public ClaimsPrincipal? ValidateToken(string refreshToken)
+    public ClaimsPrincipal? Validate(string refreshToken)
     {
         var handler = new JwtSecurityTokenHandler();
         var principal = handler.ValidateToken(

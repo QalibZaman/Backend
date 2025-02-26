@@ -34,7 +34,7 @@ public static class SwaggerExtensions
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Enter 'Bearer' followed by your JWT token. Example: Bearer eyJhbGciOiJI...",
+                Description = "Enter your JWT token. Example: eyJhbGciOiJI...",
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
