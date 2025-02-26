@@ -15,6 +15,7 @@ variables:
 before_script:
   - export PATH="$PATH:/root/.dotnet/tools"
   - dotnet restore
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 build:
   stage: build
