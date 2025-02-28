@@ -23,6 +23,6 @@ public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<T
         var response = await _dbSet.Where(specification.Criteria)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return response.Adapt<TEntity>();
+        return response;
     }
 }
