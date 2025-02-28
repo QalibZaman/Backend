@@ -30,15 +30,20 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
             throw new MyUnauthorizedException("Password is incorrect");
         }
 
-        var claims = new List<Claim>
+        var accessTokenClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.RoleId.ToString())
+            new(ClaimTypes.Role, user.RoleId.ToString()),
+            new("token_type", "access")
         };
-
-        var accessToken = jwtManager.Generate(claims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
-        var refreshToken = jwtManager.Generate(claims, TimeSpan.FromDays(refreshTokenExpirationDays));
+        var refreshTokenClaims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new("token_type", "refresh")
+        };
+        var accessToken = jwtManager.Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
+        var refreshToken = jwtManager.Generate(refreshTokenClaims, TimeSpan.FromDays(refreshTokenExpirationDays));
 
         var tokenResponse = new TokenResponse(accessToken, refreshToken);
 
