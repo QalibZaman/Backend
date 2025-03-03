@@ -1,6 +1,8 @@
 using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 
@@ -22,5 +24,6 @@ public static class ServiceExtensions
 
         //Other
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddScoped<IJwtManager, JwtManager>();
     }
 }
