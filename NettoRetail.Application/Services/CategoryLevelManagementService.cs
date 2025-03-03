@@ -1,4 +1,5 @@
-﻿using NettoRetail.Application.Interfaces;
+﻿using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -26,7 +27,7 @@ namespace NettoRetail.Application.Services
 
                     if (category.Level > MAX_LEVEL)
                     {
-                        throw new Exception($"Category level exceeds maximum allowed level of {MAX_LEVEL}.");
+                        throw new BadRequestException($"Category level exceeds maximum allowed level of {MAX_LEVEL}.");
                     }
                 }
             }
