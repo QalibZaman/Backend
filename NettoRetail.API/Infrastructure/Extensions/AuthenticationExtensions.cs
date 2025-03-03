@@ -29,6 +29,20 @@ public static class AuthenticationExtensions
                     ValidateLifetime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
+                        if (tokenTypeClaim != "access")
+                        {
+                            context.Fail("Invalid token type. Expected an access token.");
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         services.AddAuthorization(options =>

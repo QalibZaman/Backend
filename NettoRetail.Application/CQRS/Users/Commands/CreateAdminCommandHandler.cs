@@ -1,20 +1,24 @@
 using Mapster;
 using MediatR;
+using Microsoft.Extensions.Options;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
-public record CreateAdminCommand(AdminSignUpModel Model) : IRequest;
+public record CreateAdminCommand(AdminSignUpModel Model) : IRequest<TokenResponse>;
 
-public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRepository roleRepository)
-    : IRequestHandler<CreateAdminCommand>
+public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRepository roleRepository, IJwtManager jwtManager)
+    : IRequestHandler<CreateAdminCommand, TokenResponse>
 {
-    public async Task Handle(CreateAdminCommand request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
     {
         var admin = request.Model.Adapt<StaffEntity>();
 
@@ -24,6 +28,10 @@ public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRe
         admin.RoleId = role!.Id;
         admin.PasswordHash = PasswordHasher.HashPassword(admin.PasswordHash);
 
-        await staffRepository.AddAsync(admin, cancellationToken);
+        var user = await staffRepository.AddAsync(admin, cancellationToken);
+
+        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
+
+        return tokenResponse;
     }
 }

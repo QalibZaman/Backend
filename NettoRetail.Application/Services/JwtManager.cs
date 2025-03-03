@@ -3,10 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Options;
 
-namespace NettoRetail.Shared.Utilities;
+namespace NettoRetail.Application.Services;
 
 public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 {
@@ -36,7 +37,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return handler.WriteToken(token);
     }
 
-    public ClaimsPrincipal? ValidateToken(string refreshToken)
+    public ClaimsPrincipal? Validate(string refreshToken)
     {
         var handler = new JwtSecurityTokenHandler();
         var principal = handler.ValidateToken(
@@ -51,5 +52,33 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             out _);
 
         return principal;
+    }
+
+    public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId)
+    {
+        const string tokenType = "token_type";
+
+        var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
+        var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
+
+        var accessTokenClaims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Email, userEmail),
+            new(ClaimTypes.Role, userRoleId),
+            new(tokenType, "access")
+        };
+        var refreshTokenClaims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new(tokenType, "refresh")
+        };
+
+        var accessToken = Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
+        var refreshToken = Generate(refreshTokenClaims, TimeSpan.FromDays(refreshTokenExpirationDays));
+
+        var tokenResponse = new TokenResponse(accessToken, refreshToken);
+
+        return tokenResponse;
     }
 }
