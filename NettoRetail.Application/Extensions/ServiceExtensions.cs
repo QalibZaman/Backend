@@ -1,8 +1,8 @@
 using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
-using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.Extensions;
 
