@@ -19,5 +19,6 @@ public static class ServiceExtensions
 
         //Services
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
+        services.AddScoped<IJwtManager, JwtManager>();
     }
 }

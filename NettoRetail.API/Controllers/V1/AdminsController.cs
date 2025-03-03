@@ -1,8 +1,10 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
+using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -16,8 +18,9 @@ public class AdminsController(IMediator mediator) : ControllerBase
     {
         var adminCreationCommand = new CreateAdminCommand(model);
 
-        await mediator.Send(adminCreationCommand);
+        var data = await mediator.Send(adminCreationCommand);
+        var response = new ApiResponse<TokenResponse>(data);
 
-        return NoContent();
+        return Ok(response);
     }
 }
