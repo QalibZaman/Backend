@@ -1,6 +1,8 @@
 using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Services;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -14,5 +16,7 @@ public static class ServiceExtensions
         //Mapping
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
+
+        services.AddScoped<IJwtManager, JwtManager>();
     }
 }
