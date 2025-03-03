@@ -82,6 +82,54 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
+                {
+                    b.Property<string>("Jwt")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Browser")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Device")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)");
+
+                    b.Property<DateTime>("LastActivityTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Refresh")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Jwt");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Sessions");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -118,6 +166,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Staff");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                        .WithMany("Sessions")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
@@ -132,6 +191,11 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Navigation("StaffEntities");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                {
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

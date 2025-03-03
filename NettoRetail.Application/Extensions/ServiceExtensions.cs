@@ -1,6 +1,8 @@
 using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Services.ISessionCleanupService;
+using NettoRetail.Application.Services.ISessionModelFactory;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -14,5 +16,11 @@ public static class ServiceExtensions
         //Mapping
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
+
+        //Background
+        services.AddHostedService<SessionCleanupService>();
+
+        //Other
+        services.AddScoped<ISessionModelFactory, SessionModelFactory>();
     }
 }
