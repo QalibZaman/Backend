@@ -1,6 +1,8 @@
 using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Services;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -14,5 +16,8 @@ public static class ServiceExtensions
         //Mapping
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
+
+        //Services
+        services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
     }
 }

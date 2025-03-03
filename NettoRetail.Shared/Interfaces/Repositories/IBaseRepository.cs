@@ -7,4 +7,5 @@ public interface IBaseRepository<TEntity>
 {
     Task<TEntity> AddAsync(TEntity model, CancellationToken cancellationToken);
     Task<TEntity?> GetAsync(Specification<TEntity> expression, CancellationToken cancellationToken);
+    Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
 }

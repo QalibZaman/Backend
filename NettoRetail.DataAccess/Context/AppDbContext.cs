@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
 {
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<CategoryEntity> Categories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

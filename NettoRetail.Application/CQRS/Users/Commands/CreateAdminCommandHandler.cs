@@ -1,6 +1,5 @@
 using Mapster;
 using MediatR;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;

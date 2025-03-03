@@ -22,6 +22,40 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("URL")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("Visibility")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -116,6 +150,16 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Staff");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("ParentCategory");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>

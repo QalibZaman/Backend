@@ -9,7 +9,7 @@ namespace NettoRetail.DataAccess.Repositories;
 public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<TEntity>
     where TEntity : class
 {
-    private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
+    protected readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
@@ -18,11 +18,17 @@ public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<T
         return entity;
     }
 
-    public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+         _dbSet.Remove(entity);
+         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<TEntity> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var response = await _dbSet.Where(specification.Criteria)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return response.Adapt<TEntity>();
+        return response;
     }
 }
