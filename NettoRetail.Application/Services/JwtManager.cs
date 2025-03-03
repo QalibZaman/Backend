@@ -56,6 +56,8 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId)
     {
+        const string tokenType = "token_type";
+
         var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
         var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
 
@@ -64,12 +66,12 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Email, userEmail),
             new(ClaimTypes.Role, userRoleId),
-            new("token_type", "access")
+            new(tokenType, "access")
         };
         var refreshTokenClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
-            new("token_type", "refresh")
+            new(tokenType, "refresh")
         };
 
         var accessToken = Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
