@@ -22,8 +22,8 @@ build:
   stage: build
   script:
     - dotnet build --configuration Release --output build_output
-    - cd publish
-    - zip -r ../publish_contents.zip *
+    - cd build_output
+    - zip -r ../build_output.zip *
   artifacts:
     paths:
       - build_output/
