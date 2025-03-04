@@ -22,7 +22,8 @@ build:
   stage: build
   script:
     - dotnet publish -o build_output
-    - cd .\build_output
+    - ls
+    - cd ./build_output
     - Compress-Archive * build_output.zip
   artifacts:
     paths:
