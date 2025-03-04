@@ -24,7 +24,7 @@ build:
     - dotnet publish -o build_output
     - ls
     - cd ./build_output
-    - zip -r build_output.zip build_output/*
+    - zip -r build_output.zip *
   artifacts:
     paths:
       - build_output/
