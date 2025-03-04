@@ -34,6 +34,7 @@ deploy:
   stage: deploy
   script:
     - az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-    - az webapp deploy --resource-group "Netto_Pro_Health_RG" --name "netto-dotnet" --src-path build_output.zip
+    - ls
+    - az webapp deploy --resource-group "Netto_Pro_Health_RG" --name "netto-dotnet" --src-path ./build_output.zip
   only:
     - dev
