@@ -6,7 +6,8 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionEntity>(dbContext), ISessionRepository
+public class SessionRepository(AppDbContext dbContext)
+    : BaseRepository<SessionEntity>(dbContext), ISessionRepository
 {
     public async Task UpdateAsync(Specification<SessionEntity> specification, string currentJwt, DateTime lastActivityTime, CancellationToken cancellationToken)
     {
@@ -14,6 +15,6 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
         entitityToUpdate.LastActivityTime = lastActivityTime;
         entitityToUpdate.Jwt = currentJwt;
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
