@@ -23,7 +23,7 @@ build:
   script:
     - dotnet publish -o build_output
     - cd .\build_output
-    - zip -r ../build_output.zip *
+    - Compress-Archive * build_output.zip
   artifacts:
     paths:
       - build_output/
