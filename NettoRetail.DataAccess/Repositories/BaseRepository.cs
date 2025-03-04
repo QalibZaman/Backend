@@ -25,4 +25,10 @@ public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<T
 
         return response;
     }
+
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+        _dbSet.Update(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
