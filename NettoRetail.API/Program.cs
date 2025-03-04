@@ -15,7 +15,6 @@ builder.Services.AddApplicationServiceExtensions();
 builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
-builder.Services.AddAPIServiceExtensions();
 
 var app = builder.Build();
 
