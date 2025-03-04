@@ -2,10 +2,10 @@
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
