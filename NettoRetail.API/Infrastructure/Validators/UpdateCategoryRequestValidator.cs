@@ -28,6 +28,4 @@ namespace NettoRetail.API.Infrastructure.Validators
                 .GreaterThan(0).WithMessage("The id of parent category must be greater than 0");
         }
     }
-    {
-    }
 }
