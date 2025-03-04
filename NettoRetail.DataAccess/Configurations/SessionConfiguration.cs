@@ -8,7 +8,17 @@ public class SessionConfiguration : IEntityTypeConfiguration<SessionEntity>
 {
     public void Configure(EntityTypeBuilder<SessionEntity> builder)
     {
-        builder.HasKey(s => s.Jwt);
+        builder.HasKey(s => s.Id);
+
+        builder.Property(s => s.Jwt);
+
+        builder.HasIndex(s => s.Jwt)
+            .IsUnique();
+
+        builder.Property(s => s.Refresh);
+
+        builder.HasIndex(s => s.Refresh)
+            .IsUnique();
 
         builder.Property(s => s.Device)
             .HasMaxLength(50);

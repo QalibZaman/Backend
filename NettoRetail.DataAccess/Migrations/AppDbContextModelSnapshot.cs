@@ -84,8 +84,9 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
-                    b.Property<string>("Jwt")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
@@ -100,13 +101,14 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
+
+                    b.Property<string>("Jwt")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastActivityTime")
                         .HasColumnType("timestamp with time zone");
@@ -123,9 +125,15 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Jwt");
+                    b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("Jwt")
+                        .IsUnique();
+
+                    b.HasIndex("Refresh")
+                        .IsUnique();
 
                     b.ToTable("Sessions");
                 });

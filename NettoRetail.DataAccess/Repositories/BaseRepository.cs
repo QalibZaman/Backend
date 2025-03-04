@@ -5,15 +5,22 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<TEntity>
+public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     where TEntity : class
 {
-    protected readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
+    protected readonly DbSet<TEntity> _dbSet;
+    protected readonly AppDbContext _dbContext;
+
+    protected BaseRepository(AppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+        _dbSet = dbContext.Set<TEntity>();
+    }
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
@@ -30,7 +37,7 @@ public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<T
         var entitityToDelete = await _dbSet.Where(specification.Criteria).FirstAsync(cancellationToken);
         _dbSet.Remove(entitityToDelete);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<TEntity>> GetManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
@@ -43,6 +50,6 @@ public class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<T
         var entitiesToDelete = await _dbSet.Where(specification.Criteria).ToListAsync();
         _dbSet.RemoveRange(entitiesToDelete);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }
