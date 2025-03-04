@@ -5,9 +5,6 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-// Please, let is stay this way. If we use primary constructor we would still have to specify access modifier, because,
-// believe it or not, we will need to use _dbContext and _dbSet in inherited repos. Also we keep the naming consistent this way.
-
 public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     where TEntity : class
 {

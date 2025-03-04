@@ -4,18 +4,11 @@ using NettoRetail.Infrastructure.Models;
 
 namespace NettoHealth.Infrastructure.Services;
 
-public class IpInfoService : IIpInfoService
+public class IpInfoService(HttpClient httpClient) : IIpInfoService
 {
-    private readonly HttpClient _httpClient;
-
-    public IpInfoService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<Location?> GetIpInfoAsync(string ipAddress)
     {
-        var response = await _httpClient.GetAsync($"{ipAddress}");
+        var response = await httpClient.GetAsync($"{ipAddress}");
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();

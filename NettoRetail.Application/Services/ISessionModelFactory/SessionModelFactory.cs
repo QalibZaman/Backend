@@ -7,15 +7,8 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.ISessionModelFactory;
 
-public class SessionModelFactory : ISessionModelFactory
+public class SessionModelFactory(IStaffRepository staffRepository) : ISessionModelFactory
 {
-    private readonly IStaffRepository _staffRepository;
-
-    public SessionModelFactory(IStaffRepository staffRepository)
-    {
-        _staffRepository = staffRepository;
-    }
-
     public async Task<SessionModel> CreateSessionModel(string userAgentString, string ips, string jwt, string refreshToken, Location? location, CancellationToken cancellationToken)
     {
         var accountEmail = GetEmailFromJwt(jwt);
@@ -37,7 +30,7 @@ public class SessionModelFactory : ISessionModelFactory
         var ip = ips.Split(',')[0].Trim();
 
         var specification = new GetStaffByEmailSpecification(accountEmail);
-        var account = await _staffRepository.GetAsync(specification, cancellationToken);
+        var account = await staffRepository.GetAsync(specification, cancellationToken);
 
         if (account == null)
             throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials");
