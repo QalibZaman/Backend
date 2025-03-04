@@ -22,7 +22,7 @@ public class SessionModelFactory : ISessionModelFactory
         var deviceType = GetDeviceType(userAgentString);
         var browser = GetBrowser(userAgentString);
 
-        string locationString;
+        var locationString = string.Empty;
 
         if (location != null)
         {

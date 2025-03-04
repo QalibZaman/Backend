@@ -1,8 +1,6 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Models.Entities;
 using NettoRetail.Application.Services.ISessionModelFactory;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;

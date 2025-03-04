@@ -3,15 +3,8 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.Models.Session;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
-public class SessionActivityMiddleware
+public class SessionActivityMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SessionActivityMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext ctx, IMediator mediator)
     {
         if (ctx.Response.Headers.ContainsKey("Authorization"))
@@ -25,6 +18,6 @@ public class SessionActivityMiddleware
             await mediator.Send(new UpdateSessionTimeCommand(sessionUpdateModel));
         }
 
-        await _next(ctx);
+        await next(ctx);
     }
 }
