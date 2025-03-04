@@ -25,7 +25,7 @@ public class GetSessionsWithExpiredTokenSpecification : Specification<SessionEnt
 
             return expirationDate > DateTime.UtcNow;
         }
-        catch (Exception)
+        catch
         {
             return true;
         }

@@ -10,7 +10,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;
 
-public record CreateSessionCommand(string ips, string userAgent, string jwt, string refreshToken) : IRequest;
+public record CreateSessionCommand(string Ips, string UserAgent, string Jwt, string RefreshToken) : IRequest;
 
 public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand>
 {
@@ -27,11 +27,11 @@ public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand>
 
     public async Task Handle(CreateSessionCommand request, CancellationToken cancellationToken)
     {
-        var ip = request.ips.Split(',')[0];
+        var ip = request.Ips.Split(',')[0].Trim();
 
         Location? location = await _ipInfoService.GetIpInfoAsync(ip);
 
-        var sessionModel = await _sessionModelFactory.CreateSessionModel(request.userAgent, ip, request.jwt, request.refreshToken, location, cancellationToken);
+        var sessionModel = await _sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, cancellationToken);
 
         var session = sessionModel.Adapt<SessionEntity>();
 

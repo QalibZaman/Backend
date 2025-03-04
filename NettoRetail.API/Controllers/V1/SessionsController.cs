@@ -12,10 +12,11 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class SessionsController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("")]
-    public async Task<IActionResult> GetActiveSessions(Guid userId)
+    [HttpGet]
+    public async Task<IActionResult> GetActiveSessions()
     {
-        var getActiveSessionsQuery = new GetActiveSessionsQuery(userId);
+        var jwt = Request.Headers["Authorization"].ToString();
+        var getActiveSessionsQuery = new GetActiveSessionsQuery(jwt);
         var result = await mediator.Send(getActiveSessionsQuery);
         var response = new ApiResponse<IEnumerable<SessionResponse>>(result);
 

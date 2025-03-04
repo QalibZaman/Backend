@@ -3,11 +3,11 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.Models.Session;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
-public class SessionMiddleware
+public class SessionActivityMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public SessionMiddleware(RequestDelegate next)
+    public SessionActivityMiddleware(RequestDelegate next)
     {
         _next = next;
     }

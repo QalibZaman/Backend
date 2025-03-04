@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NettoRetail.DataAccess.Specifications;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.ISessionCleanupService;
 
@@ -12,9 +11,10 @@ public class SessionCleanupService : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(30);
 
-    public SessionCleanupService(IServiceScopeFactory scopeFactory)
+    public SessionCleanupService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
     {
         _scopeFactory = scopeFactory;
+        _cleanupInterval = TimeSpan.FromMinutes(configuration.GetSection("SessionCleanup").GetValue<int>("CleanupTime"));
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ public class SessionCleanupService : BackgroundService
         {
             await Task.Delay(_cleanupInterval, cancellationToken);
 
-            using (var scope = _scopeFactory.CreateScope()) // Create a new DI scope
+            using (var scope = _scopeFactory.CreateScope())
             {
                 var sessionRepository = scope.ServiceProvider.GetRequiredService<ISessionRepository>();
 

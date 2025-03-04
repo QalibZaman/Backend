@@ -1,11 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Threading;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Entities;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.ISessionModelFactory;
 
@@ -21,7 +19,6 @@ public class SessionModelFactory : ISessionModelFactory
     public async Task<SessionModel> CreateSessionModel(string userAgentString, string ips, string jwt, string refreshToken, Location? location, CancellationToken cancellationToken)
     {
         var accountEmail = GetEmailFromJwt(jwt);
-
         var deviceType = GetDeviceType(userAgentString);
         var browser = GetBrowser(userAgentString);
 
@@ -29,7 +26,7 @@ public class SessionModelFactory : ISessionModelFactory
 
         if (location != null)
         {
-            locationString = string.Join(", ", location.Country ?? "Unknown", location.City ?? "Unkbown");
+            locationString = $"{location.Country ?? "Unknown"}, {location.City ?? "Unknown"}";
         }
         else
         {
@@ -37,7 +34,7 @@ public class SessionModelFactory : ISessionModelFactory
         }
 
         //Ips may come in a format of string list, e.g. "0.0.0.0, 1.1.1.1, ..."
-        var ip = ips.Split(',')[0];
+        var ip = ips.Split(',')[0].Trim();
 
         var specification = new GetStaffByEmailSpecification(accountEmail);
         var account = await _staffRepository.GetAsync(specification, cancellationToken);
@@ -45,7 +42,7 @@ public class SessionModelFactory : ISessionModelFactory
         if (account == null)
             throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials");
 
-        Guid accountGuid = account.Id;
+        var accountGuid = account.Id;
 
         return new SessionModel
         {

@@ -25,7 +25,7 @@ public class UpdateSessionCommandHandler : IRequestHandler<UpdateSessionCommand>
 
     public async Task Handle(UpdateSessionCommand request, CancellationToken cancellationToken)
     {
-        if (request.Model.CurrentRefreshToken is null)
+        if (request.Model.CurrentRefreshToken == null)
             throw new InvalidRefreshTokenException("Failed to update session"); // this is very bad, but again, idk how authorization would work in our case
 
         var specification = new GetSessionsByRefreshTokenSpecification(request.Model.CurrentRefreshToken);
