@@ -14,7 +14,9 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
 {
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        var conflictModel = await categoryRepository.GetAsync(new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL), cancellationToken);
+        var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL);
+
+        var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
         if (conflictModel is not null)
         {
@@ -22,13 +24,6 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
         }
 
         var category = request.Adapt<CategoryEntity>();
-
-        var parent = await categoryRepository.GetAsync(new GetCategoryByIdSpecification(request.ParentId), cancellationToken);
-
-        if (parent is null)
-        {
-            throw new NotFoundException($"Parent category with Id: {request.ParentId} wasn't found");
-        }
 
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 

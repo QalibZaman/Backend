@@ -26,20 +26,22 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetAsync(new GetCategoryByIdSpecification(request.Id), cancellationToken);
+            var specification = new GetCategoryByIdSpecification(request.Id);
+
+            var category = await _categoryRepository.GetAsync(specification, cancellationToken);
 
             if (category is null)
             {
                 throw new NotFoundException($"There is no category with Id: {category.Id}");
             }
 
-            var newCategory = request.Adapt(category);
+            request.Adapt(category);
 
             var transaction = _unitOfWork.BeginTransaction();
 
             try
             {
-                await _levelService.UpdateCategoryLevel(newCategory, cancellationToken);
+                await _levelService.UpdateCategoryLevel(category, cancellationToken);
 
                 transaction.Commit();
 
