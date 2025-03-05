@@ -2,6 +2,7 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
@@ -19,6 +20,12 @@ public class AdminsController(IMediator mediator) : ControllerBase
         var adminCreationCommand = new CreateAdminCommand(model);
 
         var data = await mediator.Send(adminCreationCommand);
+
+        // Creating a session
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
+        await mediator.Send(sessionCreateCommand);
+
         var response = new ApiResponse<TokenResponse>(data);
 
         return Created("", response);

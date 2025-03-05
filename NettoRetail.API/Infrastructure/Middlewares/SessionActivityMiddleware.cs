@@ -7,11 +7,11 @@ public class SessionActivityMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext ctx, IMediator mediator)
     {
-        if (ctx.Response.Headers.ContainsKey("Authorization"))
+        if (ctx.Request.Headers.ContainsKey("Authorization"))
         {
             var sessionUpdateModel = new SessionUpdateModel()
             {
-                CurrentJwt = ctx.Response.Headers["Authorization"].ToString(),
+                CurrentJwt = ctx.Request.Headers["Authorization"].ToString().Split(" ")[1],
                 LastActivityTime = DateTime.UtcNow,
             };
 
