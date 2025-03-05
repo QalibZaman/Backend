@@ -19,7 +19,12 @@ public class CreateSessionCommandHandler(
     {
         var ip = request.Ips.Split(',')[0].Trim();
 
-        Location? location = await ipInfoService.GetIpInfoAsync(ip);
+        Location? location;
+
+        if (ip == string.Empty)
+            location = null;
+        else
+            location = await ipInfoService.GetIpInfoAsync(ip);
 
         var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, cancellationToken);
 

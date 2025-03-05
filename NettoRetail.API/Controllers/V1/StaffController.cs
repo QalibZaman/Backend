@@ -23,7 +23,7 @@ public class StaffController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(loginCommand);
 
         // Creating a session
-        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
         await mediator.Send(sessionCreateCommand);
 
