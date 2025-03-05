@@ -17,11 +17,4 @@ public class CategoryRepository(AppDbContext dbContext)
 
         return response;
     }
-
-    public async Task UpdateAsync(CategoryEntity category, CancellationToken cancellationToken)
-    {
-        _dbSet.Update(category);
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-    }
 }

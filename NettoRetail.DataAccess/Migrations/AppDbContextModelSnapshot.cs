@@ -216,39 +216,41 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ParentCategory");
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
-                        .WithMany("Sessions")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
-                        .WithMany("StaffEntities")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
+                    {
+                        b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                            .WithMany("Sessions")
+                            .HasForeignKey("AccountId")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
 
-                    b.Navigation("Role");
-                });
+                        b.Navigation("Account");
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
-                {
-                    b.Navigation("StaffEntities");
-                });
+                    });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
-                {
-                    b.Navigation("Sessions");
-                });
+                modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                    {
+                        b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                            .WithMany("StaffEntities")
+                            .HasForeignKey("RoleId")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b.Navigation("Role");
+                    });
+
+                modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
+                    {
+                        b.Navigation("StaffEntities");
+                    });
+
+                modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                    {
+                        b.Navigation("Sessions");
+                    });
+                
 #pragma warning restore 612, 618
         }
     }

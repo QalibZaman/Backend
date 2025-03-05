@@ -1,8 +1,6 @@
-﻿using Azure.Storage.Blobs.Models;
-using Mapster;
+﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
 

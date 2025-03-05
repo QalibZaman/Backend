@@ -20,6 +20,8 @@ public class DeleteCategoryCommandHandler(ICategoryRepository categoryRepository
             throw new NotFoundException($"There is no category with Id: {request.Id}");
         }
 
-        await categoryRepository.DeleteAsync(category, cancellationToken);
+        var deleteSpecification = new GetCategoryByIdSpecification(category.Id);
+
+        await categoryRepository.DeleteAsync(deleteSpecification, cancellationToken);
     }
 }

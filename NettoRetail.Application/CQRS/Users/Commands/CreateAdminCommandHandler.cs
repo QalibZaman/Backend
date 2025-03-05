@@ -1,6 +1,5 @@
 using Mapster;
 using MediatR;
-using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
@@ -9,7 +8,6 @@ using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
