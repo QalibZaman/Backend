@@ -13,4 +13,9 @@ public static class MiddlewareExtensions
     {
         return app.UseMiddleware<TracingMiddleware>();
     }
+
+    public static IApplicationBuilder UseSessionActivity(this WebApplication app)
+    {
+        return app.UseMiddleware<SessionActivityMiddleware>();
+    }
 }
