@@ -5,5 +5,5 @@ namespace NettoRetail.DataAccess.Specifications;
 public class GetSessionsByIdSpecification : Specification<SessionEntity>
 {
     public GetSessionsByIdSpecification(string id)
-    : base(x => x.Id.ToString() == id) { }
+    : base(x => x.AccountId.ToString() == id) { }
 }

@@ -4,7 +4,7 @@ public class SessionEntity
 {
     public Guid Id { get; set; }
     public required string Jwt { get; set; }
-    public required string Refresh { get; set; }
+    public required string RefreshToken { get; set; }
     public required string Device { get; set; }
     public required string Browser { get; set; }
     public required string IpAddress { get; set; }

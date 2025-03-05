@@ -12,10 +12,10 @@ public class UpdateSessionCommandHandler(ISessionRepository sessionRepository) :
 {
     public async Task Handle(UpdateSessionCommand request, CancellationToken cancellationToken)
     {
-        if (request.Model.CurrentRefreshToken == null)
-            throw new InvalidRefreshTokenException("Failed to update session"); // this is very bad, but again, idk how authorization would work in our case
+        if (request.Model.PreviousRefreshToken == null)
+            throw new InvalidRefreshTokenException("Failed to update session");
 
-        var specification = new GetSessionsByRefreshTokenSpecification(request.Model.CurrentRefreshToken);
+        var specification = new GetSessionsByRefreshTokenSpecification(request.Model.PreviousRefreshToken);
         await sessionRepository.UpdateAsync(specification, request.Model.CurrentJwt, request.Model.LastActivityTime, cancellationToken);
     }
 }

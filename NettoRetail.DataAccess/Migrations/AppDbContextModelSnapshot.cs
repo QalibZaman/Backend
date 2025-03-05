@@ -152,7 +152,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("Refresh")
+                    b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -166,7 +166,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("Jwt")
                         .IsUnique();
 
-                    b.HasIndex("Refresh")
+                    b.HasIndex("RefreshToken")
                         .IsUnique();
 
                     b.ToTable("Sessions");
