@@ -5,6 +5,6 @@ namespace NettoRetail.DataAccess.Specifications;
 
 public class GetCategoriesByNameOrUrlSpecification : Specification<CategoryEntity>
 {
-    public GetCategoriesByNameOrUrlSpecification(string Name, string URL)
-            : base(category => category.Name == Name || category.URL == URL) { }
+    public GetCategoriesByNameOrUrlSpecification(string name, string url)
+            : base(category => category.Name == name || category.URL == url) { }
 }

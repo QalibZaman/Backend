@@ -46,7 +46,6 @@ public class StaffController(
             LastActivityTime = DateTime.UtcNow,
             CurrentRefreshToken = data.RefreshToken,
             PreviousRefreshToken = request.RefreshToken,
-
         });
         await mediator.Send(sessionUpdateCommand);
 

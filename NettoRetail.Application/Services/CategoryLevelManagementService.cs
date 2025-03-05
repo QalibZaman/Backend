@@ -8,16 +8,10 @@ using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.Services
 {
-    public class CategoryLevelManagementService : ICategoryLevelManagementService
+    public class CategoryLevelManagementService(ICategoryRepository categoryRepository, IOptions<LevelOptions> levelOptions) : ICategoryLevelManagementService
     {
-        private ICategoryRepository _categoryRepository;
-        private LevelOptions _levelOptions;
-
-        public CategoryLevelManagementService(ICategoryRepository categoryRepository, IOptions<LevelOptions> levelOptions)
-        {
-            _categoryRepository = categoryRepository;
-            _levelOptions = levelOptions.Value;
-        }
+        private ICategoryRepository _categoryRepository = categoryRepository;
+        private LevelOptions _levelOptions = levelOptions.Value;
 
         public async Task SetUpCategoryLevel(CategoryEntity category, CancellationToken cancellationToken)
         {
@@ -40,7 +34,6 @@ namespace NettoRetail.Application.Services
                     throw new BadRequestException($"Category level exceeds maximum allowed level of {_levelOptions.MaxLevel}.");
                 }
             }
-
         }
 
         public async Task UpdateCategoryLevel(CategoryEntity category, CancellationToken cancellationToken)

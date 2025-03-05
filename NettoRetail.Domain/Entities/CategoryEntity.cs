@@ -9,5 +9,5 @@ namespace NettoRetail.Domain.Entities;
         public required bool Visibility { get; set; }
         public int Level { get; set; }
         public int? ParentId { get; set; }
-        public CategoryEntity ParentCategory { get; set; }
+        public CategoryEntity? ParentCategory { get; set; }
     }
