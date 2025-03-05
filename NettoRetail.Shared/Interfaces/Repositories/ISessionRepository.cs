@@ -5,5 +5,7 @@ namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface ISessionRepository : IBaseRepository<SessionEntity>
 {
-    Task UpdateAsync(Specification<SessionEntity> specification, string currentJwt, DateTime lastActivityTime, CancellationToken cancellationToken);
+    Task UpdateAsync(Specification<SessionEntity> specification, string? currentJwt, string? currentRefreshToken, DateTime lastActivityTime, CancellationToken cancellationToken);
+    Task<IEnumerable<SessionEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task DeleteRangeAsync(IEnumerable<SessionEntity> entitiesToRemove, CancellationToken cancellationToken);
 }

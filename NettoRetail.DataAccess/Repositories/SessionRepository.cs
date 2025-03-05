@@ -11,11 +11,33 @@ public class SessionRepository : BaseRepository<SessionEntity>, ISessionReposito
     public SessionRepository(AppDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task UpdateAsync(Specification<SessionEntity> specification, string currentJwt, DateTime lastActivityTime, CancellationToken cancellationToken)
+    public async Task UpdateAsync(Specification<SessionEntity> specification, string? currentJwt, string? currentRefreshToken, DateTime lastActivityTime, CancellationToken cancellationToken)
     {
-        var entitityToUpdate = await _dbSet.Where(specification.Criteria).FirstAsync(cancellationToken);
-        entitityToUpdate.LastActivityTime = lastActivityTime;
-        entitityToUpdate.Jwt = currentJwt;
+        var entityToUpdate = await _dbSet.Where(specification.Criteria).FirstOrDefaultAsync(cancellationToken);
+        if (entityToUpdate != null)
+        {
+            entityToUpdate.LastActivityTime = lastActivityTime;
+
+            if (currentJwt != null)
+                entityToUpdate.Jwt = currentJwt;
+
+            if (currentRefreshToken != null)
+                entityToUpdate.RefreshToken = currentRefreshToken;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<SessionEntity>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        var response = await _dbSet.ToListAsync<SessionEntity>(cancellationToken);
+
+        return response;
+    }
+
+    public async Task DeleteRangeAsync(IEnumerable<SessionEntity> entitiesToRemove, CancellationToken cancellationToken)
+    {
+        _dbSet.RemoveRange(entitiesToRemove);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

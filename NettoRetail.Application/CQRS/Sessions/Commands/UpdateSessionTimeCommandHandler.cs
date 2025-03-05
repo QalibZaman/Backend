@@ -12,6 +12,6 @@ public class UpdateSessionTimeCommandHandler(ISessionRepository sessionRepositor
     public async Task Handle(UpdateSessionTimeCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetSessionsByJwtSpecification(request.Model.CurrentJwt);
-        await sessionRepository.UpdateAsync(specification, request.Model.CurrentJwt, request.Model.LastActivityTime, cancellationToken);
+        await sessionRepository.UpdateAsync(specification, request.Model.CurrentJwt, null, request.Model.LastActivityTime, cancellationToken);
     }
 }

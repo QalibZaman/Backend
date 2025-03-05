@@ -9,7 +9,7 @@ public class GetSessionsWithExpiredTokenSpecification : Specification<SessionEnt
     public GetSessionsWithExpiredTokenSpecification()
            : base(x => IsJwtExpired(x.Jwt)) { }
 
-    private static bool IsJwtExpired(string jwtToken)
+    public static bool IsJwtExpired(string jwtToken)
     {
         if (string.IsNullOrEmpty(jwtToken)) return true;
 
@@ -23,7 +23,7 @@ public class GetSessionsWithExpiredTokenSpecification : Specification<SessionEnt
 
             var expirationDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value)).DateTime;
 
-            return expirationDate > DateTime.UtcNow;
+            return expirationDate < DateTime.UtcNow;
         }
         catch
         {

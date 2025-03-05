@@ -20,9 +20,10 @@ public class SessionCleanupService(IServiceScopeFactory scopeFactory, IConfigura
             using (var scope = _scopeFactory.CreateScope())
             {
                 var sessionRepository = scope.ServiceProvider.GetRequiredService<ISessionRepository>();
+                var allSessions = await sessionRepository.GetAllAsync(cancellationToken);
+                var sessionsToDelete = allSessions.Where(s => GetSessionsWithExpiredTokenSpecification.IsJwtExpired(s.Jwt)).ToList();
 
-                var specification = new GetSessionsWithExpiredTokenSpecification();
-                await sessionRepository.DeleteManyBySpecAsync(specification, cancellationToken);
+                await sessionRepository.DeleteRangeAsync(sessionsToDelete, cancellationToken);
             }
         }
     }
