@@ -34,7 +34,7 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
                 return response;
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 transaction.Rollback();
                 throw;
