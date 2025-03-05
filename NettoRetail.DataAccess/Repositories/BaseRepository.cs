@@ -24,7 +24,13 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         return entity;
     }
 
-    public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+         _dbSet.Remove(entity);
+         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<TEntity> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var response = await _dbSet.Where(specification.Criteria)
             .FirstOrDefaultAsync(cancellationToken);

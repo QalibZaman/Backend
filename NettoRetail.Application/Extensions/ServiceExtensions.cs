@@ -21,9 +21,10 @@ public static class ServiceExtensions
 
         //Background
         services.AddHostedService<SessionCleanupService>();
-
-        //Other
+        
+        //Services
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
     }
 }

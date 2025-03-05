@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Models.Session;
-using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.DataAccess.Specifications;
-using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;
