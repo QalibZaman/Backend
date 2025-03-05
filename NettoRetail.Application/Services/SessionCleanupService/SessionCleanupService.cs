@@ -6,16 +6,10 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.ISessionCleanupService;
 
-public class SessionCleanupService : BackgroundService
+public class SessionCleanupService(IServiceScopeFactory scopeFactory, IConfiguration configuration) : BackgroundService
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(30);
-
-    public SessionCleanupService(IServiceScopeFactory scopeFactory, IConfiguration configuration)
-    {
-        _scopeFactory = scopeFactory;
-        _cleanupInterval = TimeSpan.FromMinutes(configuration.GetSection("SessionCleanup").GetValue<int>("CleanupTime"));
-    }
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(configuration.GetSection("SessionCleanup").GetValue<int>("CleanupTime"));
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {

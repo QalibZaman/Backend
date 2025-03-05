@@ -52,4 +52,10 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+        _dbSet.Update(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

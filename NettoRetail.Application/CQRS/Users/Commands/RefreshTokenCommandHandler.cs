@@ -19,21 +19,23 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
     {
         var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
         var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
-        var claimsPrincipal = jwtManager.Validate(request.RefreshToken);
+        var claimsPrincipal = jwtManager.Validate(request.RefreshToken) ??
+            throw new MyUnauthorizedException("The refresh token is invalid");
 
-        if (claimsPrincipal == null)
+        var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            throw new MyUnauthorizedException("The refresh token is invalid");
+
+        var isParsed = Guid.TryParse(userId, out Guid parsedUserId);
+
+        if (!isParsed)
         {
             throw new MyUnauthorizedException("The refresh token is invalid");
         }
 
-        var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
-        {
-            throw new MyUnauthorizedException("The refresh token is invalid");
-        }
+        var specification = new GetStaffByIdSpecification(parsedUserId);
+        var user = await repository.GetAsync(specification, cancellationToken) ??
+            throw new NotFoundException("User not found.");
 
-        var specification = new GetStaffByIdSpecification(userId);
-        var user = await repository.GetAsync(specification, cancellationToken);
         var accessTokenClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
