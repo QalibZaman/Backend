@@ -20,7 +20,7 @@ namespace NettoRetail.API.Controllers.V1
 
             var response = await mediator.Send(command, cancellationToken);
 
-            return Ok(new ApiResponse<CategoryResponse>(response));
+            return Created(string.Empty, new ApiResponse<CategoryResponse>(response));
         }
 
         [HttpDelete("{id:int}")]
@@ -28,19 +28,18 @@ namespace NettoRetail.API.Controllers.V1
         {
             await mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
 
-            return Ok();
+            return NoContent();
         }
 
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<UpdateCategoryCommand>();
-            command = command with { Id = id};
+            command = command with { Id = id };
 
             var response = await mediator.Send(command, cancellationToken);
 
             return Ok(new ApiResponse<CategoryResponse>(response));
         }
-
     }
 }

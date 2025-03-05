@@ -30,7 +30,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
          await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TEntity> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var response = await _dbSet.Where(specification.Criteria)
             .FirstOrDefaultAsync(cancellationToken);
@@ -40,8 +40,8 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task DeleteAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var entitityToDelete = await _dbSet.Where(specification.Criteria).FirstAsync(cancellationToken);
-        _dbSet.Remove(entitityToDelete);
+        var entityToDelete = await _dbSet.Where(specification.Criteria).FirstAsync(cancellationToken);
+        _dbSet.Remove(entityToDelete);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

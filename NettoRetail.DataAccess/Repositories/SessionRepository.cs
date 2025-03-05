@@ -6,7 +6,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class SessionRepository : BaseRepository<SessionEntity>, ISessionRepository
+public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionEntity>(dbContext), ISessionRepository
 {
     public SessionRepository(AppDbContext dbContext)
         : base(dbContext) { }
