@@ -11,37 +11,22 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 {
     public record UpdateCategoryCommand(int Id, string Name, string URL, bool Visibility, int? ParentId) : IRequest<CategoryResponse>;
 
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
+    public class UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, ICategoryLevelManagementService levelService, IUnitOfWork unitOfWork) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly ICategoryLevelManagementService _levelService;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, ICategoryLevelManagementService levelService, IUnitOfWork unitOfWork)
-        {
-            _categoryRepository = categoryRepository;
-            _levelService = levelService;
-            _unitOfWork = unitOfWork;
-        }
-
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var specification = new GetCategoryByIdSpecification(request.Id);
 
-            var category = await _categoryRepository.GetAsync(specification, cancellationToken);
+            var category = await categoryRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no category with such Id");
 
-            if (category is null)
-            {
-                throw new NotFoundException($"There is no category with Id: {category.Id}");
-            }
-
-            request.Adapt(category);
-
-            var transaction = _unitOfWork.BeginTransaction();
+            //UpdateCategoryLevel recursively updates category levels. It updates categories until it hits MAX_LEVEL, throwing an exception only then. If all updates succeed, commit; if an exception occurs, rollback.
+            var transaction = unitOfWork.BeginTransaction();
 
             try
             {
-                await _levelService.UpdateCategoryLevel(category, cancellationToken);
+                request.Adapt(category);
+
+                await levelService.UpdateCategoryLevel(category, cancellationToken);
 
                 transaction.Commit();
 
