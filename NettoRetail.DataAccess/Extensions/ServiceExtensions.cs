@@ -29,6 +29,7 @@ public static class ServiceExtensions
         services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

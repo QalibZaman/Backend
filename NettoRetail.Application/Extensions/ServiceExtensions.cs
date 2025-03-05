@@ -3,6 +3,8 @@ using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.ISessionCleanupService;
+using NettoRetail.Application.Services.ISessionModelFactory;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -17,7 +19,11 @@ public static class ServiceExtensions
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
 
+        //Background
+        services.AddHostedService<SessionCleanupService>();
+        
         //Services
+        services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
     }

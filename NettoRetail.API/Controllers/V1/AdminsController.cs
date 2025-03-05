@@ -21,6 +21,6 @@ public class AdminsController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(adminCreationCommand);
         var response = new ApiResponse<TokenResponse>(data);
 
-        return Ok(response);
+        return Created("", response);
     }
 }
