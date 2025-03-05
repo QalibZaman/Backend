@@ -79,7 +79,14 @@ public static class SwaggerExtensions
             .Build();
 
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(options =>
+        {
+            var descriptions = app.DescribeApiVersions();
+            foreach (var description in descriptions)
+            {
+                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
+            }
+        });
 
         return app;
     }
