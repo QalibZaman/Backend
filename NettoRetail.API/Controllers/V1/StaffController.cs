@@ -40,11 +40,13 @@ public class StaffController(
         var command = new RefreshTokenCommand(request.RefreshToken);
         var data = await mediator.Send(command);
 
-        var sessionUpdateCommand = new UpdateSessionTimeCommand(new SessionUpdateModel
+        var sessionUpdateCommand = new UpdateSessionCommand(new SessionUpdateModel
         {
             CurrentJwt = data.AccessToken,
             LastActivityTime = DateTime.UtcNow,
             CurrentRefreshToken = data.RefreshToken,
+            PreviousRefreshToken = request.RefreshToken,
+
         });
         await mediator.Send(sessionUpdateCommand);
 

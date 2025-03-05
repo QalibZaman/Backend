@@ -15,9 +15,9 @@ public class SessionConfiguration : IEntityTypeConfiguration<SessionEntity>
         builder.HasIndex(s => s.Jwt)
             .IsUnique();
 
-        builder.Property(s => s.Refresh);
+        builder.Property(s => s.RefreshToken);
 
-        builder.HasIndex(s => s.Refresh)
+        builder.HasIndex(s => s.RefreshToken)
             .IsUnique();
 
         builder.Property(s => s.Device)

@@ -5,5 +5,5 @@ namespace NettoRetail.DataAccess.Specifications;
 public class GetSessionsByRefreshTokenSpecification : Specification<SessionEntity>
 {
     public GetSessionsByRefreshTokenSpecification(string refreshToken)
-    : base(x => x.Refresh == refreshToken) { }
+    : base(x => x.RefreshToken == refreshToken) { }
 }
