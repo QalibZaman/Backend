@@ -1,6 +1,7 @@
 using Mapster;
 using MediatR;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
@@ -20,6 +21,14 @@ public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRe
 {
     public async Task<TokenResponse> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
     {
+        var staffByEmailSpecification = new GetStaffByEmailSpecification(request.Model.Email);
+        var staff = await staffRepository.GetAsync(staffByEmailSpecification, cancellationToken);
+
+        if (staff != null)
+        {
+            throw new ConflictException("This user is already registered.");
+        }
+
         var admin = request.Model.Adapt<StaffEntity>();
 
         var roleByNameSpecification = new GetRoleByNameSpecification(RoleEnum.Admin);

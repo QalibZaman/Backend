@@ -24,6 +24,7 @@ app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSessionActivity();
 app.MapControllers();
 
 app.Run();
