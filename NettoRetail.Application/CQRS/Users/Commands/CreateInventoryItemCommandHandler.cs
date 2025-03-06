@@ -9,7 +9,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
-public record CreateInventoryItemCommand(InventoryItemModel Model) : IRequest;
+public record CreateInventoryItemCommand(AddInventoryItemModel Model) : IRequest;
 
 public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventoryItemRepository)
     : IRequestHandler<CreateInventoryItemCommand>

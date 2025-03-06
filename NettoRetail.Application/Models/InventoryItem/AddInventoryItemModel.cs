@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.InventoryItem;
 
-public class InventoryItemModel
+public class AddInventoryItemModel
 {
     public required string ProductName { get; set; }
     public required string ProductCategory { get; set; }
