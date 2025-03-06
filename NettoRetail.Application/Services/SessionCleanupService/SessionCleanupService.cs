@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace NettoRetail.Application.Services.ISessionCleanupService;
 
