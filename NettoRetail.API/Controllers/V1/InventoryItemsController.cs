@@ -14,7 +14,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
     [HttpPost("create")]
-    public async Task<IActionResult> Create(InventoryItemModel model)
+    public async Task<IActionResult> Create(AddInventoryItemModel model)
     {
         var inventoryItemCreationCommand = new CreateInventoryItemCommand(model);
 
