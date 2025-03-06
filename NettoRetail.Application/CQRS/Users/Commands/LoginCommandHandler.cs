@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
-public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtManager, ILoginAttemptRepository loginAttemptRepository)
+public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtManager, ILoginAttemptRepository loginAttemptRepository, ILoginAttemptService loginAttemptService)
     : IRequestHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -22,25 +22,25 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
         var loginSpecification = new GetLoginAttemptByStaffIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
 
-        if (loginAttempt != null && loginAttempt.LockoutEndTime.HasValue && loginAttempt.LockoutEndTime > DateTime.UtcNow)
+        if (loginAttemptService.IsAccountLocked(loginAttempt!))
         {
             throw new MyUnauthorizedException("Account is locked. Try again later.");
         }
 
         if (loginAttempt != null && loginAttempt.LastFailedLoginTime.AddHours(2) < DateTime.UtcNow)
         {
-            await loginAttemptRepository.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }
 
         if (!PasswordHasher.VerifyPassword(request.Model.Password, user.PasswordHash))
         {
-            await loginAttemptRepository.IncrementFailedAttemptsAsync(loginAttempt!, user.Id, cancellationToken);
+            await loginAttemptService.IncrementFailedAttemptsAsync(loginAttempt!, user.Id, cancellationToken);
             throw new MyUnauthorizedException("Invalid email or password.");
         }
 
         if (loginAttempt != null)
         {
-            await loginAttemptRepository.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
