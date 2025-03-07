@@ -3,4 +3,4 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
-public interface ILoginAttemptRepository : IBaseRepository<LoginAttemptEntity>;
+public interface IFailedAuthAttemptRepository : IBaseRepository<FailedAuthAttemptEntity>;

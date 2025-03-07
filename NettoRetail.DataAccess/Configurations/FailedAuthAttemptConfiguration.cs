@@ -4,9 +4,9 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
 
-public class LoginAttemptConfiguration : IEntityTypeConfiguration<LoginAttemptEntity>
+public class FailedAuthAttemptConfiguration : IEntityTypeConfiguration<FailedAuthAttemptEntity>
 {
-    public void Configure(EntityTypeBuilder<LoginAttemptEntity> builder)
+    public void Configure(EntityTypeBuilder<FailedAuthAttemptEntity> builder)
     {
         builder.HasKey(p => p.Id);
 
@@ -14,11 +14,11 @@ public class LoginAttemptConfiguration : IEntityTypeConfiguration<LoginAttemptEn
 
         builder.Property(p => p.LockoutEndTime).IsRequired(false);
 
-        builder.Property(p => p.LastFailedLoginTime).IsRequired();
+        builder.Property(p => p.LastFailedTime).IsRequired();
 
         builder.HasOne(s => s.Staff)
-            .WithOne(s => s.LoginAttempt)
-            .HasForeignKey<LoginAttemptEntity>(s => s.StaffId)
+            .WithOne(s => s.FailedAuthAttempt)
+            .HasForeignKey<FailedAuthAttemptEntity>(s => s.StaffId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

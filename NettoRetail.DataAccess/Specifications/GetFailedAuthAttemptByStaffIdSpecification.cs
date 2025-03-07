@@ -2,8 +2,8 @@
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications;
-public class GetLoginAttemptByStaffIdSpecification : Specification<LoginAttemptEntity>
+public class GetFailedAuthAttemptByStaffIdSpecification : Specification<FailedAuthAttemptEntity>
 {
-    public GetLoginAttemptByStaffIdSpecification(Guid id)
+    public GetFailedAuthAttemptByStaffIdSpecification(Guid id)
     : base(x => x.StaffId == id) { }
 }

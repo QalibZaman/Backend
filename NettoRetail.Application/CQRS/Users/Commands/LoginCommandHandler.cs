@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
-public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtManager, ILoginAttemptRepository loginAttemptRepository, ILoginAttemptService loginAttemptService)
+public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtManager, IFailedAuthAttemptRepository loginAttemptRepository, IFailedAuthAttemptService loginAttemptService)
     : IRequestHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -19,7 +19,7 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
         var user = await repository.GetAsync(specification, cancellationToken) ??
             throw new MyUnauthorizedException("User was not found");
 
-        var loginSpecification = new GetLoginAttemptByStaffIdSpecification(user.Id);
+        var loginSpecification = new GetFailedAuthAttemptByStaffIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
 
         if (loginAttemptService.IsAccountLocked(loginAttempt!))
@@ -27,7 +27,7 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
             throw new MyUnauthorizedException("Account is locked. Try again later.");
         }
 
-        if (loginAttempt != null && loginAttempt.LastFailedLoginTime.AddHours(2) < DateTime.UtcNow)
+        if (loginAttempt != null && loginAttempt.LastFailedTime.AddHours(2) < DateTime.UtcNow)
         {
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }

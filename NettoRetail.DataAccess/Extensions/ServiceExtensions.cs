@@ -28,7 +28,7 @@ public static class ServiceExtensions
         // Repositories
         services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
+        services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
 

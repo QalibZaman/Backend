@@ -5,27 +5,27 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services;
 
-public class LoginAttemptService(ILoginAttemptRepository loginAttemptRepository) : ILoginAttemptService
+public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAttemptRepository) : IFailedAuthAttemptService
 {
-    private readonly ILoginAttemptRepository _loginAttemptRepository = loginAttemptRepository;
+    private readonly IFailedAuthAttemptRepository _loginAttemptRepository = failedAuthAttemptRepository;
 
-    public bool IsAccountLocked(LoginAttemptEntity attempt)
+    public bool IsAccountLocked(FailedAuthAttemptEntity attempt)
     {
         return attempt != null &&
             attempt.LockoutEndTime.HasValue &&
             attempt.LockoutEndTime > DateTime.UtcNow;
     }
 
-    public async Task IncrementFailedAttemptsAsync(LoginAttemptEntity attempt, Guid staffId, CancellationToken cancellationToken)
+    public async Task IncrementFailedAttemptsAsync(FailedAuthAttemptEntity attempt, Guid staffId, CancellationToken cancellationToken)
     {
         if (attempt == null)
         {
-            attempt = new LoginAttemptEntity { StaffId = staffId };
+            attempt = new FailedAuthAttemptEntity { StaffId = staffId };
             await _loginAttemptRepository.AddAsync(attempt, cancellationToken);
         }
 
         attempt.FailedAttempts++;
-        attempt.LastFailedLoginTime = DateTime.UtcNow;
+        attempt.LastFailedTime = DateTime.UtcNow;
         if (attempt.FailedAttempts >= 3)
         {
             attempt.LockoutEndTime = DateTime.UtcNow.AddMinutes(30);
@@ -34,7 +34,7 @@ public class LoginAttemptService(ILoginAttemptRepository loginAttemptRepository)
         await _loginAttemptRepository.UpdateAsync(attempt, cancellationToken);
     }
 
-    public async Task ResetFailedAttemptsAsync(LoginAttemptEntity attempt, CancellationToken cancellationToken)
+    public async Task ResetFailedAttemptsAsync(FailedAuthAttemptEntity attempt, CancellationToken cancellationToken)
     {
         if (attempt != null)
         {

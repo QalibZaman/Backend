@@ -4,6 +4,6 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class LoginAttemptRepository(AppDbContext dbContext)
-    : BaseRepository<LoginAttemptEntity>(dbContext),
-    ILoginAttemptRepository;
+public class FailedAuthAttemptRepository(AppDbContext dbContext)
+    : BaseRepository<FailedAuthAttemptEntity>(dbContext),
+    IFailedAuthAttemptRepository;

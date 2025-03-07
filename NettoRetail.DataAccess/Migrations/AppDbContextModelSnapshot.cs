@@ -56,7 +56,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.LoginAttemptEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +65,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("FailedAttempts")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("LastFailedLoginTime")
+                    b.Property<DateTime>("LastFailedTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("LockoutEndTime")
@@ -79,7 +79,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("StaffId")
                         .IsUnique();
 
-                    b.ToTable("LoginAttempts");
+                    b.ToTable("FailedAuthAttempt");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
@@ -244,11 +244,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("ParentCategory");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.LoginAttemptEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
-                        .WithOne("LoginAttempt")
-                        .HasForeignKey("NettoRetail.Domain.Entities.LoginAttemptEntity", "StaffId")
+                        .WithOne("FailedAuthAttempt")
+                        .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -284,7 +284,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
-                    b.Navigation("LoginAttempt")
+                    b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
                     b.Navigation("Sessions");
