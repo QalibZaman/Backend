@@ -10,7 +10,7 @@ namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
-[Route("/api/v{version:apiVersion}/[controller]")]
+[Route("/api/v{version:apiVersion}/inventory-items")]
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
@@ -21,7 +21,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var data = await mediator.Send(inventoryItemCreationCommand);
 
-        var response = new ApiResponse<AddInventoryItemModel>(data);
+        var response = new ApiResponse<InventoryItemResponse>(data);
 
         return Created(string.Empty, response);
     }
