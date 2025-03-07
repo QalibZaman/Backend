@@ -82,6 +82,42 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("FailedAuthAttempt");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("ProductCategory")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("ProductUpc")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductUpc")
+                        .IsUnique();
+
+                    b.ToTable("InventoryItems");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -262,6 +298,13 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                        .WithMany("Sessions")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });
@@ -287,6 +330,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
+                    b.Navigation("Sessions");
+                });
+            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                {
                     b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
