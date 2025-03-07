@@ -2,7 +2,8 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.Application.CQRS.Users.Commands;
+using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -13,13 +14,15 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
-    [HttpPost("create")]
-    public async Task<IActionResult> Create(AddInventoryItemModel model)
+    [HttpPost]
+    public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
         var inventoryItemCreationCommand = new CreateInventoryItemCommand(model);
 
-        await mediator.Send(inventoryItemCreationCommand);
+        var data = await mediator.Send(inventoryItemCreationCommand);
 
-        return NoContent();
+        var response = new ApiResponse<AddInventoryItemModel>(data);
+
+        return Created(string.Empty, response);
     }
 }

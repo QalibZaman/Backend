@@ -1,20 +1,20 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Category;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Users.Commands;
+namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record CreateInventoryItemCommand(AddInventoryItemModel Model) : IRequest;
+public record CreateInventoryItemCommand(AddInventoryItemModel Model) : IRequest<AddInventoryItemModel>;
 
 public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventoryItemRepository)
-    : IRequestHandler<CreateInventoryItemCommand>
+    : IRequestHandler<CreateInventoryItemCommand, AddInventoryItemModel>
 {
-    public async Task Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
+    public async Task<AddInventoryItemModel> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
         var product = await inventoryItemRepository.GetAsync(productByNameSpecification, cancellationToken);
@@ -26,6 +26,10 @@ public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventor
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
 
-        await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+        var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+
+        var response = responseModel.Adapt<AddInventoryItemModel>();
+
+        return response;
     }
 }

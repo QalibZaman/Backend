@@ -1,5 +1,4 @@
 ﻿using NettoRetail.DataAccess.Context;
-using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
