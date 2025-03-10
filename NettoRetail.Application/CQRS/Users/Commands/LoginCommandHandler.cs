@@ -1,16 +1,21 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
-public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtManager, IFailedAuthAttemptRepository loginAttemptRepository, IFailedAuthAttemptService loginAttemptService)
+public class LoginCommandHandler(IStaffRepository repository,
+    IJwtManager jwtManager,
+    IFailedAuthAttemptRepository loginAttemptRepository,
+    IFailedAuthAttemptService loginAttemptService)
     : IRequestHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -27,9 +32,9 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
             throw new MyUnauthorizedException("Account is locked. Try again later.");
         }
 
-        if (loginAttempt != null && loginAttempt.LastFailedTime.AddHours(2) < DateTime.UtcNow)
+        if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
         {
-            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt!, cancellationToken);
         }
 
         if (!PasswordHasher.VerifyPassword(request.Model.Password, user.PasswordHash))

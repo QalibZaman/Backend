@@ -1,13 +1,16 @@
-﻿using NettoRetail.Application.Exceptions;
+﻿using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.Services;
 
-public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAttemptRepository) : IFailedAuthAttemptService
+public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAttemptRepository, IOptions<UserBlockOptions> userBlockOptions) : IFailedAuthAttemptService
 {
-    private readonly IFailedAuthAttemptRepository _loginAttemptRepository = failedAuthAttemptRepository;
+    private readonly UserBlockOptions _userBlockOptions = userBlockOptions.Value;
+    private IFailedAuthAttemptRepository _loginAttemptRepository = failedAuthAttemptRepository;
 
     public bool IsAccountLocked(FailedAuthAttemptEntity attempt)
     {
@@ -26,9 +29,9 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
 
         attempt.FailedAttempts++;
         attempt.LastFailedTime = DateTime.UtcNow;
-        if (attempt.FailedAttempts >= 3)
+        if (attempt.FailedAttempts >= _userBlockOptions.FailedAttemptThreshold)
         {
-            attempt.LockoutEndTime = DateTime.UtcNow.AddMinutes(30);
+            attempt.LockoutEndTime = DateTime.UtcNow.AddMinutes(_userBlockOptions.LockoutDurationInMinutes);
         }
 
         await _loginAttemptRepository.UpdateAsync(attempt, cancellationToken);
@@ -42,5 +45,11 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
             attempt.LockoutEndTime = null;
             await _loginAttemptRepository.UpdateAsync(attempt, cancellationToken);
         }
+    }
+
+    public bool HasBlockDurationElapsed(FailedAuthAttemptEntity attempt)
+    {
+        return attempt != null &&
+               attempt.LastFailedTime.AddHours(_userBlockOptions.BlockDurationInHours) < DateTime.UtcNow;
     }
 }
