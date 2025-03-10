@@ -10,8 +10,8 @@ namespace NettoRetail.Application.Services
 {
     public class CategoryLevelManagementService(ICategoryRepository categoryRepository, IOptions<LevelOptions> levelOptions) : ICategoryLevelManagementService
     {
+        private readonly LevelOptions _levelOptions = levelOptions.Value;
         private ICategoryRepository _categoryRepository = categoryRepository;
-        private LevelOptions _levelOptions = levelOptions.Value;
 
         public async Task SetUpCategoryLevel(CategoryEntity category, CancellationToken cancellationToken)
         {
