@@ -10,6 +10,7 @@ public static class ServiceExtensions
     {
         services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
         services.Configure<LevelOptions>(configuration.GetSection(nameof(LevelOptions)));
+        services.Configure<PaginationOptions>(configuration.GetSection(nameof(PaginationOptions)));
 
         return services;
     }
