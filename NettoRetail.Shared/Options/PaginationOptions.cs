@@ -2,6 +2,5 @@
 
 public class PaginationOptions
 {
-    public int SkipOption { get; set; }
-    public int TakeOption { get; set; }
+    public int PageSize { get; set; }
 }

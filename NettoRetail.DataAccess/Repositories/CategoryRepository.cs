@@ -1,12 +1,10 @@
-﻿using Mapster;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 
@@ -39,7 +37,7 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
             query = query.Include(includeExpression);
         }
 
-        query = query.Skip(specification.Skip ?? _paginationDefaults.SkipOption).Take(specification.Take ?? _paginationDefaults.TakeOption);
+        query = query.Skip(specification.Skip ?? 0).Take(specification.Take ?? _paginationDefaults.PageSize);
 
         var response = await query.ToListAsync(cancellationToken);
 
