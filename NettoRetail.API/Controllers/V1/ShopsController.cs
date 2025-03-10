@@ -39,7 +39,7 @@ public class ShopsController(IMediator mediator, IAuthorizationService authoriza
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateShop(int id, [FromBody] ShopModel shop)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, id, "ShopPolicy");
+        var authResult = await authorizationService.AuthorizeAsync(User, id, PolicyNames.ShopPolicy);
         if (!authResult.Succeeded)
             return Unauthorized();
 

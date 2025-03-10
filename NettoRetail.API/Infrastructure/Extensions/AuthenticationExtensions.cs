@@ -56,11 +56,16 @@ public static class AuthenticationExtensions
             // We can later on add the Google policy using options.AddPolicy()
             // note: you should obviously have a policy pre-defined in AddAuthentication before creating an authorization policy.
 
-            options.AddPolicy("ShopPolicy", policy =>
+            options.AddPolicy(PolicyNames.ShopPolicy, policy =>
                 policy.Requirements.Add(new ShopAuthorizationRequirement()));
         });
 
         services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
         return services;
     }
+}
+
+public static class PolicyNames
+{
+    public const string ShopPolicy = "ShopPolicy";
 }
