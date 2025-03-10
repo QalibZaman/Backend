@@ -10,5 +10,7 @@ public class StaffEntity
     public int RoleId { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
+    public int? ShopId { get; set; }
+    public ShopEntity? Shop { get; set; }
     public ICollection<SessionEntity>? Sessions { get; set; }
 }

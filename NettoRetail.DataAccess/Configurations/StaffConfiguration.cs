@@ -22,6 +22,7 @@ public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
 
         builder.HasOne(s => s.Role)
             .WithMany(r => r.StaffEntities)
-            .HasForeignKey(c => c.RoleId);
+            .HasForeignKey(c => c.RoleId)
+            .IsRequired(false);
     }
 }

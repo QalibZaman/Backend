@@ -25,7 +25,7 @@ public class LoginCommandHandler(IStaffRepository repository, IJwtManager jwtMan
             throw new MyUnauthorizedException("Password is incorrect");
         }
 
-        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
+        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 
         return tokenResponse;
     }

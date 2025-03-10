@@ -44,6 +44,11 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
             new("token_type", "access")
         };
 
+        if (user.ShopId != null)
+        {
+            accessTokenClaims.Add(new Claim("shop_id", user.ShopId.Value.ToString()));
+        }
+
         var newAccessToken = jwtManager.Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var newRefreshToken = jwtManager.Generate(claimsPrincipal.Claims.ToList(), TimeSpan.FromDays(refreshTokenExpirationDays));
 

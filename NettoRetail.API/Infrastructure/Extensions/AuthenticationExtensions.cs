@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NettoRetail.API.Infrastructure.Authorization;
 using NettoRetail.Shared.Options;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
@@ -54,7 +55,12 @@ public static class AuthenticationExtensions
 
             // We can later on add the Google policy using options.AddPolicy()
             // note: you should obviously have a policy pre-defined in AddAuthentication before creating an authorization policy.
+
+            options.AddPolicy("ShopPolicy", policy =>
+                policy.Requirements.Add(new ShopAuthorizationRequirement()));
         });
+
+        services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
         return services;
     }
 }

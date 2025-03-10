@@ -30,6 +30,8 @@ public static class ServiceExtensions
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IShopRepository, ShopRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
