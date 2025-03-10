@@ -23,6 +23,7 @@ public static class ServiceExtensions
         services.AddHostedService<SessionCleanupService>();
 
         //Services
+        services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();

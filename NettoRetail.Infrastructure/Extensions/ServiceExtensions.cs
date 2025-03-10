@@ -18,7 +18,6 @@ public static class ServiceExtensions
             client.BaseAddress = new Uri(configuration.GetSection("IpInfo").GetValue<string>("BaseUrl") ?? "https://ipinfo.io/");
         });
 
-
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.AddScoped<IEmailSender, EmailSender>();
 

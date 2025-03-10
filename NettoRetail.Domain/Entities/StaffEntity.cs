@@ -10,5 +10,6 @@ public class StaffEntity
     public int RoleId { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
+    public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
 }
