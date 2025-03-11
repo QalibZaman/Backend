@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -85,7 +85,7 @@ public class StaffController(
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> RecoverPassword(ResetPasswordRequest model)
+    public async Task<IActionResult> RecoverPassword([FromBody] ResetPasswordRequest model)
     {
         var resetPasswordCommand = new ResetPasswordCommand(model);
         await mediator.Send(resetPasswordCommand);
