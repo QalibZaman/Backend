@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
 {
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<FailedAuthAttemptEntity> FailedAuthAttempt { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
