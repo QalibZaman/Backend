@@ -21,11 +21,13 @@ public static class ServiceExtensions
 
         //Background
         services.AddHostedService<SessionCleanupService>();
+        services.AddHostedService<TokenCleanupService>();
 
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
+        services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
     }
 }
