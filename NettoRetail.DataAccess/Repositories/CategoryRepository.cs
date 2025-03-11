@@ -13,7 +13,7 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
 {
     private PaginationOptions _paginationDefaults = paginationOptions.Value;
 
-    public async Task<ICollection<CategoryEntity>> GetAllNested(Specification<CategoryEntity> specification, CancellationToken cancellationToken)
+    public async Task<ICollection<CategoryEntity>> GetAllNestedAsync(Specification<CategoryEntity> specification, CancellationToken cancellationToken)
     {
         var response = await _dbSet.Where(specification.Criteria)
              .ToListAsync(cancellationToken);
@@ -21,14 +21,7 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         return response;
     }
 
-    public async Task<int> GetAmount(CancellationToken cancellationToken)
-    {
-        var response = await _dbSet.CountAsync(cancellationToken);
-
-        return response;
-    }
-
-    public async Task<ICollection<CategoryEntity>> GetAllPaginated(Specification<CategoryEntity> specification, CancellationToken cancellationToken)
+    public async Task<ICollection<CategoryEntity>> GetAllPaginatedAsync(Specification<CategoryEntity> specification, CancellationToken cancellationToken)
     {
         var query = _dbSet.AsQueryable();
 
@@ -38,6 +31,8 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         }
 
         query = query.Skip(specification.Skip ?? 0).Take(specification.Take ?? _paginationDefaults.PageSize);
+
+        var sql = query.ToQueryString();
 
         var response = await query.ToListAsync(cancellationToken);
 

@@ -26,7 +26,7 @@ public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventor
         var categoryByIdSpecification = new GetCategoryByIdSpecification(request.Model.CategoryId);
         var category = await categoryRepository.GetAsync(categoryByIdSpecification, cancellationToken);
 
-        if (category is null)
+        if (category == null)
         {
             throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}");
         }

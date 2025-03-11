@@ -7,7 +7,7 @@ public class GetCategoriesRequestValidatior : AbstractValidator<GetCategoriesReq
 {
     public GetCategoriesRequestValidatior()
     {
-        RuleFor(model => model.Page).GreaterThanOrEqualTo(0);
-        RuleFor(model => model.Limit).GreaterThanOrEqualTo(1);
+        RuleFor(model => model.PageNumber).GreaterThanOrEqualTo(0);
+        RuleFor(model => model.PageSize).GreaterThanOrEqualTo(1);
     }
 }
