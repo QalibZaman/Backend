@@ -36,4 +36,10 @@ public class Specification<TEntity>
 
         return new Specification<TEntity>(combinedExpression);
     }
+
+    public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
+    {
+        _includes.Add(includeExpression);
+        return this;
+    }
 }

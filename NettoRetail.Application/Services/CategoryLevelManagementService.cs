@@ -25,7 +25,7 @@ namespace NettoRetail.Application.Services
 
             var parentCategory = await _categoryRepository.GetAsync(specification, cancellationToken);
 
-            if (parentCategory is not null)
+            if (parentCategory != null)
             {
                 category.Level = parentCategory.Level + 1;
 
@@ -44,7 +44,7 @@ namespace NettoRetail.Application.Services
 
            var specification = new GetCategoriesOfParentByIdSpecification(category.Id);
 
-           var childCategories = await _categoryRepository.GetAllNested(specification, cancellationToken);
+           var childCategories = await _categoryRepository.GetAllNestedAsync(specification, cancellationToken);
 
            foreach (var child in childCategories)
            {

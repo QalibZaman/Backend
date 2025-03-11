@@ -5,5 +5,6 @@ namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface ICategoryRepository : IBaseRepository<CategoryEntity>
 {
-    Task<ICollection<CategoryEntity>> GetAllNested(Specification<CategoryEntity> specification, CancellationToken cancellationToken);
+    Task<ICollection<CategoryEntity>> GetAllNestedAsync(Specification<CategoryEntity> specification, CancellationToken cancellationToken);
+    Task<ICollection<CategoryEntity>> GetAllPaginatedAsync(Specification<CategoryEntity> specification, CancellationToken cancellationToken);
 }

@@ -38,6 +38,13 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         return response;
     }
 
+    public async Task<int> GetAmountAsync(CancellationToken cancellationToken)
+    {
+        var response = await _dbSet.CountAsync(cancellationToken);
+
+        return response;
+    }
+
     public async Task DeleteAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var entityToDelete = await _dbSet.Where(specification.Criteria).FirstAsync(cancellationToken);
