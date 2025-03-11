@@ -7,7 +7,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record UpdateInventoryItemGeneralInfoCommand(string Id, UpdateInventoryItemGeneralInfoModel Model) : IRequest;
+public record UpdateInventoryItemGeneralInfoCommand(Guid Id, UpdateInventoryItemGeneralInfoModel Model) : IRequest;
 
 public class UpdateInventoryItemGeneralInfoCommandHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository)
     : IRequestHandler<UpdateInventoryItemGeneralInfoCommand>
@@ -28,11 +28,10 @@ public class UpdateInventoryItemGeneralInfoCommandHandler(IInventoryItemReposito
             }
         }
 
-        var categoryByNameSpecification = new GetCategoryByNameSpecification(request.Model.ProductCategory);
-        var category = await categoryRepository.GetAsync(categoryByNameSpecification, cancellationToken) ?? throw new NotFoundException("There is no category with this name");
+        var categoryByIdSpecification = new GetCategoryByIdSpecification(request.Model.CategoryId);
+        var category = await categoryRepository.GetAsync(categoryByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no category with such id.");
 
         request.Model.Adapt(inventoryItem);
-        inventoryItem.CategoryId = category.Id;
         inventoryItem.LastUpdatedDate = DateTime.UtcNow;
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
