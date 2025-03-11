@@ -1,9 +1,11 @@
 ﻿using Azure.Core;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services;
@@ -12,9 +14,8 @@ public class BlacklistTokenService(IBlacklistedTokenRepository blacklistedTokenR
     private IBlacklistedTokenRepository _blacklistedTokenRepository = blacklistedTokenRepository;
     public async Task CleanupExpiredTokensAsync(CancellationToken cancellationToken)
     {
-        var allTokens = await _blacklistedTokenRepository.GetAllAsync(cancellationToken);
-        var expiredTokens = allTokens.Where(t => JwtUtils.IsJwtExpired(t.Token)).ToList();
-        await _blacklistedTokenRepository.DeleteRangeAsync(expiredTokens, cancellationToken);
+        var expiredTokensSpec = new GetExpiredTokensSpecification();
+        await _blacklistedTokenRepository.DeleteManyBySpecAsync(expiredTokensSpec, cancellationToken);
     }
 
     public async Task<bool> IsTokenBlacklistedAsync(string jwt, CancellationToken cancellationToken)

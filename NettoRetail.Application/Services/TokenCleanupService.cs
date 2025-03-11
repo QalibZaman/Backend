@@ -2,22 +2,24 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.Services;
 
 public class TokenCleanupService(
     IServiceScopeFactory scopeFactory,
-    IConfiguration configuration) : BackgroundService
+    IOptions<TokenBlacklistOptions> tokenBlacklistOptions) : BackgroundService
 {
+    private readonly TokenBlacklistOptions _tokenBlacklistOptions = tokenBlacklistOptions.Value;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(configuration.GetSection("TokenBlacklist").GetValue<int>("CleanupInterval"));
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(_cleanupInterval, cancellationToken);
+            await Task.Delay(TimeSpan.FromMinutes(_tokenBlacklistOptions.CleanupInterval), cancellationToken);
 
             using (var scope = _scopeFactory.CreateScope())
             {
