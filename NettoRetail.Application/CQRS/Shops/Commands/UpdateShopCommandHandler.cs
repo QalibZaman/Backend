@@ -1,9 +1,8 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.DataAccess.Specifications;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
@@ -14,8 +13,11 @@ public class UpdateShopCommandHandler(IShopRepository shopRepository) : IRequest
 {
     public async Task Handle(UpdateShopCommand request, CancellationToken cancellationToken)
     {
-        var shop = request.Model.Adapt<ShopEntity>();
-        shop.Id = request.Id;
-        await shopRepository.UpdateAsync(shop, cancellationToken);
+        var specification = new GetShopByIdSpecification(request.Id);
+        var shopToUpdate = await shopRepository.GetAsync(specification, cancellationToken)
+            ?? throw new NotFoundException($"There is no category with such Id");
+
+        request.Model.Adapt(shopToUpdate);
+        await shopRepository.UpdateAsync(shopToUpdate, cancellationToken);
     }
 }
