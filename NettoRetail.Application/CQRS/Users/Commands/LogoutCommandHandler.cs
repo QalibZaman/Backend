@@ -11,16 +11,14 @@ public class LogoutCommandHandler(ISessionRepository sessionRepository, IBlackli
 {
     public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        var token = request.AccessToken;
-
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(request.AccessToken))
         {
             throw new InvalidTokenCredentialsException("Authorization token is missing or invalid.");
         }
 
-        var specification = new GetSessionsByJwtSpecification(token);
+        var specification = new GetSessionsByJwtSpecification(request.AccessToken);
         await sessionRepository.DeleteAsync(specification, cancellationToken);
 
-        await blacklistTokenService.BlacklistTokenAsync(token, cancellationToken);
+        await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, cancellationToken);
     }
 }
