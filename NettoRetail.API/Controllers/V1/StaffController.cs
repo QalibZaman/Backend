@@ -54,6 +54,19 @@ public class StaffController(
         return Ok(response);
     }
 
+    [HttpPost("log-out")]
+    [Authorize]
+    public async Task<IActionResult> LogOut()
+    {
+        var authHeader = Request.Headers.Authorization.ToString();
+        var token = authHeader.Replace("Bearer ", "");
+
+        var logoutCommand = new LogoutCommand(token);
+        await mediator.Send(logoutCommand);
+
+        return NoContent();
+    }
+
     [Authorize]
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest model)

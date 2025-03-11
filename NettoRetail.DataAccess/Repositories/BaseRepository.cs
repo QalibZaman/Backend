@@ -64,4 +64,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         _dbSet.Update(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _dbSet.ToListAsync(cancellationToken);
+    }
 }
