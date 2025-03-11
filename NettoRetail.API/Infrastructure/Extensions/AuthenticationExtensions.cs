@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Options;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -46,8 +47,8 @@ public static class AuthenticationExtensions
                         var blacklistTokenService = context.HttpContext.RequestServices
                                                    .GetRequiredService<IBlacklistTokenService>();
 
-                        var authorizationHeader = context.HttpContext.Request.Headers.Authorization.ToString();
-                        var token = authorizationHeader.Replace("Bearer ", "");
+                        var token = JwtUtils.ExtractTokenFromAuthorizationHeader(context.HttpContext);
+
                         if (!string.IsNullOrEmpty(token))
                         {
                             bool isBlacklisted = await blacklistTokenService.IsTokenBlacklistedAsync(

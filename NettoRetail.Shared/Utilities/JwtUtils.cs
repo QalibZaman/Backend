@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http;
 
 namespace NettoRetail.Shared.Utilities;
 
@@ -22,5 +23,16 @@ public static class JwtUtils
         {
             return true;
         }
+    }
+
+    public static string? ExtractTokenFromAuthorizationHeader(HttpContext httpContext)
+    {
+        var authorizationHeader = httpContext.Request.Headers.Authorization.ToString();
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+        {
+            return null;
+        }
+
+        return authorizationHeader.Replace("Bearer ", "");
     }
 }

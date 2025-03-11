@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -10,9 +11,16 @@ public class LogoutCommandHandler(ISessionRepository sessionRepository, IBlackli
 {
     public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetSessionsByJwtSpecification(request.AccessToken);
+        var token = request.AccessToken;
+
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new InvalidTokenCredentialsException("Authorization token is missing or invalid.");
+        }
+
+        var specification = new GetSessionsByJwtSpecification(token);
         await sessionRepository.DeleteAsync(specification, cancellationToken);
 
-        await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, cancellationToken);
+        await blacklistTokenService.BlacklistTokenAsync(token, cancellationToken);
     }
 }
