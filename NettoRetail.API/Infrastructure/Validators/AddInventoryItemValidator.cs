@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -15,12 +14,7 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
             .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
 
-        RuleFor(x => x.ProductCategory)
-            .NotEmpty().WithMessage("Product category is required.")
-            .NotNull().WithMessage("Product category is required.")
-            .MinimumLength(2).WithMessage("Product category length must be greater than 2 characters long.")
-            .MaximumLength(50).WithMessage("Product category length must be less than 50 characters long.")
-            .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Product category must only contain letters, digits, '-' and '_'.");
+        RuleFor(x => x.CategoryId).GreaterThan(0);
 
         RuleFor(x => x.ProductUpc.ToString())
             .NotEmpty().WithMessage("Product UPC is required.")
