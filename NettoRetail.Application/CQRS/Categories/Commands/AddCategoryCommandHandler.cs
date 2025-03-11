@@ -18,7 +18,7 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
 
         var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
-        if (conflictModel is not null)
+        if (conflictModel != null)
         {
             throw new ConflictException("Category with such name or url is already exist");
         }

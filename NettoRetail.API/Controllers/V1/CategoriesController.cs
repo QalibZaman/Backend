@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
+using NettoRetail.Application.CQRS.Categories.Queries;
 using NettoRetail.Application.Models.Category;
 
 namespace NettoRetail.API.Controllers.V1
@@ -13,6 +14,16 @@ namespace NettoRetail.API.Controllers.V1
     [Route("api/v{v:ApiVersion}/[controller]")]
     public class CategoriesController(IMediator mediator) : ControllerBase
     {
+        [HttpGet]
+        public async Task<IActionResult> GetCategories([FromQuery]GetCategoriesRequest model, CancellationToken cancellationToken)
+        {
+            var command = model.Adapt<GetCategoriesQuery>();
+
+            var response = await mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponse<GetCategoriesResponse>(response));
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {

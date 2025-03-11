@@ -12,7 +12,9 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
 
         builder.Property(p => p.ProductName).HasMaxLength(50);
 
-        builder.Property(p => p.ProductCategory).HasMaxLength(50);
+        builder.HasOne(p => p.Category)
+            .WithMany(p => p.InventoryItems)
+            .HasForeignKey(p => p.CategoryId);
 
         builder.Property(p => p.ProductUpc);
         builder.HasIndex(p => p.ProductUpc).IsUnique();
