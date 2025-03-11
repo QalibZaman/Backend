@@ -329,22 +329,15 @@ namespace NettoRetail.DataAccess.Migrations
                             b.Navigation("Role");
                         });
 
-<<<<<<< NettoRetail.DataAccess/Migrations/AppDbContextModelSnapshot.cs
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.Navigation("InventoryItems");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
-                {
-                    b.Navigation("StaffEntities");
-                });
-=======
                     modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                         {
                             b.Navigation("StaffEntities");
                         });
->>>>>>> NettoRetail.DataAccess/Migrations/AppDbContextModelSnapshot.cs
 
                     modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                         {
