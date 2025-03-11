@@ -9,7 +9,8 @@ public class IpInfoService(HttpClient httpClient) : IIpInfoService
     public async Task<Location?> GetIpInfoAsync(string ipAddress)
     {
         var response = await httpClient.GetAsync($"{ipAddress}");
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return null;
 
         var content = await response.Content.ReadAsStringAsync();
         var location = JsonSerializer.Deserialize<Location>(content);
