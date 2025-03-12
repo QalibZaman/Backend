@@ -31,7 +31,7 @@ public class ForgotPasswordCommandHandler(
             throw new NotFoundException("User with this email was not found.");
 
         var claims = new List<Claim> { new(ClaimTypes.Email, user.Email) };
-        var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(1));
+        var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(passwordOptions.Value.TokenExpirationHours));
         var resetLink = string.Format(passwordOptions.Value.ResetLink, resetToken);
 
         var model = new { reset_link = resetLink, user_name = user.FirstName };
