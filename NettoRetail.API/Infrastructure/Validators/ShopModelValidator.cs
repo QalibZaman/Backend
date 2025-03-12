@@ -12,33 +12,15 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
     public ShopModelValidator(ICountryRepository countryRepository)
     {
         RuleFor(x => x.CountryId)
-            .NotEmpty().WithMessage("CountryId is required.")
-            .Must((countryId) =>
-            {
-                var specification = new GetCountryByIdSpecification(countryId);
-                var country = countryRepository.Get(specification);
-                return country != null;
-            }).WithMessage("Invalid CountryId.");
+            .NotEmpty().WithMessage("CountryId is required.");
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
-            .Length(10, 14).WithMessage("Incorrect phone number length")
-            .Must((shop, phoneNumber) =>
-            {
-                var specification = new GetCountryByIdSpecification(shop.CountryId);
-                var country = countryRepository.Get(specification);
-                return country != null && Regex.IsMatch(phoneNumber, country.PhoneMask);
-            }).WithMessage("Phone number does not match the required format for the selected country.");
+            .Length(10, 14).WithMessage("Incorrect phone number length");
 
         RuleFor(x => x.ZipCode)
             .NotEmpty().WithMessage("Zipcode is required.")
-            .Length(3, 8).WithMessage("Incorrect zipcode length")
-            .Must((shop, zipCode) =>
-            {
-                var specification = new GetCountryByIdSpecification(shop.CountryId);
-                var country = countryRepository.Get(specification);
-                return country != null && Regex.IsMatch(zipCode, country.ZipCodeMask);
-            }).WithMessage("Zipcode doesn't match the required format for the selected country.");
+            .Length(3, 8).WithMessage("Incorrect zipcode length");
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required.")

@@ -16,6 +16,9 @@ builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
+//For countries
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 app.Migrate();
