@@ -25,4 +25,15 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         return Created(string.Empty, response);
     }
+
+    [Authorize]
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> EditInventoryItemGeneralInfo(Guid id, UpdateInventoryItemGeneralInfoModel model, CancellationToken cancellationToken)
+    {
+        var inventoryItemCreationCommand = new UpdateInventoryItemGeneralInfoCommand(id, model);
+
+        await mediator.Send(inventoryItemCreationCommand, cancellationToken);
+
+        return NoContent();
+    }
 }
