@@ -4,6 +4,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
+using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 
@@ -13,7 +14,8 @@ public record ChangePasswordCommand(Guid UserId, ChangePasswordRequest Model) : 
 
 public class ChangePasswordCommandHandler(
     IStaffRepository staffRepository,
-    IEmailSender emailSender)
+    IEmailSender emailSender,
+    IEmailTemplateService emailTemplateService)
     : IRequestHandler<ChangePasswordCommand>
 {
     public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -48,11 +50,15 @@ public class ChangePasswordCommandHandler(
 
         await staffRepository.UpdateAsync(user, cancellationToken);
 
+        var model = new { user_name = user.FirstName };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.PasswordChange, model);
+
         var emailModel = new EmailModel
         {
             Email = user.Email,
             Subject = "Your RetailTech account password updated",
-            Message = $"Dear {user.FirstName}, we are letting you know that you have successfully changed the password in your RetailTech profile.  Thank you!"
+            Message = emailBody
         };
 
         await emailSender.SendAsync(emailModel);

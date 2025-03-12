@@ -1,10 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.API.Infrastructure.Authorization;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Options;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -33,15 +36,30 @@ public static class AuthenticationExtensions
 
                 options.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = context =>
+                    OnTokenValidated = async context =>
                     {
                         var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
                         if (tokenTypeClaim != "access")
                         {
                             context.Fail("Invalid token type. Expected an access token.");
+                            return;
                         }
 
-                        return Task.CompletedTask;
+                        var blacklistTokenService = context.HttpContext.RequestServices
+                                                   .GetRequiredService<IBlacklistTokenService>();
+
+                        var token = JwtUtils.ExtractTokenFromAuthorizationHeader(context.HttpContext);
+
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            bool isBlacklisted = await blacklistTokenService.IsTokenBlacklistedAsync(
+                                token, context.HttpContext.RequestAborted);
+
+                            if (isBlacklisted)
+                            {
+                                context.Fail("Token is invalid or has been revoked.");
+                            }
+                        }
                     }
                 };
             });

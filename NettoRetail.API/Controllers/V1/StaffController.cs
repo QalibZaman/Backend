@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
 [ApiController]
@@ -54,14 +55,53 @@ public class StaffController(
         return Ok(response);
     }
 
+    [HttpPost("log-out")]
+    [Authorize]
+    public async Task<IActionResult> LogOut()
+    {
+        var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
+
+        var logoutCommand = new LogoutCommand(token!);
+        await mediator.Send(logoutCommand);
+
+        return NoContent();
+    }
+
     [Authorize]
     [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePassword(ChangePasswordRequest model)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         var userId = HttpContext.GetUserId();
-        var changePasswordCommand = new ChangePasswordCommand(userId, model);
+        var changePasswordCommand = new ChangePasswordCommand(userId, request);
 
         await mediator.Send(changePasswordCommand);
+
+        return NoContent();
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        var command = new ForgotPasswordCommand(request.Email);
+        await mediator.Send(command);
+
+        return NoContent();
+    }
+
+    [HttpPost("verify-reset-token")]
+    public async Task<IActionResult> VerifyResetToken([FromBody] VerifyResetTokenRequest request)
+    {
+        var command = new VerifyResetTokenCommand(request.Token);
+        await mediator.Send(command);
+
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> RecoverPassword([FromBody] ResetPasswordRequest model)
+    {
+        var resetPasswordCommand = new ResetPasswordCommand(model);
+        await mediator.Send(resetPasswordCommand);
 
         return NoContent();
     }

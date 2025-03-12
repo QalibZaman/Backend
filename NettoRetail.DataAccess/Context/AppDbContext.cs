@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
     public DbSet<ShopEntity> Shops { get; set; }
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
+    public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

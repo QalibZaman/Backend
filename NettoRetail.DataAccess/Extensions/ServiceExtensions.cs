@@ -33,6 +33,7 @@ public static class ServiceExtensions
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IShopRepository, ShopRepository>();
+        services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
 
         //UnitOfWork

@@ -15,7 +15,7 @@ public class DeleteCategoryCommandHandler(ICategoryRepository categoryRepository
 
         var category = await categoryRepository.GetAsync(specification, cancellationToken);
 
-        if (category is null)
+        if (category == null)
         {
             throw new NotFoundException($"There is no category with Id: {request.Id}");
         }

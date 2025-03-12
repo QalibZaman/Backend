@@ -23,6 +23,7 @@ public static class ServiceExtensions
 
         //Background
         services.AddHostedService<SessionCleanupService>();
+        services.AddHostedService<TokenCleanupService>();
 
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
@@ -31,5 +32,6 @@ public static class ServiceExtensions
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
+        services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
     }
 }
