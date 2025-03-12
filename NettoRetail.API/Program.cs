@@ -3,8 +3,12 @@ using NettoRetail.Application.Extensions;
 using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication();
@@ -20,6 +24,7 @@ var app = builder.Build();
 
 app.Migrate();
 app.UseTracing();
+app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();

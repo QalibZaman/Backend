@@ -22,6 +22,24 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("BlacklistedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlacklistedTokens");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -330,10 +348,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
-                {
-                    b.Navigation("InventoryItems");
-                });
+                    modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
+                        {
+                            b.Navigation("StaffEntities");
+                        });
+                    modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
+                        {
+                            b.Navigation("InventoryItems");
+                        });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {

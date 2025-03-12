@@ -25,13 +25,6 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<SessionEntity>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        var response = await _dbSet.ToListAsync<SessionEntity>(cancellationToken);
-
-        return response;
-    }
-
     public async Task DeleteRangeAsync(IEnumerable<SessionEntity> entitiesToRemove, CancellationToken cancellationToken)
     {
         _dbSet.RemoveRange(entitiesToRemove);

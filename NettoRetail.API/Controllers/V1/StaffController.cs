@@ -10,6 +10,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
 [ApiController]
@@ -52,6 +53,18 @@ public class StaffController(
         var response = new ApiResponse<TokenResponse>(data);
 
         return Ok(response);
+    }
+
+    [HttpPost("log-out")]
+    [Authorize]
+    public async Task<IActionResult> LogOut()
+    {
+        var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
+
+        var logoutCommand = new LogoutCommand(token!);
+        await mediator.Send(logoutCommand);
+
+        return NoContent();
     }
 
     [Authorize]

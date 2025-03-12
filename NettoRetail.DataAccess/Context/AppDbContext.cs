@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
+    public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
