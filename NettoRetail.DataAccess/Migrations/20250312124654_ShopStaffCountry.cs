@@ -14,33 +14,6 @@ namespace NettoRetail.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_InventoryItems_Categories_CategoryId",
-                table: "InventoryItems");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Staff_Roles_RoleId",
-                table: "Staff");
-
-            migrationBuilder.DropTable(
-                name: "BlacklistedTokens");
-
-            migrationBuilder.DropIndex(
-                name: "IX_InventoryItems_CategoryId",
-                table: "InventoryItems");
-
-            migrationBuilder.DropColumn(
-                name: "CategoryId",
-                table: "InventoryItems");
-
-            migrationBuilder.DropColumn(
-                name: "IsActive",
-                table: "InventoryItems");
-
-            migrationBuilder.DropColumn(
-                name: "LastUpdatedDate",
-                table: "InventoryItems");
-
             migrationBuilder.AddColumn<int>(
                 name: "ShopId",
                 table: "Staff",
@@ -172,13 +145,6 @@ namespace NettoRetail.DataAccess.Migrations
                 table: "Shops",
                 column: "PhoneNumber",
                 unique: true);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Staff_Roles_RoleId",
-                table: "Staff",
-                column: "RoleId",
-                principalTable: "Roles",
-                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Staff_Shops_ShopId",
