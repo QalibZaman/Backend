@@ -26,6 +26,7 @@ public class EmailSender(IOptions<EmailOptions> emailOptions) : IEmailSender
             From = new MailAddress(emailOptions.Value.Sender),
             Subject = model.Subject,
             Body = model.Message,
+            IsBodyHtml = true
         };
 
         message.To.Add(model.Email);
