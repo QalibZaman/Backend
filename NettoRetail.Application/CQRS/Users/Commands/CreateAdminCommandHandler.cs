@@ -37,7 +37,7 @@ public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRe
 
         var user = await staffRepository.AddAsync(admin, cancellationToken);
 
-        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
+        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 
         return tokenResponse;
     }

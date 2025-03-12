@@ -74,6 +74,263 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PhoneCode")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<string>("PhoneMask")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("ZipCodeMask")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneCode")
+                        .IsUnique();
+
+                    b.ToTable("Countries");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Austria",
+                            PhoneCode = "+43",
+                            PhoneMask = "^\\d{3} \\d{6}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Belgium",
+                            PhoneCode = "+32",
+                            PhoneMask = "^\\d \\d{3} \\d{2} \\d{2}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Bulgaria",
+                            PhoneCode = "+359",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Croatia",
+                            PhoneCode = "+385",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Cyprus",
+                            PhoneCode = "+357",
+                            PhoneMask = "^2\\d \\d{6}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Czech Republic",
+                            PhoneCode = "+420",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Denmark",
+                            PhoneCode = "+45",
+                            PhoneMask = "^\\d{2} \\d{2} \\d{2} \\d{2}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Estonia",
+                            PhoneCode = "+372",
+                            PhoneMask = "^\\d{4} \\d{4}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Finland",
+                            PhoneCode = "+358",
+                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "France",
+                            PhoneCode = "+33",
+                            PhoneMask = "^\\d \\d{2} \\d{2} \\d{2} \\d{2}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Germany",
+                            PhoneCode = "+49",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Greece",
+                            PhoneCode = "+30",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
+                            ZipCodeMask = "^\\d{3} \\d{2}$"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Hungary",
+                            PhoneCode = "+36",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Ireland",
+                            PhoneCode = "+353",
+                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            ZipCodeMask = "^[A-Z]\\d{2}$"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Italy",
+                            PhoneCode = "+39",
+                            PhoneMask = "^\\d{2} \\d{4} \\d{4}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "Latvia",
+                            PhoneCode = "+371",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^LV-\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "Lithuania",
+                            PhoneCode = "+370",
+                            PhoneMask = "^\\d{3} \\d{5}$",
+                            ZipCodeMask = "^LT-\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "Luxembourg",
+                            PhoneCode = "+352",
+                            PhoneMask = "^\\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "Malta",
+                            PhoneCode = "+356",
+                            PhoneMask = "^\\d{4} \\d{4}$",
+                            ZipCodeMask = "^[A-Z]{3} \\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "Netherlands",
+                            PhoneCode = "+31",
+                            PhoneMask = "^\\d \\d{4} \\d{4}$",
+                            ZipCodeMask = "^\\d{4} [A-Z]{2}$"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "Poland",
+                            PhoneCode = "+48",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{2}-\\d{3}$"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "Portugal",
+                            PhoneCode = "+351",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{4}-\\d{3}$"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "Romania",
+                            PhoneCode = "+40",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{6}$"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "Slovakia",
+                            PhoneCode = "+421",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{3} \\d{2}$"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = "Slovenia",
+                            PhoneCode = "+386",
+                            PhoneMask = "^\\d \\d{4} \\d{4}$",
+                            ZipCodeMask = "^\\d{4}$"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "Spain",
+                            PhoneCode = "+34",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
+                            ZipCodeMask = "^\\d{5}$"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "Sweden",
+                            PhoneCode = "+46",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
+                            ZipCodeMask = "^\\d{3} \\d{2}$"
+                        });
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -258,6 +515,78 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Sessions");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
+
+                    b.ToTable("Shops");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -287,9 +616,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ShopId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("ShopId");
 
                     b.ToTable("Staff");
                 });
@@ -337,29 +671,45 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
+                        .WithMany("Shops")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
                         .WithMany("StaffEntities")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleId");
+
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("Staff")
+                        .HasForeignKey("ShopId");
 
                     b.Navigation("Role");
+
+                    b.Navigation("Shop");
                 });
 
-                    modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
-                        {
-                            b.Navigation("StaffEntities");
-                        });
-                    modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
-                        {
-                            b.Navigation("InventoryItems");
-                        });
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
+                {
+                    b.Navigation("Shops");
+                });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Navigation("StaffEntities");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
+                {
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>

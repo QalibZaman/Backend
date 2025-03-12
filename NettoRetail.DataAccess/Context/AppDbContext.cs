@@ -12,6 +12,8 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
     public DbSet<FailedAuthAttemptEntity> FailedAuthAttempt { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
+    public DbSet<ShopEntity> Shops { get; set; }
+    public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
     public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
 

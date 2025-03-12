@@ -54,7 +54,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return principal;
     }
 
-    public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId)
+    public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
     {
         const string tokenType = "token_type";
 
@@ -68,6 +68,12 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             new(ClaimTypes.Role, userRoleId),
             new(tokenType, "access")
         };
+
+        if (shopId != null)
+        {
+            accessTokenClaims.Add(new Claim("shop_id", shopId.Value.ToString()));
+        }
+
         var refreshTokenClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
