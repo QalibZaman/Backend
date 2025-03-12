@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -8,17 +9,51 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class CountriesAndShops : Migration
+    public partial class ShopStaffCountry : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_InventoryItems_Categories_CategoryId",
+                table: "InventoryItems");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Staff_Roles_RoleId",
+                table: "Staff");
+
+            migrationBuilder.DropTable(
+                name: "BlacklistedTokens");
+
+            migrationBuilder.DropIndex(
+                name: "IX_InventoryItems_CategoryId",
+                table: "InventoryItems");
+
+            migrationBuilder.DropColumn(
+                name: "CategoryId",
+                table: "InventoryItems");
+
+            migrationBuilder.DropColumn(
+                name: "IsActive",
+                table: "InventoryItems");
+
+            migrationBuilder.DropColumn(
+                name: "LastUpdatedDate",
+                table: "InventoryItems");
+
             migrationBuilder.AddColumn<int>(
                 name: "ShopId",
                 table: "Staff",
                 type: "integer",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "ProductCategory",
+                table: "InventoryItems",
+                type: "character varying(50)",
+                maxLength: 50,
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: "");
 
             migrationBuilder.CreateTable(
                 name: "Countries",
@@ -139,17 +174,27 @@ namespace NettoRetail.DataAccess.Migrations
                 unique: true);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_Staff_Roles_RoleId",
+                table: "Staff",
+                column: "RoleId",
+                principalTable: "Roles",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Staff_Shops_ShopId",
                 table: "Staff",
                 column: "ShopId",
                 principalTable: "Shops",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Staff_Roles_RoleId",
+                table: "Staff");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Staff_Shops_ShopId",
                 table: "Staff");
@@ -167,6 +212,64 @@ namespace NettoRetail.DataAccess.Migrations
             migrationBuilder.DropColumn(
                 name: "ShopId",
                 table: "Staff");
+
+            migrationBuilder.DropColumn(
+                name: "ProductCategory",
+                table: "InventoryItems");
+
+            migrationBuilder.AddColumn<int>(
+                name: "CategoryId",
+                table: "InventoryItems",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsActive",
+                table: "InventoryItems",
+                type: "boolean",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "LastUpdatedDate",
+                table: "InventoryItems",
+                type: "timestamp with time zone",
+                nullable: true);
+
+            migrationBuilder.CreateTable(
+                name: "BlacklistedTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BlacklistedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Token = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlacklistedTokens", x => x.Id);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_CategoryId",
+                table: "InventoryItems",
+                column: "CategoryId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_InventoryItems_Categories_CategoryId",
+                table: "InventoryItems",
+                column: "CategoryId",
+                principalTable: "Categories",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Staff_Roles_RoleId",
+                table: "Staff",
+                column: "RoleId",
+                principalTable: "Roles",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

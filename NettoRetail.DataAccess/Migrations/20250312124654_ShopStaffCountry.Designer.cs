@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250310110525_LNP76Migrations")]
-    partial class LNP76Migrations
+    [Migration("20250312124654_ShopStaffCountry")]
+    partial class ShopStaffCountry
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
