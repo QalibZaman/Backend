@@ -1,6 +1,6 @@
 using Mapster;
 using NettoRetail.Application.Models.Admin;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Category;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Application.MappingConfiguration;

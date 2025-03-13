@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;

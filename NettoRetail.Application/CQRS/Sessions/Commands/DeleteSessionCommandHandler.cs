@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using NettoRetail.DataAccess.Specifications.Sessions;
+using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using NettoRetail.Application.Models.Request.Category;
+using NettoRetail.Application.Models.Category;
 
 namespace NettoRetail.API.Infrastructure.Validators
 {

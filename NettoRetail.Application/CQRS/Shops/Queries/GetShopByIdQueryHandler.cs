@@ -1,7 +1,8 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.CQRS.Sessions.Queries;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Shop;
+using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Queries;

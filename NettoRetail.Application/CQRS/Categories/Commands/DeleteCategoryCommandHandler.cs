@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands;
