@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;

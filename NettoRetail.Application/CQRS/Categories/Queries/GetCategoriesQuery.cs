@@ -1,6 +1,6 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Models.Category;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;

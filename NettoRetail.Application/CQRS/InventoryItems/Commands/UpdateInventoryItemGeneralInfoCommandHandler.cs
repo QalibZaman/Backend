@@ -2,7 +2,8 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
