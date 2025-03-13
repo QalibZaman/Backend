@@ -22,5 +22,9 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(p => p.Price).HasPrecision(18, 2);
 
         builder.Property(p => p.Description).HasMaxLength(500);
+
+        builder.Property(p => p.ProductLocation).HasMaxLength(100);
+
+        builder.Property(p => p.Status).HasConversion<string>();
     }
 }
