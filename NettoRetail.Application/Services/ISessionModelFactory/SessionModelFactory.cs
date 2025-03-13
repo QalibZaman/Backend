@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Entities;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
 
