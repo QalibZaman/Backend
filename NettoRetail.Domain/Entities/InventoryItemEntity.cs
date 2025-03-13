@@ -16,7 +16,7 @@ public class InventoryItemEntity
     public required int AvailableAmount { get; set; }
     public required int ReservedAmount { get; set; }
     public required int OnHandAmount { get; set; }
-    public required string ProductLocation { get; set; }
+    public required string ProductLocation { get; set; } = "No location";
 
     public required CategoryEntity Category { get; set; }
 }

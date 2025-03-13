@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250313061105_AddMissingInventoryItemFields")]
-    partial class AddMissingInventoryItemFields
+    [Migration("20250313065843_FixAllMigrationIssues")]
+    partial class FixAllMigrationIssues
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
