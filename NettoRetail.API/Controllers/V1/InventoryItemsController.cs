@@ -14,6 +14,17 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
+    {
+        var inventoryItemListDownloadCommand = new UpdateInventoryItemGeneralInfoCommand(model);
+
+        await mediator.Send(inventoryItemCreationCommand, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
