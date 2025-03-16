@@ -2,7 +2,9 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
@@ -33,6 +35,9 @@ public class UpdateInventoryItemGeneralInfoCommandHandler(IInventoryItemReposito
 
         request.Model.Adapt(inventoryItem);
         inventoryItem.LastUpdatedDate = DateTime.UtcNow;
+        inventoryItem.Status = inventoryItem.IsActive
+            ? InventoryItemStatusEnum.Available
+            : InventoryItemStatusEnum.Unavailable;
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
     }
