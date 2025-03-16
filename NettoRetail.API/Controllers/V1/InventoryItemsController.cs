@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
+using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -14,14 +15,14 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
-    [HttpGet]
+    [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
     {
-        var inventoryItemListDownloadCommand = new UpdateInventoryItemGeneralInfoCommand(model);
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
 
-        await mediator.Send(inventoryItemCreationCommand, cancellationToken);
+        var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
 
-        return NoContent();
+        return File(response, "text/csv", "Inventory items.csv");
     }
 
     [Authorize]

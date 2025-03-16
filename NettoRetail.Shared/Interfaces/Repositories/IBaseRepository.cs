@@ -13,4 +13,5 @@ public interface IBaseRepository<TEntity>
     Task DeleteManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task UpdateAsync(TEntity model, CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
 }
