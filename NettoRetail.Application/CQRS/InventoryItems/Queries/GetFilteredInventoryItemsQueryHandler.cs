@@ -19,8 +19,22 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
 
         if (request.Model.ProductName != null)
         {
-            var nameSpecification = new GetInventoryItemsByPartialNameSpecification(request.Model.ProductName);
             specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName);
+        }
+
+        if (request.Model.ProductLocation != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation);
+        }
+
+        if (request.Model.CategoryId != 0) // TODO: MAKE IT SO THAT HIGHER LEVEL CATEGORIES ALSO CAN BE FILTERED
+        {
+            specificationBuilder.Add<GetInventoryItemsByCategoryId>(request.Model.CategoryId);
+        }
+
+        if (request.Model.Available != 0)
+        {
+            specificationBuilder.Add<GetInventoryItemsByCategoryId>(request.Model.CategoryId);
         }
 
         var getSpecification = specificationBuilder.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).Build();
