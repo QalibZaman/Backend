@@ -12,8 +12,12 @@ public class Specification<TEntity>
     public Expression<Func<TEntity, bool>> Criteria { get; set; }
 
     // Ordering expressions
-    public Expression<Func<TEntity, object>>? OrderBy { get; set; }
-    public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
+    //public Expression<Func<TEntity, object>>? OrderBy { get; set; }
+    //public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
+
+    private readonly List<(Expression<Func<TEntity, object>>, bool)> _orderings;
+    public IEnumerable<(Expression<Func<TEntity, object>> Expr, bool IsDesc)> Orderings => _orderings;
+
 
     // Includes
     private readonly List<Expression<Func<TEntity, object>>> _includes;
@@ -27,6 +31,7 @@ public class Specification<TEntity>
     {
         Criteria = criteria;
         _includes = new List<Expression<Func<TEntity, object>>>();
+        _orderings = new List<(Expression<Func<TEntity, object>>, bool)>();
     }
 
     public Specification<TEntity> And(Specification<TEntity> next)
@@ -45,6 +50,12 @@ public class Specification<TEntity>
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
     {
         _includes.Add(includeExpression);
+        return this;
+    }
+
+    public Specification<TEntity> AddOrderBy(Expression<Func<TEntity, object>> orderByExpression, bool descending = false)
+    {
+        _orderings.Add((orderByExpression, descending));
         return this;
     }
 }

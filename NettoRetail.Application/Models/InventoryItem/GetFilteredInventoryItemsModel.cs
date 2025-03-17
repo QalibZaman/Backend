@@ -11,7 +11,15 @@ public class GetFilteredInventoryItemsModel
     public int MinReservedAmount { get; set; }
     public int MaxOnHandAmount { get; set; }
     public int MinOnHandAmount { get; set; }
-    public decimal MinPrice { get; set; }
     public decimal MaxPrice { get; set; }
-    public string? status { get; set; } // TODO Wtf is status
+    public decimal MinPrice { get; set; }
+    public string? Status { get; set; }
+
+    public List<SortingOption>? SortingOptions { get; set; }
+}
+
+public class SortingOption
+{
+    public string Field { get; set; } = string.Empty;
+    public bool IsDescending { get; set; }
 }

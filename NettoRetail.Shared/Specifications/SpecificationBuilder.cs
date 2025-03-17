@@ -24,17 +24,17 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
-    public SpecificationBuilder<TEntity> SetOrderBy(Expression<Func<TEntity, object>> expression)
+    public SpecificationBuilder<TEntity> AddOrderBy(Expression<Func<TEntity, object>> expression, bool isDesc = false)
     {
-        _specification.OrderBy = expression;
+        _specification.AddOrderBy(expression, isDesc);
         return this;
     }
 
-    public SpecificationBuilder<TEntity> SetOrderByDescending(Expression<Func<TEntity, object>> expression)
-    {
-        _specification.OrderByDescending = expression;
-        return this;
-    }
+    //public SpecificationBuilder<TEntity> SetOrderByDescending(Expression<Func<TEntity, object>> expression)
+    //{
+    //    _specification.OrderByDescending = expression;
+    //    return this;
+    //}
 
     public SpecificationBuilder<TEntity> Add<TSpecification>(params object?[]? args)
         where TSpecification : Specification<TEntity>

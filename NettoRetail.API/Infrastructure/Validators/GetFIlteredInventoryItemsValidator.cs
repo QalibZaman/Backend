@@ -1,0 +1,62 @@
+﻿namespace NettoRetail.API.Infrastructure.Validators;
+
+using FluentValidation;
+using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Domain.Enums;
+
+public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredInventoryItemsModel>
+{
+    public GetFilteredInventoryItemsValidator()
+    {
+        RuleFor(x => x.ProductName)
+            .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
+            .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
+            .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+
+        RuleFor(x => x.CategoryId)
+            .GreaterThan(0).WithMessage("Category ID must be greater than 0.");
+
+        RuleFor(x => x.MinAvailableAmount)
+            .GreaterThanOrEqualTo(0).WithMessage("Min available amount must be 0 or greater.");
+
+        RuleFor(x => x.MaxAvailableAmount)
+            .GreaterThanOrEqualTo(x => x.MinAvailableAmount).WithMessage("Max available amount must be greater than or equal to min available amount.");
+
+        RuleFor(x => x.MinReservedAmount)
+            .GreaterThanOrEqualTo(0).WithMessage("Min reserved amount must be 0 or greater.");
+
+        RuleFor(x => x.MaxReservedAmount)
+            .GreaterThanOrEqualTo(x => x.MinReservedAmount).WithMessage("Max reserved amount must be greater than or equal to min reserved amount.");
+
+        RuleFor(x => x.MinOnHandAmount)
+            .GreaterThanOrEqualTo(0).WithMessage("Min on-hand amount must be 0 or greater.");
+
+        RuleFor(x => x.MaxOnHandAmount)
+            .GreaterThanOrEqualTo(x => x.MinOnHandAmount).WithMessage("Max on-hand amount must be greater than or equal to min on-hand amount.");
+
+        RuleFor(x => x.MinPrice)
+            .GreaterThanOrEqualTo(0).WithMessage("Min price must be 0 or greater.")
+            .PrecisionScale(18, 2, false).WithMessage("Min price must not have more than 2 decimal places.");
+
+        RuleFor(x => x.MaxPrice)
+            .GreaterThanOrEqualTo(x => x.MinPrice).WithMessage("Max price must be greater than or equal to min price.")
+            .PrecisionScale(18, 2, false).WithMessage("Max price must not have more than 2 decimal places.");
+
+        RuleFor(x => x.Status)
+                    .Must(BeAValidStatus).WithMessage("Invalid status value provided.");
+
+        RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
+        {
+            sorting.RuleFor(x => x.Field)
+                .NotEmpty().WithMessage("Sorting field is required.");
+        });
+    }
+
+    private bool BeAValidStatus(string? status)
+    {
+        if (string.IsNullOrEmpty(status))
+            return true;
+
+        return Enum.TryParse(typeof(InventoryItemStatusEnum), status, true, out _);
+    }
+}
