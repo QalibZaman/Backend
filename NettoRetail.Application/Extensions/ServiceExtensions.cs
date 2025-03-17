@@ -7,6 +7,7 @@ using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -33,5 +34,6 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
+        services.AddScoped<ICsvFileService, CsvFileService>();
     }
 }
