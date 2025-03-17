@@ -1,78 +1,85 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using NettoRetail.Shared.Exceptions;
 
 namespace NettoRetail.Shared.Utilities;
 
 public static class EncryptionUtility
 {
-    private const int AesBlockSize = 16; 
-    private const int AesKeySize = 32;   
+    private const int AesBlockSize = 16;
+    private const int AesKeySize = 32;
 
     public static string Encrypt(string plainText, string base64Key)
     {
-        if (string.IsNullOrEmpty(plainText) || string.IsNullOrEmpty(base64Key))
-            return string.Empty;
+        if (string.IsNullOrEmpty(plainText))
+            throw new EncryptionException("Encryption failed: input text is empty.");
 
-        var keyBytes = Convert.FromBase64String(base64Key);
-        if (keyBytes.Length != AesKeySize)
-            throw new ArgumentException($"Key must be {AesKeySize} bytes long.");
+        if (!IsValidKey(base64Key))
+            throw new EncryptionException("Encryption failed: invalid encryption key.");
 
-        var ivBytes = GenerateInitializationVector();
+        try
+        {
+            var keyBytes = Convert.FromBase64String(base64Key);
+            var ivBytes = GenerateInitializationVector();
 
-        using var aes = Aes.Create();
-        aes.Key = keyBytes;
-        aes.IV = ivBytes;
-        aes.Mode = CipherMode.CBC;
-        aes.Padding = PaddingMode.PKCS7;
+            using var aes = CreateAesCipher(keyBytes, ivBytes);
+            using var encryptor = aes.CreateEncryptor();
+            var encryptedBytes = PerformCryptoTransform(encryptor, Encoding.UTF8.GetBytes(plainText));
 
-        using var encryptor = aes.CreateEncryptor();
-        var plainBytes = Encoding.UTF8.GetBytes(plainText);
-        var encryptedBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
-
-        var combinedBytes = new byte[AesBlockSize + encryptedBytes.Length];
-        Buffer.BlockCopy(ivBytes, 0, combinedBytes, 0, AesBlockSize);
-        Buffer.BlockCopy(encryptedBytes, 0, combinedBytes, AesBlockSize, encryptedBytes.Length);
-
-        return Convert.ToBase64String(combinedBytes);
+            return Convert.ToBase64String(CombineIvAndEncryptedData(ivBytes, encryptedBytes));
+        }
+        catch (Exception ex)
+        {
+            throw new EncryptionException("Encryption failed due to an internal error.", ex);
+        }
     }
 
     public static string Decrypt(string encryptedText, string base64Key)
     {
-        if (string.IsNullOrEmpty(encryptedText) || string.IsNullOrEmpty(base64Key))
-            return string.Empty;
+        if (string.IsNullOrEmpty(encryptedText))
+            throw new EncryptionException("Decryption failed: input text is empty.");
 
-        var keyBytes = Convert.FromBase64String(base64Key);
-        if (keyBytes.Length != AesKeySize)
-            throw new ArgumentException($"Key must be {AesKeySize} bytes long.");
-
-        var combinedBytes = Convert.FromBase64String(encryptedText);
-
-        if (combinedBytes.Length < AesBlockSize)
-            return string.Empty; 
-
-        var ivBytes = new byte[AesBlockSize];
-        var encryptedBytes = new byte[combinedBytes.Length - AesBlockSize];
-
-        Buffer.BlockCopy(combinedBytes, 0, ivBytes, 0, AesBlockSize);
-        Buffer.BlockCopy(combinedBytes, AesBlockSize, encryptedBytes, 0, encryptedBytes.Length);
-
-        using var aes = Aes.Create();
-        aes.Key = keyBytes;
-        aes.IV = ivBytes;
-        aes.Mode = CipherMode.CBC;
-        aes.Padding = PaddingMode.PKCS7;
+        if (!IsValidKey(base64Key))
+            throw new EncryptionException("Decryption failed: invalid decryption key.");
 
         try
         {
+            var keyBytes = Convert.FromBase64String(base64Key);
+            var combinedBytes = Convert.FromBase64String(encryptedText);
+
+            if (combinedBytes.Length < AesBlockSize)
+                throw new EncryptionException("Decryption failed: input data is too short.");
+
+            var (ivBytes, encryptedBytes) = SplitIvAndEncryptedData(combinedBytes);
+
+            using var aes = CreateAesCipher(keyBytes, ivBytes);
             using var decryptor = aes.CreateDecryptor();
-            var decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
-            return Encoding.UTF8.GetString(decryptedBytes);
+
+            return Encoding.UTF8.GetString(PerformCryptoTransform(decryptor, encryptedBytes));
         }
         catch (CryptographicException ex)
         {
-            Console.WriteLine($"Decryption failed: {ex.Message}");
-            return string.Empty; 
+            throw new EncryptionException("Decryption failed due to an invalid or tampered input.", ex);
         }
+        catch (Exception ex)
+        {
+            throw new EncryptionException("Decryption failed due to an internal error.", ex);
+        }
+    }
+
+    private static Aes CreateAesCipher(byte[] key, byte[] iv)
+    {
+        var aes = Aes.Create();
+        aes.Key = key;
+        aes.IV = iv;
+        aes.Mode = CipherMode.CBC;
+        aes.Padding = PaddingMode.PKCS7;
+        return aes;
+    }
+
+    private static byte[] PerformCryptoTransform(ICryptoTransform transform, byte[] data)
+    {
+        return transform.TransformFinalBlock(data, 0, data.Length);
     }
 
     private static byte[] GenerateInitializationVector()
@@ -80,5 +87,40 @@ public static class EncryptionUtility
         var iv = new byte[AesBlockSize];
         RandomNumberGenerator.Fill(iv);
         return iv;
+    }
+
+    private static byte[] CombineIvAndEncryptedData(byte[] iv, byte[] encryptedData)
+    {
+        var combined = new byte[AesBlockSize + encryptedData.Length];
+        Buffer.BlockCopy(iv, 0, combined, 0, AesBlockSize);
+        Buffer.BlockCopy(encryptedData, 0, combined, AesBlockSize, encryptedData.Length);
+        return combined;
+    }
+
+    private static (byte[] iv, byte[] encryptedData) SplitIvAndEncryptedData(byte[] combinedData)
+    {
+        var iv = new byte[AesBlockSize];
+        var encryptedData = new byte[combinedData.Length - AesBlockSize];
+
+        Buffer.BlockCopy(combinedData, 0, iv, 0, AesBlockSize);
+        Buffer.BlockCopy(combinedData, AesBlockSize, encryptedData, 0, encryptedData.Length);
+
+        return (iv, encryptedData);
+    }
+
+    private static bool IsValidKey(string base64Key)
+    {
+        if (string.IsNullOrEmpty(base64Key))
+            return false;
+
+        try
+        {
+            var keyBytes = Convert.FromBase64String(base64Key);
+            return keyBytes.Length == AesKeySize;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }

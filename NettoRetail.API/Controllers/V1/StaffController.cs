@@ -115,8 +115,8 @@ public class StaffController(
     [HttpPost("enable-2fa")]
     public async Task<IActionResult> EnableTwoFactorAuth([FromBody] EnableTwoFactorAuthRequest request)
     {
-        var userId = HttpContext.GetUserId(); 
-        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext); 
+        var userId = HttpContext.GetUserId();
+        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
 
         var command = new EnableTwoFactorAuthCommand(userId, request, accessToken!);
         var response = await mediator.Send(command);
@@ -136,8 +136,7 @@ public class StaffController(
         return NoContent();
     }
 
-
-    [Authorize(Policy = "TempTokenPolicy")]
+    [Authorize(AuthenticationSchemes = "TempToken", Policy = "TempTokenPolicy")]
     [HttpPost("verify-2fa")]
     public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTotpRequest request)
     {
