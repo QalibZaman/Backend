@@ -42,19 +42,20 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
 
     public async Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken)
     {
-        var categories = new List<CategoryEntity>();
-        var category = await _dbSet
-            .Include(c => c.ParentCategory)
-            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
+        var sql = $@"
+            WITH RECURSIVE CategoriesSubtree AS (
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level""
+                FROM public.""Categories"" c WHERE c.""Id"" = {categoryId}
 
-        while (category != null)
-        {
-            categories.Insert(0, category);
-            category = await _dbSet
-                .Include(c => c.ParentCategory)
-                .FirstOrDefaultAsync(c => c.Id == category.ParentId, cancellationToken);
-        }
+                UNION ALL
 
-        return categories;
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level""
+                FROM public.""Categories"" c
+                INNER JOIN CategoriesSubtree rc ON c.""Id"" = rc.""ParentId""
+            )
+            SELECT * FROM CategoriesSubtree
+            ORDER BY ""Level"" ASC;";
+
+        return await _dbSet.FromSqlRaw(sql).ToListAsync(cancellationToken);
     }
 }

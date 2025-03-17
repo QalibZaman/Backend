@@ -26,8 +26,8 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<AddCategoryCommand>();
@@ -37,8 +37,8 @@ namespace NettoRetail.API.Controllers.V1
             return Created(string.Empty, new ApiResponse<CategoryResponse>(response));
         }
 
-        [HttpDelete("{id:int}")]
         [Authorize]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
@@ -46,8 +46,8 @@ namespace NettoRetail.API.Controllers.V1
             return NoContent();
         }
 
-        [HttpPatch("{id:int}")]
         [Authorize]
+        [HttpPatch("{id:int}")]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<UpdateCategoryCommand>();
