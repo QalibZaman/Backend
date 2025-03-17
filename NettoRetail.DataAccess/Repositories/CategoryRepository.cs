@@ -42,10 +42,10 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
 
     public async Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken)
     {
-        var sql = $@"
+        var sql = @"
             WITH RECURSIVE CategoriesSubtree AS (
                 SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level""
-                FROM public.""Categories"" c WHERE c.""Id"" = {categoryId}
+                FROM public.""Categories"" c WHERE c.""Id"" = @p0
 
                 UNION ALL
 
@@ -56,6 +56,6 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
             SELECT * FROM CategoriesSubtree
             ORDER BY ""Level"" ASC;";
 
-        return await _dbSet.FromSqlRaw(sql).ToListAsync(cancellationToken);
+        return await _dbSet.FromSqlRaw(sql, categoryId).ToListAsync(cancellationToken);
     }
 }
