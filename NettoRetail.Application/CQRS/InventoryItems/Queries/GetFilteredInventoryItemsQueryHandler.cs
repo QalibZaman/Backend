@@ -95,7 +95,7 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
             }
         }
 
-        var specification = specificationBuilder.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).Build();
+        var specification = specificationBuilder.Skip(request.PageNumber * request.PageSize).Take(request.PageSize).Build();
 
         var items = await inventoryItemRepository.GetPaginatedAsync(specification, cancellationToken);
 
