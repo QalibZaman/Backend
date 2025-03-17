@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
@@ -26,6 +27,7 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<AddCategoryCommand>();
@@ -36,6 +38,7 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
@@ -44,6 +47,7 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<UpdateCategoryCommand>();

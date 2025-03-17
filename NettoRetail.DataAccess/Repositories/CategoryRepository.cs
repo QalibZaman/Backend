@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
@@ -37,5 +38,23 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         var response = await query.ToListAsync(cancellationToken);
 
         return response;
+    }
+
+    public async Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken)
+    {
+        var categories = new List<CategoryEntity>();
+        var category = await _dbSet
+            .Include(c => c.ParentCategory)
+            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
+
+        while (category != null)
+        {
+            categories.Insert(0, category);
+            category = await _dbSet
+                .Include(c => c.ParentCategory)
+                .FirstOrDefaultAsync(c => c.Id == category.ParentId, cancellationToken);
+        }
+
+        return categories;
     }
 }
