@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
+using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -13,6 +15,17 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/inventory-items")]
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetInventoryItemGeneralInfo(Guid id, CancellationToken cancellationToken)
+    {
+        var inventoryItemQuery = new GetInventoryItemGeneralInfoQuery(id);
+        var data = await mediator.Send(inventoryItemQuery, cancellationToken);
+        var response = new ApiResponse<InventoryItemGeneralInfoResponse>(data);
+
+        return Ok(response);
+    }
+
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
@@ -30,9 +43,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> EditInventoryItemGeneralInfo(Guid id, UpdateInventoryItemGeneralInfoModel model, CancellationToken cancellationToken)
     {
-        var inventoryItemCreationCommand = new UpdateInventoryItemGeneralInfoCommand(id, model);
+        var inventoryItemUpdatingCommand = new UpdateInventoryItemGeneralInfoCommand(id, model);
 
-        await mediator.Send(inventoryItemCreationCommand, cancellationToken);
+        await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
 
         return NoContent();
     }
