@@ -77,8 +77,20 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         var accessToken = Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var refreshToken = Generate(refreshTokenClaims, TimeSpan.FromDays(refreshTokenExpirationDays));
 
-        var tokenResponse = new TokenResponse(accessToken, refreshToken);
+        var tokenResponse = new TokenResponse(accessToken, refreshToken, null);
 
         return tokenResponse;
     }
+
+    public string GenerateTempToken(string userId)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new("token_type", "temp")
+        };
+
+        return Generate(claims, TimeSpan.FromMinutes(jwtOptions.Value.TempTokenExpirationMinutes));
+    }
+
 }

@@ -1,10 +1,11 @@
-using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Utilities;
+using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -29,5 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
+        services.AddScoped<ITotpService, TotpService>();
+
     }
 }

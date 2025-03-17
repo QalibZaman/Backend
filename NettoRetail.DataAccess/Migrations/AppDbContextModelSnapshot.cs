@@ -269,6 +269,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("EncryptedTotpSecret")
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -286,6 +289,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -348,14 +354,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
-                    modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
-                        {
-                            b.Navigation("StaffEntities");
-                        });
-                    modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
-                        {
-                            b.Navigation("InventoryItems");
-                        });
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Navigation("InventoryItems");
+                });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {

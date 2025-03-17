@@ -47,7 +47,7 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
         var newAccessToken = jwtManager.Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var newRefreshToken = jwtManager.Generate(claimsPrincipal.Claims.ToList(), TimeSpan.FromDays(refreshTokenExpirationDays));
 
-        var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken);
+        var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken, null);
 
         return tokenResponse;
     }

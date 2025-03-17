@@ -1,12 +1,7 @@
-﻿using Azure.Core;
-using Microsoft.Extensions.Options;
-using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Repositories;
+﻿using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Options;
-using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services;
 public class BlacklistTokenService(IBlacklistedTokenRepository blacklistedTokenRepository) : IBlacklistTokenService

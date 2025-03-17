@@ -38,6 +38,17 @@ public static class AuthenticationExtensions
                     OnTokenValidated = async context =>
                     {
                         var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
+                        var requestPath = context.HttpContext.Request.Path.Value;
+
+                        if (tokenTypeClaim == "temp")
+                        {
+                            if (!requestPath.StartsWith("/api/v1/staff/verify-2fa", StringComparison.OrdinalIgnoreCase))
+                            {
+                                context.Fail("Temp token can only be used for 2FA verification.");
+                                return;
+                            }
+                        }
+
                         if (tokenTypeClaim != "access")
                         {
                             context.Fail("Invalid token type. Expected an access token.");
@@ -69,6 +80,11 @@ public static class AuthenticationExtensions
                 .RequireAuthenticatedUser()
                 .AddAuthenticationSchemes("Default")
                 .Build();
+
+            options.AddPolicy("TempTokenPolicy", policy =>
+                policy.RequireAuthenticatedUser()
+                .RequireClaim("token_type", "temp")
+                .AddAuthenticationSchemes("Default"));
 
             // We can later on add the Google policy using options.AddPolicy()
             // note: you should obviously have a policy pre-defined in AddAuthentication before creating an authorization policy.

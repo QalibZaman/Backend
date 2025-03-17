@@ -1,12 +1,10 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
@@ -46,6 +44,12 @@ public class LoginCommandHandler(IStaffRepository repository,
         if (loginAttempt != null)
         {
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+        }
+
+        if (user.TwoFactorEnabled)
+        {
+            var tempToken = jwtManager.GenerateTempToken(user.Id.ToString());
+            return new TokenResponse(null, null, tempToken);
         }
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
