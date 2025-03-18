@@ -2,9 +2,8 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
@@ -29,6 +28,6 @@ public class VerifyTwoFactorAuthCommandHandler(
             throw new MyUnauthorizedException("Invalid 2FA code.");
         }
 
-        return jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString());
+        return jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
     }
 }

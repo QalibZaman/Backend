@@ -12,6 +12,8 @@ public class StaffEntity
     public string? EncryptedTotpSecret { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
+    public int? ShopId { get; set; }
+    public ShopEntity? Shop { get; set; }
     public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
 }

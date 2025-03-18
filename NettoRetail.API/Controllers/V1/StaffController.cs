@@ -6,8 +6,11 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
+using NettoRetail.Application.CQRS.Users.Commands.Auth;
+using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.Models.Authentication;
-using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
@@ -136,10 +139,11 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(AuthenticationSchemes = "TempToken", Policy = "TempTokenPolicy")]
+    [Authorize(AuthenticationSchemes = "TempToken", Policy = PolicyNames.TwoFactorAuthPolicy)]
     [HttpPost("verify-2fa")]
     public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTotpRequest request)
     {
+
         var userId = HttpContext.GetUserId();
         var command = new VerifyTwoFactorAuthCommand(userId, request.TotpCode);
 

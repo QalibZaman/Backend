@@ -1,5 +1,5 @@
 ﻿using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Token;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 

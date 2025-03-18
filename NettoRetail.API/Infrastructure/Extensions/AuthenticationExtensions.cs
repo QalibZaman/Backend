@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NettoRetail.API.Infrastructure.Authorization;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
@@ -83,10 +84,11 @@ public static class AuthenticationExtensions
                         var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
                         if (tokenTypeClaim != "temp")
                         {
+                            Console.WriteLine("dcd");
+
                             context.Fail("Invalid token type. Expected a temp token.");
                             return Task.CompletedTask;
                         }
-
                         return Task.CompletedTask;
                     }
                 };
@@ -99,12 +101,22 @@ public static class AuthenticationExtensions
                 .AddAuthenticationSchemes("Default")
                 .Build();
 
-            options.AddPolicy("TempTokenPolicy", policy =>
+            options.AddPolicy(PolicyNames.ShopPolicy, policy =>
+                policy.Requirements.Add(new ShopAuthorizationRequirement()));
+
+            options.AddPolicy(PolicyNames.TwoFactorAuthPolicy, policy =>
                 policy.RequireAuthenticatedUser()
                 .RequireClaim("token_type", "temp")
                 .AddAuthenticationSchemes("TempToken"));
         });
 
+        services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
         return services;
     }
+}
+
+public static class PolicyNames
+{
+    public const string ShopPolicy = "ShopPolicy";
+    public const string TwoFactorAuthPolicy = "TwoFactorAuthPolicy";
 }

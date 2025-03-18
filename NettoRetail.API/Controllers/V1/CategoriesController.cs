@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
 using NettoRetail.Application.CQRS.Categories.Queries;
-using NettoRetail.Application.Models.Category;
+using NettoRetail.Application.Models.Request.Category;
+using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1
 {

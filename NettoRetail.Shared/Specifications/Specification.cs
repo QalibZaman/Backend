@@ -31,15 +31,37 @@ public class Specification<TEntity>
 
     public Specification<TEntity> And(Specification<TEntity> next)
     {
-        var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
-            Expression.AndAlso(Criteria.Body, Expression.Invoke(next.Criteria, Criteria.Parameters[0])));
+        var parameter = Expression.Parameter(typeof(TEntity), "p");
 
-        return new Specification<TEntity>(combinedExpression);
+        var leftVisitor = new ReplaceParameterVisitor(Criteria.Parameters[0], parameter);
+        var rightVisitor = new ReplaceParameterVisitor(next.Criteria.Parameters[0], parameter);
+
+        var left = leftVisitor.Visit(Criteria.Body);
+        var right = rightVisitor.Visit(next.Criteria.Body);
+        Criteria = Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(left, right), parameter);
+        return this;
     }
 
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
     {
         _includes.Add(includeExpression);
         return this;
+    }
+}
+
+public class ReplaceParameterVisitor : ExpressionVisitor
+{
+    private readonly ParameterExpression _oldParameter;
+    private readonly ParameterExpression _newParameter;
+
+    public ReplaceParameterVisitor(ParameterExpression oldParameter, ParameterExpression newParameter)
+    {
+        _oldParameter = oldParameter;
+        _newParameter = newParameter;
+    }
+
+    protected override Expression VisitParameter(ParameterExpression node)
+    {
+        return node == _oldParameter ? _newParameter : base.VisitParameter(node);
     }
 }

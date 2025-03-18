@@ -2,6 +2,8 @@ using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.ICountryCacheService;
+using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Utilities;
@@ -27,6 +29,8 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddScoped<ICountryCacheService, CountryCacheService>();
+        services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();

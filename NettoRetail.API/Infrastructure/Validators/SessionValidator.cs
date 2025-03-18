@@ -3,6 +3,7 @@ using FluentValidation;
 using NettoRetail.Application.Models.Entities;
 
 namespace NettoRetail.API.Infrastructure.Validators;
+
 public class SessionValidator : AbstractValidator<SessionModel>
 {
     public SessionValidator()

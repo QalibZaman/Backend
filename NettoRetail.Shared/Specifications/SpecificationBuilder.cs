@@ -76,7 +76,7 @@ public class SpecificationBuilder<TEntity>
 
         for (var i = 0; i < argsCount; i++)
         {
-            var specParameter = matchingConstructorParameters[i].GetType();
+            var specParameter = matchingConstructorParameters[i].ParameterType;
             var argParam = args[i]!.GetType();
 
             if (!specParameter.IsAssignableFrom(argParam)) return false;
