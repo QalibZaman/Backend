@@ -54,6 +54,7 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         ";
 
         return await _dbContext.Categories.FromSqlRaw(query, categoryId).ToListAsync(cancellationToken);
+    }
 
     public async Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken)
     {
