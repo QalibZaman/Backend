@@ -1,6 +1,7 @@
 ﻿namespace NettoRetail.API.Infrastructure.Validators;
 
 using FluentValidation;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Domain.Enums;
 
@@ -43,20 +44,12 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
             .PrecisionScale(18, 2, false).WithMessage("Max price must not have more than 2 decimal places.");
 
         RuleFor(x => x.Status)
-                    .Must(BeAValidStatus).WithMessage("Invalid status value provided.");
+                    .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {
             sorting.RuleFor(x => x.Field)
                 .NotEmpty().WithMessage("Sorting field is required.");
         });
-    }
-
-    private bool BeAValidStatus(string? status)
-    {
-        if (string.IsNullOrEmpty(status))
-            return true;
-
-        return Enum.TryParse(typeof(InventoryItemStatusEnum), status, true, out _);
     }
 }
