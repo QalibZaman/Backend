@@ -43,7 +43,7 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
     {
         var query = @"
             WITH RECURSIVE CategoriesSubtree AS (
-                SELECT * FROM public.""Categories"" WHERE ""Id"" = 2
+                SELECT * FROM public.""Categories"" WHERE ""Id"" = @p0
                 UNION ALL
                 SELECT c.* FROM public.""Categories"" c
                 INNER JOIN CategoriesSubtree rc ON c.""ParentId"" = rc.""Id""
