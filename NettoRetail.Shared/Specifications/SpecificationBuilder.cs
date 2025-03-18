@@ -5,7 +5,7 @@ namespace NettoRetail.Shared.Specifications;
 public class SpecificationBuilder<TEntity>
     where TEntity : class
 {
-    private readonly Specification<TEntity> _specification;
+    private Specification<TEntity> _specification;
 
     public SpecificationBuilder()
     {
@@ -30,11 +30,11 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
-    //public SpecificationBuilder<TEntity> SetOrderByDescending(Expression<Func<TEntity, object>> expression)
-    //{
-    //    _specification.OrderByDescending = expression;
-    //    return this;
-    //}
+    public SpecificationBuilder<TEntity> AddInclude(Expression<Func<TEntity, object>> include)
+    {
+        _specification.AddInclude(include);
+        return this;
+    }
 
     public SpecificationBuilder<TEntity> Add<TSpecification>(params object?[]? args)
         where TSpecification : Specification<TEntity>
@@ -55,7 +55,8 @@ public class SpecificationBuilder<TEntity>
         // Otherwise we create the instance of the generic specification dynamically
         // and then chain it to the previous specification.
         var newSpecification = (TSpecification)Activator.CreateInstance(typeof(TSpecification), args)!;
-        _specification.And(newSpecification);
+
+        _specification = _specification.And(newSpecification);
         return this;
     }
 

@@ -14,4 +14,14 @@ public static class ClaimsPrincipalExtensions
             parsedUserId :
             throw new BadRequestException("User is unavailable");
     }
+
+    public static int GetUserShopId(this ClaimsPrincipal? principal)
+    {
+        var userShopId = principal?.FindFirstValue("shop_id");
+        var isParsed = int.TryParse(userShopId, out int parsedUserShopId);
+
+        return isParsed ?
+            parsedUserShopId :
+            throw new BadRequestException("User is unavailable");
+    }
 }

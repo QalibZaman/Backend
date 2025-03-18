@@ -6,6 +6,6 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 
 public class GetInventoryItemsByPartialNameSpecification : Specification<InventoryItemEntity>
 {
-    public GetInventoryItemsByPartialNameSpecification(string? partialName)
+    public GetInventoryItemsByPartialNameSpecification(string partialName)
     : base(x => EF.Functions.ILike(x.ProductName, $"%{partialName}%")) { }
 }

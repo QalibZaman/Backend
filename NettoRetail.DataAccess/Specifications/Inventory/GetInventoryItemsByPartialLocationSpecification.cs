@@ -6,6 +6,6 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 
 public class GetInventoryItemsByPartialLocationSpecification : Specification<InventoryItemEntity>
 {
-    public GetInventoryItemsByPartialLocationSpecification(string? partialLocation)
+    public GetInventoryItemsByPartialLocationSpecification(string partialLocation)
     : base(x => EF.Functions.ILike(x.ProductLocation, $"%{partialLocation}%")) { }
 }

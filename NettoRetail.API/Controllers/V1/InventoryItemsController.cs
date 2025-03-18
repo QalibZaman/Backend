@@ -31,7 +31,13 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
-        var inventoryItemCreationCommand = new CreateInventoryItemCommand(model);
+        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
+        if (!authResult.Succeeded)
+            return Unauthorized();
+
+        var userShopId = HttpContext.getUserShopId();
+
+        var inventoryItemCreationCommand = new CreateInventoryItemCommand(model, userShopId);
 
         var data = await mediator.Send(inventoryItemCreationCommand);
 
@@ -59,10 +65,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         if (!authResult.Succeeded)
             return Unauthorized();
 
-        if (!int.TryParse(HttpContext.User.FindFirst("shop_id")?.Value, out int userShopId))
-        {
-            return BadRequest("Couldn't retrieve shop id from claims");
-        }
+        var userShopId = HttpContext.getUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
 

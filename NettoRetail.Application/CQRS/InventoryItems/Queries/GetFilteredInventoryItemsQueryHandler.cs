@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using System.Linq.Expressions;
+using Mapster;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.InventoryItem;
@@ -9,74 +10,36 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
-using System.Linq.Expressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int userShopId, int PageNumber, int PageSize) : IRequest<PaginatedResponse<InventoryItemResponse>>;
+public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, int PageNumber, int PageSize) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
-public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemResponse>>
+public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
-    public async Task<PaginatedResponse<InventoryItemResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
 
-        if (!request.Model.ProductName.IsNullOrEmpty())
-        {
-            specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName);
-        }
+        specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
+            .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
+            .Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount)
+            .Add<GetInventoryItemsByMinAvailableAmountSpecification>(request.Model.MinAvailableAmount)
+            .Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount)
+            .Add<GetInventoryItemsByMinReservedAmountSpecification>(request.Model.MinReservedAmount)
+            .Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount)
+            .Add<GetInventoryItemsByMinOnHandAmountSpecification>(request.Model.MinOnHandAmount)
+            .Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice)
+            .Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice)
+            .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
-        if (!request.Model.ProductLocation.IsNullOrEmpty())
-        {
-            specificationBuilder.Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation);
-        }
+        specificationBuilder.AddInclude(x => x.Category);
 
         if (request.Model.CategoryId != 0)
         {
             var categories = await categoryRepository.GetCategorySubtreeAsync(request.Model.CategoryId, cancellationToken);
             var ids = categories.Select(c => c.Id).ToList();
             specificationBuilder.Add<GetInventoryItemsByCategoriesSpecification>(ids);
-        }
-
-        if (request.Model.MaxAvailableAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount);
-        }
-
-        if (request.Model.MinAvailableAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMinAvailableAmountSpecification>(request.Model.MinAvailableAmount);
-        }
-
-        if (request.Model.MaxReservedAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount);
-        }
-
-        if (request.Model.MinReservedAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMinReservedAmountSpecification>(request.Model.MinReservedAmount);
-        }
-
-        if (request.Model.MaxOnHandAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount);
-        }
-
-        if (request.Model.MinOnHandAmount != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMinOnHandAmountSpecification>(request.Model.MinOnHandAmount);
-        }
-
-        if (request.Model.MaxPrice != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice);
-        }
-
-        if (request.Model.MinPrice != 0)
-        {
-            specificationBuilder.Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice);
         }
 
         if (!request.Model.Status.IsNullOrEmpty())
@@ -101,12 +64,13 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
 
         var totalAmount = await inventoryItemRepository.GetFilteredAmountAsync(specification, cancellationToken);
 
-        var responseCollection = items.Adapt<List<InventoryItemResponse>>();
+        var responseCollection = items.Adapt<List<InventoryItemListResponse>>();
 
-        var responseModel = new PaginatedResponse<InventoryItemResponse> { Items = responseCollection, TotalAmount = totalAmount };
+        var responseModel = new PaginatedResponse<InventoryItemListResponse> { Items = responseCollection, TotalAmount = totalAmount };
 
         return responseModel;
     }
+
     private static Expression<Func<InventoryItemEntity, object>> GetSortingExpression(string fieldName)
     {
         return fieldName.ToLower() switch

@@ -9,4 +9,10 @@ public static class HttpContextExtensions
         return context?.User?.GetUserId()
             ?? throw new NotFoundException("User context is unavailable");
     }
+
+    public static int getUserShopId(this HttpContext context)
+    {
+        return context?.User?.GetUserShopId()
+            ?? throw new NotFoundException("User context is unavailable");
+    }
 }
