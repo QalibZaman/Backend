@@ -3,11 +3,12 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 public record LogoutCommand(string AccessToken) : IRequest;
 
-public class LogoutCommandHandler(ISessionRepository sessionRepository, IBlacklistTokenService blacklistTokenService) : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler(IBlacklistTokenService blacklistTokenService) : IRequestHandler<LogoutCommand>
 {
     public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
@@ -16,9 +17,8 @@ public class LogoutCommandHandler(ISessionRepository sessionRepository, IBlackli
             throw new InvalidTokenCredentialsException("Authorization token is missing or invalid.");
         }
 
-        var specification = new GetSessionsByJwtSpecification(request.AccessToken);
-        await sessionRepository.DeleteAsync(specification, cancellationToken);
+        var expiresAt = JwtUtils.GetJwtExpiration(request.AccessToken ?? throw new InvalidTokenCredentialsException("Invalid JWT or missing expiration claim."));
 
-        await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, cancellationToken);
+        await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, expiresAt!.Value, cancellationToken);
     }
 }
