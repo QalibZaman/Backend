@@ -5,6 +5,7 @@ public class InventoryItemListResponse
     public Guid Id { get; set; }
     public required string ProductName { get; set; }
     public required string ProductCategory { get; set; }
+    public required string ProductLocation { get; set; }
     public long ProductUpc { get; set; }
     public decimal Price { get; set; }
     public int AvailableAmount { get; set; }
