@@ -12,9 +12,6 @@ public class Specification<TEntity>
     public Expression<Func<TEntity, bool>> Criteria { get; set; }
 
     // Ordering expressions
-    //public Expression<Func<TEntity, object>>? OrderBy { get; set; }
-    //public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
-
     private readonly List<(Expression<Func<TEntity, object>>, bool)> _orderings;
     public IEnumerable<(Expression<Func<TEntity, object>> Expr, bool IsDesc)> Orderings => _orderings;
 

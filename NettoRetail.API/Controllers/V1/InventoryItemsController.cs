@@ -35,7 +35,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         if (!authResult.Succeeded)
             return Unauthorized();
 
-        var userShopId = HttpContext.getUserShopId();
+        var userShopId = HttpContext.GetUserShopId();
 
         var inventoryItemCreationCommand = new CreateInventoryItemCommand(model, userShopId);
 
@@ -57,7 +57,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return NoContent();
     }
 
-    [Authorize] //(Policy = PolicyNames.HasShopClaimPolicy)
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetFilteredInventoryItems([FromBody] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
@@ -65,7 +65,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         if (!authResult.Succeeded)
             return Unauthorized();
 
-        var userShopId = HttpContext.getUserShopId();
+        var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
 
