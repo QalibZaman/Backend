@@ -12,10 +12,10 @@ public static class EncryptionUtility
     public static string Encrypt(string plainText, string base64Key)
     {
         if (string.IsNullOrEmpty(plainText))
-            throw new EncryptionException("Encryption failed: input text is empty.");
+            throw new ArgumentException("Encryption failed: input text is empty.");
 
         if (!IsValidKey(base64Key))
-            throw new EncryptionException("Encryption failed: invalid encryption key.");
+            throw new ArgumentException("Encryption failed: invalid encryption key.");
 
         try
         {
@@ -30,7 +30,7 @@ public static class EncryptionUtility
         }
         catch (Exception ex)
         {
-            throw new EncryptionException("Encryption failed due to an internal error.", ex);
+            throw new ArgumentException("Encryption failed due to an internal error.", ex);
         }
     }
 
@@ -59,11 +59,11 @@ public static class EncryptionUtility
         }
         catch (CryptographicException ex)
         {
-            throw new EncryptionException("Decryption failed due to an invalid or tampered input.", ex);
+            throw new ArgumentException("Decryption failed due to an invalid or tampered input.", ex);
         }
         catch (Exception ex)
         {
-            throw new EncryptionException("Decryption failed due to an internal error.", ex);
+            throw new ArgumentException("Decryption failed due to an internal error.", ex);
         }
     }
 

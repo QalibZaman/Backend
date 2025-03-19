@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -56,7 +57,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
     {
-        const string tokenType = "token_type";
+        const string tokenType = AuthClaims.TokenType;
 
         var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
         var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
@@ -66,7 +67,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Email, userEmail),
             new(ClaimTypes.Role, userRoleId),
-            new(tokenType, "access")
+            new(tokenType, AuthTokenTypes.Access)
         };
 
         if (shopId != null)
@@ -93,7 +94,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
-            new("token_type", "temp")
+            new(AuthClaims.TokenType, AuthTokenTypes.Temp)
         };
 
         return Generate(claims, TimeSpan.FromMinutes(jwtOptions.Value.TempTokenExpirationMinutes));

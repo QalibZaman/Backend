@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
@@ -31,42 +33,62 @@ public class TotpService(IOptions<TotpOptions> options, IOptions<TotpEncryptionO
     {
         if (string.IsNullOrEmpty(encryptedSecret))
             throw new ArgumentNullException(nameof(encryptedSecret));
+        try
+        {
+            var secretKey = EncryptionUtility.Decrypt(encryptedSecret, _encryptionKey);
+            if (secretKey == null) throw new InvalidOperationException("Decryption failed.");
 
-        var secretKey = EncryptionUtility.Decrypt(encryptedSecret, _encryptionKey);
-        if (secretKey == null) throw new InvalidOperationException("Decryption failed.");
+            var keyBytes = Base32Encoding.ToBytes(secretKey);
+            var totp = new Totp(
+                keyBytes,
+                step: _options.PeriodInSeconds,
+                mode: _options.HashMode,
+                totpSize: _options.Digits
+            );
 
-        var keyBytes = Base32Encoding.ToBytes(secretKey);
-        var totp = new Totp(
-            keyBytes,
-            step: _options.PeriodInSeconds,
-            mode: _options.HashMode,
-            totpSize: _options.Digits
-        );
+            return totp.ComputeTotp();
+        }
+        catch (ArgumentException ex)
+        {
+            throw new BadRequestException("TOTP generation failed due to an internal error.");
+        }
 
-        return totp.ComputeTotp();
+    }
+
+    public string EncryptSecret(string plainSecret)
+    {
+        try
+        {
+            return EncryptionUtility.Encrypt(plainSecret, _encryptionKey);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new BadRequestException("An error occurred while encrypting the secret.");
+        }
     }
 
     public bool VerifyCode(string encryptedSecret, string codeFromUser)
     {
         if (string.IsNullOrEmpty(encryptedSecret) || string.IsNullOrEmpty(codeFromUser))
             throw new ArgumentNullException("Secret and code are required.");
+        try
+        {
+            var secretKey = EncryptionUtility.Decrypt(encryptedSecret, _encryptionKey);
+            if (secretKey == null) return false;
 
-        var secretKey = EncryptionUtility.Decrypt(encryptedSecret, _encryptionKey);
-        if (secretKey == null) return false;
+            var keyBytes = Base32Encoding.ToBytes(secretKey);
+            var totp = new Totp(
+                keyBytes,
+                step: _options.PeriodInSeconds,
+                mode: _options.HashMode,
+                totpSize: _options.Digits);
 
-        var keyBytes = Base32Encoding.ToBytes(secretKey);
-        var totp = new Totp(
-            keyBytes,
-            step: _options.PeriodInSeconds,
-            mode: _options.HashMode,
-            totpSize: _options.Digits);
-
-        var verificationWindow = new VerificationWindow(previous: 1, future: 1);
-        return totp.VerifyTotp(codeFromUser, out _, verificationWindow);
-    }
-
-    public string EncryptSecret(string plainSecret)
-    {
-        return EncryptionUtility.Encrypt(plainSecret, _encryptionKey);
+            var verificationWindow = new VerificationWindow(previous: 1, future: 1);
+            return totp.VerifyTotp(codeFromUser, out _, verificationWindow);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new BadRequestException("TOTP verification failed.");
+        }
     }
 }

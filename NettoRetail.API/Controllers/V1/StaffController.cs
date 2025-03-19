@@ -14,6 +14,7 @@ using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -116,7 +117,8 @@ public class StaffController(
 
     [Authorize]
     [HttpPost("enable-2fa")]
-    public async Task<IActionResult> EnableTwoFactorAuth([FromBody] EnableTwoFactorAuthRequest request)
+    public async Task<IActionResult> EnableTwoFactorAuth(
+        [FromBody] EnableTwoFactorAuthRequest request)
     {
         var userId = HttpContext.GetUserId();
         var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
@@ -129,7 +131,8 @@ public class StaffController(
 
     [Authorize]
     [HttpPost("confirm-2fa")]
-    public async Task<IActionResult> ConfirmTwoFactor([FromBody] VerifyTotpRequest request)
+    public async Task<IActionResult> ConfirmTwoFactor(
+        [FromBody] VerifyTotpRequest request)
     {
         var userId = HttpContext.GetUserId();
         var command = new ConfirmTwoFactorAuthCommand(userId, request.TotpCode);
@@ -139,9 +142,12 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(AuthenticationSchemes = "TempToken", Policy = PolicyNames.TwoFactorAuthPolicy)]
+    [Authorize(
+        AuthenticationSchemes = AuthSchemes.TempToken,
+        Policy = PolicyNames.TwoFactorAuthPolicy)]
     [HttpPost("verify-2fa")]
-    public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTotpRequest request)
+    public async Task<IActionResult> VerifyTwoFactor(
+        [FromBody] VerifyTotpRequest request)
     {
 
         var userId = HttpContext.GetUserId();

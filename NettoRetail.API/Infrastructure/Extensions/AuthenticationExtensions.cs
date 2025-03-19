@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.API.Infrastructure.Authorization;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 using System.Text;
@@ -16,7 +17,7 @@ public static class AuthenticationExtensions
     {
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer("Default", options =>
+            .AddJwtBearer(AuthSchemes.Default, options =>
             {
                 var jwtOptions = services.BuildServiceProvider()
                     .GetRequiredService<IOptions<JwtOptions>>()
@@ -35,10 +36,10 @@ public static class AuthenticationExtensions
                 {
                     OnTokenValidated = async context =>
                     {
-                        var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
+                        var tokenTypeClaim = context.Principal?.FindFirst(AuthClaims.TokenType)?.Value;
                         var requestPath = context.HttpContext.Request.Path.Value;
 
-                        if (tokenTypeClaim != "access")
+                        if (tokenTypeClaim != AuthTokenTypes.Access)
                         {
                             context.Fail("Invalid token type. Expected an access token.");
                             return;
@@ -62,7 +63,7 @@ public static class AuthenticationExtensions
                     }
                 };
             })
-            .AddJwtBearer("TempToken", options =>
+            .AddJwtBearer(AuthSchemes.TempToken, options =>
             {
                 var jwtOptions = services.BuildServiceProvider()
                     .GetRequiredService<IOptions<JwtOptions>>()
@@ -81,14 +82,13 @@ public static class AuthenticationExtensions
                 {
                     OnTokenValidated = context =>
                     {
-                        var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
-                        if (tokenTypeClaim != "temp")
+                        var tokenTypeClaim = context.Principal?.FindFirst(AuthClaims.TokenType)?.Value;
+                        if (tokenTypeClaim != AuthTokenTypes.Temp)
                         {
-                            Console.WriteLine("dcd");
-
                             context.Fail("Invalid token type. Expected a temp token.");
                             return Task.CompletedTask;
                         }
+
                         return Task.CompletedTask;
                     }
                 };
@@ -98,25 +98,19 @@ public static class AuthenticationExtensions
         {
             options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes("Default")
+                .AddAuthenticationSchemes(AuthSchemes.Default)
                 .Build();
 
             options.AddPolicy(PolicyNames.ShopPolicy, policy =>
                 policy.Requirements.Add(new ShopAuthorizationRequirement()));
 
             options.AddPolicy(PolicyNames.TwoFactorAuthPolicy, policy =>
-                policy.RequireAuthenticatedUser()
-                .RequireClaim("token_type", "temp")
-                .AddAuthenticationSchemes("TempToken"));
+                 policy.RequireAuthenticatedUser()
+                 .RequireClaim(AuthClaims.TokenType, AuthTokenTypes.Temp)
+                 .AddAuthenticationSchemes(AuthSchemes.TempToken));
         });
 
         services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
         return services;
     }
-}
-
-public static class PolicyNames
-{
-    public const string ShopPolicy = "ShopPolicy";
-    public const string TwoFactorAuthPolicy = "TwoFactorAuthPolicy";
 }

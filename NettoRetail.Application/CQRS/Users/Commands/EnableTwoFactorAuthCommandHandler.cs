@@ -21,12 +21,10 @@ public class EnableTwoFactorAuthCommandHandler(
     IFailedAuthAttemptService loginAttemptService,
     IBlacklistTokenService blacklistTokenService,
     ISessionRepository sessionRepository,
-    IOptions<UserBlockOptions> userBlockOptions,
-    IOptions<TotpEncryptionOptions> encryptionOptions)
+    IOptions<UserBlockOptions> userBlockOptions)
     : IRequestHandler<EnableTwoFactorAuthCommand, EnableTwoFactorAuthResponse>
 {
     private readonly int _failedAttemptThreshold = userBlockOptions.Value.FailedAttemptThreshold;
-    private readonly string _encryptionKey = encryptionOptions.Value.EncryptionKeyBase64;
 
     public async Task<EnableTwoFactorAuthResponse> Handle(
         EnableTwoFactorAuthCommand request, CancellationToken cancellationToken)
@@ -64,7 +62,7 @@ public class EnableTwoFactorAuthCommandHandler(
 
         var rawSecret = totpService.GenerateSecret();
         var qrCodeUri = totpService.GenerateQrCodeUri(user.Email, rawSecret);
-        var encryptedSecret = EncryptionUtility.Encrypt(rawSecret, _encryptionKey);
+        var encryptedSecret = totpService.EncryptSecret(rawSecret);
 
         user.EncryptedTotpSecret = encryptedSecret;
         await staffRepository.UpdateAsync(user, cancellationToken);

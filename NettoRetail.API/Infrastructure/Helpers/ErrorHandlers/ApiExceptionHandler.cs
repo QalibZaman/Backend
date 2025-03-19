@@ -1,7 +1,6 @@
 using NettoRetail.API.Models.Error;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Shared.Exceptions;
 using System.Net;
 
 namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
@@ -14,8 +13,7 @@ public static class ApiExceptionHandler
             { typeof(NotFoundException), ex => HandleNotFoundException((NotFoundException)ex) },
             { typeof(BadRequestException), ex => HandleBadRequestException((BadRequestException)ex) },
             { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
-            { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
-            { typeof(EncryptionException), ex => HandleEncryptionException((EncryptionException)ex) }
+            { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) }
         };
 
     public static ApiExceptionHandlerResponse Handle(Exception ex)
@@ -50,12 +48,6 @@ public static class ApiExceptionHandler
     private static ApiExceptionHandlerResponse HandleMyUnauthorizedException(MyUnauthorizedException ex)
     {
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message));
-    }
-
-    private static ApiExceptionHandlerResponse HandleEncryptionException(EncryptionException ex)
-    {
-        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest,
-            GenerateResponse(ex.Message));
     }
 
     private static ApiResponse GenerateResponse(string message) => new(message);

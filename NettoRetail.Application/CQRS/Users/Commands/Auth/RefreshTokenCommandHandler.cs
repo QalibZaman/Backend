@@ -5,6 +5,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 
@@ -41,7 +42,7 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.RoleId.ToString()),
-            new("token_type", "access")
+            new(AuthClaims.TokenType, AuthTokenTypes.Access)
         };
 
         if (user.ShopId != null)
