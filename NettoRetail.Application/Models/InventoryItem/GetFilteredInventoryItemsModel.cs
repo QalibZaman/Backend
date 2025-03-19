@@ -1,4 +1,6 @@
-﻿namespace NettoRetail.Application.Models.InventoryItem;
+﻿using NettoRetail.Application.Models.Request;
+
+namespace NettoRetail.Application.Models.InventoryItem;
 
 public class GetFilteredInventoryItemsModel
 {
