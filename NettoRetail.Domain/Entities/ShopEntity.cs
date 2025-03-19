@@ -18,4 +18,6 @@ public class ShopEntity
     public ICollection<CategoryEntity>? Categories { get; set; }
     public required CountryEntity Country { get; set; }
     public ICollection<StaffEntity>? Staff { get; set; }
+    public ICollection<InventoryItemEntity>? InventoryItems { get; set; }
+
 }

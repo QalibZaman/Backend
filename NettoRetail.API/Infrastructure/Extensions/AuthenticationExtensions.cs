@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -76,9 +75,14 @@ public static class AuthenticationExtensions
 
             options.AddPolicy(PolicyNames.ShopPolicy, policy =>
                 policy.Requirements.Add(new ShopAuthorizationRequirement()));
+
+            options.AddPolicy(PolicyNames.HasShopClaimPolicy, policy =>
+                policy.Requirements.Add(new HasShopAuthorizationRequirement()));
         });
 
         services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, HasShopAuthorizationHandler>();
+
         return services;
     }
 }
@@ -86,4 +90,10 @@ public static class AuthenticationExtensions
 public static class PolicyNames
 {
     public const string ShopPolicy = "ShopPolicy";
+    public const string HasShopClaimPolicy = "HasShopClaimPolicy";
+}
+
+public static class MyClaimTypes
+{
+    public const string ShopId = "shop_id";
 }

@@ -10,7 +10,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record CreateInventoryItemCommand(AddInventoryItemModel Model) : IRequest<InventoryItemResponse>;
+public record CreateInventoryItemCommand(AddInventoryItemModel Model, int ShopId) : IRequest<InventoryItemResponse>;
 
 public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
@@ -34,6 +34,7 @@ public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventor
         }
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
+        inventoryItem.ShopId = request.ShopId;
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
 

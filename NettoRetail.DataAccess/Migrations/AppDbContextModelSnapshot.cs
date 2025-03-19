@@ -411,6 +411,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("ReservedAmount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -421,6 +424,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("ProductUpc")
                         .IsUnique();
+
+                    b.HasIndex("ShopId");
 
                     b.ToTable("InventoryItems");
                 });
@@ -698,7 +703,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("InventoryItems")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
@@ -792,6 +805,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
+                    b.Navigation("InventoryItems");
+
                     b.Navigation("Categories");
 
                     b.Navigation("Roles");
