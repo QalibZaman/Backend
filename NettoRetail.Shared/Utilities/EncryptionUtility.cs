@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using NettoRetail.Shared.Exceptions;
 
 namespace NettoRetail.Shared.Utilities;
 
@@ -37,10 +36,10 @@ public static class EncryptionUtility
     public static string Decrypt(string encryptedText, string base64Key)
     {
         if (string.IsNullOrEmpty(encryptedText))
-            throw new EncryptionException("Decryption failed: input text is empty.");
+            throw new ArgumentException("Decryption failed: input text is empty.");
 
         if (!IsValidKey(base64Key))
-            throw new EncryptionException("Decryption failed: invalid decryption key.");
+            throw new ArgumentException("Decryption failed: invalid decryption key.");
 
         try
         {
@@ -48,7 +47,7 @@ public static class EncryptionUtility
             var combinedBytes = Convert.FromBase64String(encryptedText);
 
             if (combinedBytes.Length < AesBlockSize)
-                throw new EncryptionException("Decryption failed: input data is too short.");
+                throw new ArgumentException("Decryption failed: input data is too short.");
 
             var (ivBytes, encryptedBytes) = SplitIvAndEncryptedData(combinedBytes);
 
