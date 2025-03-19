@@ -1,20 +1,29 @@
-﻿using System.Text;
-using NettoRetail.Shared.Interfaces.Repositories;
+﻿using System.Globalization;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
+using NettoRetail.Application.Interfaces;
 
 namespace NettoRetail.Application.Services;
 
 public class CsvFileService : ICsvFileService
 {
-    public string GetEntitiesCsvData<T>(IEnumerable<T> entities, string header, Func<T, string> entityData)
+    public async Task<byte[]> GetEntitiesCsvData<T, TMap>(IEnumerable<T> entities, CancellationToken cancellationToken)
+        where TMap : ClassMap<T>
     {
-        var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine(header);
-
-        foreach (var entity in entities)
+        using var memoryStream = new MemoryStream();
+        await using var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true);
+        await using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
         {
-            stringBuilder.AppendLine(entityData(entity));
+            csvWriter.Context.RegisterClassMap<TMap>();
+            csvWriter.WriteHeader<T>();
+
+            await csvWriter.NextRecordAsync();
+            await csvWriter.WriteRecordsAsync(entities, cancellationToken);
         }
 
-        return stringBuilder.ToString();
+        var entitiesCsvData = memoryStream.ToArray();
+
+        return entitiesCsvData;
     }
 }

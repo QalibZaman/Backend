@@ -1,8 +1,9 @@
-﻿using System.Globalization;
-using System.Text;
-using MediatR;
+﻿using MediatR;
+using NettoRetail.Application.CsvFileMap;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
@@ -16,11 +17,8 @@ public class DownloadInventoryItemsListQueryHandler(IInventoryItemRepository inv
         var itemByRelatedCategorySpecification = new GetInventoryItemRelatedCategories();
         var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken) ?? throw new NotFoundException("There are no items in the list.");
 
-        const string header = "Product UPC,Product Name,Product Location,Product Category,Available Amount,Reserved Amount,On-hand Amount,Price,Status,Description";
-        var inventoryItemsListData = csvFileService.GetEntitiesCsvData(inventoryItems, header, item => $"{item.ProductUpc},{item.ProductName},{item.ProductLocation},{item.Category.Name},{item.AvailableAmount},{item.ReservedAmount},{item.OnHandAmount},{item.Price.ToString("0.00", CultureInfo.InvariantCulture)},{item.Status},{item.Description}");
+        var inventoryItemsData = await csvFileService.GetEntitiesCsvData<InventoryItemEntity, InventoryItemMap>(inventoryItems, cancellationToken);
 
-        var encodedInventoryData = Encoding.UTF8.GetBytes(inventoryItemsListData);
-
-        return encodedInventoryData;
+        return inventoryItemsData;
     }
 }
