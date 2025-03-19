@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using NettoRetail.API.Infrastructure.Extensions;
 
 namespace NettoRetail.API.Infrastructure.Authorization;
 
@@ -12,7 +13,7 @@ public class HasShopAuthorizationHandler
         AuthorizationHandlerContext context,
         HasShopAuthorizationRequirement requirement)
     {
-        if (context.User.HasClaim(c => c.Type == "shop_id"))
+        if (context.User.HasClaim(c => c.Type == MyClaimTypes.ShopId))
         {
             context.Succeed(requirement);
         }

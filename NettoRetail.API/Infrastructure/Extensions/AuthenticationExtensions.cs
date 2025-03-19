@@ -92,3 +92,8 @@ public static class PolicyNames
     public const string ShopPolicy = "ShopPolicy";
     public const string HasShopClaimPolicy = "HasShopClaimPolicy";
 }
+
+public static class MyClaimTypes
+{
+    public const string ShopId = "shop_id";
+}

@@ -35,12 +35,9 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
 
         specificationBuilder.AddInclude(x => x.Category);
 
-        if (request.Model.CategoryId != 0)
-        {
-            var categories = await categoryRepository.GetCategorySubtreeAsync(request.Model.CategoryId, cancellationToken);
-            var ids = categories.Select(c => c.Id).ToList();
-            specificationBuilder.Add<GetInventoryItemsByCategoriesSpecification>(ids);
-        }
+        var categories = await categoryRepository.GetCategorySubtreeAsync(request.Model.CategoryId, cancellationToken);
+        var ids = categories.Select(c => c.Id).ToList();
+        specificationBuilder.Add<GetInventoryItemsByCategoriesSpecification>(ids);
 
         if (!request.Model.Status.IsNullOrEmpty())
         {
