@@ -16,21 +16,14 @@ public static class EncryptionUtility
         if (!IsValidKey(base64Key))
             throw new ArgumentException("Encryption failed: invalid encryption key.");
 
-        try
-        {
-            var keyBytes = Convert.FromBase64String(base64Key);
-            var ivBytes = GenerateInitializationVector();
+        var keyBytes = Convert.FromBase64String(base64Key);
+        var ivBytes = GenerateInitializationVector();
 
-            using var aes = CreateAesCipher(keyBytes, ivBytes);
-            using var encryptor = aes.CreateEncryptor();
-            var encryptedBytes = PerformCryptoTransform(encryptor, Encoding.UTF8.GetBytes(plainText));
+        using var aes = CreateAesCipher(keyBytes, ivBytes);
+        using var encryptor = aes.CreateEncryptor();
+        var encryptedBytes = PerformCryptoTransform(encryptor, Encoding.UTF8.GetBytes(plainText));
 
-            return Convert.ToBase64String(CombineIvAndEncryptedData(ivBytes, encryptedBytes));
-        }
-        catch (Exception ex)
-        {
-            throw new ArgumentException("Encryption failed due to an internal error.", ex);
-        }
+        return Convert.ToBase64String(CombineIvAndEncryptedData(ivBytes, encryptedBytes));
     }
 
     public static string Decrypt(string encryptedText, string base64Key)
@@ -41,29 +34,18 @@ public static class EncryptionUtility
         if (!IsValidKey(base64Key))
             throw new ArgumentException("Decryption failed: invalid decryption key.");
 
-        try
-        {
-            var keyBytes = Convert.FromBase64String(base64Key);
-            var combinedBytes = Convert.FromBase64String(encryptedText);
+        var keyBytes = Convert.FromBase64String(base64Key);
+        var combinedBytes = Convert.FromBase64String(encryptedText);
 
-            if (combinedBytes.Length < AesBlockSize)
-                throw new ArgumentException("Decryption failed: input data is too short.");
+        if (combinedBytes.Length < AesBlockSize)
+            throw new ArgumentException("Decryption failed: input data is too short.");
 
-            var (ivBytes, encryptedBytes) = SplitIvAndEncryptedData(combinedBytes);
+        var (ivBytes, encryptedBytes) = SplitIvAndEncryptedData(combinedBytes);
 
-            using var aes = CreateAesCipher(keyBytes, ivBytes);
-            using var decryptor = aes.CreateDecryptor();
+        using var aes = CreateAesCipher(keyBytes, ivBytes);
+        using var decryptor = aes.CreateDecryptor();
 
-            return Encoding.UTF8.GetString(PerformCryptoTransform(decryptor, encryptedBytes));
-        }
-        catch (CryptographicException ex)
-        {
-            throw new ArgumentException("Decryption failed due to an invalid or tampered input.", ex);
-        }
-        catch (Exception ex)
-        {
-            throw new ArgumentException("Decryption failed due to an internal error.", ex);
-        }
+        return Encoding.UTF8.GetString(PerformCryptoTransform(decryptor, encryptedBytes));
     }
 
     private static Aes CreateAesCipher(byte[] key, byte[] iv)
