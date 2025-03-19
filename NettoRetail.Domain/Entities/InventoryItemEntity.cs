@@ -12,7 +12,7 @@ public class InventoryItemEntity
     public required int CategoryId { get; set; }
     public required DateTime LastUpdatedDate { get; set; } = DateTime.UtcNow;
     public required bool IsActive { get; set; } = true;
-    public required InventoryItemStatusEnum Status { get; set; } = InventoryItemStatusEnum.New;
+    public required InventoryItemStatusEnum Status { get; set; } = InventoryItemStatusEnum.Available;
     public required int AvailableAmount { get; set; }
     public required int ReservedAmount { get; set; }
     public required int OnHandAmount { get; set; }

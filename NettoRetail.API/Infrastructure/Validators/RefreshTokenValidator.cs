@@ -1,5 +1,5 @@
 using FluentValidation;
-using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Token;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 

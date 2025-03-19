@@ -1,11 +1,13 @@
 ﻿using Asp.Versioning;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
 using NettoRetail.Application.CQRS.Categories.Queries;
-using NettoRetail.Application.Models.Category;
+using NettoRetail.Application.Models.Request.Category;
+using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -24,6 +26,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
@@ -34,6 +37,7 @@ namespace NettoRetail.API.Controllers.V1
             return Created(string.Empty, new ApiResponse<CategoryResponse>(response));
         }
 
+        [Authorize]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
@@ -42,6 +46,7 @@ namespace NettoRetail.API.Controllers.V1
             return NoContent();
         }
 
+        [Authorize]
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {

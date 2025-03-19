@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
-using NettoRetail.Application.CQRS.Users.Commands;
+using NettoRetail.Application.CQRS.Users.Commands.Auth;
+using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.Models.Authentication;
-using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Shared.Utilities;
@@ -60,6 +62,9 @@ public class StaffController(
     public async Task<IActionResult> LogOut()
     {
         var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
+
+        var deleteSessionCommand = new DeleteSessionCommand(token!);
+        await mediator.Send(deleteSessionCommand);
 
         var logoutCommand = new LogoutCommand(token!);
         await mediator.Send(logoutCommand);

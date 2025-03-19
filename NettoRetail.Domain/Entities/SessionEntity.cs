@@ -11,6 +11,7 @@ public class SessionEntity
     public required string Location { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime LastActivityTime { get; set; }
+    public DateTime ExpiresAt { get; set; }
     public Guid AccountId { get; set; } // currently fk to staff
     public required StaffEntity Account { get; set; }
 }

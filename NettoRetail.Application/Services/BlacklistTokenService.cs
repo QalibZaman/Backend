@@ -1,5 +1,5 @@
 ﻿using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Token;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -20,7 +20,7 @@ public class BlacklistTokenService(IBlacklistedTokenRepository blacklistedTokenR
         return token != null;
     }
 
-    public async Task BlacklistTokenAsync(string jwt, CancellationToken cancellationToken)
+    public async Task BlacklistTokenAsync(string jwt, DateTime expiresAt, CancellationToken cancellationToken)
     {
         if (await IsTokenBlacklistedAsync(jwt, cancellationToken))
         {
@@ -30,7 +30,8 @@ public class BlacklistTokenService(IBlacklistedTokenRepository blacklistedTokenR
         var blacklistedToken = new BlacklistedTokenEntity
         {
             Token = jwt,
-            BlacklistedAt = DateTime.UtcNow
+            BlacklistedAt = DateTime.UtcNow,
+            ExpiresAt = expiresAt,
         };
 
         await _blacklistedTokenRepository.AddAsync(blacklistedToken, cancellationToken);

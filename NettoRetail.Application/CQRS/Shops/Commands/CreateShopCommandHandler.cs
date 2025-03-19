@@ -4,7 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.DataAccess.Specifications;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -27,13 +27,8 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IStaffRepo
         try
         {
             var specification = new GetStaffByIdSpecification(request.accountId);
-            var accountToUpdate = await staffRepository.GetAsync(specification, cancellationToken);
- 
-            if (accountToUpdate == null)
-            {
+            var accountToUpdate = await staffRepository.GetAsync(specification, cancellationToken) ??
                 throw new BadRequestException($"Staff member with ID {request.accountId} not found.");
-            }
-
             if (accountToUpdate.ShopId != null)
             {
                 throw new BadRequestException($"Account already has a shop");
