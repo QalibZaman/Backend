@@ -14,5 +14,8 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CategoryEntity, CategoryResponse>()
             .Map(dest => dest.ItemsAmount, src => src.InventoryItems.Count());
+
+        config.NewConfig<InventoryItemEntity, InventoryItemListResponse>()
+            .Map(dest => dest.ProductCategory, src => src.Category.Name);
     }
 }
