@@ -17,9 +17,3 @@ public class GetFilteredInventoryItemsModel
 
     public List<SortingOption>? SortingOptions { get; set; }
 }
-
-public class SortingOption
-{
-    public string Field { get; set; } = string.Empty;
-    public bool IsDescending { get; set; }
-}
