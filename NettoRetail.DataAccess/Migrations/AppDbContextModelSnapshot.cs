@@ -59,6 +59,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("URL")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -70,6 +73,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("ShopId");
 
                     b.ToTable("Categories");
                 });
@@ -417,6 +422,42 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItems");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
+                {
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsAllowed")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("PermissionId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Permission_Role", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PermissionEntity");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -425,56 +466,24 @@ namespace NettoRetail.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("RoleName")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.HasIndex("ShopId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            RoleName = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            RoleName = "SalesManager"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            RoleName = "Customer"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            RoleName = "InventoryManager"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            RoleName = "PosCashier"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            RoleName = "ManagementStakeholder"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            RoleName = "Shipper"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            RoleName = "CustomerSupportSpecialist"
-                        });
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
@@ -653,7 +662,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("Categories")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ParentCategory");
+
+                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
@@ -676,6 +693,36 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.PermissionEntity", "Permission")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("Roles")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
@@ -725,13 +772,24 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shops");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
+                {
+                    b.Navigation("PermissionRoles");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
+                    b.Navigation("PermissionRoles");
+
                     b.Navigation("StaffEntities");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
+                    b.Navigation("Categories");
+
+                    b.Navigation("Roles");
+
                     b.Navigation("Staff");
                 });
 

@@ -6,7 +6,6 @@ using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 
@@ -29,10 +28,6 @@ public class CreateAdminCommandHandler(IStaffRepository staffRepository, IRoleRe
 
         var admin = request.Model.Adapt<StaffEntity>();
 
-        var roleByNameSpecification = new GetRoleByNameSpecification(RoleEnum.Admin);
-        var role = await roleRepository.GetAsync(roleByNameSpecification, cancellationToken);
-
-        admin.RoleId = role!.Id;
         admin.PasswordHash = PasswordHasher.HashPassword(admin.PasswordHash);
 
         var user = await staffRepository.AddAsync(admin, cancellationToken);

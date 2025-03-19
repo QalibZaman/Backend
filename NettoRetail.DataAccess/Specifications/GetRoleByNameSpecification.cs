@@ -6,6 +6,6 @@ namespace NettoRetail.DataAccess.Specifications;
 
 public class GetRoleByNameSpecification : Specification<RoleEntity>
 {
-    public GetRoleByNameSpecification(RoleEnum roleName)
-        : base(role => role.RoleName == roleName) { }
+    public GetRoleByNameSpecification(string name)
+        : base(role => role.Name == name) { }
 }
