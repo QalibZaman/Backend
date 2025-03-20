@@ -390,6 +390,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<string>("ProductDetails")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("ProductLocation")
                         .IsRequired()
                         .HasMaxLength(100)
