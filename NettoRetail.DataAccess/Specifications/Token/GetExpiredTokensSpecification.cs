@@ -7,6 +7,6 @@ namespace NettoRetail.DataAccess.Specifications.Token
     public class GetExpiredTokensSpecification : Specification<BlacklistedTokenEntity>
     {
         public GetExpiredTokensSpecification()
-            : base(t => JwtUtils.IsJwtExpired(t.Token)) { }
+            : base(s => s.ExpiresAt <= DateTime.UtcNow) { }
     }
 }

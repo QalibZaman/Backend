@@ -15,4 +15,6 @@ public class ShopEntity
     public int CountryId { get; set; }
     public required CountryEntity Country { get; set; }
     public ICollection<StaffEntity>? Staff { get; set; }
+    public ICollection<InventoryItemEntity>? InventoryItems { get; set; }
+
 }

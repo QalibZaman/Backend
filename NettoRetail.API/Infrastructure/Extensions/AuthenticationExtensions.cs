@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -7,7 +8,6 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
-using System.Text;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -104,13 +104,19 @@ public static class AuthenticationExtensions
             options.AddPolicy(PolicyNames.ShopPolicy, policy =>
                 policy.Requirements.Add(new ShopAuthorizationRequirement()));
 
+
             options.AddPolicy(PolicyNames.TwoFactorAuthPolicy, policy =>
                  policy.RequireAuthenticatedUser()
                  .RequireClaim(AuthClaims.TokenType, AuthTokenTypes.Temp)
                  .AddAuthenticationSchemes(AuthSchemes.TempToken));
+
+            options.AddPolicy(PolicyNames.HasShopClaimPolicy, policy =>
+                policy.Requirements.Add(new HasShopAuthorizationRequirement()));
         });
 
         services.AddSingleton<IAuthorizationHandler, ShopAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationHandler, HasShopAuthorizationHandler>();
+
         return services;
     }
 }

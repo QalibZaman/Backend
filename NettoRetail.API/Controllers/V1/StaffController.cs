@@ -70,6 +70,9 @@ public class StaffController(
     {
         var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
 
+        var deleteSessionCommand = new DeleteSessionCommand(token!);
+        await mediator.Send(deleteSessionCommand);
+
         var logoutCommand = new LogoutCommand(token!);
         await mediator.Send(logoutCommand);
 

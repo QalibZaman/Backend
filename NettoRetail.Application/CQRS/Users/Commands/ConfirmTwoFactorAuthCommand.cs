@@ -15,7 +15,9 @@ public class ConfirmTwoFactorAuthCommandHandler(
 {
     public async Task Handle(ConfirmTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetAsync(new GetStaffByIdSpecification(request.UserId), cancellationToken);
+        var specification = new GetStaffByIdSpecification(request.UserId);
+        var user = await userRepository.GetAsync(specification, cancellationToken);
+
         if (user == null)
         {
             throw new NotFoundException("User not found.");

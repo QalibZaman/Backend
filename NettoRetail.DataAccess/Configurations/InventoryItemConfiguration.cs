@@ -16,6 +16,12 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
             .WithMany(p => p.InventoryItems)
             .HasForeignKey(p => p.CategoryId);
 
+        builder.HasOne(p => p.Shop)
+            .WithMany(s => s.InventoryItems)
+            .HasForeignKey(p => p.ShopId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired(true);
+
         builder.Property(p => p.ProductUpc);
         builder.HasIndex(p => p.ProductUpc).IsUnique();
 

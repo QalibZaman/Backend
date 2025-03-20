@@ -47,7 +47,8 @@ public class EnableTwoFactorAuthCommandHandler(
                 var sessionSpecification = new GetSessionsByJwtSpecification(request.AccessToken);
                 await sessionRepository.DeleteAsync(sessionSpecification, cancellationToken);
 
-                await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, cancellationToken);
+                var expiresAt = JwtUtils.GetJwtExpiration(request.AccessToken ?? throw new InvalidTokenCredentialsException("Invalid JWT or missing expiration claim."));
+                await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, expiresAt!.Value, cancellationToken);
 
                 throw new MyUnauthorizedException("Too many failed attempts. You have been logged out.");
             }

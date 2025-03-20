@@ -8,12 +8,19 @@ namespace NettoRetail.DataAccess.Repositories;
 
 public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionEntity>(dbContext), ISessionRepository
 {
-    public async Task UpdateAsync(Specification<SessionEntity> specification, string? currentJwt, string? currentRefreshToken, DateTime lastActivityTime, CancellationToken cancellationToken)
+    public async Task UpdateAsync(
+        Specification<SessionEntity> specification,
+        string? currentJwt,
+        string? currentRefreshToken,
+        DateTime lastActivityTime,
+        DateTime expiresAt,
+        CancellationToken cancellationToken)
     {
         var entityToUpdate = await _dbSet.Where(specification.Criteria).FirstOrDefaultAsync(cancellationToken);
         if (entityToUpdate != null)
         {
             entityToUpdate.LastActivityTime = lastActivityTime;
+            entityToUpdate.ExpiresAt = expiresAt;
 
             if (currentJwt != null)
                 entityToUpdate.Jwt = currentJwt;
@@ -21,13 +28,6 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
             if (currentRefreshToken != null)
                 entityToUpdate.RefreshToken = currentRefreshToken;
         }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteRangeAsync(IEnumerable<SessionEntity> entitiesToRemove, CancellationToken cancellationToken)
-    {
-        _dbSet.RemoveRange(entitiesToRemove);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
