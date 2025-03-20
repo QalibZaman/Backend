@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -17,7 +18,7 @@ public static class ClaimsPrincipalExtensions
 
     public static int GetUserShopId(this ClaimsPrincipal? principal)
     {
-        var userShopId = principal?.FindFirstValue(MyClaimTypes.ShopId);
+        var userShopId = principal?.FindFirstValue(AuthClaims.ShopId);
         var isParsed = int.TryParse(userShopId, out int parsedUserShopId);
 
         return isParsed ?
