@@ -2,4 +2,4 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
-public interface IStaffRepository : IBaseRepository<StaffEntity>;
+public interface IAccountRepository : IBaseRepository<AccountEntity>;

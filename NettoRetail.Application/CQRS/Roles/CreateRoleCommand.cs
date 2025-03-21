@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Permissions;
@@ -25,7 +26,7 @@ public class CreateRoleCommandHandler(IPermissionRepository permissionRepository
 
         var validPermissionsSpecification = new GetValidPermissionsSpecification(request.PermissionIds);
 
-        var validPermissions = await permissionRepository.GetManyBySpecAsync(validPermissionsSpecification, cancellationToken);
+        var validPermissions = await permissionRepository.GetIdsBySpecAsync(validPermissionsSpecification, cancellationToken);
 
         if (request.PermissionIds.Count() > validPermissions.Count())
         {

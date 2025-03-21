@@ -3,14 +3,14 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
-public class LoginCommandHandler(IStaffRepository repository,
+public class LoginCommandHandler(IAccountRepository repository,
     IJwtManager jwtManager,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService)
@@ -18,11 +18,11 @@ public class LoginCommandHandler(IStaffRepository repository,
 {
     public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetStaffByEmailSpecification(request.Model.Email);
+        var specification = new GetAccountByEmailSpecification(request.Model.Email);
         var user = await repository.GetAsync(specification, cancellationToken) ??
             throw new MyUnauthorizedException("User was not found");
 
-        var loginSpecification = new GetFailedAuthAttemptByStaffIdSpecification(user.Id);
+        var loginSpecification = new GetFailedAuthAttemptByAccountIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
 
         if (loginAttemptService.IsAccountLocked(loginAttempt!))
@@ -44,6 +44,12 @@ public class LoginCommandHandler(IStaffRepository repository,
         if (loginAttempt != null)
         {
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+        }
+
+        if (user.TwoFactorEnabled)
+        {
+            var tempToken = jwtManager.GenerateTempToken(user.Id.ToString());
+            return new TokenResponse(null, null, tempToken);
         }
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);

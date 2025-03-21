@@ -1,7 +1,7 @@
-using System.Net;
 using NettoRetail.API.Models.Error;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Exceptions;
+using System.Net;
 
 namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
@@ -13,7 +13,7 @@ public static class ApiExceptionHandler
             { typeof(NotFoundException), ex => HandleNotFoundException((NotFoundException)ex) },
             { typeof(BadRequestException), ex => HandleBadRequestException((BadRequestException)ex) },
             { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
-            { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
+            { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) }
         };
 
     public static ApiExceptionHandlerResponse Handle(Exception ex)

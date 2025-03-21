@@ -20,13 +20,13 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
             .WithOne(model => model.Role)
             .HasForeignKey(model => model.RoleId);
 
-        builder.HasMany(model => model.StaffEntities)
-            .WithOne(model => model.Role)
-            .HasForeignKey(model => model.RoleId);
-
         builder.HasOne(model => model.Shop)
             .WithMany(model => model.Roles)
             .HasForeignKey(model => model.ShopId);
+
+        builder.HasMany(r => r.Accounts)
+            .WithOne(s => s.Role)
+            .HasForeignKey(c => c.RoleId);
 
         builder.HasData(
             new RoleEntity() { Id = 1, Name = "Admin", Description = "Has full access to the system" });

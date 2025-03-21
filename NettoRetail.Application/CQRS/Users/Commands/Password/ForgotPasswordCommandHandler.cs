@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Infrastructure.Options;
@@ -15,7 +15,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 public record ForgotPasswordCommand(string Email) : IRequest;
 
 public class ForgotPasswordCommandHandler(
-    IStaffRepository staffRepository,
+    IAccountRepository accountRepository,
     IJwtManager jwtManager,
     IEmailSender emailSender,
     IEmailTemplateService emailTemplateService,
@@ -23,9 +23,9 @@ public class ForgotPasswordCommandHandler(
 {
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetStaffByEmailSpecification(request.Email);
+        var specification = new GetAccountByEmailSpecification(request.Email);
 
-        var user = await staffRepository
+        var user = await accountRepository
             .GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User with this email was not found.");
 

@@ -32,10 +32,8 @@ public class SessionConfiguration : IEntityTypeConfiguration<SessionEntity>
         builder.Property(s => s.Location)
             .HasMaxLength(100);
 
-        builder.HasOne<StaffEntity>(s => s.Account)
+        builder.HasOne<AccountEntity>(s => s.Account)
             .WithMany(r => r.Sessions)
             .HasForeignKey(c => c.AccountId);
-
-        // builder.ToTable("Session");
     }
 }

@@ -23,7 +23,7 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
     {
         if (attempt == null)
         {
-            attempt = new FailedAuthAttemptEntity { StaffId = staffId };
+            attempt = new FailedAuthAttemptEntity { AccountId = staffId };
             await _loginAttemptRepository.AddAsync(attempt, cancellationToken);
         }
 

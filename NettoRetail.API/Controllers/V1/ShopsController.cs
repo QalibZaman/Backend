@@ -1,13 +1,12 @@
 ﻿using Asp.Versioning;
-using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
-using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.CQRS.Shops.Commands;
 using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.Models.Shop;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -32,7 +31,7 @@ public class ShopsController(IMediator mediator, IAuthorizationService authoriza
         var createShopCommand = new CreateShopCommand(HttpContext.GetUserId(), shop);
         var response = await mediator.Send(createShopCommand);
 
-        return Ok(response);
+        return Created(response.Id.ToString(), response);
     }
 
     [Authorize]

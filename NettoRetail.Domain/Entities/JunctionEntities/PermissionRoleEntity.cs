@@ -7,5 +7,4 @@
         public int PermissionId { get; set; }
         public PermissionEntity? Permission { get; set; }
     }
-
 }

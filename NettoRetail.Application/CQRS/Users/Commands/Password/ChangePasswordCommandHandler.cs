@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Password;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -12,16 +12,16 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 public record ChangePasswordCommand(Guid UserId, ChangePasswordRequest Model) : IRequest;
 
 public class ChangePasswordCommandHandler(
-    IStaffRepository staffRepository,
+    IAccountRepository accountRepository,
     IEmailSender emailSender,
     IEmailTemplateService emailTemplateService)
     : IRequestHandler<ChangePasswordCommand>
 {
     public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetStaffByIdSpecification(request.UserId);
+        var specification = new GetAccountByIdSpecification(request.UserId);
 
-        var user = await staffRepository
+        var user = await accountRepository
             .GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User not found.");
 
@@ -47,7 +47,7 @@ public class ChangePasswordCommandHandler(
         user.PasswordHash = PasswordHasher.HashPassword(
             request.Model.NewPassword);
 
-        await staffRepository.UpdateAsync(user, cancellationToken);
+        await accountRepository.UpdateAsync(user, cancellationToken);
 
         var model = new { user_name = user.FirstName };
 

@@ -13,8 +13,10 @@ public static class ServiceExtensions
         services.Configure<PaginationOptions>(configuration.GetSection(nameof(PaginationOptions)));
         services.Configure<UserBlockOptions>(configuration.GetSection(nameof(UserBlockOptions)));
         services.Configure<TokenBlacklistOptions>(configuration.GetSection(nameof(TokenBlacklistOptions)));
+        services.Configure<SearchOptions>(configuration.GetSection(nameof(SearchOptions)));
+        services.Configure<TotpOptions>(configuration.GetSection(nameof(TotpOptions)));
+        services.Configure<TotpEncryptionOptions>(configuration.GetSection(nameof(TotpEncryptionOptions)));
         services.Configure<AdminRoleOptions>(configuration.GetSection(nameof(AdminRoleOptions)));
-
         return services;
     }
 }

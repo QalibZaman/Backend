@@ -3,6 +3,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles;
 using NettoRetail.Application.Models.Request.Role;
@@ -20,6 +21,10 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
     public async Task<IActionResult> AddRole(CreateRoleRequest model, CancellationToken cancellationToken)
     {
         var command = model.Adapt<CreateRoleCommand>();
+
+        var shopId = HttpContext.GetUserShopId();
+
+        command = command with { ShopId = shopId };
 
         var role = await mediator.Send(command, cancellationToken);
 

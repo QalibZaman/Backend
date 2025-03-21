@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 
@@ -11,7 +11,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 
 public record ResetPasswordCommand(ResetPasswordRequest Model) : IRequest;
 public class ResetPasswordCommandHandler(
-    IStaffRepository staffRepository,
+    IAccountRepository accountRepository,
     IJwtManager jwtManager)
     : IRequestHandler<ResetPasswordCommand>
 {
@@ -23,8 +23,8 @@ public class ResetPasswordCommandHandler(
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ??
             throw new BadRequestException("Invalid token payload.");
 
-        var specification = new GetStaffByEmailSpecification(email);
-        var user = await staffRepository.GetAsync(specification, cancellationToken) ??
+        var specification = new GetAccountByEmailSpecification(email);
+        var user = await accountRepository.GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User not found.");
 
         var isNewPasswordSameAsCurrent = PasswordHasher.VerifyPassword(
@@ -38,6 +38,6 @@ public class ResetPasswordCommandHandler(
         }
 
         user.PasswordHash = PasswordHasher.HashPassword(request.Model.NewPassword);
-        await staffRepository.UpdateAsync(user, cancellationToken);
+        await accountRepository.UpdateAsync(user, cancellationToken);
     }
 }
