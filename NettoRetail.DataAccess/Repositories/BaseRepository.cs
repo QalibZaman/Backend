@@ -53,9 +53,16 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> GetManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task<IEnumerable<object>> GetManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        return await _dbSet.Where(specification.Criteria).ToListAsync(cancellationToken);
+        var query = _dbSet.Where(specification.Criteria);
+
+        if (specification.Select != null)
+        {
+           return await query.Select(specification.Select).ToListAsync(cancellationToken);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task DeleteManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)

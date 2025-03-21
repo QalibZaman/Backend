@@ -10,7 +10,7 @@ namespace NettoRetail.DataAccess.Configurations
         {
             builder.ToTable("Permission_Role");
 
-            builder.HasKey(model => new { model.PermissionId, model.RoleId});
+            builder.HasKey(model => new { model.PermissionId, model.RoleId });
 
             builder.HasOne(model => model.Permission)
                 .WithMany(model => model.PermissionRoles)
@@ -20,7 +20,12 @@ namespace NettoRetail.DataAccess.Configurations
                 .WithMany(model => model.PermissionRoles)
                 .HasForeignKey(model => model.RoleId);
 
-            builder.Property(model => model.IsAllowed);
+            builder.HasData(
+                new PermissionRoleEntity() { RoleId = 1, PermissionId = 1 },
+                new PermissionRoleEntity() { RoleId = 1, PermissionId = 2 },
+                new PermissionRoleEntity() { RoleId = 1, PermissionId = 3 },
+                new PermissionRoleEntity() { RoleId = 1, PermissionId = 4 },
+                new PermissionRoleEntity() { RoleId = 1, PermissionId = 5 });
         }
     }
 }

@@ -18,12 +18,10 @@ public class PermissionConfiguration : IEntityTypeConfiguration<PermissionEntity
             .HasForeignKey(model => model.PermissionId);
 
         builder.HasData(
-            new PermissionEntity() { Id = 1, Title = "Admin" },
-            new PermissionEntity() { Id = 2, Title = "Inventory management" },
-            new PermissionEntity() { Id = 3, Title = "Customers management" },
-            new PermissionEntity() { Id = 4, Title = "Orders management" },
-            new PermissionEntity() { Id = 5, Title = "Admins management" },
-            new PermissionEntity() { Id = 6, Title = "System settings" }
-        );
+            new PermissionEntity() { Id = 1, Title = "Inventory management" },
+            new PermissionEntity() { Id = 2, Title = "Customers management" },
+            new PermissionEntity() { Id = 3, Title = "Orders management" },
+            new PermissionEntity() { Id = 4, Title = "Admins management" },
+            new PermissionEntity() { Id = 5, Title = "System settings" });
     }
 }

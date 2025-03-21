@@ -438,14 +438,38 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsAllowed")
-                        .HasColumnType("boolean");
-
                     b.HasKey("PermissionId", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Permission_Role", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PermissionId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 2,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 3,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 4,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 5,
+                            RoleId = 1
+                        });
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -464,6 +488,33 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PermissionEntity");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Title = "Inventory management"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Title = "Customers management"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Title = "Orders management"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Title = "Admins management"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Title = "System settings"
+                        });
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
@@ -484,7 +535,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("ShopId")
+                    b.Property<int?>("ShopId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -492,6 +543,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Has full access to the system",
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
@@ -737,9 +796,7 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
                         .WithMany("Roles")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ShopId");
 
                     b.Navigation("Shop");
                 });
@@ -805,9 +862,9 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
-                    b.Navigation("InventoryItems");
-
                     b.Navigation("Categories");
+
+                    b.Navigation("InventoryItems");
 
                     b.Navigation("Roles");
 
