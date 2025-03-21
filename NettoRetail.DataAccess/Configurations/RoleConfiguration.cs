@@ -13,7 +13,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
 
         builder.Property(p => p.RoleName).HasConversion<string>().HasMaxLength(30);
 
-        builder.HasMany(r => r.StaffEntities)
+        builder.HasMany(r => r.Accounts)
             .WithOne(s => s.Role)
             .HasForeignKey(c => c.RoleId);
 

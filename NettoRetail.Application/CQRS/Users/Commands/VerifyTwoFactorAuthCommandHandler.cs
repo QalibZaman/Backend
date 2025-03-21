@@ -2,7 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
@@ -10,14 +10,14 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 public record VerifyTwoFactorAuthCommand(Guid UserId, string TotpCode) : IRequest<TokenResponse>;
 
 public class VerifyTwoFactorAuthCommandHandler(
-    IStaffRepository userRepository,
+    IAccountRepository userRepository,
     ITotpService totpService,
     IJwtManager jwtManager)
     : IRequestHandler<VerifyTwoFactorAuthCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(VerifyTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetAsync(new GetStaffByIdSpecification(request.UserId), cancellationToken);
+        var user = await userRepository.GetAsync(new GetAccountByIdSpecification(request.UserId), cancellationToken);
         if (user == null)
         {
             throw new NotFoundException("User not found.");

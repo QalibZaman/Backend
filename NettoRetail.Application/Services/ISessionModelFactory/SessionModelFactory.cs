@@ -1,13 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Entities;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.ISessionModelFactory;
 
-public class SessionModelFactory(IStaffRepository staffRepository) : ISessionModelFactory
+public class SessionModelFactory(IAccountRepository accountRepository) : ISessionModelFactory
 {
     public async Task<SessionModel> CreateSessionModel(
         string userAgentString,
@@ -36,8 +36,8 @@ public class SessionModelFactory(IStaffRepository staffRepository) : ISessionMod
         //Ips may come in a format of string list, e.g. "0.0.0.0, 1.1.1.1, ..."
         var ip = ips.Split(',')[0].Trim();
 
-        var specification = new GetStaffByEmailSpecification(accountEmail);
-        var account = await staffRepository.GetAsync(specification, cancellationToken);
+        var specification = new GetAccountByEmailSpecification(accountEmail);
+        var account = await accountRepository.GetAsync(specification, cancellationToken);
 
         if (account == null)
             throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials");

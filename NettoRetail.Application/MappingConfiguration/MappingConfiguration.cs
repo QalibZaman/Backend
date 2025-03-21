@@ -9,7 +9,7 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<AdminSignUpModel, StaffEntity>()
+        config.NewConfig<AdminSignUpModel, AccountEntity>()
             .Map(dest => dest.PasswordHash, src => src.Password);
 
         config.NewConfig<CategoryEntity, CategoryResponse>()

@@ -4,7 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.TwoFactorAuth;
 using NettoRetail.DataAccess.Specifications.Sessions;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
@@ -15,7 +15,7 @@ public record EnableTwoFactorAuthCommand(Guid UserId, EnableTwoFactorAuthRequest
     : IRequest<EnableTwoFactorAuthResponse>;
 
 public class EnableTwoFactorAuthCommandHandler(
-    IStaffRepository staffRepository,
+    IAccountRepository accountRepository,
     ITotpService totpService,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService,
@@ -29,11 +29,11 @@ public class EnableTwoFactorAuthCommandHandler(
     public async Task<EnableTwoFactorAuthResponse> Handle(
         EnableTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetStaffByIdSpecification(request.UserId);
-        var user = await staffRepository.GetAsync(specification, cancellationToken)
+        var specification = new GetAccountByIdSpecification(request.UserId);
+        var user = await accountRepository.GetAsync(specification, cancellationToken)
                    ?? throw new NotFoundException("User not found.");
 
-        var loginSpecification = new GetFailedAuthAttemptByStaffIdSpecification(user.Id);
+        var loginSpecification = new GetFailedAuthAttemptByAccountIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
 
         if (!PasswordHasher.VerifyPassword(request.Model.ConfirmPassword, user.PasswordHash))
@@ -66,7 +66,7 @@ public class EnableTwoFactorAuthCommandHandler(
         var encryptedSecret = totpService.EncryptSecret(rawSecret);
 
         user.EncryptedTotpSecret = encryptedSecret;
-        await staffRepository.UpdateAsync(user, cancellationToken);
+        await accountRepository.UpdateAsync(user, cancellationToken);
 
         return new EnableTwoFactorAuthResponse(rawSecret, qrCodeUri);
     }

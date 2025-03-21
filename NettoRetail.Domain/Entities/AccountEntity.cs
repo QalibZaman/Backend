@@ -1,6 +1,6 @@
 namespace NettoRetail.Domain.Entities;
 
-public class StaffEntity
+public class AccountEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public required string FirstName { get; set; }
