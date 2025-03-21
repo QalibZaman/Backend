@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using CsvHelper.Configuration;
+﻿using CsvHelper.Configuration;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Application.CsvFileMap;
@@ -11,7 +10,7 @@ public sealed class InventoryItemMap : ClassMap<InventoryItemEntity>
         Map(x => x.ProductUpc).Name("Product UPC");
         Map(x => x.ProductName).Name("Product Name");
         Map(x => x.ProductLocation).Name("Product Location");
-        Map(x => x.Category.Name).Name("Product Category");
+        Map(x => x.Category.Name).Name("Product Category").Index(3);
         Map(x => x.AvailableAmount).Name("Available Amount");
         Map(x => x.ReservedAmount).Name("Reserved Amount");
         Map(x => x.OnHandAmount).Name("On-hand Amount");
