@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
+using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.Models.Authentication;
@@ -12,6 +13,8 @@ using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
+using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -27,7 +30,11 @@ public class StaffController(
         var loginCommand = new LoginCommand(model);
         var data = await mediator.Send(loginCommand);
 
-        // Creating a session
+        if (!string.IsNullOrEmpty(data.TempToken))
+        {
+            return Ok(new ApiResponse<TokenResponse>(data));
+        }
+
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
         await mediator.Send(sessionCreateCommand);
@@ -109,5 +116,52 @@ public class StaffController(
         await mediator.Send(resetPasswordCommand);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("enable-2fa")]
+    public async Task<IActionResult> EnableTwoFactorAuth(
+        [FromBody] EnableTwoFactorAuthRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
+
+        var command = new EnableTwoFactorAuthCommand(userId, request, accessToken!);
+        var response = await mediator.Send(command);
+
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpPost("confirm-2fa")]
+    public async Task<IActionResult> ConfirmTwoFactor(
+        [FromBody] VerifyTotpRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new ConfirmTwoFactorAuthCommand(userId, request.TotpCode);
+
+        await mediator.Send(command);
+
+        return NoContent();
+    }
+
+    [Authorize(
+        AuthenticationSchemes = AuthSchemes.TempToken,
+        Policy = PolicyNames.TwoFactorAuthPolicy)]
+    [HttpPost("verify-2fa")]
+    public async Task<IActionResult> VerifyTwoFactor(
+        [FromBody] VerifyTotpRequest request)
+    {
+
+        var userId = HttpContext.GetUserId();
+        var command = new VerifyTwoFactorAuthCommand(userId, request.TotpCode);
+
+        var tokenResponse = await mediator.Send(command);
+
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), tokenResponse.AccessToken, tokenResponse.RefreshToken);
+        await mediator.Send(sessionCreateCommand);
+
+        return Ok(new ApiResponse<TokenResponse>(tokenResponse));
     }
 }

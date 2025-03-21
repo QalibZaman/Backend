@@ -8,6 +8,8 @@ public class StaffEntity
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
     public int RoleId { get; set; }
+    public bool TwoFactorEnabled { get; set; }
+    public string? EncryptedTotpSecret { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }

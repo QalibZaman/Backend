@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.API.Infrastructure.Authorization;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
 
@@ -14,11 +15,9 @@ public static class AuthenticationExtensions
 {
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services)
     {
-        // When we'll be introducing the Google authentication,
-        // we will be adding another scheme with specific options for it.
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer("Default", options =>
+            .AddJwtBearer(AuthSchemes.Default, options =>
             {
                 var jwtOptions = services.BuildServiceProvider()
                     .GetRequiredService<IOptions<JwtOptions>>()
@@ -37,8 +36,10 @@ public static class AuthenticationExtensions
                 {
                     OnTokenValidated = async context =>
                     {
-                        var tokenTypeClaim = context.Principal?.FindFirst("token_type")?.Value;
-                        if (tokenTypeClaim != "access")
+                        var tokenTypeClaim = context.Principal?.FindFirst(AuthClaims.TokenType)?.Value;
+                        var requestPath = context.HttpContext.Request.Path.Value;
+
+                        if (tokenTypeClaim != AuthTokenTypes.Access)
                         {
                             context.Fail("Invalid token type. Expected an access token.");
                             return;
@@ -61,20 +62,53 @@ public static class AuthenticationExtensions
                         }
                     }
                 };
+            })
+            .AddJwtBearer(AuthSchemes.TempToken, options =>
+            {
+                var jwtOptions = services.BuildServiceProvider()
+                    .GetRequiredService<IOptions<JwtOptions>>()
+                    .Value;
+
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var tokenTypeClaim = context.Principal?.FindFirst(AuthClaims.TokenType)?.Value;
+                        if (tokenTypeClaim != AuthTokenTypes.Temp)
+                        {
+                            context.Fail("Invalid token type. Expected a temp token.");
+                            return Task.CompletedTask;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         services.AddAuthorization(options =>
         {
             options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes("Default")
+                .AddAuthenticationSchemes(AuthSchemes.Default)
                 .Build();
-
-            // We can later on add the Google policy using options.AddPolicy()
-            // note: you should obviously have a policy pre-defined in AddAuthentication before creating an authorization policy.
 
             options.AddPolicy(PolicyNames.ShopPolicy, policy =>
                 policy.Requirements.Add(new ShopAuthorizationRequirement()));
+
+
+            options.AddPolicy(PolicyNames.TwoFactorAuthPolicy, policy =>
+                 policy.RequireAuthenticatedUser()
+                 .RequireClaim(AuthClaims.TokenType, AuthTokenTypes.Temp)
+                 .AddAuthenticationSchemes(AuthSchemes.TempToken));
 
             options.AddPolicy(PolicyNames.HasShopClaimPolicy, policy =>
                 policy.Requirements.Add(new HasShopAuthorizationRequirement()));
@@ -85,15 +119,4 @@ public static class AuthenticationExtensions
 
         return services;
     }
-}
-
-public static class PolicyNames
-{
-    public const string ShopPolicy = "ShopPolicy";
-    public const string HasShopClaimPolicy = "HasShopClaimPolicy";
-}
-
-public static class MyClaimTypes
-{
-    public const string ShopId = "shop_id";
 }

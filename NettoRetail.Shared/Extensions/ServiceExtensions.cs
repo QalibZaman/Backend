@@ -14,7 +14,8 @@ public static class ServiceExtensions
         services.Configure<UserBlockOptions>(configuration.GetSection(nameof(UserBlockOptions)));
         services.Configure<TokenBlacklistOptions>(configuration.GetSection(nameof(TokenBlacklistOptions)));
         services.Configure<AdminRoleOptions>(configuration.GetSection(nameof(AdminRoleOptions)));
-
+        services.Configure<TotpOptions>(configuration.GetSection(nameof(TotpOptions)));
+        services.Configure<TotpEncryptionOptions>(configuration.GetSection(nameof(TotpEncryptionOptions)));
         return services;
     }
 }
