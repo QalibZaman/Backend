@@ -1,5 +1,6 @@
 using Mapster;
 using NettoRetail.Application.Models.Admin;
+using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 
@@ -14,5 +15,8 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CategoryEntity, CategoryResponse>()
             .Map(dest => dest.ItemsAmount, src => src.InventoryItems.Count());
+
+        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
+            .Map(dest => dest.ProductCategory, src => src.Category.Name);
     }
 }

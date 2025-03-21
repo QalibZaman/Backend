@@ -1,29 +1,26 @@
 ﻿using System.Globalization;
 using System.Text;
 using CsvHelper;
-using CsvHelper.Configuration;
+using Mapster;
 using NettoRetail.Application.Interfaces;
 
 namespace NettoRetail.Application.Services;
 
 public class CsvFileService : ICsvFileService
 {
-    public async Task<byte[]> GetEntitiesCsvData<T, TMap>(IEnumerable<T> entities, CancellationToken cancellationToken)
-        where TMap : ClassMap<T>
+    public async Task<byte[]> GetEntitiesCsvData<T, TEntity>(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
     {
+        var mappedEntities = entities.Adapt<IEnumerable<T>>();
+
         using var memoryStream = new MemoryStream();
         await using var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true);
         await using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
         {
-            csvWriter.Context.RegisterClassMap<TMap>();
             csvWriter.WriteHeader<T>();
-
             await csvWriter.NextRecordAsync();
-            await csvWriter.WriteRecordsAsync(entities, cancellationToken);
+            await csvWriter.WriteRecordsAsync(mappedEntities, cancellationToken);
         }
 
-        var entitiesCsvData = memoryStream.ToArray();
-
-        return entitiesCsvData;
+        return memoryStream.ToArray();
     }
 }
