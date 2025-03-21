@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Application.Models.InventoryItem;
+﻿namespace NettoRetail.Application.Models.Response;
 
 public class InventoryItemResponse
 {

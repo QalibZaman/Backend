@@ -4,9 +4,9 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
 
-public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
+public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
 {
-    public void Configure(EntityTypeBuilder<StaffEntity> builder)
+    public void Configure(EntityTypeBuilder<AccountEntity> builder)
     {
         builder.HasKey(p => p.Id);
 
@@ -21,7 +21,7 @@ public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
         builder.Property(p => p.RoleId);
 
         builder.HasOne(s => s.Role)
-            .WithMany(r => r.StaffEntities)
+            .WithMany(r => r.Accounts)
             .HasForeignKey(c => c.RoleId)
             .IsRequired(false);
     }

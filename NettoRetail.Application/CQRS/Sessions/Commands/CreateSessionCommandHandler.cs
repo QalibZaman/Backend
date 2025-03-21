@@ -1,10 +1,12 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;
 
@@ -26,7 +28,8 @@ public class CreateSessionCommandHandler(
         else
             location = await ipInfoService.GetIpInfoAsync(ip);
 
-        var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, cancellationToken);
+        var expiresAt = JwtUtils.GetJwtExpiration(request.Jwt) ?? throw new InvalidTokenCredentialsException("Invalid JWT or missing expiration claim.");
+        var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, expiresAt, cancellationToken);
 
         var session = sessionModel.Adapt<SessionEntity>();
 

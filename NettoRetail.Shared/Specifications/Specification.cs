@@ -12,8 +12,9 @@ public class Specification<TEntity>
     public Expression<Func<TEntity, bool>> Criteria { get; set; }
 
     // Ordering expressions
-    public Expression<Func<TEntity, object>>? OrderBy { get; set; }
-    public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
+    private readonly List<(Expression<Func<TEntity, object>>, bool)> _orderings;
+    public IEnumerable<(Expression<Func<TEntity, object>> Expr, bool IsDesc)> Orderings => _orderings;
+
 
     // Includes
     private readonly List<Expression<Func<TEntity, object>>> _includes;
@@ -27,19 +28,20 @@ public class Specification<TEntity>
     {
         Criteria = criteria;
         _includes = new List<Expression<Func<TEntity, object>>>();
+        _orderings = new List<(Expression<Func<TEntity, object>>, bool)>();
     }
 
-    public Specification<TEntity> And(Specification<TEntity> next)
+    public Specification<TEntity> And(Specification<TEntity> other)
     {
-        var parameter = Expression.Parameter(typeof(TEntity), "p");
+        var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
+            Expression.AndAlso(
+                Criteria.Body,
+                Expression.Invoke(other.Criteria, Criteria.Parameters[0])
+            ),
+            Criteria.Parameters[0]
+        );
 
-        var leftVisitor = new ReplaceParameterVisitor(Criteria.Parameters[0], parameter);
-        var rightVisitor = new ReplaceParameterVisitor(next.Criteria.Parameters[0], parameter);
-
-        var left = leftVisitor.Visit(Criteria.Body);
-        var right = rightVisitor.Visit(next.Criteria.Body);
-        Criteria = Expression.Lambda<Func<TEntity, bool>>(Expression.AndAlso(left, right), parameter);
-        return this;
+        return new Specification<TEntity>(combinedExpression);
     }
 
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
@@ -47,21 +49,10 @@ public class Specification<TEntity>
         _includes.Add(includeExpression);
         return this;
     }
-}
 
-public class ReplaceParameterVisitor : ExpressionVisitor
-{
-    private readonly ParameterExpression _oldParameter;
-    private readonly ParameterExpression _newParameter;
-
-    public ReplaceParameterVisitor(ParameterExpression oldParameter, ParameterExpression newParameter)
+    public Specification<TEntity> AddOrderBy(Expression<Func<TEntity, object>> orderByExpression, bool descending = false)
     {
-        _oldParameter = oldParameter;
-        _newParameter = newParameter;
-    }
-
-    protected override Expression VisitParameter(ParameterExpression node)
-    {
-        return node == _oldParameter ? _newParameter : base.VisitParameter(node);
+        _orderings.Add((orderByExpression, descending));
+        return this;
     }
 }

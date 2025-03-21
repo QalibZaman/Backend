@@ -11,5 +11,6 @@ public class SessionModel
     public string? Location { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime LastActivityTime { get; set; }
+    public DateTime ExpiresAt { get; set; }
     public Guid AccountId { get; set; }
 }

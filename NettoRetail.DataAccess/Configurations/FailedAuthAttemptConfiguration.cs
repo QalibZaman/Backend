@@ -16,9 +16,9 @@ public class FailedAuthAttemptConfiguration : IEntityTypeConfiguration<FailedAut
 
         builder.Property(p => p.LastFailedTime).IsRequired();
 
-        builder.HasOne(s => s.Staff)
+        builder.HasOne(s => s.Account)
             .WithOne(s => s.FailedAuthAttempt)
-            .HasForeignKey<FailedAuthAttemptEntity>(s => s.StaffId)
+            .HasForeignKey<FailedAuthAttemptEntity>(s => s.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

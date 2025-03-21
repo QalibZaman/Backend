@@ -5,5 +5,5 @@ namespace NettoRetail.Application.Services.ISessionModelFactory;
 
 public interface ISessionModelFactory
 {
-    public Task<SessionModel> CreateSessionModel(string userAgentString, string ips, string jwt, string requestToken, Location? location, CancellationToken cancellationToken);
+    public Task<SessionModel> CreateSessionModel(string userAgentString, string ips, string jwt, string requestToken, Location? location, DateTime expiresAt, CancellationToken cancellationToken);
 }
