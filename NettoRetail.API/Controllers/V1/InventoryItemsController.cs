@@ -74,4 +74,21 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
         return Ok(data);
     }
+
+    [Authorize]
+    [HttpGet("search")]
+    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromBody] GetInventoryItemsByUpcOrNameModel model)
+    {
+        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
+        if (!authResult.Succeeded)
+            return Unauthorized();
+
+        var userShopId = HttpContext.GetUserShopId();
+
+        var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);
+
+        var data = await mediator.Send(getFilteredInventoryItemsQuery);
+
+        return Ok(data);
+    }
 }
