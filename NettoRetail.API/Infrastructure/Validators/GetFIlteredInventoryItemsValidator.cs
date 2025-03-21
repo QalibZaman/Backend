@@ -13,7 +13,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
 
         RuleFor(x => x.CategoryId)
-            .GreaterThan(0).WithMessage("Category ID must be greater than 0.");
+            .GreaterThanOrEqualTo(0).WithMessage("Category ID must be greater than 0.");
 
         RuleFor(x => x.MinAvailableAmount)
             .GreaterThanOrEqualTo(0).WithMessage("Min available amount must be 0 or greater.");
