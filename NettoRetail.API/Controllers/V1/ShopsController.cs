@@ -32,7 +32,7 @@ public class ShopsController(IMediator mediator, IAuthorizationService authoriza
         var createShopCommand = new CreateShopCommand(HttpContext.GetUserId(), shop);
         var response = await mediator.Send(createShopCommand);
 
-        return Ok(response);
+        return Created(response.Id.ToString(), response);
     }
 
     [Authorize]
