@@ -46,6 +46,12 @@ public class LoginCommandHandler(IStaffRepository repository,
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }
 
+        if (user.TwoFactorEnabled)
+        {
+            var tempToken = jwtManager.GenerateTempToken(user.Id.ToString());
+            return new TokenResponse(null, null, tempToken);
+        }
+
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 
         return tokenResponse;

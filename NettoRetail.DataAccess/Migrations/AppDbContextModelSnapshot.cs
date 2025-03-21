@@ -627,6 +627,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("EncryptedTotpSecret")
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -647,6 +650,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
