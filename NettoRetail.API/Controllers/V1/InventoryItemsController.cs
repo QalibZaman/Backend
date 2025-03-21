@@ -29,6 +29,17 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
     }
 
     [Authorize]
+    [HttpGet("csv-file")]
+    public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
+    {
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
+
+        var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
+
+        return File(response, "text/csv", "Inventory items.csv");
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
