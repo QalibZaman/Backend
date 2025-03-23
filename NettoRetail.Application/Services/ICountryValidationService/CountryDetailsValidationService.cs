@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.Domain.Entities;
@@ -9,11 +10,11 @@ namespace NettoRetail.Application.Services.ICountryValidationService;
 
 public class CountryDetailsValidationService(ICountryRepository countryRepository) : ICountryDetailsValidationService
 {
-    public async Task ValidateAsync(ShopModel shop, CancellationToken cancellationToken)
+    public async Task ValidateAsync(CountryValidationModel model, CancellationToken cancellationToken)
     {
         var errors = new List<string>();
 
-        var specification = new GetCountryByIdSpecification(shop.CountryId);
+        var specification = new GetCountryByIdSpecification(model.CountryId);
         var country = await countryRepository.GetAsync(specification, cancellationToken);
 
         if (country == null)
@@ -22,12 +23,12 @@ public class CountryDetailsValidationService(ICountryRepository countryRepositor
         }
         else
         {
-            if (!IsPhoneNumberValid(country, shop.PhoneNumber))
+            if (!IsPhoneNumberValid(country, model.PhoneNumber))
             {
                 errors.Add("Invalid phone number");
             }
 
-            if (!IsZipCodeValid(country, shop.ZipCode))
+            if (!IsZipCodeValid(country, model.ZipCode))
             {
                 errors.Add("Invalid zip code");
             }
