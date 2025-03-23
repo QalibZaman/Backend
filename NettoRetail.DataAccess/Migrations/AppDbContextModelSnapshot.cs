@@ -389,6 +389,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("LoyaltyId")
                         .HasColumnType("text");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 

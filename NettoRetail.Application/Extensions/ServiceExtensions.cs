@@ -7,7 +7,6 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Utilities;
-using NettoRetail.Shared.Interfaces.Repositories;
 using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;

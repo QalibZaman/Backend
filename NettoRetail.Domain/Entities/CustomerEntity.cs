@@ -6,4 +6,5 @@ public class CustomerEntity
     public AccountEntity? Account { get; set; }
     public string? LoyaltyId { get; set; }
     public string? Remarks { get; set; }
+    public string? PhoneNumber { get; set; }
 }

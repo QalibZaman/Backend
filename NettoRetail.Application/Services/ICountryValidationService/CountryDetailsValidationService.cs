@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
-using NettoRetail.Application.Models.Shop;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -40,7 +39,7 @@ public class CountryDetailsValidationService(ICountryRepository countryRepositor
         }
     }
 
-    private bool IsPhoneNumberValid(CountryEntity country, string phoneNumber)
+    public bool IsPhoneNumberValid(CountryEntity country, string phoneNumber)
     {
         return Regex.IsMatch(phoneNumber, country.PhoneMask);
     }
