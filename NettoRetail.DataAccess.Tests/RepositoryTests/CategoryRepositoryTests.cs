@@ -7,7 +7,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Options;
 using NSubstitute;
 
-namespace NettoRetail.DataAcess.Tests;
+namespace NettoRetail.Tests.RepositoryTests;
 
 public class CategoryRepositoryTests
 {
