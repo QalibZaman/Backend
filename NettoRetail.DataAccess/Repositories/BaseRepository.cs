@@ -88,4 +88,11 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
         return await query.ToListAsync(cancellationToken);
     }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    {
+        await _dbSet.AddRangeAsync(entities, cancellationToken);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -23,7 +23,7 @@ public class InventoryItemCsvModel
     [Name("Reserved Amount")]
     public required int ReservedAmount { get; set; }
 
-    [Name("On-Hand Amount")]
+    [Name("On-hand Amount")]
     public required int OnHandAmount { get; set; }
 
     [Name("Price")]
@@ -34,4 +34,10 @@ public class InventoryItemCsvModel
 
     [Name("Description")]
     public required string Description { get; set; }
+
+    [Ignore]
+    public int? CategoryId { get; set; }
+
+    [Ignore]
+    public int? ShopId { get; set; }
 }

@@ -32,7 +32,16 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
     {
-        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
+        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
+
+        if (!authResult.Succeeded)
+        {
+            return Unauthorized();
+        }
+
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery(userShopId);
 
         var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
 
@@ -56,6 +65,26 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         var response = new ApiResponse<InventoryItemResponse>(data);
 
         return Created(string.Empty, response);
+    }
+
+    [Authorize]
+    [HttpPost("csv-file")]
+    public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
+    {
+        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
+
+        if (!authResult.Succeeded)
+        {
+            return Unauthorized();
+        }
+
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListUploadCommand = new UploadInventoryItemsListCommand(itemsCsvFile, userShopId);
+
+        await mediator.Send(inventoryItemsListUploadCommand, cancellationToken);
+
+        return Ok();
     }
 
     [Authorize]
