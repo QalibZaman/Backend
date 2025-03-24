@@ -14,11 +14,12 @@ namespace NettoRetail.API.Controllers.V1;
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
-    public async Task<ApiResponse<CreateCustomerResponse>> Create(CreateCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
         var command = new CreateCustomerCommand(customer);
-        var response = await mediator.Send(command, cancellationToken);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CreateCustomerResponse>(data);
 
-        return new ApiResponse<CreateCustomerResponse>(response);
+        return Created("", response);
     }
 }

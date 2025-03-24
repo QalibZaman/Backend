@@ -30,12 +30,12 @@ public class CreateCustomerCommandHandler(
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         CountryEntity? country = null;
-        if (request.Model.PhoneNumber is not null)
+        if (request.Model.PhoneNumber != null)
         {
             var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
             country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
 
-            if (country is null)
+            if (country == null)
             {
                 throw new BadRequestException("Invalid country id");
             }
@@ -51,7 +51,7 @@ public class CreateCustomerCommandHandler(
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
         var account = await accountRepository.GetAsync(emailSpecification, cancellationToken);
 
-        if (account is not null)
+        if (account != null)
         {
             throw new ConflictException("Account with this email already exists");
         }
@@ -68,7 +68,7 @@ public class CreateCustomerCommandHandler(
         customerEntity.AccountId = accountEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
 
-        if (request.Model.PhoneNumber is not null)
+        if (request.Model.PhoneNumber != null)
         {
             customerEntity.PhoneNumber = $"{country!.PhoneCode} {request.Model.PhoneNumber}";
         }
