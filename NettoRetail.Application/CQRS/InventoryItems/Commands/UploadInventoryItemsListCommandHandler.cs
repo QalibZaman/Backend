@@ -18,14 +18,14 @@ public class UploadInventoryItemsListCommandHandler(
 {
     public async Task Handle(UploadInventoryItemsListCommand request, CancellationToken cancellationToken)
     {
-        if (request.CsvItemsFile.ContentType != "text/csv")
-        {
-            throw new BadRequestException("The uploaded file must be a CSV file type.");
-        }
-
         if (request.CsvItemsFile == null)
         {
             throw new BadRequestException("CSV file cannot be null.");
+        }
+
+        if (request.CsvItemsFile.ContentType != "text/csv")
+        {
+            throw new BadRequestException("The uploaded file must be a CSV file type.");
         }
 
         var inventoryItemsData = csvFileService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(request.CsvItemsFile);

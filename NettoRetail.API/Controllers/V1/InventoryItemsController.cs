@@ -28,17 +28,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-
-        if (!authResult.Succeeded)
-        {
-            return Unauthorized();
-        }
-
         var userShopId = HttpContext.GetUserShopId();
 
         var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery(userShopId);
@@ -67,17 +60,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Created(string.Empty, response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("csv-file")]
     public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-
-        if (!authResult.Succeeded)
-        {
-            return Unauthorized();
-        }
-
         var userShopId = HttpContext.GetUserShopId();
 
         var inventoryItemsListUploadCommand = new UploadInventoryItemsListCommand(itemsCsvFile, userShopId);
