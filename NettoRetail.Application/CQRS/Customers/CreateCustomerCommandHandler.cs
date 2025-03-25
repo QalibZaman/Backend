@@ -63,7 +63,11 @@ public class CreateCustomerCommandHandler(
         var customerEntity = request.Model.Adapt<CustomerEntity>();
 
         accountEntity.RoleId = role!.Id;
-        accountEntity.PasswordHash = PasswordHasher.HashPassword(request.Model.Password);
+
+        // Every customer is registered with a random password - in future, they'll be able to reset and set theirs when they'll be registered
+        // Right now, customers shouldn't be able to log in - and in the future, when they get the activation link, they'll be able to reset their password
+        var initialPassword = Guid.NewGuid().ToString();
+        accountEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
         customerEntity.AccountId = accountEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
