@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NettoRetail.API.Infrastructure.Authorization;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
