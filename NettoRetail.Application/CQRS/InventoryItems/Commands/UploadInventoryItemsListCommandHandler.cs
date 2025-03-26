@@ -19,7 +19,7 @@ public class UploadInventoryItemsListCommandHandler(
     ICategoryRepository categoryRepository,
     IOptions<BatchOptions> batchOptions) : IRequestHandler<UploadInventoryItemsListCommand>
 {
-    private BatchOptions _batchDefaults = batchOptions.Value;
+    private readonly BatchOptions _batchDefaults = batchOptions.Value;
 
     public async Task Handle(UploadInventoryItemsListCommand request, CancellationToken cancellationToken)
     {
