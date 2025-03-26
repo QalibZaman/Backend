@@ -1,12 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace NettoRetail.Application.Services;
 
