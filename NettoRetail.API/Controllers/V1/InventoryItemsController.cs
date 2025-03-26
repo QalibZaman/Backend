@@ -101,14 +101,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok(data);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("search")]
     public async Task<IActionResult> GetInventoryItemByUpcOrName([FromBody] GetInventoryItemsByUpcOrNameModel model)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-        if (!authResult.Succeeded)
-            return Unauthorized();
-
         var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);
