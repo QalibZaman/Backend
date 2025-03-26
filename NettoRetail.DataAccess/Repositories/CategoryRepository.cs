@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
-using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
@@ -40,7 +39,6 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         return response;
     }
 
-
     public async Task<List<CategoryEntity>> GetCategorySubtreeAsync(int categoryId, CancellationToken cancellationToken)
     {
         var query = @"
@@ -73,5 +71,12 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
             ORDER BY ""Level"" ASC;";
 
         return await _dbSet.FromSqlRaw(sql, categoryId).ToListAsync(cancellationToken);
+    }
+
+    public async Task<Dictionary<string, int>> GetCategoryNameAndIdDictionaryAsync(CancellationToken cancellationToken)
+    {
+        var result = await _dbSet.Select(x => new { x.Name, x.Id }).ToDictionaryAsync(x => x.Name, x => x.Id, cancellationToken);
+
+        return result;
     }
 }
