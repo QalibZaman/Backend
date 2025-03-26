@@ -71,7 +71,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredInventoryItems([FromBody] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
         if (!authResult.Succeeded)
@@ -88,7 +88,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize]
     [HttpGet("search")]
-    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromBody] GetInventoryItemsByUpcOrNameModel model)
+    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromQuery] GetInventoryItemsByUpcOrNameModel model)
     {
         var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
         if (!authResult.Succeeded)

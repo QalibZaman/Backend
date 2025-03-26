@@ -1,5 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.14" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -18,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NettoRetail.API\NettoRetail.API.csproj" />
     <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
     <ProjectReference Include="..\NettoRetail.Domain\NettoRetail.Domain.csproj" />
   </ItemGroup>

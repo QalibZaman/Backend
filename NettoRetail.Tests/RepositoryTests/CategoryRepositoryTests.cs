@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace NettoRetail.Tests.RepositoryTests;
 
-public class CategoryRepositoryTests
+public class CategoryRepositoryTests : IDisposable
 {
     private readonly CategoryRepository _categoryRepository;
     private readonly AppDbContext _context;
@@ -19,7 +19,7 @@ public class CategoryRepositoryTests
         var mockConnectionStrings = Substitute.For<IOptions<ConnectionStrings>>();
         mockConnectionStrings.Value.Returns(new ConnectionStrings
         {
-            DefaultConnection = "Server=localhost;Database=nrt_test;Port=5432;User Id=postgres;Password=admin;",
+            DefaultConnection = "Server=localhost;Database=nrt_test1;Port=5432;User Id=postgres;Password=admin;",
             AzureConnection = "FakeConnectionString"
         });
 
@@ -28,11 +28,7 @@ public class CategoryRepositoryTests
                 .Options;
 
         _context = new AppDbContext(options, mockConnectionStrings);
-
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
-
-        SeedData();
+        InitializeDatabase();
 
         var mockPaginationOptions = Substitute.For<IOptions<PaginationOptions>>();
         mockPaginationOptions.Value.Returns(new PaginationOptions
@@ -41,6 +37,12 @@ public class CategoryRepositoryTests
         });
 
         _categoryRepository = new CategoryRepository(_context, mockPaginationOptions);
+    }
+
+    private void InitializeDatabase()
+    {
+        _context.Database.EnsureCreated();
+        SeedData();
     }
 
     private void SeedData()
@@ -64,42 +66,41 @@ public class CategoryRepositoryTests
         };
 
         _context.Categories.AddRange(categories);
-
-
         _context.SaveChanges();
     }
 
     [Fact]
     public async Task GetCategorySubtreeAsync_ShouldReturnSubtreeOfSelectedCategory()
     {
-        // Act
         var result = await _categoryRepository.GetCategorySubtreeAsync(1, CancellationToken.None);
 
-        // Assert
         Assert.NotEmpty(result);
-        Assert.Contains(result, c => c.Id == 1);  // Root1
-        Assert.Contains(result, c => c.Id == 2);  // Child 1
-        Assert.Contains(result, c => c.Id == 5);  // Grandchild 1.1
-        Assert.Contains(result, c => c.Id == 6);  // Grandchild 1.2
-        Assert.Contains(result, c => c.Id == 3);  // Child 2
-        Assert.Contains(result, c => c.Id == 7);  // Grandchild 2.1
-        Assert.Contains(result, c => c.Id == 4);  // Child 3
-        Assert.Contains(result, c => c.Id == 8);  // Grandchild 3.1
-        Assert.Contains(result, c => c.Id == 9);  // Grandchild 3.2
-        Assert.Contains(result, c => c.Id == 10); // Grandchild 3.3
+        Assert.Contains(result, c => c.Id == 1);
+        Assert.Contains(result, c => c.Id == 2);
+        Assert.Contains(result, c => c.Id == 5);
+        Assert.Contains(result, c => c.Id == 6);
+        Assert.Contains(result, c => c.Id == 3);
+        Assert.Contains(result, c => c.Id == 7);
+        Assert.Contains(result, c => c.Id == 4);
+        Assert.Contains(result, c => c.Id == 8);
+        Assert.Contains(result, c => c.Id == 9);
+        Assert.Contains(result, c => c.Id == 10);
     }
 
     [Fact]
     public async Task GetCategoryWithHierarchyAsync_ShouldReturnCategoriesBottomUpToRoot()
     {
-        // Act
         var result = await _categoryRepository.GetCategoryWithHierarchyAsync(5, CancellationToken.None);
 
-        // Assert 
         Assert.NotEmpty(result);
-        Assert.Equal(3, result.Count);  // Should contain 3 levels
-        Assert.Equal(1, result[0].Id);  // Root1 
-        Assert.Equal(2, result[1].Id);  // Child 1
-        Assert.Equal(5, result[2].Id);  // Grandchild 1.1
+        Assert.Equal(3, result.Count);
+        Assert.Equal(1, result[0].Id);
+        Assert.Equal(2, result[1].Id);
+        Assert.Equal(5, result[2].Id);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
     }
 }

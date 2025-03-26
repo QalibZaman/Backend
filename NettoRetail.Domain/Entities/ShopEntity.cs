@@ -16,5 +16,4 @@ public class ShopEntity
     public required CountryEntity Country { get; set; }
     public ICollection<AccountEntity>? Account { get; set; }
     public ICollection<InventoryItemEntity>? InventoryItems { get; set; }
-
 }
