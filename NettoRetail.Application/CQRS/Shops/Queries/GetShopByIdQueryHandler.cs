@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -14,7 +15,7 @@ public class GetShopByIdQueryHandler(IShopRepository shopRepository) : IRequestH
     {
         var specification = new GetShopByIdSpecification(request.ShopId);
 
-        var returnedShop = await shopRepository.GetAsync(specification, cancellationToken);
+        var returnedShop = await shopRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no shop with such Id");
 
         var shopResponse = returnedShop.Adapt<ShopResponse>();
 

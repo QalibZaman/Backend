@@ -22,6 +22,53 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("EncryptedTotpSecret")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("Accounts");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -340,6 +387,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("FailedAttempts")
                         .HasColumnType("integer");
 
@@ -349,12 +399,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime?>("LockoutEndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("StaffId")
+                    b.HasIndex("AccountId")
                         .IsUnique();
 
                     b.ToTable("FailedAuthAttempt");
@@ -619,45 +666,19 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Shops");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany("Accounts")
+                        .HasForeignKey("RoleId");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("Account")
+                        .HasForeignKey("ShopId");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
+                    b.Navigation("Role");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("Staff");
+                    b.Navigation("Shop");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -672,13 +693,13 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
                         .WithOne("FailedAuthAttempt")
-                        .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "StaffId")
+                        .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Staff");
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -702,7 +723,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
                         .WithMany("Sessions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -722,19 +743,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
-                        .WithMany("StaffEntities")
-                        .HasForeignKey("RoleId");
+                    b.Navigation("FailedAuthAttempt")
+                        .IsRequired();
 
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("Staff")
-                        .HasForeignKey("ShopId");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("Shop");
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -749,22 +763,14 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
-                    b.Navigation("StaffEntities");
+                    b.Navigation("Accounts");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
+                    b.Navigation("Account");
+
                     b.Navigation("InventoryItems");
-
-                    b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
-                {
-                    b.Navigation("FailedAuthAttempt")
-                        .IsRequired();
-
-                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

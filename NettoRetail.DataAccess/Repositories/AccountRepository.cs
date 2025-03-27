@@ -4,6 +4,6 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class StaffRepository(AppDbContext dbContext)
-    : BaseRepository<StaffEntity>(dbContext),
-    IStaffRepository;
+public class AccountRepository(AppDbContext dbContext)
+    : BaseRepository<AccountEntity>(dbContext),
+    IAccountRepository;

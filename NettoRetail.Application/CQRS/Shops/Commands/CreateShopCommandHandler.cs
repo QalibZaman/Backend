@@ -4,7 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -13,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Shops.Commands;
 
 public record CreateShopCommand(Guid accountId, ShopModel Model) : IRequest<ShopResponse>;
 
-public class CreateShopCommandHandler(IShopRepository shopRepository, IStaffRepository staffRepository,
+public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRepository accountRepository,
     IUnitOfWork unitOfWork, ICountryDetailsValidationService countryDetailsValidator) : IRequestHandler<CreateShopCommand, ShopResponse>
 {
     public async Task<ShopResponse> Handle(CreateShopCommand request, CancellationToken cancellationToken)
@@ -26,8 +26,8 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IStaffRepo
 
         try
         {
-            var specification = new GetStaffByIdSpecification(request.accountId);
-            var accountToUpdate = await staffRepository.GetAsync(specification, cancellationToken) ??
+            var specification = new GetAccountByIdSpecification(request.accountId);
+            var accountToUpdate = await accountRepository.GetAsync(specification, cancellationToken) ??
                 throw new BadRequestException($"Staff member with ID {request.accountId} not found.");
             if (accountToUpdate.ShopId != null)
             {
@@ -37,7 +37,7 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IStaffRepo
             var returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
             accountToUpdate.ShopId = returnedShop.Id;
 
-            await staffRepository.UpdateAsync(accountToUpdate, cancellationToken);
+            await accountRepository.UpdateAsync(accountToUpdate, cancellationToken);
             transaction.Commit();
 
             return returnedShop.Adapt<ShopResponse>();

@@ -1,11 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace NettoRetail.Application.Services;
 
@@ -56,7 +57,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
     {
-        const string tokenType = "token_type";
+        const string tokenType = AuthClaims.TokenType;
 
         var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
         var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
@@ -66,7 +67,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Email, userEmail),
             new(ClaimTypes.Role, userRoleId),
-            new(tokenType, "access")
+            new(tokenType, AuthTokenTypes.Access)
         };
 
         if (shopId != null)
@@ -83,8 +84,20 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         var accessToken = Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var refreshToken = Generate(refreshTokenClaims, TimeSpan.FromDays(refreshTokenExpirationDays));
 
-        var tokenResponse = new TokenResponse(accessToken, refreshToken);
+        var tokenResponse = new TokenResponse(accessToken, refreshToken, null);
 
         return tokenResponse;
     }
+
+    public string GenerateTempToken(string userId)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userId),
+            new(AuthClaims.TokenType, AuthTokenTypes.Temp)
+        };
+
+        return Generate(claims, TimeSpan.FromMinutes(jwtOptions.Value.TempTokenExpirationMinutes));
+    }
+
 }

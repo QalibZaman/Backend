@@ -8,6 +8,7 @@ using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -25,6 +26,17 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         var response = new ApiResponse<InventoryItemGeneralInfoResponse>(data);
 
         return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("csv-file")]
+    public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
+    {
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
+
+        var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
+
+        return File(response, "text/csv", "Inventory items.csv");
     }
 
     [Authorize]
@@ -68,6 +80,23 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
+
+        var data = await mediator.Send(getFilteredInventoryItemsQuery);
+
+        return Ok(data);
+    }
+
+    [Authorize]
+    [HttpGet("search")]
+    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromBody] GetInventoryItemsByUpcOrNameModel model)
+    {
+        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
+        if (!authResult.Succeeded)
+            return Unauthorized();
+
+        var userShopId = HttpContext.GetUserShopId();
+
+        var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery);
 

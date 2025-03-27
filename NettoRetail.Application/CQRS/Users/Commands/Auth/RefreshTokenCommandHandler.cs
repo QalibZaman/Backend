@@ -4,7 +4,8 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 
@@ -12,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
 public record RefreshTokenCommand(string RefreshToken) : IRequest<TokenResponse>;
 
-public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions)
+public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions)
     : IRequestHandler<RefreshTokenCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -32,7 +33,7 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
             throw new MyUnauthorizedException("The refresh token is invalid");
         }
 
-        var specification = new GetStaffByIdSpecification(parsedUserId);
+        var specification = new GetAccountByIdSpecification(parsedUserId);
         var user = await repository.GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User not found.");
 
@@ -41,7 +42,7 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.RoleId.ToString()),
-            new("token_type", "access")
+            new(AuthClaims.TokenType, AuthTokenTypes.Access)
         };
 
         if (user.ShopId != null)
@@ -52,7 +53,7 @@ public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager
         var newAccessToken = jwtManager.Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var newRefreshToken = jwtManager.Generate(claimsPrincipal.Claims.ToList(), TimeSpan.FromDays(refreshTokenExpirationDays));
 
-        var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken);
+        var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken, null);
 
         return tokenResponse;
     }
