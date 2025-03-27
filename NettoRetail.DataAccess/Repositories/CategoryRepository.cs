@@ -40,7 +40,6 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
         return response;
     }
 
-
     public async Task<List<CategoryEntity>> GetCategorySubtreeAsync(int categoryId, CancellationToken cancellationToken)
     {
         var query = @"

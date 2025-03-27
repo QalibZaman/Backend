@@ -15,7 +15,6 @@ public static class AuthenticationExtensions
 {
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services)
     {
-
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(AuthSchemes.Default, options =>
             {

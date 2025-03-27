@@ -16,11 +16,11 @@ public class SessionsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetActiveSessions()
+    public async Task<IActionResult> GetActiveSessions(CancellationToken cancellationToken)
     {
         var id = HttpContext.GetUserId();
         var getActiveSessionsQuery = new GetActiveSessionsQuery(id);
-        var result = await mediator.Send(getActiveSessionsQuery);
+        var result = await mediator.Send(getActiveSessionsQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<SessionResponse>>(result);
 
         return Ok(response);

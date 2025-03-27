@@ -152,7 +152,6 @@ public class StaffController(
     public async Task<IActionResult> VerifyTwoFactor(
         [FromBody] VerifyTotpRequest request)
     {
-
         var userId = HttpContext.GetUserId();
         var command = new VerifyTwoFactorAuthCommand(userId, request.TotpCode);
 

@@ -49,6 +49,14 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(true);
 
+        builder.HasMany(model => model.Roles)
+            .WithOne(model => model.Shop)
+            .HasForeignKey(model => model.ShopId);
+
+        builder.HasMany(model => model.Categories)
+        .WithOne(model => model.Shop)
+        .HasForeignKey(model => model.ShopId);
+
         builder.Navigation(s => s.Country)
             .AutoInclude();
     }

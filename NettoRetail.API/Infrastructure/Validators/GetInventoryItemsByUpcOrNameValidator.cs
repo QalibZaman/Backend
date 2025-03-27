@@ -16,7 +16,7 @@ public class GetInventoryItemsByUpcOrNameValidator : AbstractValidator<GetInvent
 
     private bool BeAValidUpcOrProductName(string input)
     {
-        string productNamePattern = "^[a-zA-Z0-9-_]{1,50}$";
+        string productNamePattern = "^[a-zA-Z0-9-_\\s]{1,50}$";
 
         return Regex.IsMatch(input, productNamePattern);
     }
