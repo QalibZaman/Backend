@@ -20,6 +20,6 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(data);
 
-        return Created("", response);
+        return Ok(response);
     }
 }

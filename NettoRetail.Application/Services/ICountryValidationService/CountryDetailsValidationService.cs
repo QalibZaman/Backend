@@ -9,33 +9,28 @@ namespace NettoRetail.Application.Services.ICountryValidationService;
 
 public class CountryDetailsValidationService(ICountryRepository countryRepository) : ICountryDetailsValidationService
 {
-    public async Task ValidateAsync(CountryValidationModel model, CancellationToken cancellationToken)
+    public async Task ValidateAsync(CountryValidationModel model, CancellationToken cancellationToken, CountryValidationOptions? options = null)
     {
+        var countryOptions = options ?? new CountryValidationOptions();
         var errors = new List<string>();
-
         var specification = new GetCountryByIdSpecification(model.CountryId);
         var country = await countryRepository.GetAsync(specification, cancellationToken);
 
         if (country == null)
         {
-            errors.Add("Invalid country id");
+            throw new BadRequestException("Invalid country");
         }
         else
         {
-            if (!IsPhoneNumberValid(country, model.PhoneNumber))
+            if (!IsPhoneNumberValid(country, model.PhoneNumber) && countryOptions.CheckForPhoneNumber)
             {
-                errors.Add("Invalid phone number");
+                throw new BadRequestException("Invalid phone number for the given country");
             }
 
-            if (!IsZipCodeValid(country, model.ZipCode))
+            if (!IsZipCodeValid(country, model.ZipCode) && countryOptions.CheckForZipCode)
             {
-                errors.Add("Invalid zip code");
+                throw new BadRequestException("Invalid zip code for the given country");
             }
-        }
-
-        if (errors.Count > 0)
-        {
-            throw new BadRequestException(string.Join("; ", errors));
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICountryValidationService;
@@ -21,32 +22,23 @@ public record CreateCustomerCommand(CreateCustomerRequest Model) : IRequest<Crea
 public class CreateCustomerCommandHandler(
     IAccountRepository accountRepository,
     ICountryDetailsValidationService countryValidator,
-    ICountryRepository countryRepository,
     ICustomerRepository customerRepository,
+    ICountryRepository countryRepository,
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
-        CountryEntity? country = null;
-        if (request.Model.PhoneNumber != null)
+        var countryValidationModel = new CountryValidationModel()
         {
-            var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
-            country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
+            CountryId = request.Model.CountryId,
+            PhoneNumber = request.Model.PhoneNumber!
+        };
 
-            if (country == null)
-            {
-                throw new BadRequestException("Invalid country id");
-            }
+        var countryValidationOptions = new CountryValidationOptions() { CheckForPhoneNumber = true, CheckForZipCode = false };
 
-            var isValid = countryValidator.IsPhoneNumberValid(country, request.Model.PhoneNumber);
-
-            if (!isValid)
-            {
-                throw new BadRequestException("Invalid phone number for the given country");
-            }
-        }
+        await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
 
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
         var account = await accountRepository.GetAsync(emailSpecification, cancellationToken);
@@ -71,6 +63,9 @@ public class CreateCustomerCommandHandler(
 
         customerEntity.AccountId = accountEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
+
+        var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
+        var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
 
         if (request.Model.PhoneNumber != null)
         {
