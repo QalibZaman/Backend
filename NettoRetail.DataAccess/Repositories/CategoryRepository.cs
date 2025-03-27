@@ -59,12 +59,12 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
     {
         var sql = @"
             WITH RECURSIVE CategoriesSubtree AS (
-                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level""
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId""
                 FROM public.""Categories"" c WHERE c.""Id"" = @p0
 
                 UNION ALL
 
-                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level""
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId""
                 FROM public.""Categories"" c
                 INNER JOIN CategoriesSubtree rc ON c.""Id"" = rc.""ParentId""
             )

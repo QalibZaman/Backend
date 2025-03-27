@@ -12,7 +12,7 @@ namespace NettoRetail.Tests.RepositoryTests;
 public class CategoryRepositoryTests : IDisposable
 {
     private readonly CategoryRepository _categoryRepository;
-    private readonly AppDbContext _context;
+    private readonly AppDbContext _dbContext;
 
     public CategoryRepositoryTests()
     {
@@ -27,7 +27,7 @@ public class CategoryRepositoryTests : IDisposable
                 .UseNpgsql()
                 .Options;
 
-        _context = new AppDbContext(options, mockConnectionStrings);
+        _dbContext = new AppDbContext(options, mockConnectionStrings);
         InitializeDatabase();
 
         var mockPaginationOptions = Substitute.For<IOptions<PaginationOptions>>();
@@ -36,37 +36,56 @@ public class CategoryRepositoryTests : IDisposable
             PageSize = 10
         });
 
-        _categoryRepository = new CategoryRepository(_context, mockPaginationOptions);
+        _categoryRepository = new CategoryRepository(_dbContext, mockPaginationOptions);
     }
 
     private void InitializeDatabase()
     {
-        _context.Database.EnsureCreated();
+        _dbContext.Database.EnsureCreated();
         SeedData();
     }
 
     private void SeedData()
     {
-        var categories = new List<CategoryEntity>
+        var country = _dbContext.Countries.Where(c => c.Id == 1).First();
+
+        var shop = new ShopEntity
         {
-            new CategoryEntity { Id = 1, Name = "Root1", URL = "something.com/root", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 2, Name = "Child 1", URL = "something.com/child1", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 5, Name = "Grandchild 1.1", URL = "something.com/grandchild1.1", Visibility = true, Level = 3, ParentId = 2 },
-            new CategoryEntity { Id = 6, Name = "Grandchild 1.2", URL = "something.com/grandchild1.2", Visibility = true, Level = 3, ParentId = 2 },
-            new CategoryEntity { Id = 3, Name = "Child 2", URL = "something.com/child2", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 7, Name = "Grandchild 2.1", URL = "something.com/grandchild2.1", Visibility = true, Level = 3, ParentId = 3 },
-            new CategoryEntity { Id = 4, Name = "Child 3", URL = "something.com/child3", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 8, Name = "Grandchild 3.1", URL = "something.com/grandchild3.1", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 9, Name = "Grandchild 3.2", URL = "something.com/grandchild3.2", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 10, Name = "Grandchild 3.3", URL = "something.com/grandchild3.3", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 11, Name = "Root2", URL = "something.com/standalone1", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 12, Name = "Root3", URL = "something.com/standalone2", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 13, Name = "Child 1 of Root2", URL = "something.com/child1root2", Visibility = true, Level = 2, ParentId = 11 },
-            new CategoryEntity { Id = 14, Name = "Child 2 of Root2", URL = "something.com/child2root2", Visibility = true, Level = 2, ParentId = 11 }
+            Id = 1,
+            Name = "Main Street Electronics",
+            Email = "info@mainstreetelectronics.com",
+            PhoneNumber = "123 456789",
+            Url = "www.mainstreetelectronics.com",
+            Address = "123 Main Street",
+            City = "New York",
+            State = "NY",
+            ZipCode = "1234",
+            Description = "Your one-stop shop for all electronics needs",
+            CountryId = 1,
+            Country = country
         };
 
-        _context.Categories.AddRange(categories);
-        _context.SaveChanges();
+        var categories = new List<CategoryEntity>
+        {
+            new CategoryEntity { Id = 1, Name = "Root1", URL = "something.com/root", Visibility = true, Level = 1, ParentId = null, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 2, Name = "Child 1", URL = "something.com/child1", Visibility = true, Level = 2, ParentId = 1, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 5, Name = "Grandchild 1.1", URL = "something.com/grandchild1.1", Visibility = true, Level = 3, ParentId = 2, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 6, Name = "Grandchild 1.2", URL = "something.com/grandchild1.2", Visibility = true, Level = 3, ParentId = 2, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 3, Name = "Child 2", URL = "something.com/child2", Visibility = true, Level = 2, ParentId = 1, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 7, Name = "Grandchild 2.1", URL = "something.com/grandchild2.1", Visibility = true, Level = 3, ParentId = 3, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 4, Name = "Child 3", URL = "something.com/child3", Visibility = true, Level = 2, ParentId = 1, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 8, Name = "Grandchild 3.1", URL = "something.com/grandchild3.1", Visibility = true, Level = 3, ParentId = 4, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 9, Name = "Grandchild 3.2", URL = "something.com/grandchild3.2", Visibility = true, Level = 3, ParentId = 4, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 10, Name = "Grandchild 3.3", URL = "something.com/grandchild3.3", Visibility = true, Level = 3, ParentId = 4, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 11, Name = "Root2", URL = "something.com/standalone1", Visibility = true, Level = 1, ParentId = null, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 12, Name = "Root3", URL = "something.com/standalone2", Visibility = true, Level = 1, ParentId = null, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 13, Name = "Child 1 of Root2", URL = "something.com/child1root2", Visibility = true, Level = 2, ParentId = 11, ShopId = 1, Shop = shop },
+            new CategoryEntity { Id = 14, Name = "Child 2 of Root2", URL = "something.com/child2root2", Visibility = true, Level = 2, ParentId = 11, ShopId = 1, Shop = shop }
+        };
+
+        _dbContext.Categories.AddRange(categories);
+        _dbContext.Shops.Add(shop);
+        _dbContext.SaveChanges();
     }
 
     [Fact]
@@ -101,6 +120,6 @@ public class CategoryRepositoryTests : IDisposable
 
     public void Dispose()
     {
-        _context.Database.EnsureDeleted();
+        _dbContext.Database.EnsureDeleted();
     }
 }
