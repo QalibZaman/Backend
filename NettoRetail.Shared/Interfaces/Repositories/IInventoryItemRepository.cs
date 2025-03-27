@@ -5,6 +5,7 @@ namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface IInventoryItemRepository : IBaseRepository<InventoryItemEntity>
 {
-    public Task<ICollection<InventoryItemEntity>> GetPaginatedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
-    public Task<int> GetFilteredAmountAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
+    Task<ICollection<InventoryItemEntity>> GetPaginatedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
+    Task<int> GetFilteredAmountAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
+    Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken);
 }

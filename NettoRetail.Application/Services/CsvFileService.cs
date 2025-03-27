@@ -2,6 +2,7 @@
 using System.Text;
 using CsvHelper;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Interfaces;
 
 namespace NettoRetail.Application.Services;
@@ -22,5 +23,18 @@ public class CsvFileService : ICsvFileService
         }
 
         return memoryStream.ToArray();
+    }
+
+    public async IAsyncEnumerable<T> ConvertEntitiesCsvFileToEntityData<T>(IFormFile csvItemsFile)
+    {
+        using var streamReader = new StreamReader(csvItemsFile.OpenReadStream(), Encoding.UTF8);
+        using var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+
+        var entitiesData = csvReader.GetRecordsAsync<T>();
+
+        await foreach (var entityData in entitiesData)
+        {
+            yield return entityData;
+        }
     }
 }

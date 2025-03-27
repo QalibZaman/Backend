@@ -49,20 +49,20 @@ public class CategoryRepositoryTests : IDisposable
     {
         var categories = new List<CategoryEntity>
         {
-            new CategoryEntity { Id = 1, Name = "Root1", URL = "something.com/root", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 2, Name = "Child 1", URL = "something.com/child1", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 5, Name = "Grandchild 1.1", URL = "something.com/grandchild1.1", Visibility = true, Level = 3, ParentId = 2 },
-            new CategoryEntity { Id = 6, Name = "Grandchild 1.2", URL = "something.com/grandchild1.2", Visibility = true, Level = 3, ParentId = 2 },
-            new CategoryEntity { Id = 3, Name = "Child 2", URL = "something.com/child2", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 7, Name = "Grandchild 2.1", URL = "something.com/grandchild2.1", Visibility = true, Level = 3, ParentId = 3 },
-            new CategoryEntity { Id = 4, Name = "Child 3", URL = "something.com/child3", Visibility = true, Level = 2, ParentId = 1 },
-            new CategoryEntity { Id = 8, Name = "Grandchild 3.1", URL = "something.com/grandchild3.1", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 9, Name = "Grandchild 3.2", URL = "something.com/grandchild3.2", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 10, Name = "Grandchild 3.3", URL = "something.com/grandchild3.3", Visibility = true, Level = 3, ParentId = 4 },
-            new CategoryEntity { Id = 11, Name = "Root2", URL = "something.com/standalone1", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 12, Name = "Root3", URL = "something.com/standalone2", Visibility = true, Level = 1, ParentId = null },
-            new CategoryEntity { Id = 13, Name = "Child 1 of Root2", URL = "something.com/child1root2", Visibility = true, Level = 2, ParentId = 11 },
-            new CategoryEntity { Id = 14, Name = "Child 2 of Root2", URL = "something.com/child2root2", Visibility = true, Level = 2, ParentId = 11 }
+            new CategoryEntity { Id = 1, Name = "Root1", URL = "something.com/root", Visibility = true, Level = 1, ParentId = null, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 2, Name = "Child 1", URL = "something.com/child1", Visibility = true, Level = 2, ParentId = 1, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 5, Name = "Grandchild 1.1", URL = "something.com/grandchild1.1", Visibility = true, Level = 3, ParentId = 2, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 6, Name = "Grandchild 1.2", URL = "something.com/grandchild1.2", Visibility = true, Level = 3, ParentId = 2, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 3, Name = "Child 2", URL = "something.com/child2", Visibility = true, Level = 2, ParentId = 1, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 7, Name = "Grandchild 2.1", URL = "something.com/grandchild2.1", Visibility = true, Level = 3, ParentId = 3, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 4, Name = "Child 3", URL = "something.com/child3", Visibility = true, Level = 2, ParentId = 1, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 8, Name = "Grandchild 3.1", URL = "something.com/grandchild3.1", Visibility = true, Level = 3, ParentId = 4, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 9, Name = "Grandchild 3.2", URL = "something.com/grandchild3.2", Visibility = true, Level = 3, ParentId = 4, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 10, Name = "Grandchild 3.3", URL = "something.com/grandchild3.3", Visibility = true, Level = 3, ParentId = 4, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 11, Name = "Root2", URL = "something.com/standalone1", Visibility = true, Level = 1, ParentId = null, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 12, Name = "Root3", URL = "something.com/standalone2", Visibility = true, Level = 1, ParentId = null, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 13, Name = "Child 1 of Root2", URL = "something.com/child1root2", Visibility = true, Level = 2, ParentId = 11, ShopId = 0, Shop = null },
+            new CategoryEntity { Id = 14, Name = "Child 2 of Root2", URL = "something.com/child2root2", Visibility = true, Level = 2, ParentId = 11, ShopId = 0, Shop = null }
         };
 
         _context.Categories.AddRange(categories);
