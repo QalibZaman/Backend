@@ -270,7 +270,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 URL = "electronics",
                 Visibility = true,
                 Level = 1,
-                ParentId = null
+                ParentId = null,
+                ShopId = 0,
+                Shop = null
             },
             new CategoryEntity
             {
@@ -280,6 +282,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 2,
                 ParentId = 1,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -289,6 +293,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 2,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -298,6 +304,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 2,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -307,6 +315,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 2,
                 ParentId = 1,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -316,6 +326,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 5,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -325,6 +337,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 5,
+                ShopId = 0,
+                Shop = null,
             },
 
             // Second category tree
@@ -335,7 +349,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 URL = "home-garden",
                 Visibility = true,
                 Level = 1,
-                ParentId = null
+                ParentId = null,
+                ShopId = 0,
+                Shop = null
             },
             new CategoryEntity
             {
@@ -345,6 +361,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 2,
                 ParentId = 8,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -354,6 +372,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 9,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -363,6 +383,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 9,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -372,6 +394,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 2,
                 ParentId = 8,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -381,6 +405,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 12,
+                ShopId = 0,
+                Shop = null,
             },
             new CategoryEntity
             {
@@ -390,6 +416,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                 Visibility = true,
                 Level = 3,
                 ParentId = 12,
+                ShopId = 0,
+                Shop = null,
             }
         };
 
