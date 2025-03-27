@@ -14,6 +14,7 @@ using NettoRetail.Application.Models.Request.Password;
 
 namespace NettoRetail.Tests.Integrationtests;
 
+[Collection("Sequential Tests")]
 public class AccountApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
 {
     private readonly HttpClient _client;

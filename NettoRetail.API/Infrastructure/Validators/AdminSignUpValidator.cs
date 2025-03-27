@@ -14,7 +14,7 @@ public class AdminSignUpValidator : AbstractValidator<AdminSignUpModel>
             .MaximumLength(30).WithMessage("First name length must be less than 30 characters long.")
             .Matches("^[A-Za-z]+$").WithMessage("First name must contain only Latin characters.")
             .Matches("^[A-Z][a-z]*$").WithMessage("First name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("First name must not start or end with spaces.");
+            .Matches(@"^\S.*\S$|^\S$").WithMessage("First name must not start or end with spaces.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.")
@@ -23,7 +23,7 @@ public class AdminSignUpValidator : AbstractValidator<AdminSignUpModel>
             .MaximumLength(30).WithMessage("Last name length must be less than 30 characters long.")
             .Matches("^[A-Za-z]+$").WithMessage("Last name must contain only Latin characters.")
             .Matches("^[A-Z][a-z]*$").WithMessage("Last name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("Last name must not start or end with spaces.");
+            .Matches(@"^\S.*\S$|^\S$").WithMessage("Last name must not start or end with spaces.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
