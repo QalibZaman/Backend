@@ -31,7 +31,7 @@ public class ShopsController(IMediator mediator, IAuthorizationService authoriza
         var createShopCommand = new CreateShopCommand(HttpContext.GetUserId(), shop);
         var response = await mediator.Send(createShopCommand);
 
-        return Created(response.Id.ToString(), response);
+        return CreatedAtAction(nameof(GetShop), new { id = response.Id }, response);
     }
 
     [Authorize(Policy = PolicyNames.ShopPolicy)]

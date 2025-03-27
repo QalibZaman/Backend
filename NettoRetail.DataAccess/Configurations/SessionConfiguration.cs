@@ -35,7 +35,5 @@ public class SessionConfiguration : IEntityTypeConfiguration<SessionEntity>
         builder.HasOne<AccountEntity>(s => s.Account)
             .WithMany(r => r.Sessions)
             .HasForeignKey(c => c.AccountId);
-
-        // builder.ToTable("Session");
     }
 }
