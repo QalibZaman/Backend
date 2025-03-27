@@ -13,6 +13,9 @@ public class ShopEntity
     public required string ZipCode { get; set; }
     public required string Description { get; set; }
     public int CountryId { get; set; }
+
+    public ICollection<RoleEntity>? Roles { get; set; }
+    public ICollection<CategoryEntity>? Categories { get; set; }
     public required CountryEntity Country { get; set; }
     public ICollection<AccountEntity>? Account { get; set; }
     public ICollection<InventoryItemEntity>? InventoryItems { get; set; }

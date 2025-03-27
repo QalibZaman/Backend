@@ -1,8 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.Shop;
-using NettoRetail.DataAccess.Specifications;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.API.Infrastructure.Validators;
