@@ -3,10 +3,10 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Inventory;
 
-public class GetInventoryItemRelatedCategories : Specification<InventoryItemEntity>
+public class GetInventoryItemsRelatedCategories : Specification<InventoryItemEntity>
 {
-    public GetInventoryItemRelatedCategories()
-        : base(Empty)
+    public GetInventoryItemsRelatedCategories(int userShopId)
+        : base(x => x.ShopId == userShopId)
     {
         AddInclude(x => x.Category);
     }

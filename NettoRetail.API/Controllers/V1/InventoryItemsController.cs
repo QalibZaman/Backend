@@ -28,11 +28,13 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
     {
-        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery(userShopId);
 
         var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
 
@@ -56,6 +58,19 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         var response = new ApiResponse<InventoryItemResponse>(data);
 
         return Created(string.Empty, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("csv-file")]
+    public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListUploadCommand = new UploadInventoryItemsListCommand(itemsCsvFile, userShopId);
+
+        await mediator.Send(inventoryItemsListUploadCommand, cancellationToken);
+
+        return Ok();
     }
 
     [Authorize]
@@ -86,14 +101,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok(data);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("search")]
     public async Task<IActionResult> GetInventoryItemByUpcOrName([FromQuery] GetInventoryItemsByUpcOrNameModel model, CancellationToken cancellationToken)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-        if (!authResult.Succeeded)
-            return Unauthorized();
-
         var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);

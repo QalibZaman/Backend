@@ -60,7 +60,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task DeleteManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var entitiesToDelete = await _dbSet.Where(specification.Criteria).ToListAsync();
+        var entitiesToDelete = await _dbSet.Where(specification.Criteria).ToListAsync(cancellationToken);
         _dbSet.RemoveRange(entitiesToDelete);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -87,5 +87,17 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         }
 
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    {
+        await _dbSet.AddRangeAsync(entities, cancellationToken);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    {
+        await _dbSet.BulkInsertAsync(entities, cancellationToken);
     }
 }
