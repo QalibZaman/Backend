@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Roles;
+using NettoRetail.Application.CQRS.Categories.Commands;
+using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -29,5 +30,14 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
         var role = await mediator.Send(command, cancellationToken);
 
         return Ok(new ApiResponse<CreateRoleResponse>(role));
+    }
+
+    [Authorize]
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteRole(int id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new DeleteRoleCommand(id), cancellationToken);
+
+        return NoContent();
     }
 }
