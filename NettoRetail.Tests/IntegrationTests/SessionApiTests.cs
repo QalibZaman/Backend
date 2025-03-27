@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 
 namespace NettoRetail.Tests.IntegrationTests;
 
+[Collection("Sequential Tests")]
 public class SessionApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
 {
     private readonly HttpClient _client;
