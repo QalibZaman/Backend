@@ -18,9 +18,8 @@ public class MustOwnInventoryItemHandler(IInventoryItemRepository inventoryItemR
     {
         var userShopId = context.User.GetUserShopId();
 
-        var cancellationToken = new CancellationToken();
         var specification = new GetInventoryItemByIdSpecification(inventoryItemid);
-        var inventoryItem = await inventoryItemRepository.GetAsync(specification, cancellationToken);
+        var inventoryItem = await inventoryItemRepository.GetAsync(specification, CancellationToken.None);
 
         if (inventoryItem == null || inventoryItem.ShopId != userShopId)
         {

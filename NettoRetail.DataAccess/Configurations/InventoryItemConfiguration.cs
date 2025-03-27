@@ -32,7 +32,5 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(p => p.ProductLocation).HasMaxLength(100);
 
         builder.Property(p => p.Status).HasConversion<string>();
-
-        builder.Property(p => p.ProductDetails).HasColumnType("jsonb");
     }
 }

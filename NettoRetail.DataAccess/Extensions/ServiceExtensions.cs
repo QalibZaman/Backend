@@ -17,6 +17,7 @@ public static class ServiceExtensions
     {
         // Options
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+        services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
 
         // External clients
         services.AddScoped<BlobServiceClient>(provider =>

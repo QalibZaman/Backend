@@ -34,7 +34,7 @@ public class InventoryItemRepository(AppDbContext dbContext, IOptions<Pagination
                     : query.OrderBy(orderBy.Expr);
 
                 firstOrdering = false;
-            } 
+            }
             else
             {
                 query = orderBy.IsDesc
