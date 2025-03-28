@@ -8,6 +8,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles;
 using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request.Role;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -36,9 +37,12 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
     [HttpGet]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
-        var rolesQuery = new GetAllRolesQuery();
-        var respone = await mediator.Send(rolesQuery, cancellationToken);
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetAllRolesQuery(shopId);
+        var data = await mediator.Send(query, cancellationToken);
 
-        return Ok(respone);
+        var response = new ApiResponse<IEnumerable<GetAllRolesResponse>>(data);
+
+        return Ok(response);
     }
 }

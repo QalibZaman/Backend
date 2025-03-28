@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Infrastructure.EmailTemplates;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Infrastructure.Options;
@@ -27,7 +28,7 @@ public class EmailBuilderService(
         return new EmailModel
         {
             Email = email,
-            Subject = "Reset Your Password",
+            Subject = EmailSubjects.ResetPassword,
             Message = emailBody
         };
     }
@@ -41,7 +42,7 @@ public class EmailBuilderService(
         return new EmailModel
         {
             Email = email,
-            Subject = "Your RetailTech account password updated",
+            Subject = EmailSubjects.PasswordChanged,
             Message = emailBody
         };
     }
