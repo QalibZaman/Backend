@@ -442,9 +442,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<string>("ProductDetails")
-                        .HasColumnType("jsonb");
-
                     b.Property<string>("ProductLocation")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -873,19 +870,20 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Navigation("Accounts");
+
                     b.Navigation("PermissionRoles");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.Navigation("Account");
+
                     b.Navigation("Categories");
 
                     b.Navigation("InventoryItems");
 
                     b.Navigation("Roles");
                 });
-
 #pragma warning restore 612, 618
         }
     }

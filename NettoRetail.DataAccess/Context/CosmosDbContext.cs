@@ -5,7 +5,7 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Context;
 
-public class CosmosDbContext(DbContextOptions options, IOptions<CosmosOptions> cosmosOptions) : DbContext(options)
+public class CosmosDbContext(DbContextOptions<CosmosDbContext> options, IOptions<CosmosOptions> cosmosOptions) : DbContext(options)
 {
     public DbSet<ProductDetailsEntity> ProductDetails { get; set; }
 
@@ -19,6 +19,7 @@ public class CosmosDbContext(DbContextOptions options, IOptions<CosmosOptions> c
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CosmosDbContext).Assembly);
+        modelBuilder.Entity<ProductDetailsEntity>().ToContainer("ProductDetailsContainer")
+            .HasPartitionKey(p => p.InventoryItemId);
     }
 }

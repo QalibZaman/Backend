@@ -5,7 +5,7 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Context;
 
-public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
 {
     public DbSet<AccountEntity> Accounts { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
@@ -16,7 +16,6 @@ public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> 
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
     public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
-    public DbSet<ProductDetailsEntity> ProductDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

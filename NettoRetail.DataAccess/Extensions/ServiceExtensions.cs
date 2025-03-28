@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -26,6 +27,27 @@ public static class ServiceExtensions
             return new BlobServiceClient(connectionStrings.AzureConnection);
         });
 
+        services.AddSingleton<CosmosClient>(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<CosmosOptions>>().Value;
+
+            return new CosmosClient(
+                options.AccountEndpoint,
+                options.AccountKey,
+                new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Gateway,
+                    HttpClientFactory = () => new HttpClient(new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (req, cert, chain, errors) => true
+                    }),
+                    SerializerOptions = new CosmosSerializationOptions
+                    {
+                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                    }
+                });
+        });
+
         // Repositories
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
@@ -37,11 +59,14 @@ public static class ServiceExtensions
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
+
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Database related
         services.AddDbContext<AppDbContext>();
+        //services.AddDbContext<CosmosDbContext>();
     }
 }

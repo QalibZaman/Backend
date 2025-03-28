@@ -85,6 +85,17 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
     }
 
     [Authorize]
+    [HttpPatch("{id}/details")]
+    public async Task<IActionResult> EditInventoryItemDetails(Guid id, [FromBody] UpdateInventoryItemDetailsModel model, CancellationToken cancellationToken)
+    {
+        var inventoryItemUpdatingCommand = new UpdateInventoryItemDetailsCommand(id, model);
+
+        await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {

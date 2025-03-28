@@ -51,7 +51,9 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
             SELECT * FROM CategoriesSubtree;
         ";
 
-        return await _dbContext.Categories.FromSqlRaw(query, categoryId).ToListAsync(cancellationToken);
+        return await Microsoft.EntityFrameworkCore.RelationalQueryableExtensions
+            .FromSqlRaw(_dbSet, query, categoryId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken)
@@ -70,7 +72,9 @@ public class CategoryRepository(AppDbContext dbContext, IOptions<PaginationOptio
             SELECT * FROM CategoriesSubtree
             ORDER BY ""Level"" ASC;";
 
-        return await _dbSet.FromSqlRaw(sql, categoryId).ToListAsync(cancellationToken);
+        return await Microsoft.EntityFrameworkCore.RelationalQueryableExtensions
+            .FromSqlRaw(_dbSet, sql, categoryId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Dictionary<string, int>> GetCategoryNameAndIdDictionaryAsync(CancellationToken cancellationToken)

@@ -4,5 +4,4 @@ public class ConnectionStrings
 {
     public required string DefaultConnection { get; set; }
     public required string AzureConnection { get; set; }
-    public required string CosmosConnection { get; set; }
 }

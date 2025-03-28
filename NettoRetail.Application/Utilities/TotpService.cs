@@ -50,8 +50,7 @@ public class TotpService(IOptions<TotpOptions> options, IOptions<TotpEncryptionO
                 keyBytes,
                 step: _options.PeriodInSeconds,
                 mode: _options.HashMode,
-                totpSize: _options.Digits
-            );
+                totpSize: _options.Digits);
 
             return totp.ComputeTotp();
         }
@@ -60,7 +59,6 @@ public class TotpService(IOptions<TotpOptions> options, IOptions<TotpEncryptionO
             _logger.LogError(ex, "TOTP generation failed.");
             throw new InvalidOperationException("TOTP generation failed due to an internal error.");
         }
-
     }
 
     public string EncryptSecret(string plainSecret)
