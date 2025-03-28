@@ -100,4 +100,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         await _dbSet.BulkInsertAsync(entities, cancellationToken);
     }
+
+    public async Task<int> GetAmountBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    {
+        return await _dbSet.Where(specification.Criteria).CountAsync(cancellationToken);
+    }
 }
