@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles;
+using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -29,5 +30,15 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
         var role = await mediator.Send(command, cancellationToken);
 
         return Ok(new ApiResponse<CreateRoleResponse>(role));
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
+    {
+        var rolesQuery = new GetAllRolesQuery();
+        var respone = await mediator.Send(rolesQuery, cancellationToken);
+
+        return Ok(respone);
     }
 }

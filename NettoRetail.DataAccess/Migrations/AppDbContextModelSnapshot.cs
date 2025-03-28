@@ -57,6 +57,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -870,19 +874,20 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Navigation("Accounts");
+
                     b.Navigation("PermissionRoles");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.Navigation("Account");
+
                     b.Navigation("Categories");
 
                     b.Navigation("InventoryItems");
 
                     b.Navigation("Roles");
                 });
-
 #pragma warning restore 612, 618
         }
     }

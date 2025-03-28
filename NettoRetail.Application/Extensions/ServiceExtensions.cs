@@ -37,5 +37,6 @@ public static class ServiceExtensions
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<ICsvFileService, CsvFileService>();
+        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
     }
 }
