@@ -103,7 +103,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var entity = await GetAsync(specification, cancellationToken);
-        return entity != null;
+        return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
     }
 }

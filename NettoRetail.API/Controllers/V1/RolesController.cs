@@ -36,7 +36,11 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteRole(int id, CancellationToken cancellationToken)
     {
-        await mediator.Send(new DeleteRoleCommand(id), cancellationToken);
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new DeleteRoleCommand(id, shopId);
+
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

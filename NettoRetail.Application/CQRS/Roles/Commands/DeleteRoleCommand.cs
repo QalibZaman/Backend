@@ -6,13 +6,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Roles.Commands;
 
-public record DeleteRoleCommand(int Id) : IRequest;
+public record DeleteRoleCommand(int Id, int ShopId) : IRequest;
 
 public class DeleteRoleCommandHandler(IRoleRepository roleRepository, IAccountRepository accountRepository) : IRequestHandler<DeleteRoleCommand>
 {
     public async Task Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetRoleByIdSpecification(request.Id);
+        var specification = new GetRoleByIdSpecification(request.Id, request.ShopId);
 
         var role = await roleRepository.GetAsync(specification, cancellationToken);
 
@@ -28,7 +28,7 @@ public class DeleteRoleCommandHandler(IRoleRepository roleRepository, IAccountRe
             throw new ConflictException("Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.");
         }
 
-        var deleteSpecification = new GetRoleByIdSpecification(role.Id);
+        var deleteSpecification = new GetRoleByIdSpecification(role.Id, request.ShopId);
 
         await roleRepository.DeleteAsync(deleteSpecification, cancellationToken);
     }
