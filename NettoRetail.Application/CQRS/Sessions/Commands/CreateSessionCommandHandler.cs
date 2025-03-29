@@ -33,6 +33,13 @@ public class CreateSessionCommandHandler(
 
         var session = sessionModel.Adapt<SessionEntity>();
 
-        await sessionRepository.AddAsync(session, cancellationToken);
+        try
+        {
+            await sessionRepository.AddAsync(session, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 }

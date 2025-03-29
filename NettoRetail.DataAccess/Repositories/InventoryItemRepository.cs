@@ -5,7 +5,6 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 
@@ -34,7 +33,7 @@ public class InventoryItemRepository(AppDbContext dbContext, IOptions<Pagination
                     : query.OrderBy(orderBy.Expr);
 
                 firstOrdering = false;
-            } 
+            }
             else
             {
                 query = orderBy.IsDesc
@@ -46,6 +45,13 @@ public class InventoryItemRepository(AppDbContext dbContext, IOptions<Pagination
         var result = await query.Skip(specification.Skip ?? 0)
             .Take(specification.Take ?? _paginationDefaults.PageSize)
             .ToListAsync(cancellationToken);
+
+        return result;
+    }
+
+    public async Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken)
+    {
+        var result = await _dbSet.Select(x => x.ProductUpc).ToHashSetAsync(cancellationToken);
 
         return result;
     }

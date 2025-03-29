@@ -12,10 +12,10 @@ namespace NettoRetail.API.Controllers.V1;
 public class CountriesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllCountries()
+    public async Task<IActionResult> GetAllCountries(CancellationToken cancellationToken)
     {
         var getAllCountriesQuery = new GetAllCountriesQuery();
-        var response = await mediator.Send(getAllCountriesQuery);
+        var response = await mediator.Send(getAllCountriesQuery, cancellationToken);
 
         return Ok(response);
     }

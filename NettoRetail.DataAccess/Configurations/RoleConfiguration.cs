@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.DataAccess.Configurations;
 
@@ -9,22 +8,27 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
 {
     public void Configure(EntityTypeBuilder<RoleEntity> builder)
     {
-        builder.HasKey(p => p.Id);
+        builder.HasKey(model => model.Id);
 
-        builder.Property(p => p.RoleName).HasConversion<string>().HasMaxLength(30);
+        builder.Property(model => model.Name)
+            .HasMaxLength(50);
+
+        builder.Property(model => model.Description)
+            .HasMaxLength(500);
+
+        builder.HasMany(model => model.PermissionRoles)
+            .WithOne(model => model.Role)
+            .HasForeignKey(model => model.RoleId);
+
+        builder.HasOne(model => model.Shop)
+            .WithMany(model => model.Roles)
+            .HasForeignKey(model => model.ShopId);
 
         builder.HasMany(r => r.Accounts)
             .WithOne(s => s.Role)
             .HasForeignKey(c => c.RoleId);
 
         builder.HasData(
-            new RoleEntity { Id = 1, RoleName = RoleEnum.Admin },
-            new RoleEntity { Id = 2, RoleName = RoleEnum.SalesManager },
-            new RoleEntity { Id = 3, RoleName = RoleEnum.Customer },
-            new RoleEntity { Id = 4, RoleName = RoleEnum.InventoryManager },
-            new RoleEntity { Id = 5, RoleName = RoleEnum.PosCashier },
-            new RoleEntity { Id = 6, RoleName = RoleEnum.ManagementStakeholder },
-            new RoleEntity { Id = 7, RoleName = RoleEnum.Shipper },
-            new RoleEntity { Id = 8, RoleName = RoleEnum.CustomerSupportSpecialist });
+            new RoleEntity() { Id = 1, Name = "Admin", Description = "Has full access to the system" });
     }
 }

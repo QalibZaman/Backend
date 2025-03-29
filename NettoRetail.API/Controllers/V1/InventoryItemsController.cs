@@ -28,11 +28,13 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadInventoryItemsList(CancellationToken cancellationToken)
     {
-        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery();
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListDownloadQuery = new DownloadInventoryItemsListQuery(userShopId);
 
         var response = await mediator.Send(inventoryItemsListDownloadQuery, cancellationToken);
 
@@ -58,6 +60,19 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Created(string.Empty, response);
     }
 
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("csv-file")]
+    public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemsListUploadCommand = new UploadInventoryItemsListCommand(itemsCsvFile, userShopId);
+
+        await mediator.Send(inventoryItemsListUploadCommand, cancellationToken);
+
+        return Ok();
+    }
+
     [Authorize]
     [HttpPatch("{id}")]
     public async Task<IActionResult> EditInventoryItemGeneralInfo(Guid id, UpdateInventoryItemGeneralInfoModel model, CancellationToken cancellationToken)
@@ -71,7 +86,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredInventoryItems([FromBody] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {
         var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
         if (!authResult.Succeeded)
@@ -81,24 +96,20 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
         var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
 
-        var data = await mediator.Send(getFilteredInventoryItemsQuery);
+        var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
         return Ok(data);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("search")]
-    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromBody] GetInventoryItemsByUpcOrNameModel model)
+    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromQuery] GetInventoryItemsByUpcOrNameModel model, CancellationToken cancellationToken)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-        if (!authResult.Succeeded)
-            return Unauthorized();
-
         var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);
 
-        var data = await mediator.Send(getFilteredInventoryItemsQuery);
+        var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
         return Ok(data);
     }

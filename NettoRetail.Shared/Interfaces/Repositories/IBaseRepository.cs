@@ -14,4 +14,6 @@ public interface IBaseRepository<TEntity>
     Task UpdateAsync(TEntity model, CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
+    Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+    Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
 }

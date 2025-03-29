@@ -8,13 +8,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record DownloadInventoryItemsListQuery : IRequest<byte[]>;
+public record DownloadInventoryItemsListQuery(int UserShopId) : IRequest<byte[]>;
 
 public class DownloadInventoryItemsListQueryHandler(IInventoryItemRepository inventoryItemRepository, ICsvFileService csvFileService) : IRequestHandler<DownloadInventoryItemsListQuery, byte[]>
 {
     public async Task<byte[]> Handle(DownloadInventoryItemsListQuery request, CancellationToken cancellationToken)
     {
-        var itemByRelatedCategorySpecification = new GetInventoryItemRelatedCategories();
+        var itemByRelatedCategorySpecification = new GetInventoryItemsRelatedCategories(request.UserShopId);
         var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken) ?? throw new NotFoundException("There are no items in the list.");
 
         var inventoryItemsData = await csvFileService.GetEntitiesCsvData<InventoryItemCsvModel, InventoryItemEntity>(inventoryItems, cancellationToken);

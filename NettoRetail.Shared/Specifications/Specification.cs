@@ -10,11 +10,11 @@ public class Specification<TEntity>
     public static Expression<Func<TEntity, bool>> Empty => _ => true;
     // Main expression
     public Expression<Func<TEntity, bool>> Criteria { get; set; }
+    public Expression<Func<TEntity, object>> Select { get; set; }
 
     // Ordering expressions
     private readonly List<(Expression<Func<TEntity, object>>, bool)> _orderings;
     public IEnumerable<(Expression<Func<TEntity, object>> Expr, bool IsDesc)> Orderings => _orderings;
-
 
     // Includes
     private readonly List<Expression<Func<TEntity, object>>> _includes;
@@ -36,10 +36,8 @@ public class Specification<TEntity>
         var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
             Expression.AndAlso(
                 Criteria.Body,
-                Expression.Invoke(other.Criteria, Criteria.Parameters[0])
-            ),
-            Criteria.Parameters[0]
-        );
+                Expression.Invoke(other.Criteria, Criteria.Parameters[0])),
+            Criteria.Parameters[0]);
 
         return new Specification<TEntity>(combinedExpression);
     }
@@ -53,6 +51,12 @@ public class Specification<TEntity>
     public Specification<TEntity> AddOrderBy(Expression<Func<TEntity, object>> orderByExpression, bool descending = false)
     {
         _orderings.Add((orderByExpression, descending));
+        return this;
+    }
+
+    public Specification<TEntity> AddSelectExpression(Expression<Func<TEntity, object>> selectExpression)
+    {
+        Select = selectExpression;
         return this;
     }
 }
