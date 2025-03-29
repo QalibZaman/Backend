@@ -1,5 +1,4 @@
 ﻿using NettoRetail.Domain.Entities.JunctionEntities;
-using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
 

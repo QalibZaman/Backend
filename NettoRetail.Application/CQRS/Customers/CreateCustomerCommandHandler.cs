@@ -10,7 +10,6 @@ using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
@@ -48,7 +47,7 @@ public class CreateCustomerCommandHandler(
             throw new ConflictException("Account with this email already exists");
         }
 
-        var roleSpecification = new GetRoleByNameSpecification(RoleEnum.Customer);
+        var roleSpecification = new GetRoleByNameSpecification("customer");
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
         var accountEntity = request.Model.Adapt<AccountEntity>();
