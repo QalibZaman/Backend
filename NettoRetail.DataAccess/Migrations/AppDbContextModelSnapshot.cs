@@ -386,6 +386,25 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LoyaltyId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.HasKey("AccountId");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -762,6 +781,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("ParentCategory");
 
                     b.Navigation("Shop");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithOne()
+                        .HasForeignKey("NettoRetail.Domain.Entities.CustomerEntity", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>

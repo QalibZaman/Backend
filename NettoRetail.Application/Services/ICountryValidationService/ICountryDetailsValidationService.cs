@@ -1,10 +1,8 @@
-﻿using NettoRetail.Application.Models.Shop;
-using NettoRetail.DataAccess.Specifications;
-using NettoRetail.Shared.Interfaces.Repositories;
+﻿using NettoRetail.Application.Models.Country;
 
 namespace NettoRetail.Application.Services.ICountryValidationService;
 
 public interface ICountryDetailsValidationService
 {
-    Task ValidateAsync(ShopModel shop, CancellationToken cancellationToken);
+    Task ValidateAsync(CountryValidationModel shop, CancellationToken cancellationToken, CountryValidationOptions? options = null);
 }
