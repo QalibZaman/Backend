@@ -620,6 +620,12 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 1,
                             Description = "Has full access to the system",
                             Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Has access to only what the customer can do",
+                            Name = "Customer"
                         });
                 });
 

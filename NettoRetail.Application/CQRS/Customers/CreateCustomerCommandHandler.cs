@@ -29,15 +29,18 @@ public class CreateCustomerCommandHandler(
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var countryValidationModel = new CountryValidationModel()
+        if (!string.IsNullOrEmpty(request.Model.PhoneNumber))
         {
-            CountryId = request.Model.CountryId,
-            PhoneNumber = request.Model.PhoneNumber!
-        };
+            var countryValidationModel = new CountryValidationModel()
+            {
+                CountryId = request.Model.CountryId,
+                PhoneNumber = request.Model.PhoneNumber!
+            };
 
-        var countryValidationOptions = new CountryValidationOptions() { CheckForPhoneNumber = true, CheckForZipCode = false };
+            var countryValidationOptions = new CountryValidationOptions() { CheckForPhoneNumber = true, CheckForZipCode = false };
 
-        await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+            await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+        }
 
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
         var account = await accountRepository.GetAsync(emailSpecification, cancellationToken);
