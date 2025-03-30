@@ -29,6 +29,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
             .HasForeignKey(c => c.RoleId);
 
         builder.HasData(
-            new RoleEntity() { Id = 1, Name = "Admin", Description = "Has full access to the system" });
+            new RoleEntity() { Id = 1, Name = "Admin", Description = "Has full access to the system" },
+            new RoleEntity() { Id = 2, Name = "Customer", Description = "Has access to only what the customer can do" });
     }
 }
