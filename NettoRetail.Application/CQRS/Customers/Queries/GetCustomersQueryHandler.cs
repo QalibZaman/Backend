@@ -10,30 +10,40 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Customers.Queries;
 
-public record GetCustomersQuery(string? SearchQuery, int? Page, int? PageSize) : IRequest<IEnumerable<CustomerResponse>>;
+public record GetCustomersQuery(string? Name, 
+    string? Email,
+    string? LoyaltyId,
+    int? Page,
+    int? PageSize) : IRequest<PaginatedResponse<CustomerResponse>>;
 
-public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IOptions<PaginationOptions> paginationOptions) : IRequestHandler<GetCustomersQuery, IEnumerable<CustomerResponse>>
+public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IOptions<PaginationOptions> paginationOptions) : IRequestHandler<GetCustomersQuery, PaginatedResponse<CustomerResponse>>
 {
-    public async Task<IEnumerable<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
 
-        var page = request.Page ?? 1;
         var pageSize = request.PageSize ?? paginationOptions.Value.PageSize;
+        var page = (request.Page - 1) * pageSize ?? 0;
 
-        if (!string.IsNullOrEmpty(request.SearchQuery))
-        {
-            specificationBuilder.Add<GetCustomerByEmailSpecification>(request.SearchQuery)
-                .Add<GetCustomerByPhoneNumberSpecification>(request.SearchQuery)
-                .Add<GetCustomerByLoyaltyIdSpecification>(request.SearchQuery)
-                .Skip(page)
-                .Take(pageSize);
-        }
+        specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Email)
+                .Add<GetCustomerByNameSpecification>(request.Name)
+                .Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId);
+
+        specificationBuilder.AddInclude(x => x.Account)
+            .Skip(page)
+            .Take(pageSize);
 
         var specification = specificationBuilder.Build();
 
         var customers = await customerRepository.GetCustomersPaginatedAsync(specification, cancellationToken);
+        var (items, totalAmount) = customers;
 
-        return customers.Adapt<IEnumerable<CustomerResponse>>();
+        var mappedCustomers = items.Adapt<ICollection<CustomerResponse>>();
+
+        return new PaginatedResponse<CustomerResponse>()
+        {
+            Items = mappedCustomers,
+            TotalAmount = totalAmount
+        };
     }
 }

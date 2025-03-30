@@ -12,16 +12,19 @@ public class CustomerRepository : BaseRepository<CustomerEntity>, ICustomerRepos
     public CustomerRepository(AppDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<ICollection<CustomerEntity>> GetCustomersPaginatedAsync(Specification<CustomerEntity> specification, CancellationToken cancellationToken)
+    public async Task<(ICollection<CustomerEntity> Items, int TotalAmount)> GetCustomersPaginatedAsync(Specification<CustomerEntity> specification, CancellationToken cancellationToken)
     {
-        var response = _dbSet.Where(specification.Criteria)
-            .ApplyPagination(specification);
+        var query = _dbSet.Where(specification.Criteria);
 
         foreach (var include in specification.Includes)
         {
-            response = response.Include(include);
+            query = query.Include(include);
         }
 
-        return await response.ToListAsync(cancellationToken);
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var response = query.ApplyPagination(specification);
+
+        var items = await response.ToListAsync();
+        return (items, totalAmount);
     }
 }

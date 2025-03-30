@@ -24,6 +24,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CustomerEntity, CustomerResponse>()
             .Map(dest => dest.FirstName, src => src.Account.FirstName)
-            .Map(dest => dest.LastName, src => src.Account.LastName);
+            .Map(dest => dest.LastName, src => src.Account.LastName)
+            .Map(dest => dest.Email, src => src.Account.Email);
     }
 }
