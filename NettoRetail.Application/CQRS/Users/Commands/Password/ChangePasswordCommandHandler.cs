@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Infrastructure.Interfaces;
@@ -14,7 +15,7 @@ public record ChangePasswordCommand(Guid UserId, ChangePasswordRequest Model) : 
 public class ChangePasswordCommandHandler(
     IAccountRepository accountRepository,
     IEmailSender emailSender,
-    IEmailTemplateService emailTemplateService)
+    IEmailBuilderService emailBuilderService)
     : IRequestHandler<ChangePasswordCommand>
 {
     public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -49,16 +50,7 @@ public class ChangePasswordCommandHandler(
 
         await accountRepository.UpdateAsync(user, cancellationToken);
 
-        var model = new { user_name = user.FirstName };
-
-        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.PasswordChange, model);
-
-        var emailModel = new EmailModel
-        {
-            Email = user.Email,
-            Subject = "Your RetailTech account password updated",
-            Message = emailBody
-        };
+        var emailModel = await emailBuilderService.BuildPasswordChangeConfirmationEmailAsync(user.Email, user.FirstName);
 
         await emailSender.SendAsync(emailModel);
     }

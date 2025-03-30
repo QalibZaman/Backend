@@ -1,3 +1,5 @@
+using NettoRetail.Domain.Enums;
+
 namespace NettoRetail.Domain.Entities;
 
 public class AccountEntity
@@ -8,6 +10,7 @@ public class AccountEntity
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
     public int RoleId { get; set; }
+    public StaffStatusEnum Status { get; set; } = StaffStatusEnum.CreatePassword;
     public bool TwoFactorEnabled { get; set; }
     public string? EncryptedTotpSecret { get; set; }
 
