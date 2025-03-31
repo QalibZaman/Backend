@@ -170,7 +170,9 @@ public class StaffController(
     [HttpPost("create-staff")]
     public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
     {
-        var command = new CreateStaffCommand(request);
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new CreateStaffCommand(request, shopId);
         var data = await mediator.Send(command);
 
         var response = new ApiResponse<CreateStaffResponse>(data);

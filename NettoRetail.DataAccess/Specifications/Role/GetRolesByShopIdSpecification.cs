@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Role;
 public class GetRolesByShopIdSpecification : Specification<RoleEntity>
 {
     public GetRolesByShopIdSpecification(int shopId)
-        : base(model => model.ShopId == shopId || model.Id == 1) { }
+        : base(model => model.ShopId == shopId || model.ShopId == null) { }
 }
