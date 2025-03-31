@@ -84,7 +84,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{id}/details")]
     public async Task<IActionResult> EditInventoryItemDetails(Guid id, [FromBody] UpdateInventoryItemDetailsModel model, CancellationToken cancellationToken)
     {

@@ -1,5 +1,4 @@
-﻿
-namespace NettoRetail.Domain.Enums;
+﻿namespace NettoRetail.Domain.Enums;
 
 public enum ProductDetailTypeEnum
 {

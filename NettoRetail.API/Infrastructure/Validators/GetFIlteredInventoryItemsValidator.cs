@@ -42,7 +42,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
             .PrecisionScale(18, 2, false).WithMessage("Max price must not have more than 2 decimal places.");
 
         RuleFor(x => x.Status)
-                    .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
+            .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {

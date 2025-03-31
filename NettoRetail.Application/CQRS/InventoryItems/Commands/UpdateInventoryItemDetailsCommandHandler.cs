@@ -22,14 +22,24 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
 
         foreach (var detail in request.Model.Details)
         {
-            var detailToUpdate = inventoryItemDetailsToUpdate.FirstOrDefault(d => d.Id == detail.Id) ?? throw new NotFoundException($"Could not find a detail with id {detail.Id}");
-            detail.Adapt(detailToUpdate);
-            await productDetailsRepository.UpsertAsync(detailToUpdate, cancellationToken);
+            var detailToUpsert = inventoryItemDetailsToUpdate.FirstOrDefault(d => d.Id == detail.Id.ToString());
+
+            if (detailToUpsert == null)
+            {
+                detailToUpsert = detail.Adapt<ProductDetailsEntity>();
+                detailToUpsert.Id = Guid.NewGuid().ToString();
+            }
+            else
+            {
+                detail.Adapt(detailToUpsert);
+            }
+
+            await productDetailsRepository.UpsertAsync(detailToUpsert!, cancellationToken);
         }
 
         foreach (var detailId in request.Model.DetailsToDelete)
         {
-            await productDetailsRepository.DeleteAsync(detailId.ToString(), request.InventoryItemId.ToString(), cancellationToken);
+            await productDetailsRepository.DeleteAsync(detailId, request.InventoryItemId.ToString(), cancellationToken);
         }
     }
 }

@@ -43,7 +43,8 @@ public static class ServiceExtensions
                     }),
                     SerializerOptions = new CosmosSerializationOptions
                     {
-                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                        IgnoreNullValues = true
                     }
                 });
         });
@@ -67,6 +68,5 @@ public static class ServiceExtensions
 
         // Database related
         services.AddDbContext<AppDbContext>();
-        //services.AddDbContext<CosmosDbContext>();
     }
 }
