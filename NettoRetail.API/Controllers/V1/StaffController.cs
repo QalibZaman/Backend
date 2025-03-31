@@ -179,4 +179,14 @@ public class StaffController(
 
         return Ok(response);
     }
+
+    [Authorize]
+    [HttpDelete("delete-staff/{id:guid}")]
+    public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteStaffCommand(id);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
 }
