@@ -167,7 +167,7 @@ public class StaffController(
     }
 
     [Authorize]
-    [HttpPost("create-staff")]
+    [HttpPost]
     public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -181,7 +181,7 @@ public class StaffController(
     }
 
     [Authorize]
-    [HttpDelete("delete-staff/{id:guid}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
     {
         var command = new DeleteStaffCommand(id);

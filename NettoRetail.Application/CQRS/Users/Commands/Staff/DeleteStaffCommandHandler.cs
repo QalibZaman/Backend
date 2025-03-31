@@ -19,6 +19,8 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
         var account = await accountRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Account not found");
 
+        // begin transaction to ensure atomicity between session termination and account deletion.
+        // this prevents partial updates in case of failure for example if sessions are terminated but account deletion fails.
         var transaction = unitOfWork.BeginTransaction();
         try
         {
