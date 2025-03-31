@@ -34,7 +34,7 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
     }
 
     [Authorize]
-    [HttpGet]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
