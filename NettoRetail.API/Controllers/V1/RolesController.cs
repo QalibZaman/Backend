@@ -58,4 +58,17 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
 
         return NoContent();
     }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetRoles([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var query = new GetRolesQuery(pageNumber, pageSize, shopId);
+
+        var response = await mediator.Send(query, cancellationToken);
+
+        return Ok(new ApiResponse<PaginatedResponse<RoleResponse>>(response));
+    }
 }
