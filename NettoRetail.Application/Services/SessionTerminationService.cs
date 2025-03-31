@@ -25,6 +25,7 @@ public class SessionTerminationService(
                 }
             }
         }
+
         await sessionRepository.DeleteManyBySpecAsync(spec, cancellationToken);
     }
 }
