@@ -7,7 +7,6 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Utilities;
-using NettoRetail.Shared.Interfaces.Repositories;
 using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
@@ -37,5 +36,6 @@ public static class ServiceExtensions
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<ICsvFileService, CsvFileService>();
+        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
     }
 }

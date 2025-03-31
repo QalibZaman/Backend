@@ -24,5 +24,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .WithMany(r => r.Accounts)
             .HasForeignKey(c => c.RoleId)
             .IsRequired(false);
+
+        builder.Property(p => p.Status).HasConversion<string>();
     }
 }

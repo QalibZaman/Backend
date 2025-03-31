@@ -57,6 +57,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -386,6 +390,25 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LoyaltyId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.HasKey("AccountId");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -597,6 +620,12 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 1,
                             Description = "Has full access to the system",
                             Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Has access to only what the customer can do",
+                            Name = "Customer"
                         });
                 });
 
@@ -764,6 +793,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithOne()
+                        .HasForeignKey("NettoRetail.Domain.Entities.CustomerEntity", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -870,19 +910,20 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Navigation("Accounts");
+
                     b.Navigation("PermissionRoles");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.Navigation("Account");
+
                     b.Navigation("Categories");
 
                     b.Navigation("InventoryItems");
 
                     b.Navigation("Roles");
                 });
-
 #pragma warning restore 612, 618
         }
     }

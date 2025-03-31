@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
@@ -18,7 +19,9 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
 {
     public async Task<ShopResponse> Handle(CreateShopCommand request, CancellationToken cancellationToken)
     {
-        await countryDetailsValidator.ValidateAsync(request.Model, cancellationToken);
+        var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+
+        await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
 
         var shop = request.Model.Adapt<ShopEntity>();
 

@@ -8,8 +8,10 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
+using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Session;
@@ -162,5 +164,17 @@ public class StaffController(
         await mediator.Send(sessionCreateCommand);
 
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
+    }
+
+    [Authorize]
+    [HttpPost("create-staff")]
+    public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
+    {
+        var command = new CreateStaffCommand(request);
+        var data = await mediator.Send(command);
+
+        var response = new ApiResponse<CreateStaffResponse>(data);
+
+        return Ok(response);
     }
 }

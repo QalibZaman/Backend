@@ -1,6 +1,4 @@
-﻿using NettoRetail.Domain.Entities;
-
-namespace NettoRetail.Application.Models.Response;
+﻿namespace NettoRetail.Application.Models.Response;
 
 public class CountryResponse
 {
