@@ -11,18 +11,15 @@ public class SessionTerminationService(
 {
     public async Task TerminateSessionsAsync(Guid accountId, CancellationToken cancellationToken)
     {
-        var spec = new GetSessionsByAccountIdSpecification(accountId);
+        var spec = new GetActiveSessionsByAccountIdSpecification(accountId);
         var sessions = await sessionRepository.GetAllBySpecAsync(spec, cancellationToken);
 
         foreach (var session in sessions)
         {
             if (!string.IsNullOrWhiteSpace(session.Jwt))
             {
-                var expiresAt = JwtUtils.GetJwtExpiration(session.Jwt);
-                if (expiresAt.HasValue)
-                {
-                    await blacklistTokenService.BlacklistTokenAsync(session.Jwt, expiresAt.Value, cancellationToken);
-                }
+                var expiresAt = session.ExpiresAt;
+                await blacklistTokenService.BlacklistTokenAsync(session.Jwt, expiresAt, cancellationToken);
             }
         }
 
