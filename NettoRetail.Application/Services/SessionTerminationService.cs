@@ -1,7 +1,6 @@
 ﻿using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services;
 public class SessionTerminationService(
@@ -14,12 +13,14 @@ public class SessionTerminationService(
         var spec = new GetActiveSessionsByAccountIdSpecification(accountId);
         var sessions = await sessionRepository.GetAllBySpecAsync(spec, cancellationToken);
 
+        if (!sessions.Any())
+            return;
+
         foreach (var session in sessions)
         {
             if (!string.IsNullOrWhiteSpace(session.Jwt))
             {
-                var expiresAt = session.ExpiresAt;
-                await blacklistTokenService.BlacklistTokenAsync(session.Jwt, expiresAt, cancellationToken);
+                await blacklistTokenService.BlacklistTokenAsync(session.Jwt, session.ExpiresAt, cancellationToken);
             }
         }
 
