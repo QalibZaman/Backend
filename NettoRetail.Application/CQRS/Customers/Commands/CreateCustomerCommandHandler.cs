@@ -14,7 +14,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
 
-namespace NettoRetail.Application.CQRS.Customers;
+namespace NettoRetail.Application.CQRS.Customers.Commands;
 
 public record CreateCustomerCommand(CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
 

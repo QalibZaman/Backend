@@ -1,6 +1,8 @@
 ﻿using Mapster;
 using MediatR;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Entities;
@@ -10,11 +12,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Customers.Queries;
 
-public record GetCustomersQuery(string? Name, 
-    string? Email,
-    string? LoyaltyId,
-    int? Page,
-    int? PageSize) : IRequest<PaginatedResponse<CustomerResponse>>;
+public record GetCustomersQuery(GetCustomersRequest? Model) : IRequest<PaginatedResponse<CustomerResponse>>;
 
 public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IOptions<PaginationOptions> paginationOptions) : IRequestHandler<GetCustomersQuery, PaginatedResponse<CustomerResponse>>
 {
@@ -22,12 +20,12 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IO
     {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
 
-        var pageSize = request.PageSize ?? paginationOptions.Value.PageSize;
-        var page = (request.Page - 1) * pageSize ?? 0;
+        var pageSize = request.Model?.PageSize ?? paginationOptions.Value.PageSize;
+        var page = (request.Model?.Page - 1) * pageSize ?? 0;
 
-        specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Email)
-                .Add<GetCustomerByNameSpecification>(request.Name)
-                .Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId);
+        specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
+                .Add<GetCustomerByNameSpecification>(request.Model?.Name)
+                .Add<GetCustomerByLoyaltyIdSpecification>(request.Model?.LoyaltyId);
 
         specificationBuilder.AddInclude(x => x.Account)
             .Skip(page)
