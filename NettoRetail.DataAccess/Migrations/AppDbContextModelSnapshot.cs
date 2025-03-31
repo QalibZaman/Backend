@@ -404,6 +404,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("AccountId");
 
                     b.ToTable("Customers");

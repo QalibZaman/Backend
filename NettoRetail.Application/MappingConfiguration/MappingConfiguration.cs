@@ -25,5 +25,10 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
             .Map(dest => dest.ProductCategory, src => src.Category.Name);
+
+        config.NewConfig<CustomerEntity, CustomerResponse>()
+            .Map(dest => dest.FirstName, src => src.Account.FirstName)
+            .Map(dest => dest.LastName, src => src.Account.LastName)
+            .Map(dest => dest.Email, src => src.Account.Email);
     }
 }
