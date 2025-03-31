@@ -9,7 +9,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Roles;
+namespace NettoRetail.Application.CQRS.Roles.Commands;
 
 public record CreateRoleCommand(string Name, string Description, int ShopId, int[] PermissionIds) : IRequest<CreateRoleResponse>;
 

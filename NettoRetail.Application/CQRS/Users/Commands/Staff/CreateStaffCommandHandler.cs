@@ -14,7 +14,7 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
-public record CreateStaffCommand(CreateStaffRequest Model) : IRequest<CreateStaffResponse>;
+public record CreateStaffCommand(CreateStaffRequest Model, int ShopId) : IRequest<CreateStaffResponse>;
 public class CreateStaffCommandHandler(
     IAccountRepository accountRepository,
     IRoleRepository roleRepository,
@@ -31,11 +31,12 @@ public class CreateStaffCommandHandler(
         if (existingAccount != null)
             throw new ConflictException("An account with this email already exists.");
 
-        var roleSpecification = new GetRoleByIdSpecification(request.Model.RoleId);
+        var roleSpecification = new GetRoleByIdSpecification(request.Model.RoleId, request.ShopId);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
             ?? throw new NotFoundException("Role not found");
 
         var account = request.Model.Adapt<AccountEntity>();
+        account.ShopId = request.ShopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;
 

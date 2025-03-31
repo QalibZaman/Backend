@@ -26,8 +26,8 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
-         _dbSet.Remove(entity);
-         await _dbContext.SaveChangesAsync(cancellationToken);
+        _dbSet.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
@@ -99,5 +99,10 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     public async Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
     {
         await _dbSet.BulkInsertAsync(entities, cancellationToken);
+    }
+
+    public async Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken)
+    {
+        return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
     }
 }
