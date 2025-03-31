@@ -36,6 +36,7 @@ public class CreateStaffCommandHandler(
             ?? throw new NotFoundException("Role not found");
 
         var account = request.Model.Adapt<AccountEntity>();
+        account.ShopId = request.ShopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;
 
