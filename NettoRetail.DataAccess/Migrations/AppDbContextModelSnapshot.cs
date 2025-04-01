@@ -482,6 +482,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<long>("ProductUpc")
                         .HasColumnType("bigint");
 
+                    b.Property<decimal?>("PromotionPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<int>("ReservedAmount")
                         .HasColumnType("integer");
 
