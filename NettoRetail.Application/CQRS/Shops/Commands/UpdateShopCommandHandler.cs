@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.DataAccess.Specifications.Shop;
@@ -14,7 +15,9 @@ public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDe
 {
     public async Task Handle(UpdateShopCommand request, CancellationToken cancellationToken)
     {
-        await countryDetailsValidator.ValidateAsync(request.Model, cancellationToken);
+        var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+
+        await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
 
         var specification = new GetShopByIdSpecification(request.Id);
         var shopToUpdate = await shopRepository.GetAsync(specification, cancellationToken)
