@@ -2,8 +2,6 @@
 
 public static class PolicyNames
 {
-    public const string ShopPolicy = "ShopPolicy";
     public const string HasShopClaimPolicy = "HasShopClaimPolicy";
     public const string TwoFactorAuthPolicy = "TwoFactorAuthPolicy";
-    public const string MustOwnInventoryItemPolicy = "MustOwnInventoryItemPolicy";
 }
