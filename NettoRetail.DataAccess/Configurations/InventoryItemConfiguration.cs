@@ -22,6 +22,10 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired(true);
 
+        builder.Property(p => p.PromotionPrice)
+            .HasPrecision(18, 2)
+            .IsRequired(false);
+
         builder.Property(p => p.ProductUpc);
         builder.HasIndex(p => p.ProductUpc).IsUnique();
 
