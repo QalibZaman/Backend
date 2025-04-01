@@ -29,32 +29,34 @@ public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsMode
             .NotNull().WithMessage("Value is required.")
             .Custom((value, context) =>
             {
-                if (context.InstanceToValidate.Type is null)
+                if (context.InstanceToValidate.Type == null)
                 {
                     context.AddFailure("Type must be set before validating Value.");
                     return;
                 }
 
-                Enum.TryParse<ProductDetailTypeEnum>(context.InstanceToValidate.Type, out var typeEnum);
-
+                if (!Enum.TryParse<ProductDetailTypeEnum>(context.InstanceToValidate.Type, out var typeEnum))
+                {
+                    return;
+                }
 
                 switch (typeEnum)
                 {
                     case ProductDetailTypeEnum.String:
                         if (value is not string)
-                            context.AddFailure("Value must be a string.");
+                            context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Number:
                         if (value is not decimal)
-                            context.AddFailure("Value must be a decimal number.");
+                            context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Color:
                         if (value is not string colorValue || !Regex.IsMatch(colorValue, "^#(?:[0-9a-fA-F]{3}){1,2}$"))
-                            context.AddFailure("Value must be a valid hex color code (e.g., #RRGGBB or #RGB).");
+                            context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Logic:
                         if (value is not bool)
-                            context.AddFailure("Value must be a boolean.");
+                            context.AddFailure("Incorrect value.");
                         break;
                 }
             });

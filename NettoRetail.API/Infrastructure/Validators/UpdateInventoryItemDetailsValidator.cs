@@ -10,6 +10,8 @@ public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpdateInven
         RuleFor(x => x.Details)
             .NotNull().WithMessage("Details list can't be null")
             .Must(HaveContinuousOrderIndexes).WithMessage("Order indexes must be continuous without missing numbers.");
+
+        RuleForEach(x => x.Details).SetValidator(new ProductDetailsModelValidator());
     }
 
     private bool HaveContinuousOrderIndexes(ICollection<ProductDetailsModel> details)

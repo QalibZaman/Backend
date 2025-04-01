@@ -18,7 +18,7 @@ public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDe
 
         var specification = new GetShopByIdSpecification(request.Id);
         var shopToUpdate = await shopRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException($"There is no category with such Id");
+            ?? throw new NotFoundException($"There is no shop with such Id");
 
         request.Model.Adapt(shopToUpdate);
         await shopRepository.UpdateAsync(shopToUpdate, cancellationToken);

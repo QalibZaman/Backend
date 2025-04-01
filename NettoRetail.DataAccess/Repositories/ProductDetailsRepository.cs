@@ -66,7 +66,7 @@ public class ProductDetailsRepository : IProductDetailsRepository
 
             return results;
         }
-        catch (CosmosException ex) when(ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return new List<ProductDetailsEntity>();
         }

@@ -8,7 +8,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record UpdateInventoryItemDetailsCommand(Guid InventoryItemId, UpdateInventoryItemDetailsModel Model) : IRequest;
+public record UpdateInventoryItemDetailsCommand(Guid InventoryItemId, int ShopId, UpdateInventoryItemDetailsModel Model) : IRequest;
 
 public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository inventoryItemRepository, IProductDetailsRepository productDetailsRepository)
     : IRequestHandler<UpdateInventoryItemDetailsCommand>
@@ -17,6 +17,9 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
     {
         var itemSpecification = new GetInventoryItemByIdSpecification(request.InventoryItemId);
         var inventoryItemToUpdate = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
+
+        if (inventoryItemToUpdate.ShopId != request.ShopId)
+            throw new MyUnauthorizedException("This item is inaccessible");
 
         var inventoryItemDetailsToUpdate = await productDetailsRepository.GetAllByPartitionKeyAsync(request.InventoryItemId.ToString(), cancellationToken);
 
