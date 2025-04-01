@@ -13,7 +13,7 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
-public class ShopsController(IMediator mediator, IAuthorizationService authorizationService) : ControllerBase
+public class ShopsController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetShop(int id)
