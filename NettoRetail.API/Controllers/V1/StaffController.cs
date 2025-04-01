@@ -167,7 +167,7 @@ public class StaffController(
     }
 
     [Authorize]
-    [HttpPost("create-staff")]
+    [HttpPost]
     public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -178,5 +178,15 @@ public class StaffController(
         var response = new ApiResponse<CreateStaffResponse>(data);
 
         return Ok(response);
+    }
+
+    [Authorize]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteStaffCommand(id);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }

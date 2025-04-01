@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Sessions;
-using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
