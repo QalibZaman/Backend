@@ -75,9 +75,9 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize]
     [HttpPatch("{id}")]
-    public async Task<IActionResult> EditInventoryItemGeneralInfo(Guid id, UpdateInventoryItemGeneralInfoModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
-        var inventoryItemUpdatingCommand = new UpdateInventoryItemGeneralInfoCommand(id, model);
+        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, model);
 
         await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
 
