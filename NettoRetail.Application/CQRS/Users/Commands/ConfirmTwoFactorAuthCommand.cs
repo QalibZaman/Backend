@@ -15,6 +15,9 @@ public class ConfirmTwoFactorAuthCommandHandler(
 {
     public async Task Handle(ConfirmTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.TotpCode))
+            throw new BadRequestException("2FA code must not be empty.");
+
         var specification = new GetAccountByIdSpecification(request.UserId);
         var user = await userRepository.GetAsync(specification, cancellationToken);
 
