@@ -13,7 +13,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
 
         RuleFor(x => x.CategoryId)
-            .GreaterThanOrEqualTo(0).WithMessage("Category ID must be greater than 0.");
+            .GreaterThanOrEqualTo(0).WithMessage("Category ID must be 0 or greater.");
 
         RuleFor(x => x.MinAvailableAmount)
             .GreaterThanOrEqualTo(0).WithMessage("Min available amount must be 0 or greater.");
@@ -42,7 +42,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
             .PrecisionScale(18, 2, false).WithMessage("Max price must not have more than 2 decimal places.");
 
         RuleFor(x => x.Status)
-                    .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
+            .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {

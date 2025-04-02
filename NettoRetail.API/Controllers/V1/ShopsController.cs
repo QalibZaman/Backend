@@ -34,11 +34,12 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return CreatedAtAction(nameof(GetShop), new { id = response.Id }, response);
     }
 
-    [Authorize(Policy = PolicyNames.ShopPolicy)]
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateShop(int id, [FromBody] ShopModel shop)
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut]
+    public async Task<IActionResult> UpdateShop([FromBody] ShopModel shop)
     {
-        var updateShopCommand = new UpdateShopCommand(id, shop);
+        var shopId = HttpContext.GetUserShopId();
+        var updateShopCommand = new UpdateShopCommand(shopId, shop);
         await mediator.Send(updateShopCommand);
 
         return Ok();

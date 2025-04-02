@@ -5,7 +5,7 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Context;
 
-public class AppDbContext(DbContextOptions options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
 {
     public DbSet<AccountEntity> Accounts { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
