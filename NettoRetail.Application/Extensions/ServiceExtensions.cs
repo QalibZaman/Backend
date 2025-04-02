@@ -1,3 +1,4 @@
+using System.Reflection;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
@@ -7,7 +8,6 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Utilities;
-using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 

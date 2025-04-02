@@ -459,6 +459,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPromoted")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("timestamp with time zone");
 

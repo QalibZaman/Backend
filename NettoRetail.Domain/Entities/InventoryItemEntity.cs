@@ -11,6 +11,7 @@ public class InventoryItemEntity
     public required string Description { get; set; }
     public required int CategoryId { get; set; }
     public decimal? PromotionPrice { get; set; }
+    public bool IsPromoted { get; set; }
     public required DateTime LastUpdatedDate { get; set; } = DateTime.UtcNow;
     public required bool IsActive { get; set; } = true;
     public required InventoryItemStatusEnum Status { get; set; } = InventoryItemStatusEnum.Available;

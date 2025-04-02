@@ -6,7 +6,6 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;

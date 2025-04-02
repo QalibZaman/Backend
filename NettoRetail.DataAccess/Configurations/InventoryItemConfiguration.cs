@@ -26,6 +26,8 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
             .HasPrecision(18, 2)
             .IsRequired(false);
 
+        builder.Property(p => p.IsPromoted);
+
         builder.Property(p => p.ProductUpc);
         builder.HasIndex(p => p.ProductUpc).IsUnique();
 
