@@ -19,9 +19,9 @@ public class UpdateInventoryItemCommandHandler(IInventoryItemRepository inventor
         var itemByIdSpecification = new GetItemByIdSpecification(request.Id);
         var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        if (inventoryItem.ProductUpc != request.Model.ProductUpc)
+        if (request.Model.ProductUpc.HasValue && inventoryItem.ProductUpc != request.Model.ProductUpc)
         {
-            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc ?? 0);
+            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc.Value);
             var product = await inventoryItemRepository.GetAsync(productByNameSpecification, cancellationToken);
 
             if (product != null)
