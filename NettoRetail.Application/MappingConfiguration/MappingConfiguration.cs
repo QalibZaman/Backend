@@ -5,6 +5,7 @@ using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -34,5 +35,11 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<UpdateInventoryItemModel, InventoryItemEntity>()
             .IgnoreNullValues(true);
+
+        config.NewConfig<ProductDetailsModel, ProductDetailsEntity>()
+            .Map(dest => dest.TypeEnum, src => Enum.Parse<ProductDetailTypeEnum>(src.Type))
+            .Map(dest => dest.Unit, src =>
+                string.IsNullOrEmpty(src.Unit) ? null : (ProductDetailUnitEnum?)Enum.Parse<ProductDetailUnitEnum>(src.Unit));
+
     }
 }
