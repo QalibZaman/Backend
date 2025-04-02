@@ -17,13 +17,26 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/inventory-items")]
 public class InventoryItemsController(IMediator mediator, IAuthorizationService authorizationService) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetInventoryItemGeneralInfo(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetInventoryItemInfo(Guid id, CancellationToken cancellationToken)
     {
-        var inventoryItemQuery = new GetInventoryItemGeneralInfoQuery(id);
+        var inventoryItemQuery = new GetInventoryItemInfoQuery(id);
         var data = await mediator.Send(inventoryItemQuery, cancellationToken);
-        var response = new ApiResponse<InventoryItemGeneralInfoResponse>(data);
+        var response = new ApiResponse<InventoryItemInfoResponse>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{id}/details")]
+    public async Task<IActionResult> GetInventoryItemDetails(Guid id, CancellationToken cancellationToken)
+    {
+        var inventoryDetailsQuery = new GetInventoryItemDetailsQuery(id);
+
+        var data = await mediator.Send(inventoryDetailsQuery, cancellationToken);
+
+        var response = new ApiResponse<IEnumerable<ProductDetailsResponse>>(data);
 
         return Ok(response);
     }
@@ -41,14 +54,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return File(response, "text/csv", "Inventory items.csv");
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-        if (!authResult.Succeeded)
-            return Unauthorized();
-
         var userShopId = HttpContext.GetUserShopId();
 
         var inventoryItemCreationCommand = new CreateInventoryItemCommand(model, userShopId);
@@ -73,7 +82,7 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return Ok();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{id}")]
     public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
@@ -97,14 +106,10 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {
-        var authResult = await authorizationService.AuthorizeAsync(User, PolicyNames.HasShopClaimPolicy);
-        if (!authResult.Succeeded)
-            return Unauthorized();
-
         var userShopId = HttpContext.GetUserShopId();
 
         var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);

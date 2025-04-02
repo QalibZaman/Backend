@@ -6,6 +6,7 @@ using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -41,5 +42,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Unit, src =>
                 string.IsNullOrEmpty(src.Unit) ? null : (ProductDetailUnitEnum?)Enum.Parse<ProductDetailUnitEnum>(src.Unit));
 
+        config.NewConfig<ProductDetailsEntity, ProductDetailsResponse>()
+            .Map(dest => dest.Type, src => src.TypeEnum.ToString());
     }
 }
