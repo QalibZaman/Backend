@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -17,12 +18,35 @@ public static class ServiceExtensions
     {
         // Options
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+        services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
 
         // External clients
         services.AddScoped<BlobServiceClient>(provider =>
         {
             var connectionStrings = provider.GetRequiredService<IOptions<ConnectionStrings>>().Value;
             return new BlobServiceClient(connectionStrings.AzureConnection);
+        });
+
+        services.AddSingleton<CosmosClient>(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<CosmosOptions>>().Value;
+
+            return new CosmosClient(
+                options.AccountEndpoint,
+                options.AccountKey,
+                new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Gateway,
+                    HttpClientFactory = () => new HttpClient(new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (req, cert, chain, errors) => true
+                    }),
+                    SerializerOptions = new CosmosSerializationOptions
+                    {
+                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                        IgnoreNullValues = true
+                    }
+                });
         });
 
         // Repositories
@@ -37,6 +61,8 @@ public static class ServiceExtensions
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
+
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

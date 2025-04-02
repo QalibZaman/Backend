@@ -99,11 +99,6 @@ public static class AuthenticationExtensions
                 .AddAuthenticationSchemes(AuthSchemes.Default)
                 .Build();
 
-            options.AddPolicy(PolicyNames.ShopPolicy, policy =>
-                policy.RequireAuthenticatedUser()
-                    .RequireClaim(AuthClaims.ShopId)
-                    .AddAuthenticationSchemes(AuthSchemes.Default));
-
             options.AddPolicy(PolicyNames.TwoFactorAuthPolicy, policy =>
                  policy.RequireAuthenticatedUser()
                  .RequireClaim(AuthClaims.TokenType, AuthTokenTypes.Temp)
