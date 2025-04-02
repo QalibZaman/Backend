@@ -18,8 +18,12 @@ public class GetInventoryItemDetailsQueryHandler(
         var specification = new GetItemByIdSpecification(request.Id);
 
         var item = await inventoryItemRepository
-           .GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("There is no inventory item with such id.");
+           .GetAsync(specification, cancellationToken);
+
+        if (item == null)
+        {
+           throw new NotFoundException("There is no inventory item with such id.");
+        }
 
         var details = await productDetailsRepository.GetAllByPartitionKeyAsync(request.Id.ToString(), cancellationToken);
 
