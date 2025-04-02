@@ -51,7 +51,7 @@ public class ProductDetailsRepository : IProductDetailsRepository
     {
         try
         {
-            var queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.partitionKeyProperty = @partitionKey")
+            var queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.inventoryItemId = @partitionKey")
                 .WithParameter("@partitionKey", partitionKey);
 
             var query = _container.GetItemQueryIterator<ProductDetailsEntity>(queryDefinition);
