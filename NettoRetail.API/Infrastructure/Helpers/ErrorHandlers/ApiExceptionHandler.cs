@@ -1,7 +1,7 @@
+using System.Net;
 using NettoRetail.API.Models.Error;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Exceptions;
-using System.Net;
 
 namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 

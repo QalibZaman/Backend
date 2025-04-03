@@ -1,8 +1,10 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Countries.Queries;
 using NettoRetail.Application.CQRS.Shops.Queries;
+using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -15,7 +17,9 @@ public class CountriesController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetAllCountries(CancellationToken cancellationToken)
     {
         var getAllCountriesQuery = new GetAllCountriesQuery();
-        var response = await mediator.Send(getAllCountriesQuery, cancellationToken);
+        var data = await mediator.Send(getAllCountriesQuery, cancellationToken);
+
+        var response = new ApiResponse<IEnumerable<CountryResponse>>(data);
 
         return Ok(response);
     }
