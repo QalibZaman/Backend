@@ -511,6 +511,24 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItems");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrderId", "ItemId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("Order_Item", (string)null);
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
                 {
                     b.Property<int>("PermissionId")
@@ -551,6 +569,45 @@ namespace NettoRetail.DataAccess.Migrations
                             PermissionId = 5,
                             RoleId = 1
                         });
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Creator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeliveryType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OrderStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TotalProducts")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("OrderEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -845,6 +902,25 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.PermissionEntity", "Permission")
@@ -862,6 +938,15 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
+                        .WithMany("Order")
+                        .HasForeignKey("CustomerId");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
@@ -911,6 +996,21 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
                 {
                     b.Navigation("Shops");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
