@@ -14,7 +14,7 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
 public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, int PageNumber, int PageSize) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
-public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
+public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
     {
