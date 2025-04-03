@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
@@ -51,6 +52,30 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
                 IssuerSigningKey = new SymmetricSecurityKey(_key)
             },
             out _);
+
+        return principal;
+    }
+
+    public ClaimsPrincipal ValidateResetToken(string resetToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var principal = handler.ValidateToken(
+            resetToken,
+            new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(_key),
+            },
+            out _);
+
+        var tokenType = principal.FindFirst("token_type")?.Value;
+
+        if (tokenType != "reset")
+        {
+            throw new BadRequestException("Invalid token type.");
+        }
 
         return principal;
     }
