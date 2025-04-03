@@ -116,7 +116,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
-        return Ok(data);
+        var response = new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(data);
+
+        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
@@ -129,6 +131,8 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
-        return Ok(data);
+        var response = new ApiResponse<ICollection<InventoryItemListResponse>>(data);
+
+        return Ok(response);
     }
 }
