@@ -192,12 +192,12 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
 
         // Assert
         var responseContent = await response.Content.ReadAsStringAsync();
-        var itemsResponse = JsonConvert.DeserializeObject<List<InventoryItemListResponse>>(responseContent);
+        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<List<InventoryItemListResponse>>>(responseContent);
 
         Assert.NotNull(itemsResponse);
-        Assert.Single(itemsResponse); // Only one item should be returned
-        Assert.Equal(upc, itemsResponse[0].ProductUpc);
-        Assert.Equal("MacBook Pro 16", itemsResponse[0].ProductName);
+        Assert.Single(itemsResponse.Data); // Only one item should be returned
+        Assert.Equal(upc, itemsResponse.Data[0].ProductUpc);
+        Assert.Equal("MacBook Pro 16", itemsResponse.Data[0].ProductName);
     }
 
     [Fact]
@@ -219,13 +219,13 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
 
         // Assert
         var responseContent = await response.Content.ReadAsStringAsync();
-        var itemsResponse = JsonConvert.DeserializeObject<List<InventoryItemListResponse>>(responseContent);
+        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<List<InventoryItemListResponse>>>(responseContent);
 
         // Assert
         Assert.NotNull(itemsResponse);
-        Assert.Single(itemsResponse); 
-        Assert.Equal(name, itemsResponse[0].ProductName);
-        Assert.Equal(123456789012, itemsResponse[0].ProductUpc); 
+        Assert.Single(itemsResponse.Data); 
+        Assert.Equal(name, itemsResponse.Data[0].ProductName);
+        Assert.Equal(123456789012, itemsResponse.Data[0].ProductUpc); 
     }
 
     public void Dispose()
