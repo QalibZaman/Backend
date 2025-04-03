@@ -15,7 +15,7 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/inventory-items")]
-public class InventoryItemsController(IMediator mediator, IAuthorizationService authorizationService) : ControllerBase
+public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{id}")]
