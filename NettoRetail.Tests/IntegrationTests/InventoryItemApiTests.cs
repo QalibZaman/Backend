@@ -52,7 +52,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
             "&SortingOptions[0].Field=ProductName&SortingOptions[0].IsDescending=true&SortingOptions[1].Field=Price&SortingOptions[1].IsDescending=true");
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, itemsResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, itemsResponse.StatusCode);
     }
 
     [Fact]
