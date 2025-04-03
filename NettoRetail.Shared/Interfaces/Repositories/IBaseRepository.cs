@@ -18,4 +18,5 @@ public interface IBaseRepository<TEntity>
     Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task<int> GetAmountBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
+    Task<(ICollection<TEntity> Items, int TotalCount)> GetAllPaginatedAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
+using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -10,7 +11,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 {
     protected readonly DbSet<TEntity> _dbSet;
     protected readonly AppDbContext _dbContext;
-
     protected BaseRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -109,5 +109,47 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     public async Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
+    }
+
+    public async Task<(ICollection<TEntity> Items, int TotalCount)> GetAllPaginatedAsync(
+            Specification<TEntity> specification,
+            CancellationToken cancellationToken)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        if (specification.Orderings != null && specification.Orderings.Any())
+        {
+            var (Expr, IsDesc) = specification.Orderings.First();
+            var orderedQuery = IsDesc
+                ? query.OrderByDescending(Expr)
+                : query.OrderBy(Expr);
+
+            foreach (var ordering in specification.Orderings.Skip(1))
+            {
+                orderedQuery = ordering.IsDesc
+                    ? orderedQuery.ThenByDescending(ordering.Expr)
+                    : orderedQuery.ThenBy(ordering.Expr);
+            }
+
+            query = orderedQuery;
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        query = query.ApplyPagination(specification);
+
+        var items = await query.ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }

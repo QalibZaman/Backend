@@ -8,9 +8,9 @@ public class GetCustomersRequestValiddator : AbstractValidator<GetCustomersReque
     public GetCustomersRequestValiddator()
     {
         RuleFor(x => x.Page)
-            .GreaterThanOrEqualTo(1)
+            .GreaterThanOrEqualTo(0)
             .When(x => x.Page.HasValue)
-            .WithMessage("Page can not be less than 1");
+            .WithMessage("Page can not be less than 0");
 
         RuleFor(x => x.PageSize)
             .GreaterThanOrEqualTo(1)

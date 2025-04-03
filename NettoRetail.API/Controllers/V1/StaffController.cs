@@ -9,7 +9,9 @@ using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
+using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Models.Authentication;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Request.Token;
@@ -188,5 +190,18 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetStaffList([FromQuery] GetStaffListRequest model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var query = new GetStaffListQuery(model, shopId);
+
+        var response = await mediator.Send(query, cancellationToken);
+
+        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
     }
 }

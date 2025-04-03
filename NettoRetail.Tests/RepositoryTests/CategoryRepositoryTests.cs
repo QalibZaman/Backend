@@ -30,13 +30,7 @@ public class CategoryRepositoryTests : IDisposable
         _dbContext = new AppDbContext(options, mockConnectionStrings);
         InitializeDatabase();
 
-        var mockPaginationOptions = Substitute.For<IOptions<PaginationOptions>>();
-        mockPaginationOptions.Value.Returns(new PaginationOptions
-        {
-            PageSize = 10
-        });
-
-        _categoryRepository = new CategoryRepository(_dbContext, mockPaginationOptions);
+        _categoryRepository = new CategoryRepository(_dbContext);
     }
 
     private void InitializeDatabase()

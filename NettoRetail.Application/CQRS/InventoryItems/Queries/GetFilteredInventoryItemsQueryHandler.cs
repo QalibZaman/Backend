@@ -7,18 +7,21 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, int PageNumber, int PageSize) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
+public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, int? PageNumber, int? PageSize) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
 public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
+        var pageSize = request.PageSize ?? PaginationConstants.DefaultPageSize;
+        var skip = request.PageNumber * pageSize ?? 0;
 
         specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
             .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
@@ -57,11 +60,9 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
             }
         }
 
-        var specification = specificationBuilder.Skip(request.PageNumber * request.PageSize).Take(request.PageSize).Build();
+        var specification = specificationBuilder.Skip(skip).Take(pageSize).Build();
 
-        var items = await inventoryItemRepository.GetPaginatedAsync(specification, cancellationToken);
-
-        var totalAmount = await inventoryItemRepository.GetFilteredAmountAsync(specification, cancellationToken);
+        var (items, totalAmount) = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
         var responseCollection = items.Adapt<List<InventoryItemListResponse>>();
 
