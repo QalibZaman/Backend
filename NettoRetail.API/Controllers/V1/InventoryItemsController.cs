@@ -131,7 +131,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
-        var response = new ApiResponse<ICollection<InventoryItemListResponse>>(data);
+        var response = new ApiResponse<IEnumerable<InventoryItemListResponse>>(data);
 
         return Ok(response);
     }
