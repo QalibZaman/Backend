@@ -20,6 +20,6 @@ public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpdateInven
             return true;
 
         var orderedIndexes = details.Select(d => d.OrderIndex).OrderBy(x => x).ToList();
-        return orderedIndexes.First() == 0 && orderedIndexes.SequenceEqual(Enumerable.Range(0, orderedIndexes.Count));
+        return orderedIndexes.SequenceEqual(Enumerable.Range(orderedIndexes[0], orderedIndexes.Count));
     }
 }

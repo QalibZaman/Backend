@@ -15,6 +15,8 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
 {
     public async Task Handle(UpdateInventoryItemDetailsCommand request, CancellationToken cancellationToken)
     {
+        var detailsToUpsert = new List<ProductDetailsEntity>();
+
         var itemSpecification = new GetInventoryItemByIdSpecification(request.InventoryItemId);
         var inventoryItemToUpdate = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
 
@@ -37,12 +39,9 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
                 detail.Adapt(detailToUpsert);
             }
 
-            await productDetailsRepository.UpsertAsync(detailToUpsert!, cancellationToken);
+            detailsToUpsert.Add(detailToUpsert);
         }
 
-        foreach (var detailId in request.Model.DetailsToDelete)
-        {
-            await productDetailsRepository.DeleteAsync(detailId, request.InventoryItemId.ToString(), cancellationToken);
-        }
+        await productDetailsRepository.ExecuteUpdatingTransactionalBatchAsync(request.InventoryItemId.ToString(), detailsToUpsert, request.Model.DetailsToDelete, cancellationToken);
     }
 }

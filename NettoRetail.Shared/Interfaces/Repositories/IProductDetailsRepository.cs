@@ -8,4 +8,5 @@ public interface IProductDetailsRepository
     Task<IEnumerable<ProductDetailsEntity>> GetAllByPartitionKeyAsync(string partitionKey, CancellationToken cancellationToken = default);
     Task UpsertAsync(ProductDetailsEntity entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(string id, string partitionKey, CancellationToken cancellationToken = default);
+    Task ExecuteUpdatingTransactionalBatchAsync(string partitionKey, ICollection<ProductDetailsEntity> entitiesToUpsert, ICollection<string> idsToDelete, CancellationToken cancellationToken = default);
 }
