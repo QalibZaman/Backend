@@ -1,4 +1,5 @@
-﻿using NettoRetail.Domain.Enums;
+﻿using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
 
@@ -23,4 +24,5 @@ public class InventoryItemEntity
 
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
+    public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
 }
