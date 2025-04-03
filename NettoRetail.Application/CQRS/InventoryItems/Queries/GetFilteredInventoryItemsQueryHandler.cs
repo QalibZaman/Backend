@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
@@ -13,15 +15,14 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, int? PageNumber, int? PageSize) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
+public record GetFilteredInventoryItemsQuery(GetFilteredInventoryItemsModel Model, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
 public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository) : IRequestHandler<GetFilteredInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
-        var pageSize = request.PageSize ?? PaginationConstants.DefaultPageSize;
-        var skip = request.PageNumber * pageSize ?? 0;
+        var skip = request.PageModel.PageNumber * request.PageModel.PageSize;
 
         specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
             .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
@@ -60,7 +61,7 @@ public class GetCategoriesQueryHandler(IInventoryItemRepository inventoryItemRep
             }
         }
 
-        var specification = specificationBuilder.Skip(skip).Take(pageSize).Build();
+        var specification = specificationBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
 
         var (items, totalAmount) = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
 

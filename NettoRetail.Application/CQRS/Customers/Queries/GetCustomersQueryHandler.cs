@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Customer;
@@ -10,15 +11,14 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Customers.Queries;
 
-public record GetCustomersQuery(GetCustomersRequest Model) : IRequest<PaginatedResponse<CustomerResponse>>;
+public record GetCustomersQuery(PaginationRequest PageModel, GetCustomersRequest? Model) : IRequest<PaginatedResponse<CustomerResponse>>;
 
 public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : IRequestHandler<GetCustomersQuery, PaginatedResponse<CustomerResponse>>
 {
     public async Task<PaginatedResponse<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
-        var pageSize = request.Model?.PageSize ?? PaginationConstants.DefaultPageSize;
-        var skip = request.Model?.Page * pageSize ?? 0;
+        var skip = request.PageModel.PageNumber * request.PageModel.PageSize;
 
         specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
                 .Add<GetCustomerByNameSpecification>(request.Model?.Name)
@@ -26,7 +26,7 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
 
         specificationBuilder.AddInclude(x => x.Account)
             .Skip(skip)
-            .Take(pageSize);
+            .Take(request.PageModel.PageSize);
 
         var specification = specificationBuilder.Build();
 

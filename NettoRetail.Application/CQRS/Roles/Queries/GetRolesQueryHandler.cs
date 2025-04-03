@@ -1,16 +1,16 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Roles.Queries;
 
-public record GetRolesQuery(GetRolesRequest? Model, int ShopId) : IRequest<PaginatedResponse<RoleResponse>>;
+public record GetRolesQuery(PaginationRequest Model, int ShopId) : IRequest<PaginatedResponse<RoleResponse>>;
 
 public class GetRolesQueryHandler(IRoleRepository roleRepository)
     : IRequestHandler<GetRolesQuery, PaginatedResponse<RoleResponse>>
@@ -18,12 +18,11 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository)
     public async Task<PaginatedResponse<RoleResponse>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<RoleEntity>();
-        var pageSize = request.Model?.PageSize ?? PaginationConstants.DefaultPageSize;
-        var skip = request.Model?.PageNumber * pageSize ?? 0;
+        var skip = request.Model.PageNumber * request.Model.PageSize;
         var getSpecification = specificationBuilder
             .Add<GetRolesByShopIdSpecification>(request.ShopId)
             .Skip(skip)
-            .Take(pageSize)
+            .Take(request.Model.PageSize)
             .Build()
             .AddInclude(r => r.Accounts);
 

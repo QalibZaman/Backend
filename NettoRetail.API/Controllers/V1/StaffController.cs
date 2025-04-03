@@ -192,9 +192,9 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetStaffList([FromQuery] GetStaffListRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 

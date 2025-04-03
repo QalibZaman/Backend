@@ -7,6 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -108,11 +109,11 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
+        var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageModel);
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 

@@ -4,13 +4,12 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
-public record GetStaffListQuery(GetStaffListRequest? Model, int ShopId) : IRequest<PaginatedResponse<StaffListResponse>>;
+public record GetStaffListQuery(PaginationRequest Model, int ShopId) : IRequest<PaginatedResponse<StaffListResponse>>;
 
 public class GetStaffListQueryHandler(IAccountRepository accountRepository)
     : IRequestHandler<GetStaffListQuery, PaginatedResponse<StaffListResponse>>
@@ -18,12 +17,11 @@ public class GetStaffListQueryHandler(IAccountRepository accountRepository)
     public async Task<PaginatedResponse<StaffListResponse>> Handle(GetStaffListQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<AccountEntity>();
-        var pageSize = request.Model?.PageSize ?? PaginationConstants.DefaultPageSize;
-        var skip = request.Model?.PageNumber * pageSize ?? 0;
+        var skip = request.Model.PageNumber * request.Model.PageSize;
         var getSpecification = specificationBuilder
             .Add<GetAccountsByShopIdSpecification>(request.ShopId)
             .Skip(skip)
-        .Take(pageSize)
+        .Take(request.Model.PageSize)
         .Build()
         .AddInclude(r => r.Role);
 
