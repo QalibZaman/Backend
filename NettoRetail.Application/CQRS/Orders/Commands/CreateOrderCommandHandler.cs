@@ -9,6 +9,7 @@ using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Orders.Commands;
 
@@ -18,7 +19,8 @@ public class CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
         IAccountRepository accountRepository,
-        IInventoryItemRepository inventoryItemRepository
+        IInventoryItemRepository inventoryItemRepository,
+        IUnitOfWork unitOfWork
         ) : IRequestHandler<CreateOrderCommand, OrderResponse>
 {
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -31,48 +33,61 @@ public class CreateOrderCommandHandler(
 
         var itemsList = new List<InventoryItemEntity>();
 
-        await foreach (var item in inventoryItems)
+        var transaction = unitOfWork.BeginTransaction();
+
+        try
         {
-            if (itemsIdsQuantityDictionary.TryGetValue(item.Id, out var requestedQuantity))
+            await foreach (var item in inventoryItems)
             {
-                if (item.AvailableAmount < requestedQuantity)
+                if (itemsIdsQuantityDictionary.TryGetValue(item.Id, out var requestedQuantity))
                 {
-                    throw new ConflictException("Available amount of items is less then requested.");
+                    if (item.AvailableAmount < requestedQuantity)
+                    {
+                        throw new ConflictException("Available amount of items is less then requested.");
+                    }
+
+                    item.AvailableAmount -= requestedQuantity;
+                    item.ReservedAmount += requestedQuantity;
                 }
 
-                item.AvailableAmount -= requestedQuantity;
-                item.ReservedAmount += requestedQuantity;
+                itemsList.Add(item);
             }
 
-            itemsList.Add(item);
-        }
+            var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
+            var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken);
 
-        await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
-
-        var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
-        var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken);
-
-        if (request.Model.CustomerId == null)
-        {
-            var accountByEmailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
-            var isAccountEmailExists = await accountRepository.Exists(accountByEmailSpecification, cancellationToken);
-
-            if (isAccountEmailExists)
+            if (request.Model.CustomerId == null)
             {
-                throw new ConflictException("This Email is taken.");
+                var accountByEmailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
+                var isAccountEmailExists = await accountRepository.Exists(accountByEmailSpecification, cancellationToken);
+
+                if (isAccountEmailExists)
+                {
+                    throw new ConflictException("This Email is taken.");
+                }
+                await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
+                var dataWithoutExistingCustomer = await AddOrderAsync(request, null, account!, itemsIdsQuantityDictionary, cancellationToken);
+
+                transaction.Commit();
+
+                return dataWithoutExistingCustomer;
             }
 
-            var dataWithoutExistingCustomer = await AddOrderAsync(request, null, account!, itemsIdsQuantityDictionary, cancellationToken);
+            var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
+            var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no customer with such id.");
 
-            return dataWithoutExistingCustomer;
+            await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
+            var data = await AddOrderAsync(request, customer, account!, itemsIdsQuantityDictionary, cancellationToken);
+
+            transaction.Commit();
+
+            return data;
         }
-
-        var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-        var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no customer with such id.");
-
-        var data = await AddOrderAsync(request, customer, account!, itemsIdsQuantityDictionary, cancellationToken);
-
-        return data;
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     private async Task<OrderResponse> AddOrderAsync(
