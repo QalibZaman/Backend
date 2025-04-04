@@ -25,8 +25,7 @@ public class GetStaffListQueryHandler(IAccountRepository accountRepository)
         .Build()
         .AddInclude(r => r.Role);
 
-        var staff = await accountRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
-        var (items, totalAmount) = staff;
+        var (items, totalAmount) = await accountRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
 
         var responseCollection = items.Adapt<List<StaffListResponse>>();
 

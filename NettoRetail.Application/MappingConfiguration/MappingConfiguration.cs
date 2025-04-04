@@ -6,7 +6,6 @@ using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.Application.MappingConfiguration;
 

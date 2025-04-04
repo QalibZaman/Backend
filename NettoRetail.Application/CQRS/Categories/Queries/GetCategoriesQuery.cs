@@ -25,8 +25,7 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) :
             .Build()
             .AddInclude(p => p.InventoryItems);
 
-        var categories = await categoryRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
-        var (items, totalAmount) = categories;
+        var (items, totalAmount) = await categoryRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
 
         var responseCollection = items.Adapt<List<CategoryResponse>>();
 

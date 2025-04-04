@@ -99,5 +99,4 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 
         return Generate(claims, TimeSpan.FromMinutes(jwtOptions.Value.TempTokenExpirationMinutes));
     }
-
 }

@@ -26,9 +26,9 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pagemModel, [FromQuery] GetCustomersRequest? model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? model, CancellationToken cancellationToken)
     {
-        var command = new GetCustomersQuery(pagemModel, model);
+        var command = new GetCustomersQuery(pageModel, model);
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(data);
         return Ok(response);

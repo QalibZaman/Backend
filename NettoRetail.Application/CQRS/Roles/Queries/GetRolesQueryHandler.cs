@@ -25,9 +25,7 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository)
             .Take(request.Model.PageSize)
             .Build()
             .AddInclude(r => r.Accounts);
-
-        var roles = await roleRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
-        var (items, totalAmount) = roles;
+        var (items, totalAmount) = await roleRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
 
         var responseCollection = items.Adapt<List<RoleResponse>>();
 

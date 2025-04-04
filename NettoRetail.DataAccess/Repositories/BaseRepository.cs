@@ -129,10 +129,10 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
         if (specification.Orderings != null && specification.Orderings.Any())
         {
-            var (Expr, IsDesc) = specification.Orderings.First();
-            var orderedQuery = IsDesc
-                ? query.OrderByDescending(Expr)
-                : query.OrderBy(Expr);
+            var (expr, isDesc) = specification.Orderings.First();
+            var orderedQuery = isDesc
+                ? query.OrderByDescending(expr)
+                : query.OrderBy(expr);
 
             foreach (var ordering in specification.Orderings.Skip(1))
             {

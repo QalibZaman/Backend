@@ -30,8 +30,7 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
 
         var specification = specificationBuilder.Build();
 
-        var customers = await customerRepository.GetAllPaginatedAsync(specification, cancellationToken);
-        var (items, totalAmount) = customers;
+        var (items, totalAmount) = await customerRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
         var mappedCustomers = items.Adapt<ICollection<CustomerResponse>>();
 

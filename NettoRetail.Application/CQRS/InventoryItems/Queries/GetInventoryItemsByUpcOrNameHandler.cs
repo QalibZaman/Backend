@@ -35,8 +35,7 @@ public class GetInventoryItemsByUpcOrNameQueryHandler(
 
         var specification = specificationBuilder.Take(searchOptionsValue.InventoryItemSearchSize).Build();
 
-        var inventoryiItems = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
-        var (items, _) = inventoryiItems;
+        var (items, _) = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
         var responseCollection = items.Adapt<List<InventoryItemListResponse>>();
 
         return responseCollection;
