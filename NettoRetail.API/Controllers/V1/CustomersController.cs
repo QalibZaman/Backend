@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
@@ -31,6 +32,16 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var command = new GetCustomersQuery(pageModel, model);
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(data);
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("{loyaltyId}")]
+    public async Task<IActionResult> GetCustomerInfo(string loyaltyId, CancellationToken cancellationToken)
+    {
+        var command = new GetCustomerInfoQuery(loyaltyId);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CustomerInfoResponse>(data);
         return Ok(response);
     }
 }
