@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
@@ -34,6 +35,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [Authorize]
     [HttpGet("{loyaltyId}")]
     public async Task<IActionResult> GetCustomerInfo(string loyaltyId, CancellationToken cancellationToken)
     {
