@@ -55,4 +55,14 @@ public class InventoryItemRepository(AppDbContext dbContext, IOptions<Pagination
 
         return result;
     }
+
+    public async IAsyncEnumerable<InventoryItemEntity> GetRangeByIdsAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    {
+        var queryable = _dbSet.Where(specification.Criteria);
+
+        await foreach (var item in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return item;
+        }
+    }
 }

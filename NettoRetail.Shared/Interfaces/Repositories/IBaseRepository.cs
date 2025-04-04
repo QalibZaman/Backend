@@ -18,4 +18,6 @@ public interface IBaseRepository<TEntity>
     Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task<int> GetAmountBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
+    Task UpdateBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+    Task<TEntity> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
 }

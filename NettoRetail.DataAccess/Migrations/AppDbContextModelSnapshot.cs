@@ -586,8 +586,20 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CustomerFirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CustomerLastName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("DeliveryType")
                         .IsRequired()
@@ -597,10 +609,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TotalProducts")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TotalQuantity")
+                    b.Property<int>("ShopId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

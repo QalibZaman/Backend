@@ -8,4 +8,5 @@ public interface IInventoryItemRepository : IBaseRepository<InventoryItemEntity>
     Task<ICollection<InventoryItemEntity>> GetPaginatedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
     Task<int> GetFilteredAmountAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
     Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken);
+    IAsyncEnumerable<InventoryItemEntity> GetRangeByIdsAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
 }

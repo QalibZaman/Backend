@@ -1,5 +1,5 @@
 ﻿namespace NettoRetail.Domain.Enums;
-public enum DeliveryTypeEnum
+public enum OrderDeliveryTypeEnum
 {
     Courier,
     SelfDelivery,

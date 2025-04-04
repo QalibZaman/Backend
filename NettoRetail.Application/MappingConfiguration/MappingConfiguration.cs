@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Order;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -44,5 +45,10 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ProductDetailsEntity, ProductDetailsResponse>()
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
+
+        config.NewConfig<CreateOrderModel, OrderEntity>()
+            .Map(dest => dest.CustomerFirstName, src => src.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Email);
     }
 }

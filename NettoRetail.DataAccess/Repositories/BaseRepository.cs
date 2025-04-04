@@ -110,4 +110,23 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
     }
+
+    public async Task UpdateBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    {
+        await _dbSet.BulkUpdateAsync(entities, cancellationToken);
+    }
+
+    public async Task<TEntity> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    {
+        var query = _dbSet.Where(specification.Criteria);
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        var response = await query.FirstOrDefaultAsync(cancellationToken);
+
+        return response!;
+    }
 }
