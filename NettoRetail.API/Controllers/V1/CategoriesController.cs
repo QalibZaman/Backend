@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
 using NettoRetail.Application.CQRS.Categories.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
 
@@ -17,11 +18,11 @@ namespace NettoRetail.API.Controllers.V1
     public class CategoriesController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetCategories([FromQuery]GetCategoriesRequest model, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel, [FromQuery]GetCategoriesRequest model, CancellationToken cancellationToken)
         {
-            var command = model.Adapt<GetCategoriesQuery>();
+            var query = new GetCategoriesQuery(pageModel, model.ShopId);
 
-            var response = await mediator.Send(command, cancellationToken);
+            var response = await mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }

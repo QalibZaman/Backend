@@ -7,6 +7,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.Application.CQRS.Roles.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -62,11 +63,11 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetRoles([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetRoles([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetRolesQuery(pageNumber, pageSize, shopId);
+        var query = new GetRolesQuery(model, shopId);
 
         var response = await mediator.Send(query, cancellationToken);
 

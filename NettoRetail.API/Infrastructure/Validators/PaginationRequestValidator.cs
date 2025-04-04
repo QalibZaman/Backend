@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using NettoRetail.Application.Models.Request.Category;
+using NettoRetail.Application.Models.Request;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class GetCategoriesRequestValidator : AbstractValidator<GetCategoriesRequest>
+public class PaginationRequestValidator : AbstractValidator<PaginationRequest>
 {
-    public GetCategoriesRequestValidator()
+    public PaginationRequestValidator()
     {
         RuleFor(model => model.PageNumber).GreaterThanOrEqualTo(0);
         RuleFor(model => model.PageSize).GreaterThanOrEqualTo(1);

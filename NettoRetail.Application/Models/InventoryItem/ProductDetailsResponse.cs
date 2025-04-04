@@ -1,5 +1,5 @@
-﻿using NettoRetail.API.Infrastructure.JsonConverters;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using NettoRetail.API.Infrastructure.JsonConverters;
 
 namespace NettoRetail.Application.Models.InventoryItem;
 public class ProductDetailsResponse

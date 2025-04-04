@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 
@@ -25,9 +26,9 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] GetCustomersRequest? model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? model, CancellationToken cancellationToken)
     {
-        var command = new GetCustomersQuery(model);
+        var command = new GetCustomersQuery(pageModel, model);
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(data);
         return Ok(response);
