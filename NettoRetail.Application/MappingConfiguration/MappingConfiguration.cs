@@ -2,12 +2,11 @@ using Mapster;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Application.Models.Order;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -49,6 +48,11 @@ public class MappingConfiguration : IRegister
         config.NewConfig<CreateOrderModel, OrderEntity>()
             .Map(dest => dest.CustomerFirstName, src => src.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Email);
+            .Map(dest => dest.CustomerEmail, src => src.Email)
+            .Map(dest => dest.DeliveryType, src => Enum.Parse<OrderDeliveryTypeEnum>(src.DeliveryType));
+
+        config.NewConfig<OrderEntity, OrderResponse>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
     }
 }

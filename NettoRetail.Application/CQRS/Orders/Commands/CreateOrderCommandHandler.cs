@@ -20,8 +20,7 @@ public class CreateOrderCommandHandler(
         ICustomerRepository customerRepository,
         IAccountRepository accountRepository,
         IInventoryItemRepository inventoryItemRepository,
-        IUnitOfWork unitOfWork
-        ) : IRequestHandler<CreateOrderCommand, OrderResponse>
+        IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand, OrderResponse>
 {
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -65,6 +64,7 @@ public class CreateOrderCommandHandler(
                 {
                     throw new ConflictException("This Email is taken.");
                 }
+
                 await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
                 var dataWithoutExistingCustomer = await AddOrderAsync(request, null, account!, itemsIdsQuantityDictionary, cancellationToken);
 

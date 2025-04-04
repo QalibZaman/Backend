@@ -24,7 +24,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var userShopId = HttpContext.GetUserShopId();
         var userId = HttpContext.GetUserId();
         var orderCreationCommand = new CreateOrderCommand(model, userShopId, userId);
-        
+
         var data = await mediator.Send(orderCreationCommand, cancellationToken);
         var response = new ApiResponse<OrderResponse>(data);
 
