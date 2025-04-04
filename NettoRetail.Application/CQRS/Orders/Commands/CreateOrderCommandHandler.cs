@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Response;
@@ -63,31 +62,36 @@ public class CreateOrderCommandHandler(
                 throw new ConflictException("This Email is taken.");
             }
 
-            var orderWithoutExistingCustomer = request.Model.Adapt<OrderEntity>();
-            orderWithoutExistingCustomer.ShopId = request.ShopId;
-            orderWithoutExistingCustomer.CustomerEmail = request.Model.Email;
-            orderWithoutExistingCustomer.CustomerFirstName = request.Model.FirstName;
-            orderWithoutExistingCustomer.CustomerLastName = request.Model.LastName;
-            orderWithoutExistingCustomer.Creator = $"{account!.FirstName} {account.LastName}";
-
-            var orderWithoutExistingCustomerItems = itemsIdsQuantityDictionary.Select(x => new OrderItemEntity { OrderId = orderWithoutExistingCustomer.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
-            orderWithoutExistingCustomer.OrderItems = orderWithoutExistingCustomerItems;
-
-            var resultWithoutExistingCustomer = await orderRepository.AddAsync(orderWithoutExistingCustomer, cancellationToken);
-            var dataWithoutExistingCustomer = resultWithoutExistingCustomer.Adapt<OrderResponse>();
+            var dataWithoutExistingCustomer = await AddOrderAsync(request, null, account!, itemsIdsQuantityDictionary, cancellationToken);
 
             return dataWithoutExistingCustomer;
         }
 
         var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
         var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no customer with such id.");
-        
+
+        var data = await AddOrderAsync(request, customer, account!, itemsIdsQuantityDictionary, cancellationToken);
+
+        return data;
+    }
+
+    private async Task<OrderResponse> AddOrderAsync(
+        CreateOrderCommand request,
+        CustomerEntity? customer,
+        AccountEntity account,
+        IDictionary<Guid, int> itemsIdsQuantityDictionary,
+        CancellationToken cancellationToken)
+    {
         var order = request.Model.Adapt<OrderEntity>();
         order.ShopId = request.ShopId;
-        order.CustomerEmail = customer.Account.Email;
-        order.CustomerFirstName = customer.Account.FirstName;
-        order.CustomerLastName = customer.Account.LastName;
-        order.Creator = $"{account!.FirstName} {account.LastName}";
+        order.Creator = $"{account.FirstName} {account.LastName}";
+
+        if (customer != null)
+        {
+            order.CustomerEmail = customer!.Account.Email;
+            order.CustomerFirstName = customer.Account.FirstName;
+            order.CustomerLastName = customer.Account.LastName;
+        }
 
         var orderItems = itemsIdsQuantityDictionary.Select(x => new OrderItemEntity { OrderId = order.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
         order.OrderItems = orderItems;
