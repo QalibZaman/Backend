@@ -2,12 +2,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -43,5 +45,15 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CustomerInfoResponse>(data);
         return Ok(response);
+    }
+
+    [Authorize]
+    [HttpPut("{loyaltyId}")]
+    public async Task<IActionResult> UpdateCustomer(string loyaltyId, [FromBody] UpdateCustomerRequest model, CancellationToken cancellationToken)
+    {
+        var command = new UpdateCustomerCommand(loyaltyId, model);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }
