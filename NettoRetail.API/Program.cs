@@ -30,9 +30,9 @@ app.UseTracing();
 app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
+app.UseSessionActivity();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSessionActivity();
 app.MapControllers();
 
 app.Run();

@@ -33,4 +33,13 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(data);
         return Ok(response);
     }
+
+    [HttpGet("{loyaltyId}")]
+    public async Task<IActionResult> GetCustomerInfo(string loyaltyId, CancellationToken cancellationToken)
+    {
+        var command = new GetCustomerInfoQuery(loyaltyId);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CustomerInfoResponse>(data);
+        return Ok(response);
+    }
 }

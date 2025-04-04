@@ -3,6 +3,7 @@ using NettoRetail.DataAccess.Context;
 using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 
@@ -32,8 +33,14 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var response = await _dbSet.Where(specification.Criteria)
-            .FirstOrDefaultAsync(cancellationToken);
+        var query = _dbSet.Where(specification.Criteria);
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        var response = await query.FirstOrDefaultAsync(cancellationToken);
 
         return response;
     }
