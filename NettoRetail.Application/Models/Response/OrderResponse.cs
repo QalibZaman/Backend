@@ -1,6 +1,4 @@
-﻿using NettoRetail.Domain.Enums;
-
-namespace NettoRetail.Application.Models.Response;
+﻿namespace NettoRetail.Application.Models.Response;
 
 public class OrderResponse
 {

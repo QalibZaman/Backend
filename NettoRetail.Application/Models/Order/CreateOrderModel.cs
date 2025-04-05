@@ -1,6 +1,4 @@
-﻿using NettoRetail.Domain.Enums;
-
-namespace NettoRetail.Application.Models.Order;
+﻿namespace NettoRetail.Application.Models.Order;
 
 public class CreateOrderModel
 {

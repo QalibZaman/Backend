@@ -616,7 +616,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("OrderEntity");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
