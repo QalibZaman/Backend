@@ -57,7 +57,7 @@ public class CreateOrderCommandHandler(
 
             if (request.Model.CustomerId == null)
             {
-                var accountByEmailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
+                var accountByEmailSpecification = new GetAccountByEmailSpecification(request.Model.CustomerEmail);
                 var isAccountEmailExists = await accountRepository.Exists(accountByEmailSpecification, cancellationToken);
 
                 if (isAccountEmailExists)

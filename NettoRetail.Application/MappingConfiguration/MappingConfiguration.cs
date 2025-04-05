@@ -46,9 +46,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
 
         config.NewConfig<CreateOrderModel, OrderEntity>()
-            .Map(dest => dest.CustomerFirstName, src => src.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Email)
             .Map(dest => dest.DeliveryType, src => Enum.Parse<OrderDeliveryTypeEnum>(src.DeliveryType));
 
         config.NewConfig<OrderEntity, OrderResponse>()
