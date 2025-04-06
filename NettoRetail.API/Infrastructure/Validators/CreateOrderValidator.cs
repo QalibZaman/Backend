@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Order;
-using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -34,14 +33,7 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderModel>
 
         RuleFor(x => x.DeliveryType)
             .NotNull().WithMessage("DeliveryType is required.")
-            .NotEmpty().WithMessage("DeliveryType is required.")
-            .Custom((value, context) =>
-            {
-                if (!Enum.TryParse<OrderDeliveryTypeEnum>(value, true, out var typeEnum))
-                {
-                    context.AddFailure("DeliveryType", "DeliveryType must be a valid enum.");
-                }
-            });
+            .IsInEnum().WithMessage("DeliveryType must be a valid type.");
 
         RuleFor(x => x.Products)
             .NotEmpty().WithMessage("Products data is required.")
