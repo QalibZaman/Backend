@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
 
 namespace NettoRetail.DataAccess.Context;
 
@@ -18,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<OrderEntity> Orders { get; set; }
+    public DbSet<OrderItemEntity> Order_Item { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
