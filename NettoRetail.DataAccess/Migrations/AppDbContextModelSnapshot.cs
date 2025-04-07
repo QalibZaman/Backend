@@ -586,20 +586,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("CustomerEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomerFirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CustomerId")
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("CustomerLastName")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("DeliveryType")
                         .IsRequired()
@@ -953,7 +941,9 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
                         .WithMany("Order")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Customer");
                 });

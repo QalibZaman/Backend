@@ -12,5 +12,5 @@ public class OrderResponse
     public required OrderDeliveryTypeEnum DeliveryType { get; set; }
     public required string Creator { get; set; }
     public required OrderStatusEnum OrderStatus { get; set; }
-    public Guid? CustomerId { get; set; }
+    public required Guid CustomerId { get; set; }
 }

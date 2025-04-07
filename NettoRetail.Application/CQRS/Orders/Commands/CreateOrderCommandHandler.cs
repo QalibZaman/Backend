@@ -53,31 +53,13 @@ public class CreateOrderCommandHandler(
             }
 
             var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
-            var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken);
-
-            if (request.Model.CustomerId == null)
-            {
-                var accountByEmailSpecification = new GetAccountByEmailSpecification(request.Model.CustomerEmail);
-                var isAccountEmailExists = await accountRepository.Exists(accountByEmailSpecification, cancellationToken);
-
-                if (isAccountEmailExists)
-                {
-                    throw new ConflictException("This Email is taken.");
-                }
-
-                await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
-                var dataWithoutExistingCustomer = await AddOrderAsync(request, null, account!, itemsIdsQuantityDictionary, cancellationToken);
-
-                transaction.Commit();
-
-                return dataWithoutExistingCustomer;
-            }
+            var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new MyUnauthorizedException("Account no found.");
 
             var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
             var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no customer with such id.");
 
             await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
-            var data = await AddOrderAsync(request, customer, account!, itemsIdsQuantityDictionary, cancellationToken);
+            var data = await AddOrderAsync(request, customer, account, itemsIdsQuantityDictionary, cancellationToken);
 
             transaction.Commit();
 
@@ -92,7 +74,7 @@ public class CreateOrderCommandHandler(
 
     private async Task<OrderResponse> AddOrderAsync(
         CreateOrderCommand request,
-        CustomerEntity? customer,
+        CustomerEntity customer,
         AccountEntity account,
         IDictionary<Guid, int> itemsIdsQuantityDictionary,
         CancellationToken cancellationToken)
@@ -101,18 +83,14 @@ public class CreateOrderCommandHandler(
         order.ShopId = request.ShopId;
         order.Creator = $"{account.FirstName} {account.LastName}";
 
-        if (customer != null)
-        {
-            order.CustomerEmail = customer!.Account.Email;
-            order.CustomerFirstName = customer.Account.FirstName;
-            order.CustomerLastName = customer.Account.LastName;
-        }
-
         var orderItems = itemsIdsQuantityDictionary.Select(x => new OrderItemEntity { OrderId = order.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
         order.OrderItems = orderItems;
 
         var result = await orderRepository.AddAsync(order, cancellationToken);
         var data = result.Adapt<OrderResponse>();
+        data.CustomerEmail = customer.Account.Email;
+        data.CustomerFirstName = customer.Account.FirstName;
+        data.CustomerLastName = customer.Account.LastName;
 
         return data;
     }
