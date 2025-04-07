@@ -395,6 +395,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LoyaltyId")
                         .HasColumnType("text");
 
@@ -402,10 +405,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("AccountId");
