@@ -10,9 +10,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<CustomerEntity>
     {
         builder.HasKey(x => x.AccountId);
 
-        builder.Property(x => x.Status)
-            .HasConversion<string>();
-
         builder.HasOne(x => x.Account)
             .WithOne()
             .HasForeignKey<CustomerEntity>(x => x.AccountId)
