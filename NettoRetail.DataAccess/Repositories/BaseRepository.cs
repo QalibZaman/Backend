@@ -19,15 +19,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _dbSet.AddAsync(entity, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            return entity;
-        }
-        catch(Exception ex) {
-            throw;
-        }
+        await _dbSet.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity;
     }
 
     public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken)

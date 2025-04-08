@@ -87,7 +87,7 @@ namespace NettoRetail.Tests.IntegrationTests
             {
                 Name = "Outdoorz",
                 URL = "outdoorz",
-                ParentId = 1,
+                ParentId = null,
                 ShopId = 1,
                 Visibility = true,
             };
@@ -244,51 +244,7 @@ namespace NettoRetail.Tests.IntegrationTests
                 };
                 var categories = new List<CategoryEntity>
                 {
-                    // First category tree
-                    new CategoryEntity
-                    {
-                        Id = 1,
-                        Name = "Electronics",
-                        URL = "electronics",
-                        Visibility = true,
-                        Level = 1,
-                        ParentId = null,
-                        ShopId = 1,
-                        Shop = null
-                    },
-                    new CategoryEntity
-                    {
-                        Id = 2,
-                        Name = "Computers",
-                        URL = "electronics/computers",
-                        Visibility = true,
-                        Level = 2,
-                        ParentId = 1,
-                        ShopId = 1,
-                        Shop = null
-                    },
-                    new CategoryEntity
-                    {
-                        Id = 3,
-                        Name = "Laptops",
-                        URL = "electronics/computers/laptops",
-                        Visibility = true,
-                        Level = 3,
-                        ParentId = 2,
-                        ShopId = 1,
-                        Shop = null
-                    },
-                    new CategoryEntity
-                    {
-                        Id = 4,
-                        Name = "Desktops",
-                        URL = "electronics/computers/desktops",
-                        Visibility = true,
-                        Level = 3,
-                        ParentId = 2,
-                        ShopId = 1,
-                       Shop = null
-                    },
+                    // First category tree      
                     new CategoryEntity
                     {
                         Id = 5,
@@ -296,9 +252,9 @@ namespace NettoRetail.Tests.IntegrationTests
                         URL = "electronics/mobile",
                         Visibility = true,
                         Level = 2,
-                        ParentId = 1,
+                        ParentId = null,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -309,7 +265,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 5,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -320,7 +276,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 5,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
 
                     // Second category tree
@@ -333,7 +289,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 1,
                         ParentId = null,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -344,7 +300,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 2,
                         ParentId = 8,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -355,7 +311,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 9,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -366,7 +322,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 9,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -377,7 +333,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 2,
                         ParentId = 8,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -388,7 +344,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 12,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     },
                     new CategoryEntity
                     {
@@ -399,7 +355,7 @@ namespace NettoRetail.Tests.IntegrationTests
                         Level = 3,
                         ParentId = 12,
                         ShopId = 1,
-                        Shop = null
+                        Shop = shops[0]
                     }
                 };
 
@@ -431,8 +387,8 @@ namespace NettoRetail.Tests.IntegrationTests
                 }
                };
 
-               dbContext.Categories.AddRange(categories);
-               dbContext.Accounts.AddRange(accounts);
+                dbContext.Categories.AddRange(categories);
+                dbContext.Accounts.AddRange(accounts);
                 dbContext.Shops.AddRange(shops);
 
                 dbContext.SaveChanges();

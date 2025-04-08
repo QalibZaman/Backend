@@ -12,10 +12,15 @@ namespace NettoRetail.Infrastructure.Services
         public async Task<string> RenderEmailTemplateAsync(string templatePath, object model)
         {
             var fullPath = Path.Combine(_templateFolderPath, templatePath);
-
-            var templateText = await File.ReadAllTextAsync(fullPath);
-            var template = Template.Parse(templateText);
-            return await template.RenderAsync(model);
+            try
+            {
+                var templateText = await File.ReadAllTextAsync(fullPath);
+                var template = Template.Parse(templateText);
+                return await template.RenderAsync(model);
+            }
+            catch(Exception ex){
+                throw;
+            }
         }
     }
 }
