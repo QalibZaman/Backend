@@ -10,7 +10,7 @@
         public int? ParentId { get; set; }
         public required int ShopId { get; set; }
 
-        public required ShopEntity Shop { get; set; }
+        public ShopEntity? Shop { get; set; }
         public CategoryEntity? ParentCategory { get; set; }
         public ICollection<InventoryItemEntity> InventoryItems { get; set; } = new List<InventoryItemEntity>();
     }
