@@ -20,7 +20,6 @@ public static class ServiceExtensions
 
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
-        services.Configure<EmailTemplateOptions>(configuration.GetSection("EmailTemplateOptions"));
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
