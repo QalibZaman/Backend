@@ -139,7 +139,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
         
         var item = await response.Content.ReadFromJsonAsync<ApiResponse<InventoryItemResponse>>();
 
-        var model = new UpdateInventoryItemModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = 123456789123, };
+        var model = new UpdateInventoryItemModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = 123456789123 };
 
         var itemsResponse = await _client.PatchAsJsonAsync($"api/v1/inventory-items/{item.Data.Id}", model);
 

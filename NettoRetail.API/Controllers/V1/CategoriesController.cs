@@ -3,6 +3,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
 using NettoRetail.Application.CQRS.Categories.Queries;
@@ -52,7 +53,8 @@ namespace NettoRetail.API.Controllers.V1
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<UpdateCategoryCommand>();
-            command = command with { Id = id };
+            var shopId = HttpContext.GetUserShopId();
+            command = command with { Id = id, ShopId = shopId };
 
             var response = await mediator.Send(command, cancellationToken);
 
