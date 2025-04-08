@@ -40,8 +40,10 @@ public class UpdateStaffCommandHandler(
         if (request.Model.RoleId != null)
         {
             var roleSpec = new GetRoleByIdSpecification(request.Model.RoleId, request.ShopId);
-            _ = await roleRepository.GetAsync(roleSpec, cancellationToken)
-                ?? throw new NotFoundException("Role not found.");
+            var role = await roleRepository.GetAsync(roleSpec, cancellationToken);
+
+            if (role is null)
+                throw new NotFoundException("Role not found.");
         }
 
         // begin transaction to ensure atomicity between status update, session termination, and staff data changes.

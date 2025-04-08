@@ -7,6 +7,21 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
 {
     public UpdateInventoryItemValidator()
     {
+        RuleFor(x => x)
+            .Must(model =>
+                model.ProductName != null ||
+                model.CategoryId != null ||
+                model.ProductUpc != null ||
+                model.Description != null ||
+                model.IsActive.HasValue ||
+                model.AvailableAmount.HasValue ||
+                model.ReservedAmount.HasValue ||
+                model.OnHandAmount.HasValue ||
+                model.Price.HasValue ||
+                model.PromotionPrice.HasValue ||
+                model.IsPromoted.HasValue)
+            .WithMessage("At least one field must be provided to update the inventory item.");
+
         RuleFor(x => x.ProductName)
             .NotEmpty().WithMessage("Product name is required.")
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")

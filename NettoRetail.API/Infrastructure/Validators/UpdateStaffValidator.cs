@@ -7,6 +7,15 @@ public class UpdateStaffValidator : AbstractValidator<UpdateStaffRequest>
 {
     public UpdateStaffValidator()
     {
+        RuleFor(x => x)
+            .Must(model =>
+                model.FirstName != null ||
+                model.LastName != null ||
+                model.Email != null ||
+                model.RoleId != null ||
+                model.IsActive.HasValue)
+            .WithMessage("At least one field must be provided to update.");
+
         RuleFor(x => x.FirstName)
             .MinimumLength(2).WithMessage("First name must be at least 2 characters.")
             .MaximumLength(30).WithMessage("First name must be no more than 30 characters.")
