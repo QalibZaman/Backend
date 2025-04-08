@@ -26,7 +26,7 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
             if(conflictModel != null)
             {
-                throw new ConflictException("Category with such name or url is already exist");
+                throw new ConflictException("Category with such name or url already exists");
             }
 
             //UpdateCategoryLevel recursively updates category levels. It updates categories until it hits MAX_LEVEL, throwing an exception only then. If all updates succeed, commit; if an exception occurs, rollback.
