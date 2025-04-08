@@ -168,7 +168,7 @@ public class StaffController(
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetStaffById(Guid id, CancellationToken cancellationToken)
     {
@@ -181,7 +181,7 @@ public class StaffController(
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request, CancellationToken cancellationToken)
     {
@@ -195,7 +195,7 @@ public class StaffController(
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> EditStaff(Guid id, [FromBody] UpdateStaffRequest request, CancellationToken cancellationToken)
     {
@@ -208,7 +208,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("{id:guid}/reset-password")]
     public async Task<IActionResult> ResetStaffPassword(Guid id, CancellationToken cancellationToken)
     {
@@ -220,7 +220,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
     {
