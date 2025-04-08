@@ -7,6 +7,7 @@ public interface IJwtManager
 {
     string Generate(List<Claim> claims, TimeSpan expiration);
     ClaimsPrincipal? Validate(string refreshToken);
+    ClaimsPrincipal ValidateResetToken(string resetToken);
     string GenerateTempToken(string userId);
 
     TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId);

@@ -4,4 +4,5 @@ public static class AuthTokenTypes
 {
     public const string Access = "access";
     public const string Temp = "temp";
+    public const string Reset = "reset";
 }

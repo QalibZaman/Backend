@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
+using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 
@@ -10,7 +12,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 {
     protected readonly DbSet<TEntity> _dbSet;
     protected readonly AppDbContext _dbContext;
-
     protected BaseRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -32,8 +33,14 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<TEntity?> GetAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var response = await _dbSet.Where(specification.Criteria)
-            .FirstOrDefaultAsync(cancellationToken);
+        var query = _dbSet.Where(specification.Criteria);
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        var response = await query.FirstOrDefaultAsync(cancellationToken);
 
         return response;
     }
@@ -109,6 +116,48 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     public async Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
+    }
+
+    public async Task<(ICollection<TEntity> Items, int TotalCount)> GetAllPaginatedAsync(
+            Specification<TEntity> specification,
+            CancellationToken cancellationToken)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        if (specification.Orderings != null && specification.Orderings.Any())
+        {
+            var (expr, isDesc) = specification.Orderings.First();
+            var orderedQuery = isDesc
+                ? query.OrderByDescending(expr)
+                : query.OrderBy(expr);
+
+            foreach (var ordering in specification.Orderings.Skip(1))
+            {
+                orderedQuery = ordering.IsDesc
+                    ? orderedQuery.ThenByDescending(ordering.Expr)
+                    : orderedQuery.ThenBy(ordering.Expr);
+            }
+
+            query = orderedQuery;
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        query = query.ApplyPagination(specification);
+
+        var items = await query.ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task UpdateBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)

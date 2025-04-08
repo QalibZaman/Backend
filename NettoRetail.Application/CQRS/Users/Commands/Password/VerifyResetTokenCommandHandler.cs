@@ -17,7 +17,7 @@ public class VerifyResetTokenCommandHandler(IJwtManager jwtManager)
 
         try
         {
-            _ = jwtManager.Validate(request.Token);
+            _ = jwtManager.ValidateResetToken(request.Token);
         }
         catch (SecurityTokenExpiredException)
         {

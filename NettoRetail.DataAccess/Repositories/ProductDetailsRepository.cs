@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Domain.Entities;
@@ -45,6 +46,32 @@ public class ProductDetailsRepository : IProductDetailsRepository
             id,
             new PartitionKey(partitionKey),
             cancellationToken: cancellationToken);
+    }
+
+    public async Task ExecuteUpdatingTransactionalBatchAsync(
+            string partitionKey,
+            ICollection<ProductDetailsEntity> entitiesToUpsert,
+            ICollection<string> idsToDelete,
+            CancellationToken cancellationToken = default)
+    {
+        var batch = _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+
+        foreach (var entity in entitiesToUpsert)
+        {
+            batch.UpsertItem(entity);
+        }
+
+        foreach (var id in idsToDelete)
+        {
+            batch.DeleteItem(id);
+        }
+
+        var response = await batch.ExecuteAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Transaction failed with status code {response.StatusCode}");
+        }
     }
 
     public async Task<IEnumerable<ProductDetailsEntity>> GetAllByPartitionKeyAsync(string partitionKey, CancellationToken cancellationToken = default)

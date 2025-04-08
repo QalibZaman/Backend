@@ -7,6 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -15,7 +16,7 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/inventory-items")]
-public class InventoryItemsController(IMediator mediator, IAuthorizationService authorizationService) : ControllerBase
+public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{id}")]
@@ -108,15 +109,17 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageNumber, pageSize);
+        var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageModel);
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
-        return Ok(data);
+        var response = new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(data);
+
+        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
@@ -129,6 +132,8 @@ public class InventoryItemsController(IMediator mediator, IAuthorizationService 
 
         var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
 
-        return Ok(data);
+        var response = new ApiResponse<IEnumerable<InventoryItemListResponse>>(data);
+
+        return Ok(response);
     }
 }

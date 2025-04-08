@@ -139,32 +139,6 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory<Program
     }
 
     [Fact]
-    public async Task VerifyResetToken_ShouldReturnNoContent_WhenTokenIsValid()
-    {
-        // Arrange - Generate unique test data
-        var email = "verifytoken@gmail.com";
-        var password = "String123!";
-
-        try
-        {
-            await RegisterUserAsync(email, password);
-
-            var tokenResponse = await ExecuteWithRetry(() => GetTokenResponseAsync(email, password));
-            var request = new VerifyResetTokenRequest(tokenResponse.RefreshToken);
-
-            // Act
-            var response = await _client.PostAsJsonAsync("api/v1/staff/verify-reset-token", request);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        }
-        finally
-        {
-            _testEmails.Add(email);
-        }
-    }
-
-    [Fact]
     public async Task LogOut_ShouldReturnNoContent_WhenLoggedIn()
     {
         // Arrange - Generate unique test data

@@ -28,7 +28,7 @@ public class CreateRoleCommandHandler(IPermissionRepository permissionRepository
 
         var validPermissions = await permissionRepository.GetIdsBySpecAsync(validPermissionsSpecification, cancellationToken);
 
-        if (request.PermissionIds.Count() > validPermissions.Count())
+        if (request.PermissionIds.Count() > validPermissions.Count() || validPermissions.Count() == 0)
         {
             throw new BadRequestException("Some of the permissions doesn't exist, please provide right permissions");
         }
