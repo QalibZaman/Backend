@@ -19,7 +19,7 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository)
         var specificationBuilder = new SpecificationBuilder<RoleEntity>();
         var getSpecification = specificationBuilder
             .Add<GetRolesByShopIdSpecification>(request.ShopId)
-            .Skip(request.PageNumber * request.PageSize)
+            .Skip((request.PageNumber-1) * request.PageSize)
             .Take(request.PageSize)
             .Build()
             .AddInclude(r => r.Accounts);

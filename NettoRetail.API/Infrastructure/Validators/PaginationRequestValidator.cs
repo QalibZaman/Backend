@@ -7,7 +7,7 @@ public class PaginationRequestValidator : AbstractValidator<PaginationRequest>
 {
     public PaginationRequestValidator()
     {
-        RuleFor(model => model.PageNumber).GreaterThanOrEqualTo(0);
+        RuleFor(model => model.PageNumber).GreaterThanOrEqualTo(1);
         RuleFor(model => model.PageSize).GreaterThanOrEqualTo(1);
     }
 }

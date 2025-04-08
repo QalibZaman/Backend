@@ -16,7 +16,7 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) :
     public async Task<GetCategoriesResponse> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<CategoryEntity>();
-        var skip = request.Model.PageNumber * request.Model.PageSize;
+        var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
 
         var getSpecification = specificationBuilder
             .Add<GetCategoriesByShopIdSpecification>(request.ShopId)
