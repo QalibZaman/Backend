@@ -25,6 +25,12 @@
     <ProjectReference Include="..\NettoRetail.Domain\NettoRetail.Domain.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+        <None Update="..\src\NettoRetail.Infrastructure\EmailTemplates\**\*.*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>

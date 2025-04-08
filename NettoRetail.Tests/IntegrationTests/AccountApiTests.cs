@@ -11,6 +11,7 @@ using NettoRetail.Application.Models.Request.Token;
 using System.Net.Http.Headers;
 using NettoRetail.Application.Models.TwoFactorAuth;
 using NettoRetail.Application.Models.Request.Password;
+using System;
 
 namespace NettoRetail.Tests.Integrationtests;
 
@@ -244,6 +245,35 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory<Program
 
             // Act
             var response = await _client.PostAsJsonAsync("api/v1/staff/reset-password", request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+        finally
+        {
+            _testEmails.Add(email);
+        }  
+    }
+
+    [Fact]
+    public async Task ChangePassword_ShouldReturnNoContent_WhenRequestIsValid()
+    {
+        // Arrange
+        var email = "new@gmail.com";
+        var oldPassword = "OldOne123!";
+        var newPassword = "NewOne123!";
+
+        try
+        {
+            var tokenResponse = await RegisterUserAsync(email, oldPassword);
+
+            var request = new ChangePasswordRequest(oldPassword, newPassword, newPassword);
+
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            // Act
+            var response = await _client.PutAsJsonAsync("api/v1/staff/change-password", request);
 
             // Assert
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.API.Controllers.V1;
+using NettoRetail.Application.CQRS.InventoryItems.Commands;
+using NettoRetail.Application.Models.InventoryItem;
 
 
 namespace NettoRetail.Tests.IntegrationTests;
@@ -35,6 +37,62 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
     }
 
     [Fact]
+    public async Task AddInventoryItems_ShouldReturnCreated_HasValidData()
+    {
+        // Arrange
+        var email = "stringa@gmail.com";
+        var password = "Stringa1234!";
+
+        // Act
+        var tokenResponse = await GetTokenResponseAsync(email, password);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+        var request = new AddInventoryItemModel
+        {
+            ProductName = "Newproduct",
+            Description = "NewProduct",
+            CategoryId = 1,
+            Price = 123,
+            ProductUpc = 123456789123
+        };
+
+        var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddInventoryItems_ShouldReturnBadRequest_HasInvalidData()
+    {
+        // Arrange
+        var email = "stringa@gmail.com";
+        var password = "Stringa1234!";
+
+        // Act
+        var tokenResponse = await GetTokenResponseAsync(email, password);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+        var request = new AddInventoryItemModel
+        {
+            ProductName = "New  product",
+            Description = "NewProduct",
+            CategoryId = 1,
+            Price = 123,
+            ProductUpc = 123456789123
+        };
+
+        var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetFilteredInventoryItems_ShouldReturnUnauthorized_WhenAccountHasNoShop()
     {
         // Arrange
@@ -53,6 +111,40 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
 
         // Assert
         Assert.Equal(HttpStatusCode.Forbidden, itemsResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateInventoryItem_ShouldReturnSuccess_WhenDataIsValid()
+    {
+        // Arrange
+        var email = "stringa@gmail.com";
+        var password = "Stringa1234!";
+
+        // Act
+        var tokenResponse = await GetTokenResponseAsync(email, password);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+        var request = new AddInventoryItemModel
+        {
+            ProductName = "Newproduct",
+            Description = "NewProduct",
+            CategoryId = 1,
+            Price = 123,
+            ProductUpc = 123456789123
+        };
+
+        var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
+        
+        var item = await response.Content.ReadFromJsonAsync<ApiResponse<InventoryItemResponse>>();
+
+        var model = new UpdateInventoryItemGeneralInfoModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = 123456789123 };
+
+        var itemsResponse = await _client.PatchAsJsonAsync($"api/v1/inventory-items/{item.Data.Id}", model);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
     }
 
     [Fact]
@@ -123,6 +215,26 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
 
         var sortedNames = paginatedResponse.Items.Select(i => i.ProductName).OrderByDescending(n => n).ToList();
         Assert.Equal(sortedNames, paginatedResponse.Items.Select(i => i.ProductName).ToList());
+    }
+
+    [Fact]
+    public async Task DownloadInventoryItems_ShouldReturnFile_WhenDataIsNotEmpty()
+    {
+        // Arrange
+        var email = "stringaaaa@gmail.com";
+        var password = "Stringaaaa1234!";
+
+        // Act
+        var tokenResponse = await GetTokenResponseAsync(email, password);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+        var itemsResponse = await _client.GetAsync("api/v1/inventory-items/csv-file");
+
+        // Assert
+        itemsResponse.EnsureSuccessStatusCode();
+        Assert.NotNull(itemsResponse);
     }
 
     [Fact]
