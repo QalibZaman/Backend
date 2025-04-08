@@ -18,7 +18,7 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
     public async Task<PaginatedResponse<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
-        var skip = request.PageModel.PageNumber * request.PageModel.PageSize;
+        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
 
         specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
                 .Add<GetCustomerByNameSpecification>(request.Model?.Name)

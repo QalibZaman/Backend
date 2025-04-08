@@ -17,7 +17,7 @@ public class GetStaffListQueryHandler(IAccountRepository accountRepository)
     public async Task<PaginatedResponse<StaffListResponse>> Handle(GetStaffListQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<AccountEntity>();
-        var skip = request.Model.PageNumber * request.Model.PageSize;
+        var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
         var getSpecification = specificationBuilder
             .Add<GetAccountsByShopIdSpecification>(request.ShopId)
             .Skip(skip)
