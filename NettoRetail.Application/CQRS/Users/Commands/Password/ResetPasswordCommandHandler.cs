@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 
@@ -38,6 +39,13 @@ public class ResetPasswordCommandHandler(
         }
 
         user.PasswordHash = PasswordHasher.HashPassword(request.Model.NewPassword);
+        user.PasswordUpdatedAt = DateTime.UtcNow;
+
+        if (user.Status == StaffStatusEnum.CreatePassword)
+        {
+            user.Status = StaffStatusEnum.Offline;
+        }
+
         await accountRepository.UpdateAsync(user, cancellationToken);
     }
 }
