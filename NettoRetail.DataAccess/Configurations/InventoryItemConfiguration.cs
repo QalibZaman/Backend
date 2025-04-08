@@ -38,5 +38,9 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(p => p.ProductLocation).HasMaxLength(100);
 
         builder.Property(p => p.Status).HasConversion<string>();
+
+        builder.HasMany(p => p.OrderItems)
+            .WithOne(p => p.InventoryItem)
+            .HasForeignKey(p => p.ItemId);
     }
 }

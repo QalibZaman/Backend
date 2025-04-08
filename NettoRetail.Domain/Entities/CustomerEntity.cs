@@ -10,4 +10,6 @@ public class CustomerEntity
     public string? LoyaltyId { get; set; }
     public string? Remarks { get; set; }
     public string? PhoneNumber { get; set; }
+
+    public ICollection<OrderEntity>? Order { get; set; }
 }
