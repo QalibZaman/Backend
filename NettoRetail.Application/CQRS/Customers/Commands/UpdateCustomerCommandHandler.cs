@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Services.ICountryValidationService;
@@ -19,6 +20,7 @@ public class UpdateCustomerCommandHandler(
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
     ICountryRepository countryRepository,
+    ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork) : IRequestHandler<UpdateCustomerCommand>
 {
     public async Task Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
@@ -57,6 +59,7 @@ public class UpdateCustomerCommandHandler(
 
         try
         {
+            await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
             await accountRepository.UpdateAsync(account, cancellationToken);
             await customerRepository.UpdateAsync(customer, cancellationToken);
             transaction.Commit();
