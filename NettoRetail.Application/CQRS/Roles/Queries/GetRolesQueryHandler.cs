@@ -18,7 +18,7 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository)
     public async Task<PaginatedResponse<RoleResponse>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<RoleEntity>();
-        var skip = (request.Model.PageNumber-1) * request.Model.PageSize;
+        var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
         var getSpecification = specificationBuilder
             .Add<GetRolesByShopIdSpecification>(request.ShopId)
             .Skip(skip)
