@@ -20,6 +20,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<OrderEntity> Orders { get; set; }
     public DbSet<OrderItemEntity> Order_Item { get; set; }
+    public DbSet<OrderStatusHistoryEntity> OrderStatusHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
