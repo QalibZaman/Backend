@@ -76,7 +76,7 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> EditInventoryItem(int id, UpdateRoleRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> EditRole(int id, UpdateRoleRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
