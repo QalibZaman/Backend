@@ -22,7 +22,7 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetFilteredInventoryItemsQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
-        var skip = request.PageModel.PageNumber * request.PageModel.PageSize;
+        var skip = (request.PageModel.PageNumber-1) * request.PageModel.PageSize;
 
         specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
             .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
