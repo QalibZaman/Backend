@@ -111,7 +111,7 @@ namespace NettoRetail.Tests.IntegrationTests
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-            var itemsResponse = await _client.DeleteAsync("api/v1/categories/1");
+            var itemsResponse = await _client.DeleteAsync("api/v1/categories/5");
 
             // Asserts
             Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
@@ -156,14 +156,14 @@ namespace NettoRetail.Tests.IntegrationTests
                 ParentId = null,
                 Visibility = true
             };
-            var itemsResponse = await _client.PatchAsJsonAsync("api/v1/categories/1", model );
+            var itemsResponse = await _client.PatchAsJsonAsync("api/v1/categories/5", model );
 
             // Asserts
             Assert.Equal(HttpStatusCode.OK, itemsResponse.StatusCode);
         }
 
         [Fact]
-        public async Task UpdateCategory_ShouldReturnBadRequest_HasInvalidData()
+        public async Task UpdateCategory_ShouldReturnNotFound_HasInvalidData()
         {
             // Arrange
             var email = "stringaa@gmail.com"; //not allowed to edit first shopid category
@@ -185,7 +185,7 @@ namespace NettoRetail.Tests.IntegrationTests
             var itemsResponse = await _client.PatchAsJsonAsync("api/v1/categories/1", model);
 
             // Asserts
-            Assert.Equal(HttpStatusCode.OK, itemsResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, itemsResponse.StatusCode);
         }
 
 
