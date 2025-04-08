@@ -10,14 +10,14 @@ using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
 [ApiController]
-public class RolesController(IRoleRepository roleRepository, IMediator mediator) : ControllerBase
+public class RolesController(IMediator mediator) : ControllerBase
 {
     [Authorize]
     [HttpPost]
@@ -72,5 +72,17 @@ public class RolesController(IRoleRepository roleRepository, IMediator mediator)
         var response = await mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<RoleResponse>>(response));
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> EditRole(int id, UpdateRoleRequest model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
+
+        await mediator.Send(roleUpdateCommand, cancellationToken);
+
+        return NoContent();
     }
 }
