@@ -4,6 +4,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
@@ -28,6 +29,11 @@ public class LoginCommandHandler(IAccountRepository repository,
         if (loginAttemptService.IsAccountLocked(loginAttempt!))
         {
             throw new MyUnauthorizedException("Account is locked. Try again later.");
+        }
+
+        if (user.Status == StaffStatusEnum.Deactivated)
+        {
+            throw new MyUnauthorizedException("Your account has been deactivated.");
         }
 
         if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
