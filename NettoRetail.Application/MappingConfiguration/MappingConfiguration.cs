@@ -66,8 +66,6 @@ public class MappingConfiguration : IRegister
             .IgnoreNullValues(true);
 
         config.NewConfig<UpdateOrderModel, OrderEntity>()
-            .Map(dest => dest.DeliveryType, src =>
-                string.IsNullOrEmpty(src.DeliveryType) ? null : (OrderDeliveryTypeEnum?)Enum.Parse<OrderDeliveryTypeEnum>(src.DeliveryType))
             .IgnoreNullValues(true);
     }
 }

@@ -9,9 +9,6 @@ public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderModel>
 {
     public UpdateOrderModelValidator()
     {
-        RuleFor(x => x.DeliveryType)
-            .MustBeAValidDeliveryType().WithMessage("Delivery type must be valid");
-
         RuleFor(x => x.ItemsToUpsert)
             .Must(dict => !dict.IsNullOrEmpty() && dict.All(kv => kv.Value > 0))
             .WithMessage("All item quantities must be greater than 0.");

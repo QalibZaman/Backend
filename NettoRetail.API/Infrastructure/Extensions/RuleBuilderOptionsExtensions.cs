@@ -34,14 +34,4 @@ public static class RuleBuilderOptionsExtensions
             return Enum.TryParse(typeof(ProductDetailUnitEnum), unit, true, out _);
         });
     }
-    public static IRuleBuilderOptions<T, string?> MustBeAValidDeliveryType<T>(this IRuleBuilder<T, string?> ruleBuilder)
-    {
-        return ruleBuilder.Must(type =>
-        {
-            if (string.IsNullOrEmpty(type))
-                return true;
-
-            return Enum.TryParse(typeof(OrderDeliveryTypeEnum), type, true, out _);
-        });
-    }
 }
