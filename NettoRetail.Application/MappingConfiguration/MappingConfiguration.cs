@@ -54,6 +54,11 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.LastName, src => src.Account.LastName)
             .Map(dest => dest.Email, src => src.Account.Email);
 
+        config.NewConfig<OrderEntity, OrderResponse>()
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+
         config.NewConfig<UpdateCustomerRequest, CustomerEntity>()
             .IgnoreNullValues(true);
 

@@ -8,6 +8,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Orders.Commands;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -29,5 +30,16 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<OrderResponse>(data);
 
         return Created(string.Empty, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("status")]
+    public async Task<IActionResult> ChangeOrderStatus(int orderId, OrderStatusEnum status, CancellationToken cancellationToken)
+    {
+        var command = new UpdateOrderStatusCommand(orderId, status);
+        var data = await mediator.Send(command);
+        var response = new ApiResponse<OrderResponse>(data);
+
+        return Ok(response);
     }
 }
