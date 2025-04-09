@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Order;
 
@@ -12,7 +13,7 @@ public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderModel>
             .MustBeAValidDeliveryType().WithMessage("Delivery type must be valid");
 
         RuleFor(x => x.ItemsToUpsert)
-            .Must(dict => dict != null && dict.All(kv => kv.Value > 0))
+            .Must(dict => !dict.IsNullOrEmpty() && dict.All(kv => kv.Value > 0))
             .WithMessage("All item quantities must be greater than 0.");
     }
 }
