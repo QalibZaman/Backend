@@ -612,6 +612,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
                     b.Property<int>("NewStatus")
                         .HasColumnType("integer");
 
