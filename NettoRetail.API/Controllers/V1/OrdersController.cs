@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -29,5 +28,18 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<OrderResponse>(data);
 
         return Created(string.Empty, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("{orderId:int}")]
+    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] UpdateOrderModel model, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+        var userId = HttpContext.GetUserId();
+        var command = new UpdateOrderCommand(model, userShopId, userId, orderId);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }
