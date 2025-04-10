@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -29,8 +29,6 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }
 
-        [RequiresPermission("System settings")]
-        [RequiresPermission("Customers management")]
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
