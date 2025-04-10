@@ -7,8 +7,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration));
+//builder.Host.UseSerilog((context, configuration) =>
+   // configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication();
@@ -37,7 +37,7 @@ var app = builder.Build();
 app.UseCors("CorsPolicy");
 app.Migrate();
 app.UseTracing();
-app.UseSerilogRequestLogging();
+//app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();
