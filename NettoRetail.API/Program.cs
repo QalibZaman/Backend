@@ -6,6 +6,7 @@ using NettoRetail.Shared.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+const string policyName = "AllowAnyOrigin";
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -20,20 +21,26 @@ builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+
+
+builder.Services.AddCors(options =>
 {
-    policy.AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
-}));
+    options.AddPolicy(policyName,
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
 
 //For countries
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors(policyName);
 app.Migrate();
 app.UseTracing();
 app.UseSerilogRequestLogging();
