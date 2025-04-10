@@ -18,5 +18,8 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
     </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="EmailTemplates\**\*.html" />
+	</ItemGroup>
 
 </Project>
