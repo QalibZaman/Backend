@@ -30,6 +30,7 @@ app.UseTracing();
 app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSessionActivity();

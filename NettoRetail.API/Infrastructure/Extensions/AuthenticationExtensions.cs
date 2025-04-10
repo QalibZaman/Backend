@@ -14,6 +14,14 @@ public static class AuthenticationExtensions
 {
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection services)
     {
+        services.AddCors(options =>
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net")
+                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH");
+            }));
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(AuthSchemes.Default, options =>
             {
