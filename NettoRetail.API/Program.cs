@@ -21,16 +21,15 @@ builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
-
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(policyName,
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
