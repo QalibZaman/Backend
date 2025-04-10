@@ -33,6 +33,7 @@ app.UseConfiguredSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSessionActivity();
+app.UsePermissionHandling();
 app.MapControllers();
 
 app.Run();

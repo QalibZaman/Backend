@@ -3,6 +3,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Categories.Commands;
@@ -28,6 +29,8 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }
 
+        [RequiresPermission("System settings")]
+        [RequiresPermission("Customers management")]
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
