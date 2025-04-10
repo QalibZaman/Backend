@@ -22,22 +22,19 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
+    options.AddPolicy(
+        "CorsPolicy",
+        policy => policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials());
 });
 
-//For countries
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("CorsPolicy");
 app.Migrate();
 app.UseTracing();
 app.UseSerilogRequestLogging();
