@@ -21,7 +21,7 @@ builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy(policyName,
         policy =>
@@ -31,14 +31,14 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod()
                 .AllowCredentials();
         });
-});
+});*/
 
 //For countries
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors(policyName);
+//app.UseCors(policyName);
 app.Migrate();
 app.UseTracing();
 app.UseSerilogRequestLogging();
