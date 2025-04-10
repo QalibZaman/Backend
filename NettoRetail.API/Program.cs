@@ -6,7 +6,6 @@ using NettoRetail.Shared.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-const string policyName = "AllowAnyOrigin";
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -23,7 +22,7 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(policyName,
+    options.AddDefaultPolicy(
         policy =>
         {
             policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net")
@@ -38,7 +37,7 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors(policyName);
+app.UseCors();
 app.Migrate();
 app.UseTracing();
 app.UseSerilogRequestLogging();
