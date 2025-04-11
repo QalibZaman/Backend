@@ -1,10 +1,10 @@
 #stages:
   #- build
   #- deploy
-
+#
 #variables:
   #DOCKER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAME}
-
+#
 #build:
   #stage: build
   #image: docker:latest
@@ -19,7 +19,7 @@
     #- docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
     #- echo "Cleaning up local Docker images..."
     #- docker rmi ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
-
+#
 #deploy:
   #stage: deploy
   #image: debian:12.10
