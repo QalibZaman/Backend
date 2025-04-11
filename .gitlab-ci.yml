@@ -1,39 +1,40 @@
 stages:
   - build
-  #- deploy
+  - deploy
 
-#variables:
-  #DOCKER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAME}
+variables:
+  DOCKER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAME}
 
 build:
   stage: build
-  #image: docker:latest
-  #services:
-    #- docker:dind
-  #before_script:
-    #- echo ${CI_REGISTRY_PASSWORD} | docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} --password-stdin
+  image: $DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
+  services:
+    - docker:dind
+  before_script:
+    - echo ${CI_REGISTRY_PASSWORD} | docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} --password-stdin
   script:
     - echo "Building Docker image..."
-    #- docker build . -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f ./NettoRetail.API/Dockerfile
-    #- echo "Pushing Docker image..."
-    #- docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
-    #- echo "Cleaning up local Docker images..."
-    #- docker rmi ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
+    - docker build . -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f ./NettoRetail.API/Dockerfile
+      --build-arg DOCKER_PROXY_REGISTRY_NAME=$DOCKER_PROXY_REGISTRY_NAME
+    - echo "Pushing Docker image..."
+    - docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
+    - echo "Cleaning up local Docker images..."
+    - docker rmi ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
 
-#deploy:
-  #stage: deploy
-  #image: debian:12.10
-  #only:
-    #- dev
-  #before_script:
-    #- apt update
-    #- apt install -y curl
-    #- curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-    #- az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
-  #script:
-    #- echo "Deploying Docker image to Azure Web App..."
-    #- az webapp config container set
-          #--name ${APP_NAME}
-          #--resource-group ${RESOURCE_GROUP}
-          #--container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
-          #--container-registry-url https://${CI_REGISTRY}
+deploy:
+  stage: deploy
+  image: debian:12.10
+  only:
+    - dev
+  before_script:
+    - apt update
+    - apt install -y curl
+    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+  script:
+    - echo "Deploying Docker image to Azure Web App..."
+    - az webapp config container set
+          --name ${APP_NAME}
+          --resource-group ${RESOURCE_GROUP}
+          --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
+          --container-registry-url https://${CI_REGISTRY}
