@@ -7,15 +7,15 @@ variables:
 
 build:
   stage: build
-  image: $DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
+  image: $AND_DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
   services:
-    - docker:dind
+    - docker:26.1.4-dind
   before_script:
     - echo ${CI_REGISTRY_PASSWORD} | docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} --password-stdin
   script:
     - echo "Building Docker image..."
     - docker build . -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f ./NettoRetail.API/Dockerfile
-      --build-arg DOCKER_PROXY_REGISTRY_NAME=$DOCKER_PROXY_REGISTRY_NAME
+      --build-arg AND_DOCKER_PROXY_REGISTRY_NAME=$AND_DOCKER_PROXY_REGISTRY_NAME
     - echo "Pushing Docker image..."
     - docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
     - echo "Cleaning up local Docker images..."
@@ -23,7 +23,7 @@ build:
 
 deploy:
   stage: deploy
-  image: $DOCKER_PROXY_REGISTRY_NAME/debian:12.10
+  image: $AND_DOCKER_PROXY_REGISTRY_NAME/debian:12.10
   only:
     - dev
   before_script:
