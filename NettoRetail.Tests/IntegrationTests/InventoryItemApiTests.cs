@@ -749,7 +749,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Aisle 3, Shelf B",
                     ShopId = 1,
                     Category = categories[2],
-                    Shop = shops[0]
+                    Shop = shops[0],
+                    Brand = null,
+                    BrandId = null
                 },
                 new InventoryItemEntity
                 {
@@ -767,7 +769,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Aisle 1, Shelf A",
                     ShopId = 1,
                     Category = categories[5],
-                    Shop = shops[0]
+                    Shop = shops[0],
+                    Brand = null,
+                    BrandId = null
                 },
                 new InventoryItemEntity
                 {
@@ -785,7 +789,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Aisle 2, Shelf C",
                     ShopId = 1,
                     Category = categories[6],
-                    Shop = shops[0]
+                    Shop = shops[0],
+                    Brand = null,
+                    BrandId = null
                 },
 
                 // Shop 2 items
@@ -805,7 +811,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Section 1, Row A",
                     ShopId = 2,
                     Category = categories2[9],
-                    Shop = shops[1]
+                    Shop = shops[1],
+                    Brand = null,
+                    BrandId = null
                 },
                 new InventoryItemEntity
                 {
@@ -823,7 +831,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Warehouse",
                     ShopId = 2,
                     Category = categories2[10],
-                    Shop = shops[1]
+                    Shop = shops[1],
+                    Brand = null,
+                    BrandId = null
                 },
                 new InventoryItemEntity
                 {
@@ -841,7 +851,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ProductLocation = "Storage Room",
                     ShopId = 2,
                     Category = categories2[13],
-                    Shop = shops[1]
+                    Shop = shops[1],
+                    Brand = null,
+                    BrandId = null
                 }
             };
 

@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Countries.Queries;
-using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;

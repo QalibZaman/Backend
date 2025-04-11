@@ -25,6 +25,6 @@ public class InventoryItemEntity
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
-    public required Guid BrandId { get; set; }
+    public required Guid? BrandId { get; set; }
     public required BrandEntity? Brand { get; set; }
 }

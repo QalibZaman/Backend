@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
@@ -12,6 +12,8 @@ public class BrandConfiguration : IEntityTypeConfiguration<BrandEntity>
 
         builder.Property(x => x.Name)
             .HasMaxLength(50);
+        builder.HasIndex(x => x.Name)
+            .IsUnique();
 
         builder.Property(x => x.WebsiteUrl)
             .HasMaxLength(100);
@@ -22,8 +24,8 @@ public class BrandConfiguration : IEntityTypeConfiguration<BrandEntity>
             .HasMaxLength(500);
 
         builder.HasOne(x => x.Shop)
-            .WithMany()
+            .WithMany(s => s.Brands)
             .HasForeignKey(p => p.ShopId)
             .OnDelete(DeleteBehavior.Cascade);
-
+    }
 }
