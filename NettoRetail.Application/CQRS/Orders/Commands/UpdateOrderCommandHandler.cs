@@ -24,16 +24,6 @@ public class UpdateOrderCommandHandler(
 {
     public async Task Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
-        var inventoryItemsIds = request.Model.ItemsToUpsert.Keys.Concat(request.Model.ItemsToDelete);
-
-        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
-        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsSpecification, cancellationToken) ?? throw new NotFoundException("There are no such items.");
-
-        var itemsList = new List<InventoryItemEntity>();
-
-        var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-        var customer = await customerRepository.GetAsync(customerSpecification, cancellationToken) ?? throw new NotFoundException("There is no such customer.");
-
         var specificationBuilder = new SpecificationBuilder<OrderEntity>();
         specificationBuilder.Add<GetOrdersByIdSpecification>(request.OrderId);
         specificationBuilder.AddInclude(x => x.OrderItems);
@@ -44,6 +34,16 @@ public class UpdateOrderCommandHandler(
         {
             throw new BadRequestException("This order cannot be edited while in 'In Progress' status.");
         }
+
+        var inventoryItemsIds = request.Model.ItemsToUpsert.Keys.Concat(request.Model.ItemsToDelete);
+
+        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
+        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsSpecification, cancellationToken) ?? throw new NotFoundException("There are no such items.");
+
+        var itemsList = new List<InventoryItemEntity>();
+
+        var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
+        var customer = await customerRepository.GetAsync(customerSpecification, cancellationToken) ?? throw new NotFoundException("There is no such customer.");
 
         var transaction = unitOfWork.BeginTransaction();
 
@@ -94,7 +94,7 @@ public class UpdateOrderCommandHandler(
 
             transaction.Commit();
         }
-        catch (Exception)
+        catch
         {
             transaction.Rollback();
             throw;
