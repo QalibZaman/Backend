@@ -59,6 +59,15 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
 
+        config.NewConfig<OrderEntity, OrderPrintingResponse>()
+            .Map(dest => dest.CustomerId, src => src.CustomerId)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+            //.Map(dest => dest.TotalProducts, src => src.OrderItems.Count())
+            //.Map(dest => dest.TotalProducts, src => src.OrderItems.Aggregate(0, (curr, next) => curr + next.Quantity))
+            //.Map(dest => dest.Subtotal, src => src.)
+
         config.NewConfig<UpdateCustomerRequest, CustomerEntity>()
             .IgnoreNullValues(true);
 
