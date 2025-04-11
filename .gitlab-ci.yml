@@ -23,7 +23,7 @@ build:
 
 deploy:
   stage: deploy
-  image: debian:12.10
+  image: $DOCKER_PROXY_REGISTRY_NAME/debian:12.10
   only:
     - dev
   before_script:
