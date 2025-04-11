@@ -15,7 +15,6 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
     {
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-
             var specification = new GetCategoryByIdSpecification(request.Id);
 
             var category = await categoryRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no category with such Id");
@@ -24,7 +23,7 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
             var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
-            if(conflictModel != null)
+            if (conflictModel != null)
             {
                 throw new ConflictException("Category with such name or url already exists");
             }

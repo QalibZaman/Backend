@@ -3,6 +3,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Commands;
@@ -19,6 +20,8 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 public class RolesController(IMediator mediator) : ControllerBase
 {
+    [RequiresPermission("Customers management")]
+    [RequiresPermission("System settings")]
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddRole(CreateRoleRequest model, CancellationToken cancellationToken)

@@ -8,6 +8,6 @@ public class GetPermissionsByRoleIdSpecification : Specification<PermissionRoleE
     public GetPermissionsByRoleIdSpecification(int roleId)
         : base(model => model.RoleId == roleId)
     {
-            AddInclude(model => model.Permission);
+        AddInclude(model => model.Permission);
     }
 }

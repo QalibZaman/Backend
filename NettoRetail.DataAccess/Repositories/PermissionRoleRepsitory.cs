@@ -17,7 +17,8 @@ namespace NettoRetail.DataAccess.Repositories
                 query = query.Where(specification.Criteria);
             }
 
-            foreach (var include in specification.Includes) {
+            foreach (var include in specification.Includes)
+            {
                 query = query.Include(include);
             }
 

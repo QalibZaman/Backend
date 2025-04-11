@@ -36,6 +36,5 @@ namespace NettoRetail.Infrastructure.Services
 
             return infraPath;
         }
-
     }
 }
