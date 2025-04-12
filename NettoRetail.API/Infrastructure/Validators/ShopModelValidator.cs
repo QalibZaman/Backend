@@ -1,13 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.Shop;
-using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
 public class ShopModelValidator : AbstractValidator<ShopModel>
 {
-    public ShopModelValidator(ICountryRepository countryRepository)
+    public ShopModelValidator()
     {
         RuleFor(x => x.CountryId)
             .NotEmpty().WithMessage("CountryId is required.");

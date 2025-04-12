@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
@@ -24,7 +23,9 @@ public class InventoryItemRepository(AppDbContext dbContext)
         return result;
     }
 
-    public async IAsyncEnumerable<InventoryItemEntity> GetRangeByIdsAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<InventoryItemEntity> GetRangeByIdsAsync(
+        Specification<InventoryItemEntity> specification,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var queryable = _dbSet.Where(specification.Criteria);
 
