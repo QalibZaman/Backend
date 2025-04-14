@@ -8,4 +8,5 @@ public class UpdateCustomerRequest
     public required int CountryId { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Remarks { get; set; }
+    public bool? IsActive { get; set; }
 }
