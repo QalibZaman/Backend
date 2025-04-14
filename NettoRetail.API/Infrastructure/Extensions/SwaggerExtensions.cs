@@ -1,6 +1,7 @@
 using System.Reflection;
 using Asp.Versioning;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -81,7 +82,7 @@ public static class SwaggerExtensions
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+            options.DocExpansion(DocExpansion.None);
 
             var descriptions = app.DescribeApiVersions();
             foreach (var description in descriptions)
