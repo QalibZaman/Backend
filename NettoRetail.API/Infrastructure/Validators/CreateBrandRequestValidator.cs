@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Request.Brand;
 
 namespace NettoRetail.API.Infrastructure.Validators;
@@ -6,7 +7,6 @@ namespace NettoRetail.API.Infrastructure.Validators;
 public class CreateBrandRequestValidator : AbstractValidator<CreateBrandRequest>
 {
     private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
-    private static readonly string[] PermittedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
     public CreateBrandRequestValidator()
     {
@@ -23,7 +23,7 @@ public class CreateBrandRequestValidator : AbstractValidator<CreateBrandRequest>
                 .WithMessage("Brand description contains invalid characters");
 
         RuleFor(x => x.WebsiteUrl)
-            .Must(BeValidUrl).When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
+            .MustBeAValidUrl().When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
                 .WithMessage("Website URL must be a valid URL including protocol (e.g., https://)")
             .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
                 .WithMessage("Website URL cannot exceed 100 characters");
@@ -31,24 +31,12 @@ public class CreateBrandRequestValidator : AbstractValidator<CreateBrandRequest>
         When(x => x.LogoFile != null, () =>
         {
             RuleFor(x => x.LogoFile!.FileName)
-                .Must(HaveAllowedExtension)
+                .MustHaveImageExtension()
                 .WithMessage("Unsupported file format. Only JPG, JPEG, PNG, or WEBP allowed.");
 
             RuleFor(x => x.LogoFile!.Length)
                 .LessThanOrEqualTo(MaxFileSize)
                 .WithMessage("File size must be 5MB or less.");
         });
-    }
-
-    private bool BeValidUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-               && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-    }
-
-    private bool HaveAllowedExtension(string fileName)
-    {
-        var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        return PermittedExtensions.Contains(extension);
     }
 }

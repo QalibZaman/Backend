@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Linq;
+using FluentValidation;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
@@ -32,6 +34,25 @@ public static class RuleBuilderOptionsExtensions
                 return true;
 
             return Enum.TryParse(typeof(ProductDetailUnitEnum), status, true, out _);
+        });
+    }
+
+    public static IRuleBuilderOptions<T, string?> MustBeAValidUrl<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder.Must(url =>
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
+                   && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        });
+    }
+
+    public static IRuleBuilderOptions<T, string> MustHaveImageExtension<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder.Must(filename =>
+        {
+            string[] permittedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+            var extension = Path.GetExtension(filename).ToLowerInvariant();
+            return permittedExtensions.Contains(extension);
         });
     }
 }
