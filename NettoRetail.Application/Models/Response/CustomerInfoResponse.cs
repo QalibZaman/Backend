@@ -4,7 +4,7 @@ namespace NettoRetail.Application.Models.Response;
 
 public class CustomerInfoResponse
 {
-    public required Guid CustomerId { get; set; }
+    public required Guid AccountId { get; set; }
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string Email { get; set; }
