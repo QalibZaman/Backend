@@ -3,6 +3,7 @@ using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
@@ -62,6 +63,9 @@ public class MappingConfiguration : IRegister
             .IgnoreNullValues(true);
 
         config.NewConfig<UpdateStaffRequest, AccountEntity>()
+            .IgnoreNullValues(true);
+
+        config.NewConfig<UpdateOrderModel, OrderEntity>()
             .IgnoreNullValues(true);
     }
 }

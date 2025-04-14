@@ -7,8 +7,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration));
+//builder.Host.UseSerilog((context, configuration) =>
+   // configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication();
@@ -20,23 +20,24 @@ builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+builder.Services.AddCors(options =>
 {
-    policy.AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
-}));
+    options.AddPolicy(
+        "CorsPolicy",
+        policy => policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net", "http://localhost:4200")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials());
+});
 
-//For countries
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("CorsPolicy");
 app.Migrate();
 app.UseTracing();
-app.UseSerilogRequestLogging();
+//app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();

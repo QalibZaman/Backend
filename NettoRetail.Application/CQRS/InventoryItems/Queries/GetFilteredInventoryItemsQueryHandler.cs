@@ -26,17 +26,31 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
 
         specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
             .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
-            .Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount)
             .Add<GetInventoryItemsByMinAvailableAmountSpecification>(request.Model.MinAvailableAmount)
-            .Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount)
             .Add<GetInventoryItemsByMinReservedAmountSpecification>(request.Model.MinReservedAmount)
-            .Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount)
             .Add<GetInventoryItemsByMinOnHandAmountSpecification>(request.Model.MinOnHandAmount)
-            .Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice)
             .Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice)
             .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
-        specificationBuilder.AddInclude(x => x.Category);
+        if (request.Model.MaxPrice != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice);
+        }
+
+        if (request.Model.MaxOnHandAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount);
+        }
+
+        if (request.Model.MaxAvailableAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount);
+        }
+
+        if (request.Model.MaxReservedAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount);
+        }
 
         if (request.Model.CategoryId != 0)
         {
@@ -60,6 +74,8 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
                 specificationBuilder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
             }
         }
+
+        specificationBuilder.AddInclude(x => x.Category);
 
         var specification = specificationBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
 
