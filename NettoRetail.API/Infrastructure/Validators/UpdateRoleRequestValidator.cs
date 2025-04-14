@@ -8,7 +8,7 @@ namespace NettoRetail.API.Infrastructure.Validators
         public UpdateRoleRequestValidator()
         {
             RuleFor(x => x.Name)
-               .Length(2,50).WithMessage("Role name length must be more than 2 and  less than 50 characters long.")
+               .Length(2, 50).WithMessage("Role name length must be more than 2 and  less than 50 characters long.")
                .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Role name must only contain letters, digits, '-' and '_'.");
 
             RuleFor(x => x.Description)
