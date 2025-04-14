@@ -81,6 +81,8 @@ public static class SwaggerExtensions
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
+            options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+
             var descriptions = app.DescribeApiVersions();
             foreach (var description in descriptions)
             {
