@@ -1,4 +1,6 @@
-﻿using Mapster;
+﻿using Azure.Core;
+using System.Threading;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Order;
@@ -6,6 +8,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -55,31 +58,11 @@ public class UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, I
         {
             if (request.Model.Status == OrderStatusEnum.InProgress || (request.Model.Status == OrderStatusEnum.Cancelled && order.OrderStatus == OrderStatusEnum.InProgress))
             {
-                var inventoryItems = new List<InventoryItemEntity>();
+                var itemIds = order.OrderItems.Select(i => i.ItemId);
+                var itemsSpecification = new GetItemsByIdsSpecification(itemIds!);
+                var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemsSpecification, cancellationToken);
 
-                foreach (var item in order.OrderItems)
-                {
-                    var itemSpecification = new GetInventoryItemByIdSpecification(item.ItemId);
-                    var inventoryItem = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken);
-                    inventoryItems.Add(inventoryItem!);
-                }
-
-                foreach (var item in order.OrderItems)
-                {
-                    var inventoryItem = inventoryItems.First(i => i.Id == item.ItemId);
-
-                    switch (request.Model.Status)
-                    {
-                        case OrderStatusEnum.InProgress:
-                            inventoryItem.ReservedAmount -= item.Quantity;
-                            inventoryItem.OnHandAmount -= item.Quantity;
-                            break;
-                        case OrderStatusEnum.Cancelled:
-                            inventoryItem.ReservedAmount += item.Quantity;
-                            inventoryItem.OnHandAmount += item.Quantity;
-                            break;
-                    }
-                }
+                UpdateInventoryItemsAmount(inventoryItems!, order.OrderItems, request.Model.Status);
 
                 await inventoryItemRepository.UpdateBulkAsync(inventoryItems, cancellationToken);
             }
@@ -125,4 +108,25 @@ public class UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, I
             throw new BadRequestException("Changing status from Processing to New is prohibited");
         }
     }
+
+    private static void UpdateInventoryItemsAmount(IEnumerable<InventoryItemEntity> inventoryItems, IEnumerable<OrderItemEntity> orderItems, OrderStatusEnum orderStatus)
+    {
+        foreach (var item in orderItems)
+        {
+            var inventoryItem = inventoryItems.First(i => i.Id == item.ItemId);
+
+            switch (orderStatus)
+            {
+                case OrderStatusEnum.InProgress:
+                    inventoryItem.ReservedAmount -= item.Quantity;
+                    inventoryItem.OnHandAmount -= item.Quantity;
+                    break;
+                case OrderStatusEnum.Cancelled:
+                    inventoryItem.ReservedAmount += item.Quantity;
+                    inventoryItem.OnHandAmount += item.Quantity;
+                    break;
+            }
+        }
+    }
+
 }
