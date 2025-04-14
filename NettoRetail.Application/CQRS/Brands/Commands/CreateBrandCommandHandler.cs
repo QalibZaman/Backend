@@ -24,8 +24,11 @@ public class CreateBrandCommandHandler(
 {
     public async Task<BrandResponse> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
     {
-        if (await brandRepository.Exists(new GetBrandsByNameSpecification(request.Model.Name), cancellationToken) ||
-            await brandRepository.Exists(new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl), cancellationToken))
+        var getBrandsByNameSpecification = new GetBrandsByNameSpecification(request.Model.Name);
+        var getBrandsByWebsiteUrlSpecification = new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl);
+
+        if (await brandRepository.Exists(getBrandsByNameSpecification, cancellationToken) ||
+            await brandRepository.Exists(getBrandsByWebsiteUrlSpecification, cancellationToken))
         {
             throw new BadRequestException("Brand's name must be unque");
         }
