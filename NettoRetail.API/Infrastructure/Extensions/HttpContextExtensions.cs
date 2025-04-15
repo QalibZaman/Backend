@@ -1,4 +1,5 @@
-﻿using NettoRetail.Application.Exceptions;
+﻿using Microsoft.Azure.Cosmos;
+using NettoRetail.Application.Exceptions;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
@@ -14,5 +15,16 @@ public static class HttpContextExtensions
     {
         return context?.User?.GetUserShopId()
             ?? throw new NotFoundException("User context is unavailable");
+    }
+
+    public static int GetRoleId(this HttpContext context)
+    {
+        return context?.User?.GetRoleId()
+            ?? throw new NotFoundException("User context is unavailable");
+    }
+
+    public static IEnumerable<string> GetPermissions(this HttpContext context)
+    {
+        return context.Items["Permissions"] as IEnumerable<string> ?? Enumerable.Empty<string>();
     }
 }

@@ -1,11 +1,18 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.PermissionCache;
+using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.PermissionRole;
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
@@ -59,6 +66,12 @@ public class LoginCommandHandler(IAccountRepository repository,
         }
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
+
+        if (user.Status != StaffStatusEnum.Online)
+        {
+            user.Status = StaffStatusEnum.Online;
+            await repository.UpdateAsync(user, cancellationToken);
+        }
 
         return tokenResponse;
     }

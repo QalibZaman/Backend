@@ -25,4 +25,14 @@ public static class ClaimsPrincipalExtensions
             parsedUserShopId :
             throw new BadRequestException("User shop_id is unavailable");
     }
+
+    public static int GetRoleId(this ClaimsPrincipal? principal)
+    {
+        var roleId = principal?.FindFirstValue(ClaimTypes.Role);
+        var isParsed = int.TryParse(roleId, out int parsedRoleId);
+
+        return isParsed ?
+            parsedRoleId :
+            throw new BadRequestException("role_id is unavailable");
+    }
 }
