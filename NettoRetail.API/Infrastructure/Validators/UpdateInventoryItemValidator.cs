@@ -67,13 +67,15 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
 
         RuleFor(x => x.Price)
             .GreaterThan(0).WithMessage("Price must be greater than 0.")
-            .Must(p => decimal.Round(p.Value, 2) == p.Value)
+            .Must(p => decimal.Round(p!.Value, 2) == p.Value)
             .WithMessage("Price must not have more than two decimal places.")
             .When(x => x.Price.HasValue);
 
         RuleFor(x => x.PromotionPrice)
             .GreaterThan(0).WithMessage("Promotion price must be greater than 0.")
-            .When(x => x.PromotionPrice.HasValue);
+            .Must(x => decimal.Round(x!.Value, 2) == x.Value)
+            .WithMessage("Price must not have more than two decimal places.")
+            .When(x => x.Price.HasValue);
 
         RuleFor(x => x)
             .Must(x => x.Price.HasValue && x.PromotionPrice.HasValue && x.PromotionPrice < x.Price)
