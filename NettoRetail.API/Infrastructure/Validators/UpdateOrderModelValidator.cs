@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
-using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Order;
 
 namespace NettoRetail.API.Infrastructure.Validators;
