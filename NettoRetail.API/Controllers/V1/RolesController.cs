@@ -20,7 +20,8 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 public class RolesController(IMediator mediator) : ControllerBase
 {
-    [RequiresPermission("Customers management")]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission("System settings")]
     [Authorize]
     [HttpPost]

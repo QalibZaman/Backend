@@ -1,17 +1,20 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.DataAccess.Specifications.PermissionRole;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using System.Threading;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
 
 public class PermissionMiddleware
 {
-    private const string KEY = "Permissions";
     private readonly RequestDelegate _next;
 
     public PermissionMiddleware(RequestDelegate next)
@@ -19,7 +22,7 @@ public class PermissionMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, IPermissionRoleRepository permissionRoleRepository, IMemoryCache cache)
+    public async Task InvokeAsync(HttpContext context, IPermissionRoleRepository permissionRoleRepository, IPermissionCacheService permissionCacheService)
     {
         if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
         {
@@ -27,16 +30,17 @@ public class PermissionMiddleware
             return;
         }
 
-        if (!cache.TryGetValue(KEY, out IEnumerable<string>? permissions))
+        var permissions = permissionCacheService.GetPermissions();
+        if (permissions == null || !permissions.Any())
         {
             var roleId = context.GetRoleId();
 
             var specificationBuilder = new SpecificationBuilder<PermissionRoleEntity>();
-            var specification = specificationBuilder.Add<GetPermissionsByRoleIdSpecification>(roleId).Build();
-            var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(specification, context.RequestAborted);
+            var permissionSpecification = specificationBuilder.Add<GetPermissionsByRoleIdSpecification>(roleId).Build();
+            var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, context.RequestAborted) ?? throw new BadRequestException("No permissions");
 
             permissions = userPermissions;
-            cache.Set(KEY, permissions);
+            permissionCacheService.SetPermissions(permissions);
         }
 
         var endpoint = context.GetEndpoint();

@@ -7,6 +7,7 @@ using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 
 namespace NettoRetail.Application.Extensions;
@@ -30,6 +31,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddScoped<ICountryCacheService, CountryCacheService>();
+        services.AddScoped<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();
