@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
@@ -9,7 +8,6 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -31,6 +29,10 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
             .Add<GetInventoryItemsByMinOnHandAmountSpecification>(request.Model.MinOnHandAmount)
             .Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice)
             .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
+
+        specificationBuilder
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Brand!);
 
         if (request.Model.MaxPrice != null)
         {
@@ -67,6 +69,11 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
             }
         }
 
+        if (!request.Model.BrandName.IsNullOrEmpty())
+        {
+            specificationBuilder.Add<GetInventoryItemsByBrandsPartialNameSpecification>(request.Model.BrandName);
+        }
+
         if (request.Model.SortingOptions != null && request.Model.SortingOptions.Any())
         {
             foreach (var sortingOption in request.Model.SortingOptions)
@@ -74,8 +81,6 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
                 specificationBuilder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
             }
         }
-
-        specificationBuilder.AddInclude(x => x.Category);
 
         var specification = specificationBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
 
@@ -93,6 +98,7 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
         return fieldName.ToLower() switch
         {
             "productname" => item => item.ProductName,
+            "brandname" => item => item.Brand!.Name,
             "price" => item => item.Price,
             "availableamount" => item => item.AvailableAmount,
             "reservedamount" => item => item.ReservedAmount,
