@@ -19,6 +19,7 @@ public static class ServiceExtensions
         // Options
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
         services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
+        services.Configure<AzureBlobStorageOptions>(configuration.GetSection(nameof(AzureBlobStorageOptions)));
 
         // External clients
         services.AddScoped<BlobServiceClient>(provider =>
@@ -63,6 +64,7 @@ public static class ServiceExtensions
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
 
         //UnitOfWork
