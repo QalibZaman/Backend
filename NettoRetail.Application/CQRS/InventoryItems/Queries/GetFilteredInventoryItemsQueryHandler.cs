@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
@@ -9,7 +8,6 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -100,6 +98,7 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
         return fieldName.ToLower() switch
         {
             "productname" => item => item.ProductName,
+            "brandname" => item => item.Brand!.Name,
             "price" => item => item.Price,
             "availableamount" => item => item.AvailableAmount,
             "reservedamount" => item => item.ReservedAmount,
