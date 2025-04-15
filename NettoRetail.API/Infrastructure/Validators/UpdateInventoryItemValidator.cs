@@ -20,7 +20,11 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
                 model.Price.HasValue ||
                 model.PromotionPrice.HasValue ||
                 model.IsPromoted.HasValue)
-            .WithMessage("At least one field must be provided to update the inventory item.");
+            .WithMessage("At least one field must be provided to update the inventory item.")
+            .Must(model => model.ReservedAmount <= model.AvailableAmount)
+            .WithMessage("Reserved amount cannot exceed the available amount.")
+            .Must(model => model.OnHandAmount >= model.ReservedAmount + model.AvailableAmount)
+            .WithMessage("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
 
         RuleFor(x => x.ProductName)
             .NotEmpty().WithMessage("Product name is required.")
@@ -63,11 +67,15 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
 
         RuleFor(x => x.Price)
             .GreaterThan(0).WithMessage("Price must be greater than 0.")
+            .Must(p => decimal.Round(p!.Value, 2) == p.Value)
+            .WithMessage("Price must not have more than two decimal places.")
             .When(x => x.Price.HasValue);
 
         RuleFor(x => x.PromotionPrice)
             .GreaterThan(0).WithMessage("Promotion price must be greater than 0.")
-            .When(x => x.PromotionPrice.HasValue);
+            .Must(x => decimal.Round(x!.Value, 2) == x.Value)
+            .WithMessage("Price must not have more than two decimal places.")
+            .When(x => x.Price.HasValue);
 
         RuleFor(x => x)
             .Must(x => x.Price.HasValue && x.PromotionPrice.HasValue && x.PromotionPrice < x.Price)
