@@ -2,14 +2,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
