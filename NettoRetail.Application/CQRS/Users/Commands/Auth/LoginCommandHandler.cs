@@ -67,6 +67,12 @@ public class LoginCommandHandler(IAccountRepository repository,
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 
+        if (user.Status != StaffStatusEnum.Online)
+        {
+            user.Status = StaffStatusEnum.Online;
+            await repository.UpdateAsync(user, cancellationToken);
+        }
+
         return tokenResponse;
     }
 }
