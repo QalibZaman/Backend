@@ -24,7 +24,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ItemsAmount, src => src.InventoryItems.Count());
 
         config.NewConfig<InventoryItemEntity, InventoryItemListResponse>()
-            .Map(dest => dest.ProductCategory, src => src.Category.Name);
+            .Map(dest => dest.ProductCategory, src => src.Category.Name)
+            .Map(dest => dest.BrandName, src => src.Brand!.Name);
 
         config.NewConfig<RoleEntity, RoleResponse>()
             .Map(dest => dest.UserCount, src => src.Accounts.Count());

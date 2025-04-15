@@ -32,6 +32,10 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
             .Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice)
             .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
+        specificationBuilder
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Brand!);
+
         if (request.Model.MaxPrice != null)
         {
             specificationBuilder.Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice);
@@ -67,6 +71,11 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
             }
         }
 
+        if (!request.Model.BrandName.IsNullOrEmpty())
+        {
+            specificationBuilder.Add<GetInventoryItemsByBrandsPartialNameSpecification>(request.Model.BrandName);
+        }
+
         if (request.Model.SortingOptions != null && request.Model.SortingOptions.Any())
         {
             foreach (var sortingOption in request.Model.SortingOptions)
@@ -74,8 +83,6 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
                 specificationBuilder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
             }
         }
-
-        specificationBuilder.AddInclude(x => x.Category);
 
         var specification = specificationBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
 

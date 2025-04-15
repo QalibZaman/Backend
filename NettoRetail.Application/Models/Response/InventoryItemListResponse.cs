@@ -13,4 +13,5 @@ public class InventoryItemListResponse
     public int OnHandAmount { get; set; }
     public required DateTime LastUpdatedDate { get; set; } = DateTime.UtcNow;
     public required string Status { get; set; }
+    public required string BrandName { get; set; }
 }
