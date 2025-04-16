@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Orders.Commands;
+using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
@@ -40,6 +41,16 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var command = new UpdateOrderStatusCommand(model);
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<OrderResponse>(data);
+
+        return Ok(response);
+    }
+
+    [HttpGet("print/{orderId}")]
+    public async Task<IActionResult> GetOrderPrintingDetails(int orderId, CancellationToken cancellationToken)
+    {
+        var command = new GetOrderDetailsForPrintingQuery(orderId);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<OrderPrintingResponse>(data);
 
         return Ok(response);
     }

@@ -9,7 +9,7 @@ namespace NettoRetail.DataAccess.Repositories;
 public class OrderRepository(AppDbContext dbContext)
     : BaseRepository<OrderEntity>(dbContext), IOrderRepository
 {
-    public async Task<OrderEntity?> GetOrderForPrinting(Specification<OrderEntity> specification, CancellationToken )
+    public async Task<OrderEntity?> GetOrderForPrinting(Specification<OrderEntity> specification, CancellationToken cancellationToken)
     {
         var order = await _dbSet.Where(specification.Criteria)
             .Include(o => o.Customer)
