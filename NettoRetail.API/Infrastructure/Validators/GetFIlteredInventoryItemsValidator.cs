@@ -44,6 +44,10 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
         RuleFor(x => x.Status)
             .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
+        RuleFor(x => x.BrandName)
+            .MaximumLength(50).WithMessage("Brand name length must be less than 50 characters long.")
+            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Brand name must only contain letters, digits, '-' and '_'.");
+
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {
             sorting.RuleFor(x => x.Field)

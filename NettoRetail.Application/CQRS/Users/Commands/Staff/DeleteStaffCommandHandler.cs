@@ -7,7 +7,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
-public record DeleteStaffCommand(Guid Id) : IRequest;
+public record DeleteStaffCommand(Guid Id, int ShopId) : IRequest;
 public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
     ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork)
@@ -18,6 +18,9 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
         var specification = new GetAccountByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Account not found");
+
+        if (account.ShopId != request.ShopId)
+            throw new BadRequestException("You are not allowed to access this staff member.");
 
         // begin transaction to ensure atomicity between session termination and account deletion.
         // this prevents partial updates in case of failure for example if sessions are terminated but account deletion fails.

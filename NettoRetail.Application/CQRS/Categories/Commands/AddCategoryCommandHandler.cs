@@ -21,7 +21,7 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
 
         if (conflictModel != null)
         {
-            throw new ConflictException("Category with such name or url is already exist");
+            throw new ConflictException("Category with such name or url already exists");
         }
 
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);

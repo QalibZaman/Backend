@@ -26,5 +26,8 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .IsRequired(false);
 
         builder.Property(p => p.Status).HasConversion<string>();
+
+        builder.Property(p => p.PasswordUpdatedAt)
+            .IsRequired(false);
     }
 }

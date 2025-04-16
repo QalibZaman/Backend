@@ -9,7 +9,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands
 {
-    public record UpdateCategoryCommand(int Id, string Name, string URL, bool Visibility, int? ParentId) : IRequest<CategoryResponse>;
+    public record UpdateCategoryCommand(int Id, string Name, string URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
 
     public class UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, ICategoryLevelManagementService levelService, IUnitOfWork unitOfWork) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {
@@ -18,6 +18,15 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
             var specification = new GetCategoryByIdSpecification(request.Id);
 
             var category = await categoryRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no category with such Id");
+
+            var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL, request.ShopId);
+
+            var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
+
+            if (conflictModel != null)
+            {
+                throw new ConflictException("Category with such name or url already exists");
+            }
 
             //UpdateCategoryLevel recursively updates category levels. It updates categories until it hits MAX_LEVEL, throwing an exception only then. If all updates succeed, commit; if an exception occurs, rollback.
             var transaction = unitOfWork.BeginTransaction();

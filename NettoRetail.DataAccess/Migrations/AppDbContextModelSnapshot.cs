@@ -51,6 +51,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<DateTime?>("PasswordUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
@@ -92,6 +95,46 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlacklistedTokens");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("LogoImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WebsiteUrl")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("ShopId");
+
+                    b.HasIndex("WebsiteUrl")
+                        .IsUnique();
+
+                    b.ToTable("BrandEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -447,6 +490,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("AvailableAmount")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("BrandId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
@@ -499,6 +545,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
@@ -867,6 +915,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("Brands")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "ParentCategory")
@@ -909,6 +968,10 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.HasOne("NettoRetail.Domain.Entities.BrandEntity", "Brand")
+                        .WithMany("InventoryItems")
+                        .HasForeignKey("BrandId");
+
                     b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("InventoryItems")
                         .HasForeignKey("CategoryId")
@@ -920,6 +983,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasForeignKey("ShopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Brand");
 
                     b.Navigation("Category");
 
@@ -1025,6 +1090,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Sessions");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
+                {
+                    b.Navigation("InventoryItems");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.Navigation("InventoryItems");
@@ -1067,6 +1137,8 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.Navigation("Account");
+
+                    b.Navigation("Brands");
 
                     b.Navigation("Categories");
 

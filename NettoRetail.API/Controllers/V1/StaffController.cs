@@ -73,11 +73,12 @@ public class StaffController(
     public async Task<IActionResult> LogOut()
     {
         var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
+        var userId = HttpContext.GetUserId();
 
         var deleteSessionCommand = new DeleteSessionCommand(token!);
         await mediator.Send(deleteSessionCommand);
 
-        var logoutCommand = new LogoutCommand(token!);
+        var logoutCommand = new LogoutCommand(token!, userId);
         await mediator.Send(logoutCommand);
 
         return NoContent();
@@ -168,25 +169,65 @@ public class StaffController(
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetStaffById(Guid id, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var query = new GetStaffByIdQuery(id, shopId);
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<StaffDetailsResponse>(data);
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
-    public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
+    public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
         var command = new CreateStaffCommand(request, shopId);
-        var data = await mediator.Send(command);
+        var data = await mediator.Send(command, cancellationToken);
 
         var response = new ApiResponse<CreateStaffResponse>(data);
 
         return Ok(response);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> EditStaff(Guid id, [FromBody] UpdateStaffRequest request, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new UpdateStaffCommand(id, request, shopId);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("{id:guid}/reset-password")]
+    public async Task<IActionResult> ResetStaffPassword(Guid id, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new ResetStaffPasswordCommand(id, shopId);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
     {
-        var command = new DeleteStaffCommand(id);
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new DeleteStaffCommand(id, shopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
