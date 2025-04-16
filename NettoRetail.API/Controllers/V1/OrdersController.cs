@@ -7,6 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Orders.Commands;
 using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -41,6 +42,32 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<OrderResponse>(data);
 
         return Created(string.Empty, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet]
+    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var query = new GetFilteredOrdersQuery(model, userShopId, pageModel);
+
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<PaginatedResponse<OrderListResponse>>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("search")]
+    public async Task<ActionResult<List<string>>> GetSearchOptions([FromQuery] SearchFieldModel search, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetSearchOptionsQuery(search, shopId);
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<List<string>>(data);
+        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]

@@ -36,6 +36,12 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
+    public SpecificationBuilder<TEntity> AddCriteria(Expression<Func<TEntity, bool>> expression)
+    {
+        _specification.AddCriteria(expression);
+        return this;
+    }
+
     public SpecificationBuilder<TEntity> Add<TSpecification>(params object?[]? args)
         where TSpecification : Specification<TEntity>
     {

@@ -13,7 +13,7 @@ public class GetOrderDetailsQueryHandler(IOrderRepository orderRepository)
 {
     public async Task<OrderResponse> Handle(GetOrderDetailsQuery request, CancellationToken cancellationToken)
     {
-        var ordersByIdSpecification= new GetOrdersByIdSpecification(request.OrderId);
+        var ordersByIdSpecification = new GetOrdersByIdSpecification(request.OrderId);
         var order = await orderRepository.GetAsync(ordersByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<OrderResponse>();
