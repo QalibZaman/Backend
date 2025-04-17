@@ -31,7 +31,7 @@ public class SuperAdminSeeder(IConfiguration config, IAccountRepository reposito
 
             if (existingAccount != null)
             {
-                Console.WriteLine("account already exists.");
+                Console.WriteLine("Account already exists.");
                 continue;
             }
 
