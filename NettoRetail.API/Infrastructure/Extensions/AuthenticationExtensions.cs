@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -105,9 +106,16 @@ public static class AuthenticationExtensions
                  .AddAuthenticationSchemes(AuthSchemes.TempToken));
 
             options.AddPolicy(PolicyNames.HasShopClaimPolicy, policy =>
-                policy.RequireAuthenticatedUser()
-                    .RequireClaim(AuthClaims.ShopId)
-                    .AddAuthenticationSchemes(AuthSchemes.Default));
+                 policy.RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(AuthSchemes.Default)
+                    .RequireAssertion(context =>
+                    {
+                        var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
+                        if (roleId == "99") // SuperAdmin
+                            return true;
+
+                        return context.User.HasClaim(c => c.Type == AuthClaims.ShopId);
+                    }));
         });
 
         return services;

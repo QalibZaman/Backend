@@ -18,6 +18,11 @@ public static class ClaimsPrincipalExtensions
 
     public static int GetUserShopId(this ClaimsPrincipal? principal)
     {
+        var role = principal?.FindFirstValue(ClaimTypes.Role);
+
+        if (role == "99")
+            return 0;
+
         var userShopId = principal?.FindFirstValue(AuthClaims.ShopId);
         var isParsed = int.TryParse(userShopId, out int parsedUserShopId);
 
