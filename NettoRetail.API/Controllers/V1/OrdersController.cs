@@ -8,6 +8,7 @@ using NettoRetail.Application.CQRS.Orders.Commands;
 using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -61,7 +62,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("search")]
-    public async Task<ActionResult<List<string>>> GetSearchOptions([FromQuery] SearchFieldModel search, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetSearchOptions([FromQuery] SearchFieldModel search, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var query = new GetSearchOptionsQuery(search, shopId);
@@ -81,5 +82,16 @@ public class OrdersController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("status")]
+    public async Task<IActionResult> ChangeOrderStatus([FromQuery] UpdateOrderRequest model, CancellationToken cancellationToken)
+    {
+        var command = new UpdateOrderStatusCommand(model);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<OrderResponse>(data);
+
+        return Ok(response);
     }
 }
