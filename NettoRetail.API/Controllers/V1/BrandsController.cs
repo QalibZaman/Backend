@@ -5,16 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Brands.Queries;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
-using System;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Authentication.ExtendedProtection;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -52,20 +47,18 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut("{brandId:int}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateBrand(
-        int brandId,
+        int id,
         [FromForm] UpdateBrandRequest model,
         CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
         var command = model.Adapt<UpdateBrandCommand>();
-        command = command with { ShopId = shopId };
-        var data = await mediator.Send<BrandResponse>(command, cancellationToken);
+        command = command with { Id = id, ShopId = shopId };
+        await mediator.Send<BrandResponse>(command, cancellationToken);
 
-        var response = new ApiResponse<BrandResponse>(data);
-
-        return Ok(response);
+        return NoContent();
     }
 }

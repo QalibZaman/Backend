@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using FluentValidation;
+﻿using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 
 public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest> 
