@@ -3,7 +3,10 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Order;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
@@ -13,12 +16,18 @@ public class GetOrderDetailsForPrintingQueryHandler(IOrderRepository orderReposi
 {
     public async Task<OrderPrintingResponse> Handle(GetOrderDetailsForPrintingQuery request, CancellationToken cancellationToken)
     {
-        var orderSpecification = new GetOrderByIdSpecification(request.OrderId);
+        var specificationBuilder = new SpecificationBuilder<OrderEntity>();
+        var specification = specificationBuilder.Add<GetOrderByIdSpecification>(request.OrderId)
+            .AddInclude(x => x.Customer)
+            .AddInclude(x => x.Customer.Account)
+            .AddInclude(x => x.StatusHistory)
+            .AddInclude(x => x.OrderItems)
+            .Build();
 
         // Specification Pattern implementation does not implement ThenInclude method, so I am forced right now to implement a method specific for OrderRepository.
         // Implementing ThenInclude myself will require refactoring in a lot of places, so for the sake of implementing this functionality, let's leave this temporarily how it is.
 
-        var order = await orderRepository.GetOrderForPrinting(orderSpecification, cancellationToken);
+        var order = await orderRepository.GetOrderForPrinting(specification, cancellationToken);
 
         if (order == null)
         {
@@ -37,6 +46,6 @@ public class GetOrderDetailsForPrintingQueryHandler(IOrderRepository orderReposi
 
         response.TotalAmount = response.Subtotal - response.TotalSale;
 
-        return order.Adapt<OrderPrintingResponse>();
+        return response;
     }
 }

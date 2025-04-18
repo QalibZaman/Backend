@@ -1,4 +1,6 @@
-﻿using NettoRetail.Application.Models.Order;
+﻿using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Order;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 
@@ -17,7 +19,7 @@ public class OrderPrintingResponse
     public ICollection<OrderStatusHistoryDto>? StatusHistory { get; set; }
     public required int TotalProducts { get; set; }
     public required int TotalQuantity { get; set; }
-    public required ICollection<OrderItemEntity> OrderItems { get; set; }
+    public required ICollection<InventoryItemDto> InventoryItems { get; set; }
     public required decimal Subtotal { get; set; }
     public required decimal TotalSale { get; set; }
     public required decimal TotalAmount { get; set; }
