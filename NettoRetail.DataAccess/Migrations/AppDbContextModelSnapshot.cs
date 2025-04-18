@@ -134,7 +134,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("WebsiteUrl")
                         .IsUnique();
 
-                    b.ToTable("BrandEntity");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -970,7 +970,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.BrandEntity", "Brand")
                         .WithMany("InventoryItems")
-                        .HasForeignKey("BrandId");
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("InventoryItems")
