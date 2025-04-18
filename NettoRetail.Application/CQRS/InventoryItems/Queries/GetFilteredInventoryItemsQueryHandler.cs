@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Mapster;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
@@ -9,7 +8,6 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -26,17 +24,35 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
 
         specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(request.Model.ProductName)
             .Add<GetInventoryItemsByPartialLocationSpecification>(request.Model.ProductLocation)
-            .Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount)
             .Add<GetInventoryItemsByMinAvailableAmountSpecification>(request.Model.MinAvailableAmount)
-            .Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount)
             .Add<GetInventoryItemsByMinReservedAmountSpecification>(request.Model.MinReservedAmount)
-            .Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount)
             .Add<GetInventoryItemsByMinOnHandAmountSpecification>(request.Model.MinOnHandAmount)
-            .Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice)
             .Add<GetInventoryItemsByMinPriceSpecification>(request.Model.MinPrice)
             .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
-        specificationBuilder.AddInclude(x => x.Category);
+        specificationBuilder
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Brand!);
+
+        if (request.Model.MaxPrice != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxPriceSpecification>(request.Model.MaxPrice);
+        }
+
+        if (request.Model.MaxOnHandAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxOnHandAmountSpecification>(request.Model.MaxOnHandAmount);
+        }
+
+        if (request.Model.MaxAvailableAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxAvailableAmountSpecification>(request.Model.MaxAvailableAmount);
+        }
+
+        if (request.Model.MaxReservedAmount != null)
+        {
+            specificationBuilder.Add<GetInventoryItemsByMaxReservedAmountSpecification>(request.Model.MaxReservedAmount);
+        }
 
         if (request.Model.CategoryId != 0)
         {
@@ -51,6 +67,11 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
             {
                 specificationBuilder.Add<GetInventoryItemsByStatusSpecification>(status);
             }
+        }
+
+        if (!request.Model.BrandName.IsNullOrEmpty())
+        {
+            specificationBuilder.Add<GetInventoryItemsByBrandsPartialNameSpecification>(request.Model.BrandName);
         }
 
         if (request.Model.SortingOptions != null && request.Model.SortingOptions.Any())
@@ -77,6 +98,7 @@ public class GetFilteredInventoryItemsQueryHandler(IInventoryItemRepository inve
         return fieldName.ToLower() switch
         {
             "productname" => item => item.ProductName,
+            "brandname" => item => item.Brand!.Name,
             "price" => item => item.Price,
             "availableamount" => item => item.AvailableAmount,
             "reservedamount" => item => item.ReservedAmount,

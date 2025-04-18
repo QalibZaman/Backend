@@ -62,7 +62,14 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<IEnumerable<TEntity>> GetManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        return await _dbSet.Where(specification.Criteria).ToListAsync(cancellationToken);
+        var query = _dbSet.Where(specification.Criteria);
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task DeleteManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)

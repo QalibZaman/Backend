@@ -18,4 +18,9 @@ public static class MiddlewareExtensions
     {
         return app.UseMiddleware<SessionActivityMiddleware>();
     }
+
+    public static IApplicationBuilder UsePermissionHandling(this WebApplication app)
+    {
+        return app.UseMiddleware<PermissionMiddleware>();
+    }
 }

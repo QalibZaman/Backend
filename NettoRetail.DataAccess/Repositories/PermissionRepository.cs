@@ -12,6 +12,6 @@ public class PermissionRepository(AppDbContext dbContext)
 {
     public async Task<IEnumerable<int>> GetIdsBySpecAsync(Specification<PermissionEntity> specification, CancellationToken cancellationToken)
     {
-        return await _dbSet.Where(specification.Criteria).Select(permission => permission.Id).ToListAsync();
+        return await _dbSet.Where(specification.Criteria).Select(permission => permission.Id).ToListAsync(cancellationToken);
     }
 }

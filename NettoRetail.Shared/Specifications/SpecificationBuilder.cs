@@ -56,7 +56,7 @@ public class SpecificationBuilder<TEntity>
         // and then chain it to the previous specification.
         var newSpecification = (TSpecification)Activator.CreateInstance(typeof(TSpecification), args)!;
 
-        _specification = _specification.And(newSpecification);
+        _specification.And(newSpecification);
         return this;
     }
 
