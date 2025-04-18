@@ -30,13 +30,14 @@ public class CreateBrandCommandHandler(
         if (await brandRepository.Exists(getBrandsByNameSpecification, cancellationToken) ||
             await brandRepository.Exists(getBrandsByWebsiteUrlSpecification, cancellationToken))
         {
-            throw new BadRequestException("Brand's name must be unque");
+            throw new BadRequestException("Brand's name must be unique");
         }
 
         var azureConnectionString = connectionStrings.Value.AzureConnection;
         var brandLogoContainerName = azureBlobStorageOptions.Value.BrandLogoContainerName;
 
         var brand = request.Model.Adapt<BrandEntity>();
+
         brand.ShopId = request.ShopId;
 
         string? fileName = null;
