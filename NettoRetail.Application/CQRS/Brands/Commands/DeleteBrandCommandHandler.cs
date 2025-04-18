@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Brands.Commands;
@@ -16,7 +17,7 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
 {
     public async Task Handle(DeleteBrandCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetBrandByIdSpecification(request.Id);
+        var specification = new GetBrandsByIdSpecification(request.Id);
 
         var brand = await brandRepository.GetAsync(specification, cancellationToken);
 
@@ -29,7 +30,7 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
         var brandLogoContainerName = azureBlobStorageOptions.Value.BrandLogoContainerName;
 
         if (brand.LogoImageUrl != null)
-            await azureBlobService.DeleteAsync(brand.LogoImageUrl, brandLogoContainerName);
+            await azureBlobService.DeleteByUrlAsync(brand.LogoImageUrl);
 
         await brandRepository.DeleteAsync(brand, cancellationToken);
     }

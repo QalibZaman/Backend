@@ -3,8 +3,8 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Brands;
 
-public class GetBrandByIdSpecification : Specification<BrandEntity>
+public class GetBrandsByIdSpecification : Specification<BrandEntity>
 {
-    public GetBrandByIdSpecification(int id)
+    public GetBrandsByIdSpecification(int id)
     : base(b => b.Id == id) { }
 }

@@ -1,35 +1,58 @@
 using Azure.Storage.Blobs;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Enums;
 
 namespace NettoRetail.Infrastructure.Services;
 
 public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobService
 {
-    public async Task UploadAsync(string fileName, Stream stream, string containerName)
+    public async Task<string> UploadAsync(
+           string fileName,
+           Stream stream,
+           string containerName,
+           BlobContentCategoryEnum category,
+           bool overwrite = true)
     {
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
-        var blobClient = containerClient.GetBlobClient(fileName);
+        string prefix = category switch
+        {
+            BlobContentCategoryEnum.Image => "images/",
+            BlobContentCategoryEnum.Document => "docs/",
+            BlobContentCategoryEnum.Video => "videos/",
+            _ => "misc/"
+        };
 
-        await blobClient.UploadAsync(stream);
+        var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
+
+        await blobClient.UploadAsync(stream, overwrite: overwrite);
+
+        return blobClient.Uri.ToString();
     }
 
-    public async Task DeleteAsync(string fileName, string containerName)
+    public async Task DeleteByUrlAsync(string blobUrl)
     {
+        if (string.IsNullOrWhiteSpace(blobUrl))
+            throw new ArgumentException("Blob URL cannot be null or empty.", nameof(blobUrl));
+
+        var uri = new Uri(blobUrl);
+        var segments = uri.AbsolutePath.TrimStart('/').Split('/');
+
+        // Azurite URLs: [account]/[container]/[folder/...]/[filename]
+        // Azure URLs:   [container]/[folder/...]/[filename]
+
+        bool isAzurite = uri.Host.Contains("127.0.0.1") || uri.Host.Contains("localhost");
+        int containerIndex = isAzurite ? 1 : 0;
+
+        if (segments.Length <= containerIndex)
+            throw new InvalidOperationException("Invalid blob URL format.");
+
+        string containerName = segments[containerIndex];
+        string blobName = string.Join('/', segments.Skip(containerIndex + 1));
+
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(blobName);
 
-        var blobClient = containerClient.GetBlobClient(fileName);
-
-        await blobClient.DeleteAsync();
-    }
-
-    public async Task UpdateAsync(string fileName, Stream stream, string containerName)
-    {
-        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-
-        var blobClient = containerClient.GetBlobClient(fileName);
-
-        await blobClient.DeleteAsync();
-        await blobClient.UploadAsync(stream);
+        await blobClient.DeleteIfExistsAsync();
     }
 }

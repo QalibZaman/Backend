@@ -1,9 +1,9 @@
+using NettoRetail.Shared.Enums;
+
 namespace NettoRetail.Infrastructure.Interfaces;
 
 public interface IAzureBlobService
 {
-    Task UploadAsync(string fileName, Stream stream, string containerName);
-    Task DeleteAsync(string fileName, string containerName);
-    Task UpdateAsync(string fileName, Stream stream, string containerName);
-
+    Task<string> UploadAsync(string fileName, Stream stream, string containerName, BlobContentCategoryEnum category, bool overwrite = true);
+    Task DeleteByUrlAsync(string blobUrl);
 }

@@ -42,7 +42,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<BrandResponse>(data);
 
         // TODO: Change to createdat Get once we add an appropriate endpoint
-        return CreatedAtAction(string.Empty, response);
+        return Created(string.Empty, response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
