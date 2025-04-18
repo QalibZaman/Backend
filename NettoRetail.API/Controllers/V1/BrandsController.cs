@@ -46,8 +46,8 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpDelete("{brandId:guid}")]
-    public async Task<IActionResult> DeleteBrand(Guid brandId, CancellationToken cancellationToken)
+    [HttpDelete("{brandId:int}")]
+    public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 

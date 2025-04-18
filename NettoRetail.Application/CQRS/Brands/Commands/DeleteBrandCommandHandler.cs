@@ -5,7 +5,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Brands.Commands;
 
-public record DeleteBrandCommand(Guid Id, int ShopId) : IRequest;
+public record DeleteBrandCommand(int Id, int ShopId) : IRequest;
 
 public class DeleteBrandCommandHandler(IBrandRepository brandRepository) : IRequestHandler<DeleteBrandCommand>
 {

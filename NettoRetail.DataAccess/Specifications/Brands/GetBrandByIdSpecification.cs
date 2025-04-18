@@ -5,6 +5,6 @@ namespace NettoRetail.DataAccess.Specifications.Brands;
 
 public class GetBrandByIdSpecification : Specification<BrandEntity>
 {
-    public GetBrandByIdSpecification(Guid id)
+    public GetBrandByIdSpecification(int id)
     : base(b => b.Id == id) { }
 }
