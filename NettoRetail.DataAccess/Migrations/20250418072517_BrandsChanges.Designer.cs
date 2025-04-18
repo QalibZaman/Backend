@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250418062523_NullableBrandProperties")]
-    partial class NullableBrandProperties
+    [Migration("20250418072517_BrandsChanges")]
+    partial class BrandsChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -137,7 +137,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("WebsiteUrl")
                         .IsUnique();
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
