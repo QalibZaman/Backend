@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -17,7 +18,7 @@ public record CreateBrandCommand(CreateBrandRequest Model, int ShopId) : IReques
 // Commented azureblobservice for now, because it constantly throws an exception due to connectionString being empty
 public class CreateBrandCommandHandler(
     IBrandRepository brandRepository,
-    //IAzureBlobService azureBlobService,
+    IAzureBlobService azureBlobService,
     IUnitOfWork unitOfWork,
     IOptions<ConnectionStrings> connectionStrings,
     IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<CreateBrandCommand, BrandResponse>
@@ -62,8 +63,8 @@ public class CreateBrandCommandHandler(
 
             if (fileName != null)
             {
-                //await using var stream = request.Model.LogoFile!.OpenReadStream();
-                //await azureBlobService.UploadAsync(fileName, stream, brandLogoContainerName);
+                await using var stream = request.Model.LogoFile!.OpenReadStream();
+                await azureBlobService.UploadAsync(fileName, stream, brandLogoContainerName);
             }
 
             transaction.Commit();
