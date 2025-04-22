@@ -33,4 +33,32 @@ public class EmailSender(IOptions<EmailOptions> emailOptions) : IEmailSender
 
         await client.SendMailAsync(message);
     }
+
+    public async Task SendBulkAsync(BulkEmailModel model)
+    {
+        using var client = new SmtpClient(
+        emailOptions.Value.Host,
+        emailOptions.Value.Port)
+        {
+            EnableSsl = true,
+            Credentials = new NetworkCredential(
+            emailOptions.Value.Sender,
+            emailOptions.Value.Password)
+        };
+
+        using var message = new MailMessage
+        {
+            From = new MailAddress(emailOptions.Value.Sender),
+            Subject = model.Subject,
+            Body = model.Message,
+            IsBodyHtml = true
+        };
+
+        foreach (var email in model.EmailAddresses)
+        {
+            message.To.Add(email);
+
+            await client.SendMailAsync(message);
+        }
+    }
 }
