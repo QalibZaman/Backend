@@ -12,5 +12,4 @@ public class ProductDetailsResponse
     [JsonConverter(typeof(ProductDetailsValueConverter))]
     public required object Value { get; set; }
     public required int OrderIndex { get; set; }
-    public required Guid InventoryItemId { get; set; }
 }

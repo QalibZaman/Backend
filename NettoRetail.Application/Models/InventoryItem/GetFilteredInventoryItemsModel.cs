@@ -16,6 +16,7 @@ public class GetFilteredInventoryItemsModel
     public decimal? MaxPrice { get; set; }
     public decimal MinPrice { get; set; }
     public string? Status { get; set; }
+    public string? BrandName { get; set; }
 
     public List<SortingOption>? SortingOptions { get; set; }
 }

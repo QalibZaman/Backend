@@ -12,7 +12,7 @@ public class OrderEntity
     public required OrderDeliveryTypeEnum DeliveryType { get; set; }
     public required Guid CustomerId { get; set; }
     public int ShopId { get; set; }
-
+    public ICollection<OrderStatusHistoryEntity> StatusHistory { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
     public CustomerEntity Customer { get; set; } = null!;
 }

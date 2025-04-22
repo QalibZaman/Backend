@@ -674,6 +674,34 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderStatusHistoryEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<int>("NewStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OldStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("UpdatedAt")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderStatusHistories");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1038,6 +1066,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderStatusHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
@@ -1107,6 +1146,8 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
                 {
                     b.Navigation("OrderItems");
+
+                    b.Navigation("StatusHistory");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>

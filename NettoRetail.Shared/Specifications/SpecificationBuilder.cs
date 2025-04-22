@@ -36,6 +36,12 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
+    public SpecificationBuilder<TEntity> AddCriteria(Expression<Func<TEntity, bool>> expression)
+    {
+        _specification.AddCriteria(expression);
+        return this;
+    }
+
     public SpecificationBuilder<TEntity> Add<TSpecification>(params object?[]? args)
         where TSpecification : Specification<TEntity>
     {
@@ -56,7 +62,7 @@ public class SpecificationBuilder<TEntity>
         // and then chain it to the previous specification.
         var newSpecification = (TSpecification)Activator.CreateInstance(typeof(TSpecification), args)!;
 
-        _specification = _specification.And(newSpecification);
+        _specification.And(newSpecification);
         return this;
     }
 
