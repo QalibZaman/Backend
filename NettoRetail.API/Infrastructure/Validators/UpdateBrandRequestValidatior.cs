@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 
-public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest> 
+public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest>
 {
     private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
 

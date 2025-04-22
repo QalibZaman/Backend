@@ -57,7 +57,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
         var command = model.Adapt<UpdateBrandCommand>();
         command = command with { Id = id, ShopId = shopId };
-        await mediator.Send<BrandResponse>(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

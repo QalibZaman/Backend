@@ -13,4 +13,14 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
 
         await blobClient.UploadAsync(stream);
     }
+
+    public async Task UpdateAsync(string fileName, Stream stream, string containerName)
+    {
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+        var blobClient = containerClient.GetBlobClient(fileName);
+
+        await blobClient.DeleteAsync();
+        await blobClient.UploadAsync(stream);
+    }
 }
