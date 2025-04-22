@@ -42,7 +42,7 @@ public class CreateBrandCommandHandler(
         }
 
         var azureConnectionString = connectionStrings.Value.AzureConnection;
-        var brandLogoContainerName = azureBlobStorageOptions.Value.BrandLogoContainerName;
+        var containerName = azureBlobStorageOptions.Value.ContainerName;
 
         var brand = request.Model.Adapt<BrandEntity>();
         brand.ShopId = request.ShopId;
@@ -51,13 +51,13 @@ public class CreateBrandCommandHandler(
 
         if (request.Model.LogoFile != null)
         {
-            fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Model.LogoFile.FileName)}";
+            fileName = $"brand-logos/{Guid.NewGuid()}{Path.GetExtension(request.Model.LogoFile.FileName)}";
         }
 
         if (fileName != null)
         {
             await using var stream = request.Model.LogoFile!.OpenReadStream();
-            brand.LogoImageUrl = await azureBlobService.UploadAsync(fileName, stream, brandLogoContainerName, BlobContentCategoryEnum.Image);
+            brand.LogoImageUrl = await azureBlobService.UploadAsync(fileName, stream, containerName, BlobContentCategoryEnum.Image);
         }
 
         await brandRepository.AddAsync(brand, cancellationToken);
