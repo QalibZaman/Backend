@@ -27,7 +27,7 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
         if (brand.ShopId != request.ShopId)
             throw new MyUnauthorizedException("This brand is inaccessible");
 
-        var brandLogoContainerName = azureBlobStorageOptions.Value.BrandLogoContainerName;
+        var brandLogoContainerName = azureBlobStorageOptions.Value.ContainerName;
 
         if (brand.LogoImageUrl != null)
             await azureBlobService.DeleteByUrlAsync(brand.LogoImageUrl);
