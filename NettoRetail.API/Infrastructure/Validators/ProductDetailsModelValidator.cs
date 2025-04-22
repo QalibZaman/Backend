@@ -60,8 +60,5 @@ public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsMode
                         break;
                 }
             });
-
-        RuleFor(x => x.InventoryItemId)
-            .NotEmpty().WithMessage("InventoryItemId is required.");
     }
 }
