@@ -39,6 +39,7 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
                 detail.Adapt(detailToUpsert);
             }
 
+            detailToUpsert.InventoryItemId = request.InventoryItemId;
             detailsToUpsert.Add(detailToUpsert);
         }
 
