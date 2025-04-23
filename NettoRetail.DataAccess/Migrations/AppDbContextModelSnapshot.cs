@@ -102,12 +102,13 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -123,7 +124,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("WebsiteUrl")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -137,7 +137,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("WebsiteUrl")
                         .IsUnique();
 
-                    b.ToTable("BrandEntity");
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -493,8 +493,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("AvailableAmount")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("BrandId")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
@@ -618,6 +618,31 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             PermissionId = 5,
                             RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 1,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 2,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 3,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 4,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 5,
+                            RoleId = 99
                         });
                 });
 
@@ -769,6 +794,12 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 2,
                             Description = "Has access to only what the customer can do",
                             Name = "Customer"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Description = "System-level admin from RetailTech with full access across tenants",
+                            Name = "SuperAdmin"
                         });
                 });
 
@@ -973,7 +1004,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.BrandEntity", "Brand")
                         .WithMany("InventoryItems")
-                        .HasForeignKey("BrandId");
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("InventoryItems")

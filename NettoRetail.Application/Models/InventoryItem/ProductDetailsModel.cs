@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
 using NettoRetail.API.Infrastructure.JsonConverters;
 
 namespace NettoRetail.Application.Models.InventoryItem;
@@ -13,5 +14,4 @@ public class ProductDetailsModel
     [JsonConverter(typeof(ProductDetailsValueConverter))]
     public required object Value { get; set; }
     public required int OrderIndex { get; set; }
-    public required Guid InventoryItemId { get; set; }
 }
