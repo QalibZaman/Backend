@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{02EA681E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NettoRetail.Tests", "NettoRetail.Tests\NettoRetail.Tests.csproj", "{E459B376-49A1-4E00-9436-DD14AE4583C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NettoRetail.SeederApp", "NettoRetail.SeederApp\NettoRetail.SeederApp.csproj", "{49F66734-C44C-4F5C-8338-B3562ED90ACA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{E459B376-49A1-4E00-9436-DD14AE4583C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E459B376-49A1-4E00-9436-DD14AE4583C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E459B376-49A1-4E00-9436-DD14AE4583C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{41198ECD-D72D-4EB9-9D20-78911808D1D0} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{0A60FFA4-62E2-48FD-B2AC-A246B8908716} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{E459B376-49A1-4E00-9436-DD14AE4583C0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{49F66734-C44C-4F5C-8338-B3562ED90ACA} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5937772A-BE82-4FD7-ADBC-0CBB0AFE2E9E}

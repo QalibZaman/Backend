@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Brands.Queries;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Response;
@@ -41,6 +42,18 @@ public class BrandsController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<BrandResponse>(data);
 
         // TODO: Change to createdat Get once we add an appropriate endpoint
-        return CreatedAtAction(string.Empty, response);
+        return Created(string.Empty, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpDelete("{brandId:int}")]
+    public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var deleteBrandCommand = new DeleteBrandCommand(brandId, shopId);
+        await mediator.Send(deleteBrandCommand, cancellationToken);
+
+        return Ok();
     }
 }

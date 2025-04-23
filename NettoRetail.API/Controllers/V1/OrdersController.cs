@@ -94,4 +94,15 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
         return Ok(response);
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("history/{customerId:guid}")]
+    public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
+    {
+        var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId);
+        var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
+        var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+
+        return Ok(response);
+    }
 }

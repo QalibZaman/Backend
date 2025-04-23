@@ -13,7 +13,7 @@ public class UploadFileCommandHandler(IAzureBlobService azureBlobService) : IReq
         var fileName = request.File.FileName;
         await using var stream = request.File.OpenReadStream();
         var containerName = "some-container";
-        await azureBlobService.UploadAsync(fileName, stream, containerName);
+        await azureBlobService.UploadAsync(fileName, stream, containerName, Shared.Enums.BlobContentCategoryEnum.Image);
         return true;
     }
 }
