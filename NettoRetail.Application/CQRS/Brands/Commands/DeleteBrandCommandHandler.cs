@@ -1,10 +1,7 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Infrastructure.Interfaces;
-using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Brands.Commands;
@@ -12,8 +9,7 @@ namespace NettoRetail.Application.CQRS.Brands.Commands;
 public record DeleteBrandCommand(int Id, int ShopId) : IRequest;
 
 public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
-    IAzureBlobService azureBlobService,
-    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<DeleteBrandCommand>
+    IAzureBlobService azureBlobService) : IRequestHandler<DeleteBrandCommand>
 {
     public async Task Handle(DeleteBrandCommand request, CancellationToken cancellationToken)
     {
@@ -26,8 +22,6 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
 
         if (brand.ShopId != request.ShopId)
             throw new MyUnauthorizedException("This brand is inaccessible");
-
-        var brandLogoContainerName = azureBlobStorageOptions.Value.ContainerName;
 
         if (brand.LogoImageUrl != null)
             await azureBlobService.DeleteByUrlAsync(brand.LogoImageUrl);

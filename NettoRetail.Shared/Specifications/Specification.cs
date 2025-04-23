@@ -59,4 +59,16 @@ public class Specification<TEntity>
         Select = selectExpression;
         return this;
     }
+
+    public Specification<TEntity> AddCriteria(Expression<Func<TEntity, bool>> newCriteria)
+    {
+        var combined = Expression.Lambda<Func<TEntity, bool>>(
+            Expression.AndAlso(
+                Criteria.Body,
+                Expression.Invoke(newCriteria, Criteria.Parameters[0])),
+            Criteria.Parameters[0]);
+
+        Criteria = combined;
+        return this;
+    }
 }

@@ -15,13 +15,7 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
     {
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
-        string prefix = category switch
-        {
-            BlobContentCategoryEnum.Image => "images/",
-            BlobContentCategoryEnum.Document => "docs/",
-            BlobContentCategoryEnum.Video => "videos/",
-            _ => "misc/"
-        };
+        string prefix = category.GetDirectory();
 
         var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
 

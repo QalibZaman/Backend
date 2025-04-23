@@ -615,6 +615,31 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             PermissionId = 5,
                             RoleId = 1
+                        },
+                        new
+                        {
+                            PermissionId = 1,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 2,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 3,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 4,
+                            RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 5,
+                            RoleId = 99
                         });
                 });
 
@@ -766,6 +791,12 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 2,
                             Description = "Has access to only what the customer can do",
                             Name = "Customer"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Description = "System-level admin from RetailTech with full access across tenants",
+                            Name = "SuperAdmin"
                         });
                 });
 
