@@ -59,5 +59,8 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
 
         builder.Navigation(s => s.Country)
             .AutoInclude();
+
+        builder.Property(s => s.Subscription)
+            .HasConversion<string>();
     }
 }
