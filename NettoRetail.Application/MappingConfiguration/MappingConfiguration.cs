@@ -85,5 +85,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+
+        config.NewConfig<UpdateBrandRequest, BrandEntity>()
+            .IgnoreNullValues(true);
     }
 }
