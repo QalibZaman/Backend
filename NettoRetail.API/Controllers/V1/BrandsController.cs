@@ -30,6 +30,19 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{brandId:int}")]
+    public async Task<IActionResult> GetBrand([FromQuery] int brandId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var getBrandInfoQuery = new GetBrandInfoQuery(brandId, shopId);
+        var data = await mediator.Send(getBrandInfoQuery, cancellationToken);
+
+        var response = new ApiResponse<BrandResponse>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateBrand([FromForm] CreateBrandRequest model, CancellationToken cancellationToken)
     {
@@ -40,7 +53,18 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
         var response = new ApiResponse<BrandResponse>(data);
 
-        // TODO: Change to createdat Get once we add an appropriate endpoint
-        return CreatedAtAction(string.Empty, response);
+        return CreatedAtAction(nameof(GetBrand), new { id = data.Id }, response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpDelete("{brandId:int}")]
+    public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var deleteBrandCommand = new DeleteBrandCommand(brandId, shopId);
+        await mediator.Send(deleteBrandCommand, cancellationToken);
+
+        return Ok();
     }
 }
