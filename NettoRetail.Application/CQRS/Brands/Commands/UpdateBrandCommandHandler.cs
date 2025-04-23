@@ -20,11 +20,13 @@ public record UpdateBrandCommand(int Id, string Name, string? Description, IForm
 
 public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureBlobService azureBlobService, IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<UpdateBrandCommand, BrandResponse>
 {
+    private const string BrandsBlobPath = "brands/";
+
     public async Task<BrandResponse> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<BrandEntity>();
         specificationBuilder.Add<GetBrandsByIdSpecification>(request.Id)
-                          .Add<GetBrandsByShopIdSpecification>(request.ShopId);
+                            .Add<GetBrandsByShopIdSpecification>(request.ShopId);
 
         var brand = await brandRepository.GetAsync(specificationBuilder.Build(), cancellationToken)
                    ?? throw new NotFoundException("Brand not found.");
@@ -32,8 +34,10 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureB
         // Upload new logo
         if (request.Logo != null)
         {
+            var blobPath = GenerateBrandLogoBlobPath(brand.Id, request.Logo.FileName);
+
             var logoUrl = await azureBlobService.UploadAsync(
-                $"brands/{brand.Id}/{Guid.NewGuid()}{Path.GetExtension(request.Logo.FileName)}",
+                blobPath,
                 request.Logo.OpenReadStream(),
                 azureBlobStorageOptions.Value.ContainerName,
                 BlobContentCategoryEnum.Image,
@@ -46,5 +50,10 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureB
         await brandRepository.UpdateAsync(brand, cancellationToken);
 
         return brand.Adapt<BrandResponse>();
+    }
+
+    private static string GenerateBrandLogoBlobPath(int brandId, string originalFileName)
+    {
+        return $"{BrandsBlobPath}{brandId}/{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
     }
 }
