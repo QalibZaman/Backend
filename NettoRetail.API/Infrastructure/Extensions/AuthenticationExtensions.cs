@@ -111,7 +111,7 @@ public static class AuthenticationExtensions
                     .RequireAssertion(context =>
                     {
                         var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
-                        if (roleId == "99") // SuperAdmin
+                        if (roleId == SuperAdminConstants.SuperAdminRoleId)
                             return true;
 
                         return context.User.HasClaim(c => c.Type == AuthClaims.ShopId);

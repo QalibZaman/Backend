@@ -20,8 +20,8 @@ public static class ClaimsPrincipalExtensions
     {
         var role = principal?.FindFirstValue(ClaimTypes.Role);
 
-        if (role == "99")
-            return 0;
+        if (role == SuperAdminConstants.SuperAdminRoleId)
+            return SuperAdminConstants.AllShopsIndicator;
 
         var userShopId = principal?.FindFirstValue(AuthClaims.ShopId);
         var isParsed = int.TryParse(userShopId, out int parsedUserShopId);

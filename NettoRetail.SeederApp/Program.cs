@@ -24,10 +24,20 @@ services.AddDbContext<AppDbContext>(options =>
 });
 
 services.AddScoped<IAccountRepository, AccountRepository>();
-services.AddScoped<SuperAdminSeeder>();
+var profile = config.GetValue<string>("Profile");
 
-var provider = services.BuildServiceProvider();
-using var scope = provider.CreateScope();
+if (profile == "RoleSeeder")
+{
+    services.AddScoped<RoleSeeder>();
 
-var seeder = scope.ServiceProvider.GetRequiredService<SuperAdminSeeder>();
-await seeder.SeedAsync();
+    var provider = services.BuildServiceProvider();
+    using var scope = provider.CreateScope();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
+    await seeder.SeedAsync();
+}
+else
+{
+    Console.WriteLine($"No seeder matched for profile: {profile}");
+}
+
