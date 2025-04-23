@@ -10,6 +10,7 @@ using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -20,8 +21,6 @@ public record UpdateBrandCommand(int Id, string Name, string? Description, IForm
 
 public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureBlobService azureBlobService, IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<UpdateBrandCommand, BrandResponse>
 {
-    private const string BrandsBlobPath = "brands/";
-
     public async Task<BrandResponse> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<BrandEntity>();
@@ -54,6 +53,6 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureB
 
     private static string GenerateBrandLogoBlobPath(int brandId, string originalFileName)
     {
-        return $"{BrandsBlobPath}{brandId}/{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+        return $"{BrandsConstants.BrandsBlobPath}{brandId}/{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
     }
 }
