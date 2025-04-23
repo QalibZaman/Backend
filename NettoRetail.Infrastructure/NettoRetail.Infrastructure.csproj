@@ -21,5 +21,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="EmailTemplates\**\*.html" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\NettoRetail.Shared\NettoRetail.Shared.csproj" />
+	</ItemGroup>
 
 </Project>

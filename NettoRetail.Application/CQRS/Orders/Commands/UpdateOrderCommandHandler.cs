@@ -2,15 +2,15 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
-using NettoRetail.Domain.Enums;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.DataAccess.Specifications.Orders;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
-using NettoRetail.DataAccess.Specifications.Orders;
 
 namespace NettoRetail.Application.CQRS.Orders.Commands;
 

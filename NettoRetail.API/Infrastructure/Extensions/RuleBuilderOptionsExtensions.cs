@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using FluentValidation;
+﻿using FluentValidation;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
@@ -53,6 +51,22 @@ public static class RuleBuilderOptionsExtensions
             string[] permittedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
             var extension = Path.GetExtension(filename).ToLowerInvariant();
             return permittedExtensions.Contains(extension);
+        });
+    }
+
+    public static IRuleBuilderOptions<T, string?> MustBeAValidOrderStatus<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder.Must(status =>
+        {
+            return string.IsNullOrWhiteSpace(status) || Enum.TryParse(typeof(OrderStatusEnum), status, true, out _);
+        });
+    }
+
+    public static IRuleBuilderOptions<T, string?> MustBeAValidOrderDeliveryType<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder.Must(type =>
+        {
+            return string.IsNullOrWhiteSpace(type) || Enum.TryParse(typeof(OrderDeliveryTypeEnum), type, true, out _);
         });
     }
 }

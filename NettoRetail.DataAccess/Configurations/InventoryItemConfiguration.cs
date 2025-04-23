@@ -45,6 +45,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
 
         builder.HasOne(p => p.Brand)
             .WithMany(b => b.InventoryItems)
-            .HasForeignKey(p => p.BrandId);
+            .HasForeignKey(p => p.BrandId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
