@@ -9,14 +9,13 @@ using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.UOW;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record UpdateProfileImageCommand(Guid Id, IFormFile Image) : IRequest;
-
-//TODO: When get blob storage check is it working
 public class UpdateProfileImageCommandHandler(IAccountRepository accountRepository,
     IUnitOfWork unitOfWork,
     IAzureBlobService azureBlobService,
@@ -29,7 +28,7 @@ public class UpdateProfileImageCommandHandler(IAccountRepository accountReposito
         var account = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No user with such id");
 
         var azureConnectionString = connectionStrings.Value.AzureConnection;
-        var accountLogoContainerName = azureBlobStorageOptions.Value.AccountLogoContainerName;
+        var accountLogoContainerName = azureBlobStorageOptions.Value.ContainerName;
 
         string? fileName = null;
 
@@ -54,7 +53,7 @@ public class UpdateProfileImageCommandHandler(IAccountRepository accountReposito
             if (fileName != null)
             {
                 await using var stream = request.Image!.OpenReadStream();
-                await azureBlobService.UploadAsync(fileName, stream, accountLogoContainerName);
+                await azureBlobService.UploadAsync(fileName, stream, accountLogoContainerName,BlobContentCategoryEnum.Image,true);
             }
 
             transaction.Commit();

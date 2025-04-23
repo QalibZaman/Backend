@@ -262,4 +262,18 @@ public class StaffController(
 
         return NoContent();
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:guid}/profile-image")]
+    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, FormFile image, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = new UpdateProfileImageCommand(id, image);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
 }
