@@ -20,4 +20,5 @@ public class AccountEntity
     public ShopEntity? Shop { get; set; }
     public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
+    public ICollection<PaymentEntity>? PaymentMethods { get; set; }
 }

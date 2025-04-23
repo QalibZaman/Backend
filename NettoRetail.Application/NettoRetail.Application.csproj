@@ -23,4 +23,8 @@
       <ProjectReference Include="..\NettoRetail.Infrastructure\NettoRetail.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="CQRS\Payments\Queries\" />
+    </ItemGroup>
+
 </Project>
