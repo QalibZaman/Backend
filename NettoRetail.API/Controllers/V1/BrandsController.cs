@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,5 +68,21 @@ public class BrandsController(IMediator mediator) : ControllerBase
         await mediator.Send(deleteBrandCommand, cancellationToken);
 
         return Ok();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{brandId:int}")]
+    public async Task<IActionResult> UpdateBrand(
+        int brandId,
+        [FromForm] UpdateBrandRequest model,
+        CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = model.Adapt<UpdateBrandCommand>();
+        command = command with { Id = brandId, ShopId = shopId };
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }

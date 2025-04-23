@@ -1,5 +1,4 @@
 ﻿using Azure.Core;
-using System.Threading;
 using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
