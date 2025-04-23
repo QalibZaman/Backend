@@ -24,8 +24,6 @@ build:
 deploy:
   stage: deploy
   image: $AND_DOCKER_PROXY_REGISTRY_NAME/debian:12.10
-  only:
-    - dev
   before_script:
     - apt update
     - apt install -y curl
@@ -38,3 +36,5 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
+  only:
+    - dev

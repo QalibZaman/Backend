@@ -30,8 +30,8 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
-        services.AddScoped<ICountryCacheService, CountryCacheService>();
-        services.AddScoped<IPermissionCacheService, PermissionCacheService>();
+        services.AddSingleton<ICountryCacheService, CountryCacheService>();
+        services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<IJwtManager, JwtManager>();

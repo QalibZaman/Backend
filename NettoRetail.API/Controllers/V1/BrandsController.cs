@@ -43,20 +43,32 @@ public class BrandsController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<BrandResponse>(data);
 
         // TODO: Change to createdat Get once we add an appropriate endpoint
-        return CreatedAtAction(string.Empty, response);
+        return Created(string.Empty, response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut("{id:int}")]
+    [HttpDelete("{brandId:int}")]
+    public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var deleteBrandCommand = new DeleteBrandCommand(brandId, shopId);
+        await mediator.Send(deleteBrandCommand, cancellationToken);
+
+        return Ok();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{brandId:int}")]
     public async Task<IActionResult> UpdateBrand(
-        int id,
+        int brandId,
         [FromForm] UpdateBrandRequest model,
         CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
         var command = model.Adapt<UpdateBrandCommand>();
-        command = command with { Id = id, ShopId = shopId };
+        command = command with { Id = brandId, ShopId = shopId };
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
