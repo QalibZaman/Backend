@@ -95,6 +95,15 @@ public class OrdersController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("print/{orderId}")]
+    public async Task<IActionResult> GetOrderPrintingDetails(int orderId, CancellationToken cancellationToken)
+    {
+        var command = new GetOrderDetailsForPrintingQuery(orderId);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<OrderPrintingResponse>(data);
+        return Ok(response);
+    }
+    
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("history/{customerId:guid}")]
     public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)

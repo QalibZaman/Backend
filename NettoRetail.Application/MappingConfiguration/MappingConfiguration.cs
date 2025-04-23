@@ -85,5 +85,13 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+
+        config.NewConfig<OrderEntity, OrderPrintingResponse>()
+            .Map(dest => dest.CustomerId, src => src.CustomerId)
+            .Map(dest => dest.CreationDate, src => DateOnly.FromDateTime(src.CreationDate))
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem));
     }
 }
