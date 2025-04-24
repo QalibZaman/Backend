@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
@@ -244,5 +245,33 @@ public class StaffController(
         var response = await mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+    }
+
+    [Authorize]
+    [HttpPost("subscribe-to-newsletter")]
+    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var absoluteUrl = Url.Action("unsubscribe-to-newsletter", "staff", null, Request.Scheme);
+
+        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("unsubscribe-to-newsletter")]
+    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new UnsubscribeToNewsletterCommand(userId);
+
+        await mediator.Send(command, cancellationToken);
+
+
+        return NoContent();
     }
 }
