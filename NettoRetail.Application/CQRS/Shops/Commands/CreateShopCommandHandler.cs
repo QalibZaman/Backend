@@ -24,7 +24,6 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
         await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
 
         var shop = request.Model.Adapt<ShopEntity>();
-        shop.ShopOwnerId = request.AccountId;
 
         using var transaction = unitOfWork.BeginTransaction();
 

@@ -1,18 +1,23 @@
 ﻿using Mapster;
 using MediatR;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
 
 public record GetClientsShopInfoQuery(int ShopId) : IRequest<ClientsShopInfoResponse>;
 
-public class GetClientsShopInfoQueryHandler(IShopRepository shopRepository, IAccountRepository accountRepository) : IRequestHandler<GetClientsShopInfoQuery, ClientsShopInfoResponse>
+public class GetClientsShopInfoQueryHandler(
+    IShopRepository shopRepository,
+    IAccountRepository accountRepository,
+    IOptions<AdminRoleOptions> adminOptions) : IRequestHandler<GetClientsShopInfoQuery, ClientsShopInfoResponse>
 {
     public async Task<ClientsShopInfoResponse> Handle(GetClientsShopInfoQuery request, CancellationToken cancellationToken)
     {
@@ -21,7 +26,7 @@ public class GetClientsShopInfoQueryHandler(IShopRepository shopRepository, IAcc
         
         var shop = await shopRepository.GetAsync(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There is no shop with such Id");
 
-        var getClientAccountByIdSpecification = new GetAccountByIdSpecification(shop.ShopOwnerId);
+        var getClientAccountByIdSpecification = new GetAccountByShopIdAndRoleSpecification(request.ShopId, adminOptions.Value.RoleId);
         var clientsAccount = await accountRepository.GetAsync(getClientAccountByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no account with such Id");
 
         var shopResponse = shop.Adapt<ClientsShopInfoResponse>();

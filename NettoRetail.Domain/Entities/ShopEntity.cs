@@ -15,7 +15,6 @@ public class ShopEntity
     public required string ZipCode { get; set; }
     public required string Description { get; set; }
     public int CountryId { get; set; }
-    public Guid ShopOwnerId { get; set; }
     public SubscriptionTypeEnum Subscription { get; set; } = SubscriptionTypeEnum.Free;
 
     public ICollection<RoleEntity>? Roles { get; set; }
