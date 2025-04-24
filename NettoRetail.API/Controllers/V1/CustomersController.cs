@@ -54,4 +54,14 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> DeleteCustomer(Guid id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteCustomerCommand(id);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
 }
