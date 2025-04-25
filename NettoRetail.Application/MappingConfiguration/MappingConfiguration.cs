@@ -94,6 +94,11 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
             .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem));
 
+        config.NewConfig<OrderEntity, OrderSearchResponse>()
+           .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+           .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
+           .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
     }

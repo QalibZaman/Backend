@@ -61,7 +61,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("search")]
+    [HttpGet("search-options")]
     public async Task<IActionResult> GetSearchOptions([FromQuery] SearchFieldModel search, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -103,7 +103,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<OrderPrintingResponse>(data);
         return Ok(response);
     }
-    
+
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("history/{customerId:guid}")]
     public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
@@ -112,6 +112,17 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
 
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("search")]
+    public async Task<IActionResult> GetOrder(int id, Guid customerId, string search, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetSearchOrdersQuery(id, customerId, search, shopId);
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<IEnumerable<OrderSearchResponse>>(data);
         return Ok(response);
     }
 }
