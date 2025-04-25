@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Infrastructure.EmailTemplates;
@@ -47,6 +48,20 @@ public class EmailBuilderService(
         {
             Email = email,
             Subject = EmailSubjects.PasswordChanged,
+            Message = emailBody
+        };
+    }
+
+    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string firstName, string unsubscribeUrl)
+    {
+        var model = new { user_name = firstName, unsubscribe_url = unsubscribeUrl };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.SubscriptionConfirmation, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.SubscriptionConfirmation,
             Message = emailBody
         };
     }

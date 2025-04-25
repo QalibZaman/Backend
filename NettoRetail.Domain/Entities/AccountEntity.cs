@@ -14,6 +14,7 @@ public class AccountEntity
     public bool TwoFactorEnabled { get; set; }
     public string? EncryptedTotpSecret { get; set; }
     public DateTime? PasswordUpdatedAt { get; set; }
+    public bool IsSubscribedTonewsletter { get; set; }
 
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }

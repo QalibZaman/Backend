@@ -41,6 +41,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<bool>("IsSubscribedTonewsletter")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -640,6 +643,11 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             PermissionId = 5,
                             RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 6,
+                            RoleId = 99
                         });
                 });
 
@@ -749,6 +757,11 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             Id = 5,
                             Title = "System settings"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Title = "SuperAdmins management"
                         });
                 });
 
@@ -904,6 +917,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Subscription")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Url")
                         .IsRequired()
