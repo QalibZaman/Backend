@@ -15,7 +15,7 @@ public record UpdatePersonalInformationCommand(Guid Id,
     string PhoneNumber,
     string ShippingAddress,
     string City,
-    string State,
+    string? State,
     string ZipCode,
     int CountryId) : IRequest;
 

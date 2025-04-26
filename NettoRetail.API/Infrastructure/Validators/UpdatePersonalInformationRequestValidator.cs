@@ -57,7 +57,7 @@ namespace NettoRetail.API.Infrastructure.Validators
             RuleFor(x => x.State)
                 .Length(2, 50).WithMessage("State must be between 2 and 50 characters.")
                 .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("State can only contain Latin characters, numbers, spaces, and special characters.")
-                .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+                .Must(x => x == null || x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
         }
     }
 }
