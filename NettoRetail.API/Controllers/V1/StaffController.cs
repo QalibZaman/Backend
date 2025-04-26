@@ -294,7 +294,7 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:guid}/profile-image")]
-    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, FormFile image, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (userId != id) throw new BadRequestException("You are not able to change data of another user");
