@@ -30,7 +30,8 @@ namespace NettoRetail.DataAccess.Configurations
                 new PermissionRoleEntity() { RoleId = 99, PermissionId = 2 },
                 new PermissionRoleEntity() { RoleId = 99, PermissionId = 3 },
                 new PermissionRoleEntity() { RoleId = 99, PermissionId = 4 },
-                new PermissionRoleEntity() { RoleId = 99, PermissionId = 5 });
+                new PermissionRoleEntity() { RoleId = 99, PermissionId = 5 },
+                new PermissionRoleEntity() { RoleId = 99, PermissionId = 6 });
         }
     }
 }
