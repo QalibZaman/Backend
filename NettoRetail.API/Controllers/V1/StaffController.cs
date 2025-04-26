@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.CQRS.Users.Queries.Staff;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Password;
@@ -271,6 +273,35 @@ public class StaffController(
 
         await mediator.Send(command, cancellationToken);
 
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:guid}/personal-info")]
+    public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = model.Adapt<UpdatePersonalInformationCommand>();
+        command = command with { Id = id };
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:guid}/profile-image")]
+    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, FormFile image, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = new UpdateProfileImageCommand(id, image);
+
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

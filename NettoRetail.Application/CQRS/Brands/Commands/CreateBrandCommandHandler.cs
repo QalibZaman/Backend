@@ -10,7 +10,6 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Brands.Queries;
 
@@ -28,7 +27,7 @@ public class CreateBrandCommandHandler(
 
         if (await brandRepository.Exists(getBrandsByNameSpecification, cancellationToken))
         {
-            throw new BadRequestException("Brand's name must be unque");
+            throw new BadRequestException("Brand's name must be unique");
         }
 
         if (request.Model.WebsiteUrl != null)
@@ -45,6 +44,7 @@ public class CreateBrandCommandHandler(
         var containerName = azureBlobStorageOptions.Value.ContainerName;
 
         var brand = request.Model.Adapt<BrandEntity>();
+
         brand.ShopId = request.ShopId;
 
         string? fileName = null;
