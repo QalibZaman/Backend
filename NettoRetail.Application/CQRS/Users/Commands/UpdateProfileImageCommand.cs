@@ -38,19 +38,12 @@ public class UpdateProfileImageCommandHandler(IAccountRepository accountReposito
         {
             if (fileName != null)
             {
-                account.ProfileImageUrl = Path.Combine(
-                    azureConnectionString,
-                    accountLogoContainerName,
-                    fileName);
-            }
-
-            await accountRepository.AddAsync(account, cancellationToken);
-
-            if (fileName != null)
-            {
                 await using var stream = request.Image!.OpenReadStream();
-                await azureBlobService.UploadAsync(fileName, stream, accountLogoContainerName,BlobContentCategoryEnum.Image,true);
+                var imageUrl = await azureBlobService.UploadAsync(fileName, stream, accountLogoContainerName,BlobContentCategoryEnum.Image,true);
+                account.ProfileImageUrl = imageUrl;
             }
+
+            await accountRepository.UpdateAsync(account, cancellationToken);
 
             transaction.Commit();
         }
