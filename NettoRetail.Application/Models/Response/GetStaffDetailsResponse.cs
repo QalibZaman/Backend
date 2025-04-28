@@ -8,5 +8,11 @@ public class StaffDetailsResponse
     public required string Email { get; set; }
     public required int RoleId { get; set; }
     public required string Status { get; set; }
-    public DateTime? PasswordUpdatedAt { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? ShippingAddress { get; set; }
+    public string? City { get; set; }
+    public string? State { get; set; }
+    public string? ZipCode { get; set; }
+    public int? CountryId { get; set; }
+    public string? ProfileImageUrl { get; set; }
 }

@@ -55,7 +55,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
         var response = new ApiResponse<BrandResponse>(data);
 
-        return CreatedAtAction(nameof(GetBrand), new { id = data.Id }, response);
+        return CreatedAtAction(nameof(GetBrand), new { brandId = data.Id }, response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]

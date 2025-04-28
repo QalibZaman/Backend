@@ -25,6 +25,11 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .HasForeignKey(c => c.RoleId)
             .IsRequired(false);
 
+        builder.HasOne(s => s.Country)
+          .WithMany(r => r.Accounts)
+          .HasForeignKey(c => c.CountryId)
+          .IsRequired(false);
+
         builder.Property(p => p.Status).HasConversion<string>();
 
         builder.Property(p => p.PasswordUpdatedAt)
