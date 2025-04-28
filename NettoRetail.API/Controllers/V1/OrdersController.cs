@@ -47,11 +47,11 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] string? searchTerm, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var query = new GetFilteredOrdersQuery(model, userShopId, pageModel);
+        var query = new GetFilteredOrdersQuery(model, userShopId, searchTerm, pageModel);
 
         var data = await mediator.Send(query, cancellationToken);
 
@@ -61,7 +61,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("search-options")]
+    [HttpGet("search")]
     public async Task<IActionResult> GetSearchOptions([FromQuery] SearchFieldModel search, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -73,7 +73,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{orderId:int}")]
-    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] UpdateOrderModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] UpdateOrderModel model, CancellationToken can  cellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
         var userId = HttpContext.GetUserId();
@@ -112,17 +112,6 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
 
-        return Ok(response);
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("search")]
-    public async Task<IActionResult> GetOrder(int id, Guid customerId, string search, CancellationToken cancellationToken)
-    {
-        var shopId = HttpContext.GetUserShopId();
-        var query = new GetSearchOrdersQuery(id, customerId, search, shopId);
-        var data = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<IEnumerable<OrderSearchResponse>>(data);
         return Ok(response);
     }
 }
