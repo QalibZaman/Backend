@@ -15,9 +15,5 @@ public class OrderResponse
     public required Guid CustomerId { get; set; }
 
     public required IEnumerable<OrderItemResponse> OrderItems { get; set; }
-    public int TotalProducts { get; set; }
-    public int TotalQuantity { get; set; }
-    public decimal Subtotal { get; set; }
     public decimal TotalSale { get; set; }
-    public decimal Total { get; set; }
 }

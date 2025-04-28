@@ -33,14 +33,9 @@ public class GetOrderDetailsQueryHandler(
         var response = order.Adapt<OrderResponse>();
 
         response.OrderItems = items;
-        response.TotalProducts = items.Count;
-        response.TotalQuantity = items.Sum(i => i.Quantity);
-        response.Subtotal = items.Sum(i => i.Total);
         response.TotalSale = orderItems
             .Where(x => x.InventoryItem.IsPromoted && x.InventoryItem.PromotionPrice.HasValue)
             .Sum(x => x.InventoryItem.PromotionPrice!.Value);
-
-        response.Total = response.Subtotal - response.TotalSale;
 
         return response;
     }
