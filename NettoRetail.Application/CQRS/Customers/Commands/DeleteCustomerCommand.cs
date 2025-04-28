@@ -8,7 +8,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands
 {
-    public record DeleteCustomerCommand(Guid id, int shopId) : IRequest;
+    public record DeleteCustomerCommand(Guid Id, int ShopId) : IRequest;
 
     public class DeleteCustomerCommandHandler(ICustomerRepository customerRepository,
     ISessionTerminationService sessionTerminationService,
@@ -16,14 +16,14 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
     {
         public async Task Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
-            var specification = new GetCustomerByIdSpecification(request.id);
+            var specification = new GetCustomerByIdSpecification(request.Id);
             specification.AddInclude(x => x.Order);
             specification.AddInclude(x => x.Account);
 
             var customer = await customerRepository.GetAsync(specification, cancellationToken) ??
                 throw new NotFoundException("Customer not found");
 
-            if (customer.Account?.ShopId != request.shopId)
+            if (customer.Account?.ShopId != request.ShopId)
                 throw new ForbiddenException("Cannot delete customer from another shop");
 
             if (customer.Order.Any(order =>
