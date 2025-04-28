@@ -4,9 +4,9 @@ namespace NettoRetail.Application.Models.Order;
 
 public class OrderSearchResponse
 {
-    public int Id { get; set; }
-    public string CustomerEmail { get; set; }
-    public DateTime CreationDate { get; set; }
-    public OrderStatusEnum OrderStatus { get; set; }
-    public OrderDeliveryTypeEnum DeliveryType { get; set; }
+    public required int Id { get; set; }
+    public required string CustomerEmail { get; set; }
+    public required DateTime CreationDate { get; set; }
+    public required OrderStatusEnum OrderStatus { get; set; }
+    public required OrderDeliveryTypeEnum DeliveryType { get; set; }
 }
