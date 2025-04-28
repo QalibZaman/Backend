@@ -467,6 +467,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LoyaltyId")
                         .HasColumnType("text");
 
