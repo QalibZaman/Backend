@@ -73,7 +73,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{orderId:int}")]
-    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] UpdateOrderModel model, CancellationToken can  cellationToken)
+    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] UpdateOrderModel model, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
         var userId = HttpContext.GetUserId();
