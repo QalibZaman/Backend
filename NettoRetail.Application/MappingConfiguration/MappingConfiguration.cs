@@ -96,5 +96,9 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
+
+        config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
+            .Map(dest => dest.ShopEmail, src => src.Email)
+            .Map(dest => dest.Country, src => src.Country.Name);
     }
 }
