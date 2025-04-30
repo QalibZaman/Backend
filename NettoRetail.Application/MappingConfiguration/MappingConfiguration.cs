@@ -98,11 +98,7 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderEntity, OrderResponse>()
            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-           .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-           .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-           .Map(dest => dest.CreationDate, src => src.CreationDate.ToString())
-           .Map(dest => dest.Creator, src => src.Creator)
-           .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+           .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
