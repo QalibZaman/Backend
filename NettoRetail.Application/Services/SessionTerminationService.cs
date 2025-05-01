@@ -26,6 +26,6 @@ public class SessionTerminationService(
             session.IsActive = false;
         }
 
-        await sessionRepository.UpdateBulkAsync(sessions, cancellationToken);
+        await sessionRepository.UpdateManyAsync(sessions, cancellationToken);
     }
 }
