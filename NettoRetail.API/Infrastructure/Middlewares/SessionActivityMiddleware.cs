@@ -1,23 +1,43 @@
 ﻿using MediatR;
-using NettoRetail.Application.CQRS.Sessions.Commands;
-using NettoRetail.Application.Models.Session;
+using NettoRetail.Application.CQRS.Users.Commands.Auth;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
 public class SessionActivityMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext ctx, IMediator mediator)
+    public async Task InvokeAsync(HttpContext context, IMediator mediator, ISessionRepository sessionRepository)
     {
-        if (ctx.Request.Headers.ContainsKey("Authorization"))
+        if (context.Request.Headers.TryGetValue("Authorization", out var authHeader))
         {
-            var sessionUpdateModel = new SessionUpdateModel()
-            {
-                CurrentJwt = ctx.Request.Headers["Authorization"].ToString().Split(" ")[1],
-                LastActivityTime = DateTime.UtcNow,
-            };
+            var token = authHeader.ToString().Split(" ")[1];
 
-            await mediator.Send(new UpdateSessionTimeCommand(sessionUpdateModel));
+            var session = await sessionRepository.GetByJwtAsync(token);
+
+            if (session is null || !session.IsActive)
+            {
+                throw new MyUnauthorizedException("Session expired or not found.");
+            }
+
+            var now = DateTime.UtcNow;
+            var inactivityLimit = TimeSpan.FromHours(2);
+            var updateThreshold = TimeSpan.FromMinutes(5);
+            var inactivityDuration = now - session.LastActivityTime;
+
+            if (inactivityDuration > inactivityLimit)
+            {
+                await mediator.Send(new LogoutCommand(token, session.AccountId));
+                throw new MyUnauthorizedException("Session expired sue to inactivity");
+            }
+
+            if (inactivityDuration > updateThreshold)
+            {
+                session.LastActivityTime = now;
+                await sessionRepository.UpdateAsync(session, context.RequestAborted);
+            }
         }
 
-        await next(ctx);
+
+        await next(context);
     }
 }
