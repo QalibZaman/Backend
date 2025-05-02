@@ -5,7 +5,7 @@ namespace NettoRetail.DataAccess.Specifications.Sessions;
 public class GetActiveSessionsByAccountIdSpecification : Specification<SessionEntity>
 {
     public GetActiveSessionsByAccountIdSpecification(Guid accountId)
-        : base(s => s.AccountId == accountId && s.ExpiresAt > DateTime.UtcNow)
+        : base(s => s.AccountId == accountId && s.ExpiresAt > DateTime.UtcNow && s.IsActive == true)
     {
     }
 }

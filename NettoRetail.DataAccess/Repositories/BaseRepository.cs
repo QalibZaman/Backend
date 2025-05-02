@@ -172,6 +172,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         await _dbSet.BulkUpdateAsync(entities, cancellationToken);
     }
 
+    public async Task UpdateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    {
+        _dbSet.UpdateRange(entities);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<TEntity> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var query = _dbSet.Where(specification.Criteria);

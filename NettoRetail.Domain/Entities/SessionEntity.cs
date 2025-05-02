@@ -14,4 +14,5 @@ public class SessionEntity
     public DateTime ExpiresAt { get; set; }
     public Guid AccountId { get; set; } // currently fk to staff
     public required AccountEntity Account { get; set; }
+    public bool IsActive { get; set; } = true;
 }

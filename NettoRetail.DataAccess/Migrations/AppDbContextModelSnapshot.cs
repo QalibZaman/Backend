@@ -866,6 +866,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Jwt")
                         .IsRequired()
                         .HasColumnType("text");

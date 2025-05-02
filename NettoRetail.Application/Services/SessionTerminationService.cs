@@ -18,12 +18,14 @@ public class SessionTerminationService(
 
         foreach (var session in sessions)
         {
-            if (!string.IsNullOrWhiteSpace(session.Jwt))
+            if (!string.IsNullOrWhiteSpace(session.RefreshToken))
             {
-                await blacklistTokenService.BlacklistTokenAsync(session.Jwt, session.ExpiresAt, cancellationToken);
+                await blacklistTokenService.BlacklistTokenAsync(session.RefreshToken, session.ExpiresAt, cancellationToken);
             }
+
+            session.IsActive = false;
         }
 
-        await sessionRepository.DeleteManyBySpecAsync(spec, cancellationToken);
+        await sessionRepository.UpdateManyAsync(sessions, cancellationToken);
     }
 }
