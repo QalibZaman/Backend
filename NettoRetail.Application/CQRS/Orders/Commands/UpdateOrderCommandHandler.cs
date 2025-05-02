@@ -4,7 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.DataAccess.Specifications.Orders;
+using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
