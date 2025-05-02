@@ -3,6 +3,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -14,6 +15,7 @@ public record LogoutCommand(string AccessToken, Guid UserId) : IRequest;
 public class LogoutCommandHandler(
     IBlacklistTokenService blacklistTokenService,
     IAccountRepository accountRepository,
+    ISessionRepository sessionRepository,
     IPermissionCacheService permissionCacheService,
     IUnitOfWork unitOfWork) : IRequestHandler<LogoutCommand>
 {
@@ -32,7 +34,16 @@ public class LogoutCommandHandler(
 
         try
         {
-            await blacklistTokenService.BlacklistTokenAsync(request.AccessToken, expiresAt!.Value, cancellationToken);
+            var sessionSpecification = new GetSessionsByJwtSpecification(request.AccessToken);
+            var session = await sessionRepository.GetAsync(sessionSpecification, cancellationToken)
+                ?? throw new NotFoundException("Session was not found");
+
+            session.IsActive = false;
+            await sessionRepository.UpdateAsync(session, cancellationToken);
+
+            var refreshToken = session.RefreshToken;
+            var refreshTokenExpiresAt = session.ExpiresAt;
+            await blacklistTokenService.BlacklistTokenAsync(refreshToken, refreshTokenExpiresAt, cancellationToken);
 
             var accountSpecification = new GetAccountByIdSpecification(request.UserId);
             var account = await accountRepository.GetAsync(accountSpecification, cancellationToken);

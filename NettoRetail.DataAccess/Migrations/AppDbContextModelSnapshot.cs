@@ -467,6 +467,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LoyaltyId")
                         .HasColumnType("text");
 
@@ -862,6 +865,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Jwt")
                         .IsRequired()

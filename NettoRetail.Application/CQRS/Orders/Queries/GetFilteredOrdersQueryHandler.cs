@@ -12,7 +12,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
-public record GetFilteredOrdersQuery(GetFilteredOrdersModel Model, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<OrderListResponse>>;
+public record GetFilteredOrdersQuery(GetFilteredOrdersModel Model, int ShopId, string? SearchTerm, PaginationRequest PageModel) : IRequest<PaginatedResponse<OrderListResponse>>;
 
 public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : IRequestHandler<GetFilteredOrdersQuery, PaginatedResponse<OrderListResponse>>
 {
@@ -52,6 +52,11 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
         else
         {
             specBuilder.AddOrderBy(o => o.CreationDate, true);
+        }
+
+        if (request.SearchTerm != null)
+        {
+            specBuilder.Add<GetOrderSearchSpecification>(request.SearchTerm);
         }
 
         specBuilder.AddInclude(x => x.Customer.Account);

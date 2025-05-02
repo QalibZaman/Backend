@@ -1,7 +1,7 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Orders;
+namespace NettoRetail.DataAccess.Specifications.Order;
 
 public class GetOrdersByCustomerIdSpecification : Specification<OrderEntity>
 {

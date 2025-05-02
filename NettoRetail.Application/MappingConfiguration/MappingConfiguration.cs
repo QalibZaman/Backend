@@ -1,4 +1,5 @@
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -105,7 +106,16 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
             .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem));
 
+        config.NewConfig<OrderEntity, OrderResponse>()
+           .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+           .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+           .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
+
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
+
+        config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
+            .Map(dest => dest.ShopEmail, src => src.Email)
+            .Map(dest => dest.Country, src => src.Country.Name);
     }
 }

@@ -47,11 +47,11 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] string? searchTerm, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var query = new GetFilteredOrdersQuery(model, userShopId, pageModel);
+        var query = new GetFilteredOrdersQuery(model, userShopId, searchTerm, pageModel);
 
         var data = await mediator.Send(query, cancellationToken);
 
@@ -103,7 +103,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<OrderPrintingResponse>(data);
         return Ok(response);
     }
-    
+
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("history/{customerId:guid}")]
     public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
