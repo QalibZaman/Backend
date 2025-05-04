@@ -1,0 +1,7 @@
+﻿namespace NettoRetail.Application.Models.Shop;
+
+public class DeactivateShopRequest
+{
+    public string Reason { get; set; }
+    public DateTime DeactivationDate { get; set; }
+}
