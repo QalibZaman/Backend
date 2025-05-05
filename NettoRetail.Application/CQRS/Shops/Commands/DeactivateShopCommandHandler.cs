@@ -21,19 +21,15 @@ public class DeactivateShopCommandHandler(
     {
         DateTime deactivationDate = request.DeactivationDate ?? DateTime.UtcNow.AddDays(14);
 
-        // Get the shop
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
             ?? throw new NotFoundException("Shop not found");
 
-        // Update
         shop.IsActive = false;
         shop.DeactivationReason = request.Reason;
         shop.DeactivationDate = deactivationDate;
 
-        // Save
         await shopRepository.UpdateAsync(shop, cancellationToken);
 
-        // Publish the event for deactivation and for Email sending
         await mediator.Publish(new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate), cancellationToken);
     }
 }

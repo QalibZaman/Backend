@@ -2,6 +2,6 @@
 
 public class DeactivateShopRequest
 {
-    public string Reason { get; set; }
+    public required string Reason { get; set; }
     public DateTime DeactivationDate { get; set; }
 }

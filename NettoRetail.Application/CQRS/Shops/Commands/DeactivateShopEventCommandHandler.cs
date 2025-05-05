@@ -29,13 +29,11 @@ public class DeactivateShopEventCommandHandler(
         shop.DeactivationReason = request.Reason;
         shop.DeactivationDate = deactivationDate;
 
-        // Send email
         var email = await emailBuilder.BuildShopDeactivationWarningEmailAsync(
             shop.Email, shop.Name, deactivationDate, request.Reason);
 
-        await emailSender.SendAsync(email); // your internal sender
+        await emailSender.SendAsync(email);
 
-        // Session termination
         var sessions = await sessionRepo.GetManyBySpecAsync(
             new GetSessionsByShopIdSpecification(request.ShopId),
             cancellationToken);
