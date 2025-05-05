@@ -33,7 +33,7 @@ public static class AuthenticationExtensions
 
                 options.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = async context =>
+                    OnTokenValidated = context =>
                     {
                         var tokenTypeClaim = context.Principal?.FindFirst(AuthClaims.TokenType)?.Value;
                         var requestPath = context.HttpContext.Request.Path.Value;
@@ -41,24 +41,10 @@ public static class AuthenticationExtensions
                         if (tokenTypeClaim != AuthTokenTypes.Access)
                         {
                             context.Fail("Invalid token type. Expected an access token.");
-                            return;
+                            return Task.CompletedTask;
                         }
 
-                        var blacklistTokenService = context.HttpContext.RequestServices
-                                                   .GetRequiredService<IBlacklistTokenService>();
-
-                        var token = JwtUtils.ExtractTokenFromAuthorizationHeader(context.HttpContext);
-
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            bool isBlacklisted = await blacklistTokenService.IsTokenBlacklistedAsync(
-                                token, context.HttpContext.RequestAborted);
-
-                            if (isBlacklisted)
-                            {
-                                context.Fail("Token is invalid or has been revoked.");
-                            }
-                        }
+                        return Task.CompletedTask;
                     }
                 };
             })

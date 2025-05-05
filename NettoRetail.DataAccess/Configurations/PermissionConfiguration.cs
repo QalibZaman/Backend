@@ -22,6 +22,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<PermissionEntity
             new PermissionEntity() { Id = 2, Title = "Customers management" },
             new PermissionEntity() { Id = 3, Title = "Orders management" },
             new PermissionEntity() { Id = 4, Title = "Admins management" },
-            new PermissionEntity() { Id = 5, Title = "System settings" });
+            new PermissionEntity() { Id = 5, Title = "System settings" },
+            new PermissionEntity() { Id = 6, Title = "SuperAdmins management" });
     }
 }

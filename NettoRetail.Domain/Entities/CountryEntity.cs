@@ -8,4 +8,5 @@ public class CountryEntity
     public required string PhoneMask { get; set; }
     public required string ZipCodeMask { get; set; }
     public ICollection<ShopEntity>? Shops { get; set; }
+    public ICollection<AccountEntity>? Accounts { get; set; }
 }

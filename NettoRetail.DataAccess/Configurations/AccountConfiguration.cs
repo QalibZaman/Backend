@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
 
@@ -29,6 +29,11 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .WithOne(r => r.Account)
             .HasForeignKey(c => c.AccountId)
             .IsRequired(false);
+
+        builder.HasOne(s => s.Country)
+          .WithMany(r => r.Accounts)
+          .HasForeignKey(c => c.CountryId)
+          .IsRequired(false);
 
         builder.Property(p => p.Status).HasConversion<string>();
 

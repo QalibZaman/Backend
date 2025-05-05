@@ -1,15 +1,18 @@
 using Asp.Versioning;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.CQRS.Users.Queries.Staff;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Password;
@@ -74,9 +77,6 @@ public class StaffController(
     {
         var token = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
         var userId = HttpContext.GetUserId();
-
-        var deleteSessionCommand = new DeleteSessionCommand(token!);
-        await mediator.Send(deleteSessionCommand);
 
         var logoutCommand = new LogoutCommand(token!, userId);
         await mediator.Send(logoutCommand);
@@ -244,5 +244,62 @@ public class StaffController(
         var response = await mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+    }
+
+    [Authorize]
+    [HttpPost("subscribe-to-newsletter")]
+    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var absoluteUrl = Url.Action("unsubscribe-to-newsletter", "staff", null, Request.Scheme);
+
+        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("unsubscribe-to-newsletter")]
+    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new UnsubscribeToNewsletterCommand(userId);
+
+        await mediator.Send(command, cancellationToken);
+
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:guid}/personal-info")]
+    public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = model.Adapt<UpdatePersonalInformationCommand>();
+        command = command with { Id = id };
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("{id:guid}/profile-image")]
+    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = new UpdateProfileImageCommand(id, image);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }

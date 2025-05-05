@@ -13,24 +13,29 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
 public record RefreshTokenCommand(string RefreshToken) : IRequest<TokenResponse>;
 
-public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions)
+public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions, IBlacklistTokenService blacklistTokenService)
     : IRequestHandler<RefreshTokenCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var accessTokenExpirationMinutes = jwtOptions.Value.AccessTokenExpirationMinutes;
         var refreshTokenExpirationDays = jwtOptions.Value.RefreshTokenExpirationDays;
+
         var claimsPrincipal = jwtManager.Validate(request.RefreshToken) ??
             throw new MyUnauthorizedException("The refresh token is invalid");
+
+        bool isBlacklisted = await blacklistTokenService.IsTokenBlacklistedAsync(request.RefreshToken, cancellationToken);
+        if (isBlacklisted)
+        {
+            throw new MyUnauthorizedException("The refresh token is invalid or expired.");
+        }
 
         var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
             throw new MyUnauthorizedException("The refresh token is invalid");
 
-        var isParsed = Guid.TryParse(userId, out Guid parsedUserId);
-
-        if (!isParsed)
+        if (!Guid.TryParse(userId, out Guid parsedUserId))
         {
-            throw new MyUnauthorizedException("The refresh token is invalid");
+            throw new MyUnauthorizedException("The refresh token is invalid.");
         }
 
         var specification = new GetAccountByIdSpecification(parsedUserId);
@@ -52,6 +57,8 @@ public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManag
 
         var newAccessToken = jwtManager.Generate(accessTokenClaims, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
         var newRefreshToken = jwtManager.Generate(claimsPrincipal.Claims.ToList(), TimeSpan.FromDays(refreshTokenExpirationDays));
+
+        await blacklistTokenService.BlacklistTokenAsync(request.RefreshToken, DateTime.UtcNow.AddDays(refreshTokenExpirationDays), cancellationToken);
 
         var tokenResponse = new TokenResponse(newAccessToken, newRefreshToken, null);
 

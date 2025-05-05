@@ -1,21 +1,26 @@
 using System.Reflection;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Mapster;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
+using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using Stripe;
+using NettoRetail.DataAccess.Options;
 
 namespace NettoRetail.Application.Extensions;
 
 public static class ServiceExtensions
 {
-    public static void AddApplicationServiceExtensions(this IServiceCollection services)
+    public static void AddApplicationServiceExtensions(this IServiceCollection services, IConfiguration configuration)
     {
         // Mediator
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -27,6 +32,20 @@ public static class ServiceExtensions
         //Background
         services.AddHostedService<SessionCleanupService>();
         services.AddHostedService<TokenCleanupService>();
+
+        //Hangfire
+        services.AddHangfire(config =>
+        {
+            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
+
+            config.UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(options =>
+                {
+                    options.UseNpgsqlConnection(connectionString);
+                });
+        });
+        services.AddHangfireServer();
 
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
@@ -43,5 +62,6 @@ public static class ServiceExtensions
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<INewsletterService, NewsletterService>();
     }
 }

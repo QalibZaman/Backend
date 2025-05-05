@@ -1,4 +1,5 @@
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -8,6 +9,7 @@ using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.MappingConfiguration;
@@ -84,6 +86,36 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderEntity, OrderResponse>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+
+        config.NewConfig<OrderItemEntity, OrderItemResponse>()
+            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
+            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
+            .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
+            .Map(dest => dest.Price, src => src.InventoryItem.Price)
+            .Map(dest => dest.Quantity, src => src.Quantity);
+
+        config.NewConfig<OrderEntity, OrderPrintingResponse>()
+            .Map(dest => dest.CustomerId, src => src.CustomerId)
+            .Map(dest => dest.CreationDate, src => DateOnly.FromDateTime(src.CreationDate))
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem));
+
+        config.NewConfig<OrderEntity, OrderResponse>()
+           .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+           .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+           .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
+
+        config.NewConfig<UpdateBrandRequest, BrandEntity>()
+            .IgnoreNullValues(true);
+
+        config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
+            .Map(dest => dest.ShopEmail, src => src.Email)
+            .Map(dest => dest.Country, src => src.Country.Name);
     }
 }

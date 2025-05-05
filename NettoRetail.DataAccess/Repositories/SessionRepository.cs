@@ -31,4 +31,9 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<SessionEntity?> GetByJwtAsync(string jwt)
+    {
+        return await _dbSet.FirstOrDefaultAsync(x => x.Jwt == jwt);
+    }
 }

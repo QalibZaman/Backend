@@ -47,11 +47,11 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetFilteredOrders([FromQuery] GetFilteredOrdersModel model, [FromQuery] string? searchTerm, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var query = new GetFilteredOrdersQuery(model, userShopId, pageModel);
+        var query = new GetFilteredOrdersQuery(model, userShopId, searchTerm, pageModel);
 
         var data = await mediator.Send(query, cancellationToken);
 
@@ -92,6 +92,15 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<OrderResponse>(data);
 
+        return Ok(response);
+    }
+
+    [HttpGet("print/{orderId}")]
+    public async Task<IActionResult> GetOrderPrintingDetails(int orderId, CancellationToken cancellationToken)
+    {
+        var command = new GetOrderDetailsForPrintingQuery(orderId);
+        var data = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<OrderPrintingResponse>(data);
         return Ok(response);
     }
 

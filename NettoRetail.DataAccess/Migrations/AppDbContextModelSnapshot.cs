@@ -28,6 +28,12 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -40,6 +46,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<bool>("IsSubscribedTonewsletter")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -54,11 +63,23 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime?>("PasswordUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ShippingAddress")
+                        .HasColumnType("text");
+
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("State")
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -70,7 +91,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
 
                     b.HasIndex("RoleId");
 
@@ -444,6 +470,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LoyaltyId")
                         .HasColumnType("text");
 
@@ -643,6 +672,11 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             PermissionId = 5,
                             RoleId = 99
+                        },
+                        new
+                        {
+                            PermissionId = 6,
+                            RoleId = 99
                         });
                 });
 
@@ -793,6 +827,11 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             Id = 5,
                             Title = "System settings"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Title = "SuperAdmins management"
                         });
                 });
 
@@ -870,6 +909,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Jwt")
                         .IsRequired()
@@ -949,6 +991,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("Subscription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -977,6 +1023,10 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
+                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
+                        .WithMany("Accounts")
+                        .HasForeignKey("CountryId");
+
                     b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
                         .WithMany("Accounts")
                         .HasForeignKey("RoleId");
@@ -984,6 +1034,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
                         .WithMany("Account")
                         .HasForeignKey("ShopId");
+
+                    b.Navigation("Country");
 
                     b.Navigation("Role");
 
@@ -1189,6 +1241,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
                 {
+                    b.Navigation("Accounts");
+
                     b.Navigation("Shops");
                 });
 
