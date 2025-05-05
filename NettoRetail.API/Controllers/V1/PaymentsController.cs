@@ -20,11 +20,11 @@ namespace NettoRetail.API.Controllers.V1
         {
             var userId = HttpContext.GetUserId();
 
-            var command = new AddPaymentCommand(userId, model.Token);
+            var command = new AddPaymentCommand(userId, model.PaymentMethodId);
 
-            var result = await mediator.Send(command, cancellationToken);
+            await mediator.Send(command, cancellationToken);
 
-            return Ok(new ApiResponse<PaymentResponse>(result));
+            return Ok();
         }
     }
 }

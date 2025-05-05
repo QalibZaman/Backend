@@ -2,6 +2,6 @@
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
-public interface IPaymentRepository : IBaseRepository<PaymentEntity>
+public interface IPaymentRepository : IBaseRepository<PaymentMethodEntity>
 {
 }

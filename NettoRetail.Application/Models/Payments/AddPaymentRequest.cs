@@ -2,5 +2,5 @@
 
 public class AddPaymentRequest
 {
-    public required string Token { get; set; }
+    public required string PaymentMethodId { get; set; }
 }

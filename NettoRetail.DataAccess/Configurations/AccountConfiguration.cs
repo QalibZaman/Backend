@@ -26,8 +26,8 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .IsRequired(false);
 
         builder.HasMany(s => s.PaymentMethods)
-            .WithOne(r => r.User)
-            .HasForeignKey(c => c.UserId)
+            .WithOne(r => r.Account)
+            .HasForeignKey(c => c.AccountId)
             .IsRequired(false);
 
         builder.Property(p => p.Status).HasConversion<string>();

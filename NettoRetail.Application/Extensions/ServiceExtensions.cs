@@ -9,6 +9,7 @@ using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
+using Stripe;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -40,5 +41,7 @@ public static class ServiceExtensions
         services.AddScoped<ICsvFileService, CsvFileService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
+        services.AddScoped<PaymentMethodService>();
+        services.AddScoped<CustomerService>();
     }
 }

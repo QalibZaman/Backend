@@ -4,7 +4,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories
 {
-    public class PaymentRepository(AppDbContext dbContext) : BaseRepository<PaymentEntity>(dbContext), IPaymentRepository
+    public class PaymentRepository(AppDbContext dbContext) : BaseRepository<PaymentMethodEntity>(dbContext), IPaymentRepository
     {
     }
 }

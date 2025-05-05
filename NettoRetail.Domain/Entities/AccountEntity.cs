@@ -14,11 +14,11 @@ public class AccountEntity
     public bool TwoFactorEnabled { get; set; }
     public string? EncryptedTotpSecret { get; set; }
     public DateTime? PasswordUpdatedAt { get; set; }
-
+    public string? StripeCustomerId { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }
     public ShopEntity? Shop { get; set; }
     public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
-    public ICollection<PaymentEntity>? PaymentMethods { get; set; }
+    public ICollection<PaymentMethodEntity>? PaymentMethods { get; set; }
 }

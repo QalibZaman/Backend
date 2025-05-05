@@ -7,7 +7,7 @@ namespace NettoRetail.API.Infrastructure.Validators
     {
         public AddPaymentRequestValidator()
         {
-            RuleFor(model => model.Token)
+            RuleFor(model => model.PaymentMethodId)
                 .NotNull().WithMessage("Token cannot be null")
                 .NotEmpty().WithMessage("Token cannot be empty");
         }
