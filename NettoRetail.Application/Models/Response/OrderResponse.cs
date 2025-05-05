@@ -15,5 +15,6 @@ public class OrderResponse
     public required Guid CustomerId { get; set; }
 
     public required IEnumerable<OrderItemResponse> OrderItems { get; set; }
+    public decimal Total => OrderItems.Sum(i => i.Total);
     public decimal TotalSale { get; set; }
 }

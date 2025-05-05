@@ -24,7 +24,6 @@ public class GetOrderDetailsQueryHandler(
         var orderItems = await orderItemRepository.GetAllBySpecAsync(orderItemSpecification, cancellationToken);
 
         var items = orderItems.Adapt<List<OrderItemResponse>>();
-        CalculateItemTotals(items);
 
         var response = order.Adapt<OrderResponse>();
 
@@ -34,13 +33,5 @@ public class GetOrderDetailsQueryHandler(
             .Sum(x => x.InventoryItem.PromotionPrice!.Value);
 
         return response;
-    }
-
-    private static void CalculateItemTotals(List<OrderItemResponse> items)
-    {
-        foreach (var item in items)
-        {
-            item.Total = Math.Round(item.Price * item.Quantity, 2);
-        }
     }
 }
