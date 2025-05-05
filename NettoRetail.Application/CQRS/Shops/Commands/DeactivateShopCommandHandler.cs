@@ -1,24 +1,28 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
+using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.DataAccess.Specifications.Shop;
+using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Infrastructure.Models;
+using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
-public record DeactivateShopCommand(int ShopId, string Reason, DateTime DeactivationDate) : IRequest;
+
+public record DeactivateShopCommand(int ShopId, string Reason, DateTime? DeactivationDate) : IRequest;
 
 public class DeactivateShopCommandHandler(
     IShopRepository shopRepository,
-    IMediator mediator) : IRequestHandler<DeactivateShopCommand>
+    IMediator mediator,
+    IEmailSender emailSender,
+    ISessionRepository sessionRepo,
+    ISessionTerminationService sessionTerminator) : IRequestHandler<DeactivateShopCommand>
 {
     public async Task Handle(DeactivateShopCommand request, CancellationToken cancellationToken)
     {
-        // Validate reason and deactivation date
-        if (string.IsNullOrWhiteSpace(request.Reason))
-            throw new ValidationException("Deactivation reason is required.");
-
-        if (request.DeactivationDate <= DateTime.UtcNow.Date)
-            throw new ValidationException("Deactivation date must be in the future.");
+        DateTime deactivationDate = request.DeactivationDate ?? DateTime.UtcNow.AddDays(14);
 
         // Get the shop
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
@@ -27,12 +31,39 @@ public class DeactivateShopCommandHandler(
         // Update
         shop.IsActive = false;
         shop.DeactivationReason = request.Reason;
-        shop.DeactivationDate = request.DeactivationDate;
+        shop.DeactivationDate = deactivationDate;
+
+        // session
+        var sessions = await sessionRepo.GetManyBySpecAsync(
+        new GetSessionsByShopIdSpecification(request.ShopId),
+        cancellationToken);
+
+        foreach (var session in sessions)
+        {
+            await sessionTerminator.TerminateSessionsAsync(session.Id, cancellationToken);
+        }
+
+        // send email
+        var email = new EmailModel
+        {
+            Email = shop.Email,
+            Subject = "Shop Deactivation Scheduled",
+            Message = $"""
+                Dear {shop.Name},<br/><br/>
+                Your shop is scheduled to be deactivated on <b>{request.DeactivationDate:yyyy-MM-dd}</b>.<br/>
+                Reason: <i>{request.Reason}</i>.<br/><br/>
+                Please take the necessary actions before the deactivation date.<br/><br/>
+                Best regards,<br/>
+                Support Team
+            """
+        };
+
+        await emailSender.SendAsync(email);
 
         // Save
         await shopRepository.UpdateAsync(shop, cancellationToken);
 
-        // Publish
-        await mediator.Publish(new ShopDeactivatedEvent(shop.Id), cancellationToken);
+        // Publish the event for deactivation
+        await mediator.Publish(new DeactivateShopCommand(shop.Id, request.Reason, deactivationDate), cancellationToken);
     }
 }
