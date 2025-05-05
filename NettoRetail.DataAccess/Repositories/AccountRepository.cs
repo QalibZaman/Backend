@@ -19,4 +19,12 @@ public class AccountRepository : BaseRepository<AccountEntity>,
 
         return emails;
     }
+
+    public async Task<IEnumerable<AccountEntity>> GetStaffAccounts(int shopId, CancellationToken cancellationToken)
+    {
+        var accountsWithoutCustomers = await _dbSet.Where(a => a.ShopId == shopId && !_dbContext.Customers.Any(c => c.AccountId == a.Id)).Include(a => a.Role)
+            .ToListAsync(cancellationToken);
+
+        return accountsWithoutCustomers;
+    }
 }

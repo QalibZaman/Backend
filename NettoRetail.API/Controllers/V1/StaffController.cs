@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
@@ -301,5 +302,18 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("csv-file")]
+    public async Task<IActionResult> DownloadStaffList(CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId);
+
+        var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
+
+        return File(response, "text/csv", "Staff.csv");
     }
 }

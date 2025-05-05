@@ -47,7 +47,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<bool>("IsSubscribedTonewsletter")
+                    b.Property<bool>("IsSubscribedToNewsletter")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
