@@ -65,4 +65,24 @@ public class EmailBuilderService(
             Message = emailBody
         };
     }
+
+    public async Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason)
+    {
+        var model = new
+        {
+            shop_name = shopName,
+            deactivation_date = deactivationDate.ToString("yyyy-MM-dd"),
+            reason
+        };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ShopDeactivationWarning, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.ShopDeactivationWarning,
+            Message = emailBody
+        };
+    }
+
 }

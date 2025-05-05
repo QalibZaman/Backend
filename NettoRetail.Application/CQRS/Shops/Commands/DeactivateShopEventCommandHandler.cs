@@ -17,6 +17,7 @@ public class DeactivateShopEventCommandHandler(
     IShopRepository shopRepository,
     ISessionRepository sessionRepo,
     ISessionTerminationService sessionTerminator,
+    IEmailBuilderService emailBuilder,
     IEmailSender emailSender) : INotificationHandler<DeactivateShopEventCommand>
 {
     public async Task Handle(DeactivateShopEventCommand request, CancellationToken cancellationToken)
@@ -27,22 +28,12 @@ public class DeactivateShopEventCommandHandler(
 
         shop.DeactivationReason = request.Reason;
         shop.DeactivationDate = deactivationDate;
-        // Send email
-        var email = new EmailModel
-        {
-            Email = shop.Email,
-            Subject = "Shop Deactivation Scheduled",
-            Message = $"""
-                Dear {shop.Name},<br/><br/>
-                Your shop is scheduled to be deactivated on <b>{request.DeactivationDate:yyyy-MM-dd}</b>.<br/>
-                Reason: <i>{request.Reason}</i>.<br/><br/>
-                Please take the necessary actions before the deactivation date.<br/><br/>
-                Best regards,<br/>
-                Support Team
-            """
-        };
 
-        await emailSender.SendAsync(email);
+        // Send email
+        var email = await emailBuilder.BuildShopDeactivationWarningEmailAsync(
+            shop.Email, shop.Name, deactivationDate, request.Reason);
+
+        await emailSender.SendAsync(email); // your internal sender
 
         // Session termination
         var sessions = await sessionRepo.GetManyBySpecAsync(
