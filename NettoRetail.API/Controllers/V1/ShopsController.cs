@@ -66,8 +66,6 @@ public class ShopsController(IMediator mediator) : ControllerBase
 
         await mediator.Send(activateShopCommand);
 
-        await mediator.Publish(new ActivateShopCommand(shopId));
-
         return Ok("Shop successfully activated.");
     }
 
@@ -84,8 +82,6 @@ public class ShopsController(IMediator mediator) : ControllerBase
         var deactivateShopCommand = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate);
 
         await mediator.Send(deactivateShopCommand);
-
-        await mediator.Publish(deactivateShopCommand);
 
         return Ok("Shop successfully deactivated.");
     }

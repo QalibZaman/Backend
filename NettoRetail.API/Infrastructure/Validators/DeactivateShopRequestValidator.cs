@@ -13,6 +13,6 @@ public class DeactivateShopRequestValidator : AbstractValidator<DeactivateShopRe
            .MaximumLength(100).WithMessage("Please check format or length.");
 
         RuleFor(x => x.DeactivationDate)
-            .LessThan(DateTime.UtcNow.Date).WithMessage("Deactivation date must be in the future.");
+            .GreaterThan(DateTime.UtcNow.Date).WithMessage("Deactivation date must be in the future.");
     }
 }
