@@ -8,6 +8,7 @@ using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
 using NettoRetail.Application.Models.ClientsShop;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -50,6 +51,24 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         var data = await mediator.Send(getClientsShopInfoQuery);
 
         var response = new ApiResponse<ClientsShopInfoResponse>(data);
+
+        return Ok(response);
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpGet("view-shops-list")]
+    public async Task<IActionResult> GetAllShopsList([FromQuery] PaginationRequest pageModel)
+    {
+        var getAllShopsInfoQuery = new GetAllShopsInfoQuery(pageModel);
+        var data = await mediator.Send(getAllShopsInfoQuery);
+
+        var response = new ApiResponse<PaginatedResponse<AllShopsInfoResponse>>(data);
 
         return Ok(response);
     }
