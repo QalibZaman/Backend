@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
 using NettoRetail.Application.Models.ClientsShop;
@@ -62,7 +61,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpGet("view-shops-list")]
+    [HttpGet("shops-list")]
     public async Task<IActionResult> GetAllShopsList([FromQuery] PaginationRequest pageModel)
     {
         var getAllShopsInfoQuery = new GetAllShopsInfoQuery(pageModel);
