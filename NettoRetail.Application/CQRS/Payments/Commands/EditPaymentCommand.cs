@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MediatR;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Payments;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Interfaces.Repositories;
+using System.Threading;
+using NettoRetail.DataAccess.Specifications.Payment;
+using Stripe;
+using Mapster;
+
+namespace NettoRetail.Application.CQRS.Payments.Commands
+{
+    public record EditPaymentCommand(Guid UserId, Guid Id, EditPaymentRequest Request) : IRequest<PaymentMethodEntity>;
+    public class EditPaymentCommandHandler(IPaymentRepository paymentRepository)
+        : IRequestHandler<EditPaymentCommand, PaymentMethodEntity>
+    {
+        public async Task<PaymentMethodEntity> Handle(EditPaymentCommand request, CancellationToken cancellationToken)
+        {
+            var existing = (await paymentRepository.GetAllBySpecAsync(
+            new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId), cancellationToken)).FirstOrDefault();
+
+            if (existing == null)
+                throw new NotFoundException("Payment method not found.");
+
+            // Update the payment method in Stripe
+
+            var stripeService = new PaymentMethodService();
+            var stripeOptions = new PaymentMethodUpdateOptions
+            {
+                BillingDetails = new PaymentMethodBillingDetailsOptions
+                {
+                    Name = request.Request.CardHolderName,
+                }
+            };
+
+            // Set the expiration date
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(60));
+
+            try
+            {
+                await stripeService.UpdateAsync(
+                    request.Request.StripePaymentMethodId,
+                    stripeOptions,
+                    cancellationToken: cts.Token
+                );
+            }
+            catch (OperationCanceledException) when (cts.IsCancellationRequested)
+            {
+                throw new ApplicationException("The payment could not be completed. Try later");
+            }
+            catch (StripeException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.RequestTimeout ||
+                                                                   ex.StripeError?.Type == "api_connection_error")
+            {
+                throw new ApplicationException("Unable to connect to the payment provider");
+            }// No local DB update happens if stripe fails on its side
+
+            // Archive all other active methods for this user
+            var activeMethods = await paymentRepository.GetAllBySpecAsync(
+                new ActivePaymentMethodsByUserIdSpecification(request.UserId), cancellationToken);
+
+            foreach (var method in activeMethods)
+            {
+                method.IsActive = false;
+                await paymentRepository.UpdateAsync(method, cancellationToken);
+            }
+
+            //Update the payment locally
+            existing.CardExpMonth = request.Request.ExpMonth;
+            existing.CardExpYear = request.Request.ExpYear;
+
+            await paymentRepository.UpdateAsync(existing, cancellationToken);
+
+            return existing;
+
+        }
+    }
+}

@@ -26,5 +26,25 @@ namespace NettoRetail.API.Controllers.V1
 
             return Ok();
         }
+
+        [Authorize]
+        [HttpPut("{id}")]
+
+        public async Task<IActionResult> EditPayment(Guid id, [FromBody] EditPaymentRequest model, CancellationToken cancellationToken)
+        {
+            var userId = HttpContext.GetUserId();
+
+            if (id == Guid.Empty)
+            {
+                return BadRequest("Invalid payment method ID.");
+            }
+
+            var command = new EditPaymentCommand(userId, id, model);
+
+            var result = await mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
     }
 }
