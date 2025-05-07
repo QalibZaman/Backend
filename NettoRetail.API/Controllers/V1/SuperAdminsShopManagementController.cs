@@ -61,7 +61,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpGet("shops-list")]
+    [HttpGet("shops")]
     public async Task<IActionResult> GetAllShopsList([FromQuery] PaginationRequest pageModel)
     {
         var getAllShopsInfoQuery = new GetAllShopsInfoQuery(pageModel);
