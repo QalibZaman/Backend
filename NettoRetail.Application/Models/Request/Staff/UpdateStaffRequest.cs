@@ -1,4 +1,5 @@
 ﻿namespace NettoRetail.Application.Models.Request.Staff;
+
 public class UpdateStaffRequest
 {
     public string? FirstName { get; set; }

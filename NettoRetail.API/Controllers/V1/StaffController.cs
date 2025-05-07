@@ -316,4 +316,17 @@ public class StaffController(
 
         return File(response, "text/csv", "Staff.csv");
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("asdfg")]
+    public async Task<IActionResult> GetFilteredStaffList([FromQuery] PaginationRequest paginationRequest, [FromQuery] GetFilteredStaffRequest filteredStaffRequest, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var getFilteredStaffQuery = new GetFilteredStaffQuery(paginationRequest, filteredStaffRequest, userShopId);
+
+        var response = await mediator.Send(getFilteredStaffQuery, cancellationToken);
+
+        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+    }
 }
