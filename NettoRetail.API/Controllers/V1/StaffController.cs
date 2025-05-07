@@ -306,11 +306,11 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
-    public async Task<IActionResult> DownloadStaffList(CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredStaffCsvRequest getFilteredStaffCsvRequest, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId);
+        var staffListDownloadQuery = new DownloadStaffListQuery(getFilteredStaffCsvRequest, userShopId);
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
