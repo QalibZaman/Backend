@@ -10,7 +10,5 @@ namespace NettoRetail.Application.Models.Payments
     {
         public required string StripePaymentMethodId { get; set; }
         public required string CardHolderName { get; set; }
-        public required long ExpMonth { get; set; }
-        public required long ExpYear { get; set; }
     }
 }

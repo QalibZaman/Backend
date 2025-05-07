@@ -56,5 +56,10 @@ public static class ApiExceptionHandler
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message));
     }
 
+    private static ApiExceptionHandlerResponse HandlePaymentExceptions(PaymentExceptions ex)
+    {
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
+    }
+
     private static ApiResponse GenerateResponse(string message) => new(message);
 }

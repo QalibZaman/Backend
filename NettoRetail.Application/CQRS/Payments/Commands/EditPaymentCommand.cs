@@ -16,20 +16,19 @@ using Mapster;
 namespace NettoRetail.Application.CQRS.Payments.Commands
 {
     public record EditPaymentCommand(Guid UserId, Guid Id, EditPaymentRequest Request) : IRequest<PaymentMethodEntity>;
-    public class EditPaymentCommandHandler(IPaymentRepository paymentRepository)
+    public class EditPaymentCommandHandler(IPaymentRepository paymentRepository, PaymentMethodService paymentMethodService)
         : IRequestHandler<EditPaymentCommand, PaymentMethodEntity>
     {
         public async Task<PaymentMethodEntity> Handle(EditPaymentCommand request, CancellationToken cancellationToken)
         {
-            var existing = (await paymentRepository.GetAllBySpecAsync(
-            new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId), cancellationToken)).FirstOrDefault();
+            var spec = new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId);
+            var existing = (await paymentRepository.GetAllBySpecAsync(spec, cancellationToken)).FirstOrDefault(); ;
 
             if (existing == null)
                 throw new NotFoundException("Payment method not found.");
 
             // Update the payment method in Stripe
 
-            var stripeService = new PaymentMethodService();
             var stripeOptions = new PaymentMethodUpdateOptions
             {
                 BillingDetails = new PaymentMethodBillingDetailsOptions
@@ -44,7 +43,7 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
 
             try
             {
-                await stripeService.UpdateAsync(
+                await paymentMethodService.UpdateAsync(
                     request.Request.StripePaymentMethodId,
                     stripeOptions,
                     cancellationToken: cts.Token
@@ -52,12 +51,12 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
             }
             catch (OperationCanceledException) when (cts.IsCancellationRequested)
             {
-                throw new ApplicationException("The payment could not be completed. Try later");
+                throw new PaymentExceptions("The payment could not be completed. Try later");
             }
             catch (StripeException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.RequestTimeout ||
                                                                    ex.StripeError?.Type == "api_connection_error")
             {
-                throw new ApplicationException("Unable to connect to the payment provider");
+                throw new PaymentExceptions("Unable to connect to the payment provider");
             }// No local DB update happens if stripe fails on its side
 
             // Archive all other active methods for this user
@@ -71,8 +70,11 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
             }
 
             //Update the payment locally
-            existing.CardExpMonth = request.Request.ExpMonth;
-            existing.CardExpYear = request.Request.ExpYear;
+            var paymentMethod = await paymentMethodService.GetAsync(request.Request.StripePaymentMethodId, cancellationToken: cancellationToken);
+
+            existing.CardExpMonth = paymentMethod.Card?.ExpMonth ?? 0;
+            existing.CardExpYear = paymentMethod.Card?.ExpYear ?? 0;
+            existing.FourLastCardNumbers = paymentMethod.Card?.Last4 ?? string.Empty;
 
             await paymentRepository.UpdateAsync(existing, cancellationToken);
 
