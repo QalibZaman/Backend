@@ -22,6 +22,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<OrderItemEntity> Order_Item { get; set; }
     public DbSet<OrderStatusHistoryEntity> OrderStatusHistories { get; set; }
     public DbSet<BrandEntity> Brands { get; set; }
+    public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

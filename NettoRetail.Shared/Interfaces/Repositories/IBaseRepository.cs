@@ -12,7 +12,7 @@ public interface IBaseRepository<TEntity>
     Task DeleteAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task DeleteAsync(TEntity entity, CancellationToken cancellationToken);
     Task DeleteManyBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
-    Task UpdateAsync(TEntity model, CancellationToken cancellationToken);
+    Task<TEntity> UpdateAsync(TEntity model, CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken);
