@@ -18,7 +18,7 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
         var specification = new GetAccountByIdSpecification(request.AccountId);
         var account = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no account with such Id");
 
-        account.IsSubscribedTonewsletter = true;
+        account.IsSubscribedToNewsletter = true;
         await accountRepository.UpdateAsync(account, cancellationToken);
 
         var emailModel = await emailBuilderService.BuildNewsletterSubscribedEmailAsync(account.Email, account.FirstName, request.UnsubscribeUrl);
