@@ -21,8 +21,8 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
     {
         public async Task<PaymentMethodEntity> Handle(EditPaymentCommand request, CancellationToken cancellationToken)
         {
-            var spec = new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId);
-            var existing = (await paymentRepository.GetAllBySpecAsync(spec, cancellationToken)).FirstOrDefault(); ;
+            var specToken = new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId);
+            var existing = (await paymentRepository.GetAllBySpecAsync(specToken, cancellationToken)).FirstOrDefault();
 
             if (existing == null)
                 throw new NotFoundException("Payment method not found.");
@@ -60,8 +60,8 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
             }// No local DB update happens if stripe fails on its side
 
             // Archive all other active methods for this user
-            var activeMethods = await paymentRepository.GetAllBySpecAsync(
-                new ActivePaymentMethodsByUserIdSpecification(request.UserId), cancellationToken);
+            var specId = new ActivePaymentMethodsByUserIdSpecification(request.UserId);
+            var activeMethods = await paymentRepository.GetAllBySpecAsync(specId, cancellationToken);
 
             foreach (var method in activeMethods)
             {
