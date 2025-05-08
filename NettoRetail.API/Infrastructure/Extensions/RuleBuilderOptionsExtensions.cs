@@ -62,6 +62,14 @@ public static class RuleBuilderOptionsExtensions
         });
     }
 
+    public static IRuleBuilderOptions<T, string?> MustBeAValidAccountStatus<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder.Must(status =>
+        {
+            return string.IsNullOrWhiteSpace(status) || Enum.TryParse(typeof(StaffStatusEnum), status, true, out _);
+        });
+    }
+
     public static IRuleBuilderOptions<T, string?> MustBeAValidOrderDeliveryType<T>(this IRuleBuilder<T, string?> ruleBuilder)
     {
         return ruleBuilder.Must(type =>

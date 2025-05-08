@@ -236,11 +236,11 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest paginationRequest, [FromQuery] GetFilteredStaffRequest filteredStaffRequest, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetStaffListQuery(model, shopId);
+        var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
 
         var response = await mediator.Send(query, cancellationToken);
 
@@ -315,18 +315,5 @@ public class StaffController(
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
         return File(response, "text/csv", "Staff.csv");
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("asdfg")]
-    public async Task<IActionResult> GetFilteredStaffList([FromQuery] PaginationRequest paginationRequest, [FromQuery] GetFilteredStaffRequest filteredStaffRequest, CancellationToken cancellationToken)
-    {
-        var userShopId = HttpContext.GetUserShopId();
-
-        var getFilteredStaffQuery = new GetFilteredStaffQuery(paginationRequest, filteredStaffRequest, userShopId);
-
-        var response = await mediator.Send(getFilteredStaffQuery, cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
     }
 }
