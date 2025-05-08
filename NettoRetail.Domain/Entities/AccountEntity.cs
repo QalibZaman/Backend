@@ -22,7 +22,7 @@ public class AccountEntity
     public string? EncryptedTotpSecret { get; set; }
     public DateTime? PasswordUpdatedAt { get; set; }
     public string? StripeCustomerId { get; set; }
-    public bool IsSubscribedTonewsletter { get; set; }
+    public bool IsSubscribedToNewsletter { get; set; }
 
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
