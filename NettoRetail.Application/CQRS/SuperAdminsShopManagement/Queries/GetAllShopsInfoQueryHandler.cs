@@ -4,6 +4,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -32,7 +33,7 @@ public class GetAllShopsInfoQueryHandler(
 
         foreach (var shop in response)
         {
-            var adminSpec = new GetAccountByShopIdAndRoleSpecification(shop.Id, 1);
+            var adminSpec = new GetAccountByShopIdAndRoleSpecification(shop.Id, RoleConstants.Admin);
             var admin = await accountRepository.GetAsync(adminSpec, cancellationToken);
 
             shop.AdminFullName = admin != null ? $"{admin.FirstName} {admin.LastName}" : null;
