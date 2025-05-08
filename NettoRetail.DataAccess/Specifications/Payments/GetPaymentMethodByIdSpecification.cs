@@ -12,5 +12,6 @@ public class GetPaymentMethodByIdSpecification : Specification<PaymentMethodEnti
             o.StripePaymentMethodId == paymentMethodId)
     {
         AddInclude(x => x.Account);
+        AddInclude(x => x.Account.PaymentMethods);
     }
 }
