@@ -4,6 +4,7 @@ using NettoHealth.Infrastructure.Services;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
+using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
 
@@ -20,6 +21,8 @@ public static class ServiceExtensions
 
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
+        services.Configure<StripeOptions>(configuration.GetSection(nameof(StripeOptions)));
+        StripeConfiguration.ApiKey = configuration.GetSection(nameof(StripeOptions))["SecretKey"];
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
