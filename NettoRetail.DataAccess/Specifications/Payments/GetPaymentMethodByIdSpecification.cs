@@ -7,5 +7,10 @@ namespace NettoRetail.DataAccess.Specifications.Payments;
 public class GetPaymentMethodByIdSpecification : Specification<PaymentMethodEntity>
 {
     public GetPaymentMethodByIdSpecification(Guid accountId, string paymentMethodId)
-        : base(o => o.AccountId == accountId && o.Id.ToString() == paymentMethodId) { }
+        : base(o => 
+            o.AccountId == accountId &&
+            o.StripePaymentMethodId == paymentMethodId)
+    {
+        AddInclude(x => x.Account);
+    }
 }

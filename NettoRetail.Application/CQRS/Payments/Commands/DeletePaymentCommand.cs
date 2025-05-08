@@ -12,6 +12,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
 using Stripe;
+using Stripe.FinancialConnections;
 using Stripe.Forwarding;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
@@ -23,22 +24,24 @@ public class DeletePaymentCommandHandler(IPaymentRepository paymentRepository, P
     public async Task<PaymentMethodDeleteResponse> Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetPaymentMethodByIdSpecification(request.AccountId, request.PaymentMethodId);
-        var paymentMethod = await paymentRepository.GetAsync(specification, cancellationToken)
+        var payment = await paymentRepository.GetAsync(specification, cancellationToken)
                             ?? throw new NotFoundException("Payment method not found in DB");
+        var paymentMethod = await paymentMethodService.GetAsync(request.PaymentMethodId)
+                            ?? throw new NotFoundException("Payment method not found in Stripe");
 
-        var isLast = paymentMethod.Account.PaymentMethods?.Count == 1;
+        var isLastMethod = payment.Account.PaymentMethods?.Count == 1;
 
         var transaction = unitOfWork.BeginTransaction();
         try
         {
-            await paymentRepository.DeleteAsync(paymentMethod, cancellationToken);
+            await paymentRepository.DeleteAsync(payment, cancellationToken);
             await paymentMethodService.DetachAsync(request.PaymentMethodId);
 
             transaction.Commit();
 
             var response = new PaymentMethodDeleteResponse
             {
-                IsLastPaymentMethod = isLast
+                IsLastPaymentMethod = isLastMethod
             };
 
             return response;

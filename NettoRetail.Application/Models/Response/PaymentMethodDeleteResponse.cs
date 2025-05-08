@@ -2,5 +2,5 @@
 
 public class PaymentMethodDeleteResponse
 {
-    public bool? IsLastPaymentMethod { get; set; }
+    public required bool IsLastPaymentMethod { get; set; }
 }
