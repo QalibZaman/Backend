@@ -5,6 +5,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 
@@ -32,5 +33,20 @@ public class UploadInventoryItemsImagesHandler(InventoryItemRepository inventory
         var stream = request.Image.OpenReadStream();
 
         var blobUrl = await azureBlobService.UploadAsync(fileName, stream, container, category);
+
+        var maxOrder = item.Images?.Max(i => i.Order) ?? -1;
+        var nextOrder = maxOrder + 1;
+
+        var imageEntity = new InventoryItemImageEntity
+        {
+            InventoryItemId = item.Id,
+            BlobUrl = blobUrl,
+            Order = nextOrder
+        };
+
+        item.Images ??= new List<InventoryItemImageEntity>();
+        item.Images.Add(imageEntity);
+
+        await inventoryItemRepository.UpdateAsync(item, cancellationToken);
     }
 }

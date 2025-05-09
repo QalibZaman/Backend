@@ -136,4 +136,15 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         return Ok(response);
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("{id}/images")]
+    public async Task<IActionResult> UploadInventoryItemImage(Guid id, IFormFile image, CancellationToken cancellationToken)
+    {
+        var command = new UploadInventoryItemsImages(id, image);
+        await mediator.Send(command, cancellationToken);
+
+        return Ok(new ApiResponse<string>("Image uploaded successfully"));
+    }
+
 }

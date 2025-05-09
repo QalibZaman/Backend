@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace NettoRetail.Infrastructure.Services.IImageValidatorService;
 public class ImageValidatorService : IImageValidatorService
