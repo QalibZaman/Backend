@@ -21,7 +21,8 @@ public class AccountEntity
     public bool TwoFactorEnabled { get; set; }
     public string? EncryptedTotpSecret { get; set; }
     public DateTime? PasswordUpdatedAt { get; set; }
-    public bool IsSubscribedTonewsletter { get; set; }
+    public string? StripeCustomerId { get; set; }
+    public bool IsSubscribedToNewsletter { get; set; }
 
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
@@ -29,4 +30,5 @@ public class AccountEntity
     public ShopEntity? Shop { get; set; }
     public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
+    public ICollection<PaymentMethodEntity>? PaymentMethods { get; set; }
 }
