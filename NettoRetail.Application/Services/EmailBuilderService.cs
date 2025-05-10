@@ -72,7 +72,7 @@ public class EmailBuilderService(
         {
             shop_name = shopName,
             deactivation_date = deactivationDate.ToString("yyyy-MM-dd"),
-            reason
+            reason = string.IsNullOrEmpty(reason) ? "No reason provided" : reason
         };
 
         var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ShopDeactivationWarning, model);
