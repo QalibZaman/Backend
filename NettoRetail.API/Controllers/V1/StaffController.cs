@@ -314,6 +314,6 @@ public class StaffController(
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
-        return File(response, "text/csv", "Staff.csv");
+        return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
     }
 }
