@@ -2,6 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Application.Services;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.PasswordHistory;
 using NettoRetail.Domain.Entities;
@@ -19,6 +20,7 @@ public class ChangePasswordCommandHandler(
     IPasswordHistoryRepository passwordHistoryRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
+    ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ChangePasswordCommand>
 {
@@ -51,7 +53,7 @@ public class ChangePasswordCommandHandler(
             throw new BadRequestException("New password cannot match any previously used passwords.");
         }
 
-        // Begin transaction to ensure password history and password update are atomic
+        // Begin transaction to ensure password history, update, and session termination are atomic
         var transaction = unitOfWork.BeginTransaction();
         try
         {
@@ -66,7 +68,10 @@ public class ChangePasswordCommandHandler(
 
             user.PasswordHash = PasswordHasher.HashPassword(request.Model.NewPassword);
 
+
             await accountRepository.UpdateAsync(user, cancellationToken);
+
+            await sessionTerminationService.TerminateSessionsAsync(user.Id, cancellationToken);
 
             transaction.Commit();
         }

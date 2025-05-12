@@ -18,6 +18,7 @@ public record ResetPasswordCommand(ResetPasswordRequest Model) : IRequest;
 public class ResetPasswordCommandHandler(
     IAccountRepository accountRepository,
     IPasswordHistoryRepository passwordHistoryRepository,
+    ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork,
     IJwtManager jwtManager)
     : IRequestHandler<ResetPasswordCommand>
@@ -55,7 +56,7 @@ public class ResetPasswordCommandHandler(
             throw new BadRequestException("New password cannot match any previously used passwords.");
         }
 
-        // Start transaction to ensure password history and account update are atomic
+        // Begin transaction to ensure password history, account update, and session termination are atomic
         var transaction = unitOfWork.BeginTransaction();
         try
         {
@@ -77,6 +78,7 @@ public class ResetPasswordCommandHandler(
             }
 
             await accountRepository.UpdateAsync(user, cancellationToken);
+            await sessionTerminationService.TerminateSessionsAsync(user.Id, cancellationToken);
 
             transaction.Commit();
         }
