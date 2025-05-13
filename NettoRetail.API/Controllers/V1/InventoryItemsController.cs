@@ -146,5 +146,4 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         return Ok(new ApiResponse<string>("Image uploaded successfully"));
     }
-
 }

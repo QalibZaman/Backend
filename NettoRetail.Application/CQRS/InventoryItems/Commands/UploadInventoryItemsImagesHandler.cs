@@ -2,25 +2,28 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
 public record UploadInventoryItemsImages(Guid Id, IFormFile Image) : IRequest;
 
-public class UploadInventoryItemsImagesHandler(InventoryItemRepository inventoryItemRepository,
+public class UploadInventoryItemsImagesHandler(
+    IInventoryItemRepository inventoryItemRepository,
     IAzureBlobService azureBlobService,
     IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
-    IImageValidatorService imageValidatorService) : IRequestHandler<UploadInventoryItemsImages>
+    AppDbContext dbContext,
+    IImageValidatorService imageValidatorService)
+    : IRequestHandler<UploadInventoryItemsImages>
 {
     public async Task Handle(UploadInventoryItemsImages request, CancellationToken cancellationToken)
     {
-        var specification = new GetInventoryItemByIdSpecification(request.Id);
+        var specification = new GetInventoryItemWithImageByIdSpecification(request.Id);
         var item = await inventoryItemRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No item with such id");
 
         if (request.Image == null) throw new BadRequestException("No image provided");
@@ -32,21 +35,31 @@ public class UploadInventoryItemsImagesHandler(InventoryItemRepository inventory
         var category = Shared.Enums.BlobContentCategoryEnum.Image;
         var stream = request.Image.OpenReadStream();
 
-        var blobUrl = await azureBlobService.UploadAsync(fileName, stream, container, category);
+        string? blobUrl = null;
 
-        var maxOrder = item.Images?.Max(i => i.Order) ?? -1;
-        var nextOrder = maxOrder + 1;
-
-        var imageEntity = new InventoryItemImageEntity
+        try
         {
-            InventoryItemId = item.Id,
-            BlobUrl = blobUrl,
-            Order = nextOrder
-        };
+            blobUrl = await azureBlobService.UploadAsync(fileName, stream, container, category);
 
-        item.Images ??= new List<InventoryItemImageEntity>();
-        item.Images.Add(imageEntity);
+            var maxOrder = item.Images?.Max(i => i.Order) ?? -1;
+            var nextOrder = maxOrder + 1;
 
-        await inventoryItemRepository.UpdateAsync(item, cancellationToken);
+            var imageEntity = new InventoryItemImageEntity
+            {
+                InventoryItemId = item.Id,
+                BlobUrl = blobUrl,
+                Order = nextOrder
+            };
+
+            await dbContext.InventoryItemImages.AddAsync(imageEntity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            if (blobUrl != null)
+            {
+                await azureBlobService.DeleteByUrlAsync(blobUrl);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-namespace NettoRetail.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using NettoRetail.Domain.Entities;
 
 public class InventoryItemImageEntity
 {
