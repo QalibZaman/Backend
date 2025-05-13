@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Shops.Commands;
@@ -49,5 +50,39 @@ public class ShopsController(IMediator mediator) : ControllerBase
         await mediator.Send(updateShopCommand);
 
         return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPut("activation/{shopId:int}")]
+    public async Task<IActionResult> ActivateShop(int shopId)
+    {
+        var activateShopCommand = new ActivateShopCommand(shopId);
+
+        await mediator.Send(activateShopCommand);
+
+        return Ok("Shop successfully activated.");
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPut("deactivation/{shopId:int}")]
+    public async Task<IActionResult> DeactivateShop(int shopId, [FromBody] DeactivateShopRequest request)
+    {
+        var deactivateShopCommand = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate);
+
+        await mediator.Send(deactivateShopCommand);
+
+        return Ok("Shop successfully deactivated.");
     }
 }

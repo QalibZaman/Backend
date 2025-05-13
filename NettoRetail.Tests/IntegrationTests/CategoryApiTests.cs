@@ -224,7 +224,8 @@ namespace NettoRetail.Tests.IntegrationTests
                         ZipCode = "1234",
                         Description = "Your one-stop shop for all electronics needs",
                         CountryId = 1,
-                        Country = countries[0]
+                        Country = countries[0],
+                        IsActive = true,
                     },
                     new ShopEntity
                     {
@@ -239,7 +240,8 @@ namespace NettoRetail.Tests.IntegrationTests
                         ZipCode = "2345",
                         Description = "Premium technology and gadgets",
                         CountryId = 1,
-                        Country = countries[1]
+                        IsActive = true,
+                        Country = countries[1],
                     }
                 };
                 var categories = new List<CategoryEntity>
