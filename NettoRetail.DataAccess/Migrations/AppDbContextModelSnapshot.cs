@@ -966,6 +966,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("CountryId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DeactivationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeactivationReason")
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -975,6 +981,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
