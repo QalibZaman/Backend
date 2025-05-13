@@ -14,7 +14,8 @@ public static class ApiExceptionHandler
             { typeof(BadRequestException), ex => HandleBadRequestException((BadRequestException)ex) },
             { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
             { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
-            { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) }
+            { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) },
+            { typeof(PaymentExceptions), ex => HandlePaymentExceptions((PaymentExceptions)ex) }
         };
 
     public static ApiExceptionHandlerResponse Handle(Exception ex)
