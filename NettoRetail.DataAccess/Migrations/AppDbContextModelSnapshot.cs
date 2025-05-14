@@ -799,6 +799,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("StripePaymentMethodId")
                         .IsRequired()
                         .HasColumnType("text");
