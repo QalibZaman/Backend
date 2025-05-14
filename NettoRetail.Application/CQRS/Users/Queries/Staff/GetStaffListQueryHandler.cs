@@ -44,7 +44,7 @@ public class GetStaffListQueryHandler(IAccountRepository accountRepository)
         specificationBuilder.Skip((request.PaginationModel.PageNumber - 1) * request.PaginationModel.PageSize)
             .Take(request.PaginationModel.PageSize);
 
-        var staffEntitiesTuple = await accountRepository.GetAllPaginatedAsync(specificationBuilder.Build(), cancellationToken);
+        var staffEntitiesTuple = await accountRepository.GetStaffAccountsPaginated(specificationBuilder.Build(), cancellationToken);
         var staffCollection = staffEntitiesTuple.Items.Adapt<ICollection<StaffListResponse>>();
 
         var paginatedResponse = new PaginatedResponse<StaffListResponse>()

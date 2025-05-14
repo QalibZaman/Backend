@@ -2,6 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -13,7 +14,9 @@ public class DownloadStaffListQueryHandler(IAccountRepository accountRepository,
 {
     public async Task<byte[]> Handle(DownloadStaffListQuery request, CancellationToken cancellationToken)
     {
-        var staff = await accountRepository.GetStaffAccounts(request.UserShopId, cancellationToken) ?? throw new NotFoundException("There are no staff members in the list.");
+        var specification = new GetAccountsByShopIdSpecification(request.UserShopId)
+            .AddInclude(x => x.Role);
+        var staff = await accountRepository.GetStaffAccounts(specification, cancellationToken) ?? throw new NotFoundException("There are no staff members in the list.");
 
         var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, AccountEntity>(staff, cancellationToken);
 

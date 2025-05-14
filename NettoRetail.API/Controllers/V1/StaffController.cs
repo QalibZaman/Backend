@@ -254,7 +254,7 @@ public class StaffController(
         var userId = HttpContext.GetUserId();
         var absoluteUrl = Url.Action("unsubscribe-to-newsletter", "staff", null, Request.Scheme);
 
-        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl);
+        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl!);
 
         await mediator.Send(command, cancellationToken);
 
@@ -270,7 +270,6 @@ public class StaffController(
         var command = new UnsubscribeToNewsletterCommand(userId);
 
         await mediator.Send(command, cancellationToken);
-
 
         return NoContent();
     }
