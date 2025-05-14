@@ -305,14 +305,14 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
-    public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredUnsortedStaffRequest staffRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredStaffCsvRequest getFilteredStaffCsvRequest, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId, staffRequest);
+        var staffListDownloadQuery = new DownloadStaffListQuery(getFilteredStaffCsvRequest, userShopId);
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
-        return File(response, "text/csv", "Staff.csv");
+        return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
     }
 }
