@@ -27,7 +27,6 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
             if (existing == null)
                 throw new NotFoundException("Payment method not found.");
 
-            // Update the payment method in Stripe
 
             var stripeOptions = new PaymentMethodUpdateOptions
             {
@@ -37,7 +36,6 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
                 }
             };
 
-            // Set the expiration date
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(60));
 
@@ -46,8 +44,7 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
                 await paymentMethodService.UpdateAsync(
                     request.Request.StripePaymentMethodId,
                     stripeOptions,
-                    cancellationToken: cts.Token
-                );
+                    cancellationToken: cts.Token);
             }
             catch (OperationCanceledException) when (cts.IsCancellationRequested)
             {
@@ -57,9 +54,8 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
                                                                    ex.StripeError?.Type == "api_connection_error")
             {
                 throw new PaymentExceptions("Unable to connect to the payment provider");
-            }// No local DB update happens if stripe fails on its side
+            }
 
-            // Archive all other active methods for this user
             var specId = new ActivePaymentMethodsByUserIdSpecification(request.UserId);
             var activeMethods = await paymentRepository.GetAllBySpecAsync(specId, cancellationToken);
 
@@ -69,7 +65,6 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
                 await paymentRepository.UpdateAsync(method, cancellationToken);
             }
 
-            //Update the payment locally
             var paymentMethod = await paymentMethodService.GetAsync(request.Request.StripePaymentMethodId, cancellationToken: cancellationToken);
 
             existing.CardExpMonth = paymentMethod.Card?.ExpMonth ?? 0;
@@ -79,7 +74,6 @@ namespace NettoRetail.Application.CQRS.Payments.Commands
             await paymentRepository.UpdateAsync(existing, cancellationToken);
 
             return existing;
-
         }
     }
 }

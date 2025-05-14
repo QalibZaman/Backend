@@ -37,7 +37,7 @@ namespace NettoRetail.API.Controllers.V1
         {
             var userId = HttpContext.GetUserId();
 
-            if (id == Guid.Empty)
+            if (id == default)
             {
                 return BadRequest("Invalid payment method ID.");
             }
