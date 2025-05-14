@@ -11,7 +11,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
-public record DownloadStaffListQuery(int UserShopId, GetFilteredUnsortedStaffRequest Model) : IRequest<byte[]>;
+public record DownloadStaffListQuery(int UserShopId, GetFilteredStaffCsvRequest Model) : IRequest<byte[]>;
 
 public class DownloadStaffListQueryHandler(IAccountRepository accountRepository, ICsvFileService csvFileService) : IRequestHandler<DownloadStaffListQuery, byte[]>
 {
