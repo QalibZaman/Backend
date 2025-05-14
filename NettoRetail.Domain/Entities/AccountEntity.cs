@@ -31,4 +31,5 @@ public class AccountEntity
     public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public ICollection<SessionEntity>? Sessions { get; set; }
     public ICollection<PaymentMethodEntity>? PaymentMethods { get; set; }
+    public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
 }
