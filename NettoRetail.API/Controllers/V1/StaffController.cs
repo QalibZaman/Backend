@@ -236,11 +236,11 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest paginationRequest, [FromQuery] GetFilteredStaffRequest filteredStaffRequest, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetStaffListQuery(model, shopId);
+        var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
 
         var response = await mediator.Send(query, cancellationToken);
 
@@ -254,7 +254,7 @@ public class StaffController(
         var userId = HttpContext.GetUserId();
         var absoluteUrl = Url.Action("unsubscribe-to-newsletter", "staff", null, Request.Scheme);
 
-        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl);
+        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl!);
 
         await mediator.Send(command, cancellationToken);
 
@@ -270,7 +270,6 @@ public class StaffController(
         var command = new UnsubscribeToNewsletterCommand(userId);
 
         await mediator.Send(command, cancellationToken);
-
 
         return NoContent();
     }
@@ -310,7 +309,7 @@ public class StaffController(
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var staffListDownloadQuery = new DownloadStaffListQuery(getFilteredStaffCsvRequest, userShopId);
+        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId, getFilteredStaffCsvRequest);
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 

@@ -1,19 +1,17 @@
-﻿using System.Linq.Expressions;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
-using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
+namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
-public record DownloadStaffListQuery(GetFilteredStaffCsvRequest Model, int UserShopId) : IRequest<byte[]>;
+public record DownloadStaffListQuery(int UserShopId, GetFilteredStaffCsvRequest Model) : IRequest<byte[]>;
 
 public class DownloadStaffListQueryHandler(IAccountRepository accountRepository, ICsvFileService csvFileService) : IRequestHandler<DownloadStaffListQuery, byte[]>
 {
@@ -27,7 +25,6 @@ public class DownloadStaffListQueryHandler(IAccountRepository accountRepository,
             .Add<GetAccountsByPartialEmailSpecification>(request.Model.Email)
             .Add<GetAccountsByRoleIdSpecification>(request.Model.RoleId)
             .AddInclude(x => x.Role);
-
 
         if (Enum.TryParse(request.Model.Status, true, out StaffStatusEnum status))
         {
