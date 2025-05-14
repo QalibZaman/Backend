@@ -309,7 +309,7 @@ public class StaffController(
     {
         var userShopId = HttpContext.GetUserShopId();
 
-        var staffListDownloadQuery = new DownloadStaffListQuery(getFilteredStaffCsvRequest, userShopId);
+        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId, getFilteredStaffCsvRequest);
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
