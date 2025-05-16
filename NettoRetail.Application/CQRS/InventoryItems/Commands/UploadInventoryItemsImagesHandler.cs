@@ -33,7 +33,7 @@ public class UploadInventoryItemsImagesHandler(
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
         var container = azureBlobStorageOptions.Value.ContainerName;
         var category = Shared.Enums.BlobContentCategoryEnum.Image;
-        var stream = request.Image.OpenReadStream();
+        using var stream = request.Image.OpenReadStream();
 
         string? blobUrl = null;
 
@@ -54,12 +54,14 @@ public class UploadInventoryItemsImagesHandler(
             await dbContext.InventoryItemImages.AddAsync(imageEntity, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
             if (blobUrl != null)
             {
                 await azureBlobService.DeleteByUrlAsync(blobUrl);
             }
+
+            throw new ApplicationException("Unable to upload image", ex);
         }
     }
 }

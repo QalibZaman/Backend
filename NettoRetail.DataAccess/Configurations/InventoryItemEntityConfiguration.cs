@@ -6,29 +6,43 @@ namespace NettoRetail.DataAccess.Configurations;
 
 public class InventoryItemEntityConfiguration : IEntityTypeConfiguration<InventoryItemEntity>
 {
-    public void Configure(EntityTypeBuilder<InventoryItemEntity> builder)
-    {
-        builder.HasKey(i => i.Id);
+public void Configure(EntityTypeBuilder<InventoryItemEntity> builder)
+{
+    builder.HasKey(i => i.Id);
 
-        builder.Property(i => i.ProductName).IsRequired();
-        builder.Property(i => i.ProductUpc).IsRequired();
-        builder.Property(i => i.Price).IsRequired();
-        builder.Property(i => i.Description).IsRequired();
-        builder.Property(i => i.CategoryId).IsRequired();
-        builder.Property(i => i.LastUpdatedDate).IsRequired();
-        builder.Property(i => i.IsActive).IsRequired();
-        builder.Property(i => i.Status).IsRequired();
-        builder.Property(i => i.AvailableAmount).IsRequired();
-        builder.Property(i => i.ReservedAmount).IsRequired();
-        builder.Property(i => i.OnHandAmount).IsRequired();
-        builder.Property(i => i.ProductLocation).IsRequired();
-        builder.Property(i => i.ShopId).IsRequired();
-        builder.Property(i => i.BrandId).IsRequired(false);
+    builder.Property(i => i.ProductName)
+        .IsRequired()
+        .HasMaxLength(150)
+        .HasColumnType("character varying(50)");
 
-        builder
-            .HasMany(i => i.Images)
-            .WithOne(img => img.InventoryItem)
-            .HasForeignKey(img => img.InventoryItemId)
-            .OnDelete(DeleteBehavior.Cascade);
-    }
+    builder.Property(i => i.ProductUpc)
+        .IsRequired()
+        .HasMaxLength(50)
+        .HasColumnType("character varying(50)");
+
+    builder.Property(i => i.Description)
+        .IsRequired()
+        .HasMaxLength(500);
+
+    builder.Property(i => i.ProductLocation)
+        .IsRequired()
+        .HasMaxLength(100);
+
+    builder.Property(i => i.Price).IsRequired();
+    builder.Property(i => i.CategoryId).IsRequired();
+    builder.Property(i => i.LastUpdatedDate).IsRequired();
+    builder.Property(i => i.IsActive).IsRequired();
+    builder.Property(i => i.Status).IsRequired();
+    builder.Property(i => i.AvailableAmount).IsRequired();
+    builder.Property(i => i.ReservedAmount).IsRequired();
+    builder.Property(i => i.OnHandAmount).IsRequired();
+    builder.Property(i => i.ShopId).IsRequired();
+    builder.Property(i => i.BrandId).IsRequired(false);
+
+    builder
+        .HasMany(i => i.Images)
+        .WithOne(img => img.InventoryItem)
+        .HasForeignKey(img => img.InventoryItemId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
 }
