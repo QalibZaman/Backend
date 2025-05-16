@@ -45,8 +45,8 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
 
             var specificationBuilder = new SpecificationBuilder<ShopEntity>();
             specificationBuilder.Add<GetShopByEmailSpecification>(shop.Email)
-                .Add<GetShopByNameSpecification>(shop.Name)
-                .Add<GetShopByPhoneNumberSpecification>(shop.PhoneNumber);
+                .AddOr<GetShopByNameSpecification>(shop.Name)
+                .AddOr<GetShopByPhoneNumberSpecification>(shop.PhoneNumber);
 
 
             var shopsWithRepeatingProps = await shopRepository.GetManyBySpecAsync(specificationBuilder.Build(), cancellationToken);
@@ -60,11 +60,11 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
                     {
                         exceptionMessageBuilder.AppendLine($"Shop name must be unique");
                     }
-                    else if (shop.PhoneNumber == violatedShop.PhoneNumber)
+                    if (shop.PhoneNumber == violatedShop.PhoneNumber)
                     {
                         exceptionMessageBuilder.AppendLine($"Shop phone number must be unique");
                     }
-                    else if (shop.Email == violatedShop.Email)
+                    if (shop.Email == violatedShop.Email)
                     {
                         exceptionMessageBuilder.AppendLine($"Shop email must be unique");
                     }
