@@ -6,6 +6,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 
@@ -34,6 +35,11 @@ public class UploadInventoryItemsListCommandHandler(
         }
 
         var inventoryItemsData = csvFileService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(request.CsvItemsFile);
+
+        if (!await inventoryItemsData.AnyAsync(cancellationToken))
+        {
+            throw new BadRequestException("The CSV file is empty. Please provide at least one row of data.");
+        }
 
         var inventoryItemsUpcHash = await inventoryItemRepository.GetAllUpcHashAsync(cancellationToken);
         var categoryDictionary = await categoryRepository.GetCategoryNameAndIdDictionaryAsync(cancellationToken);
