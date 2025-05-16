@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Countries.Queries;
 using NettoRetail.Application.Models.Response;

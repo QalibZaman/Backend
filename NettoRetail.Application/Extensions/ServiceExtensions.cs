@@ -49,7 +49,7 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
-        services.AddSingleton<ICountryCacheService, CountryCacheService>();
+        services.AddSingleton<ICountryCacheService, Redis2CountryCacheService>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
