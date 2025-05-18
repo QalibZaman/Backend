@@ -1,4 +1,3 @@
-using System.Reflection;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
@@ -13,8 +12,11 @@ using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
-using Stripe;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.DataAccess.Repositories;
+using NettoRetail.Shared.Interfaces.Repositories;
+using Stripe;
+using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -50,6 +52,7 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddScoped<IContentRepository, ContentRepository>();
         services.AddSingleton<ICountryCacheService, CountryCacheService>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
