@@ -33,6 +33,7 @@ public class ContentController(IMediator mediator) : Controller
         var query = new GetContentBlockByIdQuery(id, shopId);
         var result = await mediator.Send(query);
 
-        return result != null ? Ok(result) : NotFound("Content block not found");
+        var response = new ApiResponse<ContentBlockResponse>(result);
+        return response.Data is null ? NotFound(response) : Ok(response);
     }
 }
