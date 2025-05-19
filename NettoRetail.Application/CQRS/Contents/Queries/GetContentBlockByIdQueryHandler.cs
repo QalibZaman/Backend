@@ -16,7 +16,10 @@ public class GetContentBlockByIdHandler(IContentRepository contentRepo)
     public async Task<ContentBlockResponse?> Handle(GetContentBlockByIdQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetContentBlockByIdSpecification(request.Id, request.ShopId);
-        var contentBlock = await contentRepo.GetAsync(spec, cancellationToken) ?? null;
+        var contentBlock = await contentRepo.GetAsync(spec, cancellationToken);
+
+        if (contentBlock == null)
+            return null;
 
         var result = new ContentBlockResponse
         {

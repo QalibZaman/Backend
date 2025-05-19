@@ -13,6 +13,7 @@ using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
+using NettoRetail.DataAccess.Options;
 using Stripe;
 
 namespace NettoRetail.Application.Extensions;

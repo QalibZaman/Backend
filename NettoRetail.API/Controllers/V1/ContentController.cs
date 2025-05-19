@@ -34,6 +34,7 @@ public class ContentController(IMediator mediator) : Controller
         var result = await mediator.Send(query);
 
         var response = new ApiResponse<ContentBlockResponse>(result);
-        return response.Data is null ? NotFound(response) : Ok(response);
+        return Ok(response);
+
     }
 }

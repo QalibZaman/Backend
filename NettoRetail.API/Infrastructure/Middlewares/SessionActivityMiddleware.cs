@@ -39,7 +39,6 @@ public class SessionActivityMiddleware(RequestDelegate next)
             }
         }
 
-
         await next(context);
     }
 }
