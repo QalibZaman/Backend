@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -21,16 +22,6 @@ public class GetContentBlockByIdHandler(IContentRepository contentRepo)
         if (contentBlock == null)
             return null;
 
-        var result = new ContentBlockResponse
-        {
-            Id = contentBlock.Id,
-            SectionType = contentBlock.SectionType,
-            ContentUrl = contentBlock.ContentUrl,
-            IsVisible = contentBlock.IsVisible,
-            LastUpdated = contentBlock.LastUpdated,
-            UpdatedBy = contentBlock.UpdatedBy
-        };
-
-        return result;
+        return contentBlock.Adapt<ContentBlockResponse>();
     }
 }

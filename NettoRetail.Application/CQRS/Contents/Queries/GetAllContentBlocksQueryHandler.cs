@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Content;
@@ -14,16 +15,8 @@ public class GetAllContentBlocksQueryHandler(IContentRepository contentRepo)
     public async Task<List<ContentBlockResponse>> Handle(GetAllContentBlocksQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetContentByShopSpecification(request.ShopId);
-        var blocks = await contentRepo.GetAllBySpecAsync(spec, cancellationToken);
+        var contentBlock = await contentRepo.GetAllBySpecAsync(spec, cancellationToken);
 
-        return blocks.Select(b => new ContentBlockResponse
-        {
-            Id = b.Id,
-            SectionType = b.SectionType,
-            ContentUrl = b.ContentUrl,
-            IsVisible = b.IsVisible,
-            LastUpdated = b.LastUpdated,
-            UpdatedBy = b.UpdatedBy
-        }).ToList();
+        return contentBlock.Adapt<List<ContentBlockResponse>>();
     }
 }
