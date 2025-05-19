@@ -17,7 +17,6 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class ContentController(IMediator mediator) : Controller
 {
-    [RequiresPermission("System settings")]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{shopId:int}")]
     public async Task<IActionResult> GetAllContentBlocks([FromRoute] int shopId, CancellationToken cancellationToken)
@@ -27,7 +26,6 @@ public class ContentController(IMediator mediator) : Controller
         return Ok(response);
     }
 
-    [RequiresPermission("System settings")]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("block/{id}")]
     public async Task<IActionResult> GetContentBlockById(int id, [FromQuery] int shopId)
