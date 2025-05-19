@@ -4,6 +4,7 @@ using NettoHealth.Infrastructure.Services;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
+using NettoRetail.Shared.Interfaces.Services;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -26,6 +27,8 @@ public static class ServiceExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+        services.AddScoped<IStripeService, StripeService>();
+        services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
         return services;
     }
 }
