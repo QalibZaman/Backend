@@ -22,6 +22,29 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlobUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("InventoryItemImages");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -556,11 +579,13 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(150)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("ProductUpc")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ProductUpc")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
@@ -588,29 +613,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("InventoryItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemImageEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BlobUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("InventoryItemImages");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
@@ -1081,6 +1083,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Shops");
                 });
 
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("Images")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
@@ -1177,17 +1190,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemImageEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("Images")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
