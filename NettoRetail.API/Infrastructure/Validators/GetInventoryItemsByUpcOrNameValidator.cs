@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 
@@ -17,6 +18,9 @@ public class GetInventoryItemsByUpcOrNameValidator : AbstractValidator<GetInvent
 
     private bool BeAValidUpcOrProductName(string input)
     {
+        if (input.IsNullOrEmpty())
+            return false;
+
         string productNamePattern = "^[a-zA-Z0-9-_\\s]{1,50}$";
 
         return Regex.IsMatch(input, productNamePattern);
