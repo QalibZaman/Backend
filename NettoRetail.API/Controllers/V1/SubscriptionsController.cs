@@ -11,11 +11,11 @@ namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
-[Route("/api/v{version:apiVersion}/[controller]")]
+[Route("/api/v{version:apiVersion}/subscription")]
 public class SubscriptionsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
-    [HttpPut("api/shops/{shopId}/subscription")]
+    [HttpPut("{shopId}")]
     public async Task<IActionResult> ChangeSubscription(int shopId, [FromBody] ChangeSubscriptionRequest request)
     {
         var userId = HttpContext.GetUserId();

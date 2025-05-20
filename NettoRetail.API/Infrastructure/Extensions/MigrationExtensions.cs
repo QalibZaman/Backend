@@ -9,7 +9,7 @@ public static class MigrationExtensions
     {
         using var scope = webApplication.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        context.Database.Migrate();
+        //context.Database.Migrate();
 
         return webApplication;
     }

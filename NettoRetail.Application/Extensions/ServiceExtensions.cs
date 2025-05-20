@@ -34,7 +34,7 @@ public static class ServiceExtensions
         services.AddHostedService<TokenCleanupService>();
 
         //Hangfire
-        services.AddHangfire(config =>
+/*         services.AddHangfire(config =>
         {
             var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
 
@@ -46,7 +46,7 @@ public static class ServiceExtensions
                 });
         });
         services.AddHangfireServer();
-
+ */
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();

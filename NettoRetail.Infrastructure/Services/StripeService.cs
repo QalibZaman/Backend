@@ -7,24 +7,16 @@ namespace NettoRetail.Infrastructure.Services;
 
 public class StripeService : IStripeService
 {
-    private readonly CustomerService customerService;
-    private readonly SubscriptionService subscriptionService;
-    private readonly PaymentMethodService paymentMethodService;
+    private readonly CustomerService customerService = new();
+    private readonly SubscriptionService subscriptionService = new();
+    private readonly PaymentMethodService paymentMethodService = new();
 
-    public StripeService(
-        IOptions<StripeOptions> options,
-        CustomerService customerService,
-        SubscriptionService subscriptionService,
-        PaymentMethodService paymentMethodService)
+    public StripeService(IOptions<StripeOptions> options)
     {
         StripeConfiguration.ApiKey = options.Value.SecretKey;
-
-        this.customerService = customerService;
-        this.subscriptionService = subscriptionService;
-        this.paymentMethodService = paymentMethodService;
     }
 
-    public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken)
+    public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken = default)
     {
         var customerOptions = new CustomerCreateOptions
         {
@@ -40,7 +32,7 @@ public class StripeService : IStripeService
         return customer.Id;
     }
 
-    public async Task<string> CreateSubscriptionAsync(string customerId, string priceId, CancellationToken cancellationToken)
+    public async Task<string> CreateSubscriptionAsync(string customerId, string priceId, CancellationToken cancellationToken = default)
     {
         var subscriptionOptions = new SubscriptionCreateOptions
         {
