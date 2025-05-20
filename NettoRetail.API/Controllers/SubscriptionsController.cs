@@ -14,14 +14,6 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class SubscriptionsController(IMediator mediator) : ControllerBase
 {
-    //[Authorize]
-    //[HttpGet("plans")]
-    //public async Task<IActionResult> GetPlans()
-    //{
-    //    var result = await mediator.Send(new GetSubscriptionsPlansQuery());
-    //    return Ok(result);
-    //}
-
     [Authorize]
     [HttpPut("api/shops/{shopId}/subscription")]
     public async Task<IActionResult> ChangeSubscription(int shopId, [FromBody] ChangeSubscriptionRequest request)
@@ -31,5 +23,4 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         await mediator.Send(command);
         return NoContent();
     }
-
 }
