@@ -14,7 +14,7 @@ public class ShopSubscriptionService(
         ShopEntity shop,
         SubscriptionTypeEnum newPlan,
         string? paymentMethodId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var plan = await subscriptionPlanRepository
             .GetByTypeAsync(newPlan, cancellationToken)

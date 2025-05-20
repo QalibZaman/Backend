@@ -24,7 +24,7 @@ public class StripeService : IStripeService
         this.paymentMethodService = paymentMethodService;
     }
 
-    public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken = default)
+    public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken)
     {
         var customerOptions = new CustomerCreateOptions
         {
@@ -40,7 +40,7 @@ public class StripeService : IStripeService
         return customer.Id;
     }
 
-    public async Task<string> CreateSubscriptionAsync(string customerId, string priceId, CancellationToken cancellationToken = default)
+    public async Task<string> CreateSubscriptionAsync(string customerId, string priceId, CancellationToken cancellationToken)
     {
         var subscriptionOptions = new SubscriptionCreateOptions
         {
