@@ -14,7 +14,8 @@ public static class ApiExceptionHandler
             { typeof(BadRequestException), ex => HandleBadRequestException((BadRequestException)ex) },
             { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
             { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
-            { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) }
+            { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) },
+            { typeof(PaymentExceptions), ex => HandlePaymentExceptions((PaymentExceptions)ex) }
         };
 
     public static ApiExceptionHandlerResponse Handle(Exception ex)
@@ -54,6 +55,11 @@ public static class ApiExceptionHandler
     private static ApiExceptionHandlerResponse HandleMyUnauthorizedException(MyUnauthorizedException ex)
     {
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message));
+    }
+
+    private static ApiExceptionHandlerResponse HandlePaymentExceptions(PaymentExceptions ex)
+    {
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
     }
 
     private static ApiResponse GenerateResponse(string message) => new(message);

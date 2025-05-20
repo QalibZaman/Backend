@@ -35,7 +35,6 @@ public class CreateAdminCommandHandler(IAccountRepository accountRepository,
         admin.RoleId = adminOptions.Value.RoleId;
 
         admin.PasswordHash = PasswordHasher.HashPassword(admin.PasswordHash);
-
         var user = await accountRepository.AddAsync(admin, cancellationToken);
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
