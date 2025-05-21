@@ -17,6 +17,9 @@ public class ShopEntity
     public required string StripeCustomerId { get; set; }
     public required string StripeSubscriptionId { get; set; }
     public int CountryId { get; set; }
+    public required bool IsActive { get; set; }
+    public string? DeactivationReason { get; set; }
+    public DateTime? DeactivationDate { get; set; }
     public SubscriptionTypeEnum Subscription { get; set; } = SubscriptionTypeEnum.Free;
 
     public ICollection<RoleEntity>? Roles { get; set; }

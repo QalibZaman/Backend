@@ -390,7 +390,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ZipCode = "1234",
                     Description = "Your one-stop shop for all electronics needs",
                     CountryId = 1,
-                    Country = countries[0]
+                    Country = countries[0],
+                    IsActive = true,
                 },
                 new ShopEntity
                 {
@@ -405,7 +406,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     ZipCode = "2345",
                     Description = "Premium technology and gadgets",
                     CountryId = 1,
-                    Country = countries[1]
+                    Country = countries[1],
+                    IsActive = true
                 }
             };
 

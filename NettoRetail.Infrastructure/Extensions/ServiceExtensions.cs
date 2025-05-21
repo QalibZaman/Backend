@@ -5,6 +5,7 @@ using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Interfaces.Services;
+using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -14,6 +15,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddInfrastructureExtensions(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IAzureBlobService, AzureBlobService>();
+        services.AddScoped<IImageValidatorService, ImageValidatorService>();
 
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {

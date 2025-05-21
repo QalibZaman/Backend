@@ -70,6 +70,7 @@ public static class ServiceExtensions
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
         services.AddScoped<ISubcriptionPlanRepository, SubcriptionPlanRepository>();
+        services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
