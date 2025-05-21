@@ -5,7 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
+namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 public record GetStaffByIdQuery(Guid Id, int ShopId) : IRequest<StaffDetailsResponse>;
 
 public class GetStaffByIdQueryHandler(

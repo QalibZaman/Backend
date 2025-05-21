@@ -35,6 +35,11 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
           .HasForeignKey(c => c.CountryId)
           .IsRequired(false);
 
+        builder.HasMany(a => a.PasswordHistories)
+          .WithOne(ph => ph.Account)
+          .HasForeignKey(ph => ph.AccountId)
+          .OnDelete(DeleteBehavior.Cascade);
+
         builder.Property(p => p.Status).HasConversion<string>();
 
         builder.Property(p => p.PasswordUpdatedAt)

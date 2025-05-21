@@ -1,4 +1,5 @@
 ﻿namespace NettoRetail.Domain.Enums;
+
 public enum StaffStatusEnum
 {
     CreatePassword,

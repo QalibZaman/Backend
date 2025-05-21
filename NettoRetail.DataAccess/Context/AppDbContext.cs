@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Options;
@@ -24,10 +25,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<OrderStatusHistoryEntity> OrderStatusHistories { get; set; }
     public DbSet<BrandEntity> Brands { get; set; }
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
+    public DbSet<PasswordHistoryEntity> PasswordHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(connectionStringsOptions.Value.DefaultConnection);
+        optionsBuilder.UseNpgsql(connectionStringsOptions.Value.DefaultConnection)
+            .UseExceptionProcessor();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
