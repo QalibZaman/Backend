@@ -35,6 +35,5 @@ public class ContentController(IMediator mediator) : Controller
 
         var response = new ApiResponse<ContentBlockResponse>(result);
         return Ok(response);
-
     }
 }
