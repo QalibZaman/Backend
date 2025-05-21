@@ -22,6 +22,29 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlobUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("InventoryItemImages");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -29,7 +52,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("City")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int?>("CountryId")
                         .HasColumnType("integer");
@@ -64,7 +88,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("ProfileImageUrl")
                         .HasColumnType("text");
@@ -73,7 +98,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ShippingAddress")
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
@@ -92,7 +118,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("ZipCode")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -477,7 +504,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
@@ -556,11 +584,13 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(150)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("ProductUpc")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ProductUpc")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
@@ -693,7 +723,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("Creator")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
@@ -1058,6 +1089,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Shops");
                 });
 
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("Images")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
@@ -1303,6 +1345,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("OrderItems");
                 });
 
