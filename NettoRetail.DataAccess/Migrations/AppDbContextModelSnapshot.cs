@@ -88,6 +88,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeCustomerId")
                         .HasColumnType("text");
 
+                    b.Property<int?>("SubscriptionPlanId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -102,7 +105,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.HasIndex("SubscriptionPlanId");
+
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
@@ -123,7 +128,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlacklistedTokens", (string)null);
+                    b.ToTable("BlacklistedTokens");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
@@ -163,7 +168,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("WebsiteUrl")
                         .IsUnique();
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -202,7 +207,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
@@ -241,7 +246,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("PhoneCode")
                         .IsUnique();
 
-                    b.ToTable("Countries", (string)null);
+                    b.ToTable("Countries");
 
                     b.HasData(
                         new
@@ -484,7 +489,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("AccountId");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
@@ -510,7 +515,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("AccountId")
                         .IsUnique();
 
-                    b.ToTable("FailedAuthAttempt", (string)null);
+                    b.ToTable("FailedAuthAttempt");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -587,7 +592,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("InventoryItems", (string)null);
+                    b.ToTable("InventoryItems");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
@@ -713,7 +718,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderStatusHistoryEntity", b =>
@@ -741,7 +746,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderStatusHistories", (string)null);
+                    b.ToTable("OrderStatusHistories");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
@@ -782,7 +787,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("PaymentMethods", (string)null);
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -800,7 +805,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PermissionEntity", (string)null);
+                    b.ToTable("PermissionEntity");
 
                     b.HasData(
                         new
@@ -860,7 +865,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -942,7 +947,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RefreshToken")
                         .IsUnique();
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
@@ -991,6 +996,14 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("StripeCustomerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Subscription")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1018,7 +1031,40 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Shops", (string)null);
+                    b.ToTable("Shops");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Moto")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("character varying(70)");
+
+                    b.Property<string>("SubscriptionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPlans");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
@@ -1035,11 +1081,17 @@ namespace NettoRetail.DataAccess.Migrations
                         .WithMany("Account")
                         .HasForeignKey("ShopId");
 
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
+                        .WithMany("Accounts")
+                        .HasForeignKey("SubscriptionPlanId");
+
                     b.Navigation("Country");
 
                     b.Navigation("Role");
 
                     b.Navigation("Shop");
+
+                    b.Navigation("SubscriptionPlan");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
@@ -1286,6 +1338,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("InventoryItems");
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Navigation("Accounts");
                 });
 #pragma warning restore 612, 618
         }
