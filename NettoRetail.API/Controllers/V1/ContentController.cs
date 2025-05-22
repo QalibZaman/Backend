@@ -2,13 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Contents.Queries;
-using NettoRetail.Application.CQRS.Countries.Queries;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
-using static Bogus.DataSets.Name;
 
 namespace NettoRetail.API.Controllers.V1;
 
