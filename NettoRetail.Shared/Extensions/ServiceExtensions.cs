@@ -19,6 +19,8 @@ public static class ServiceExtensions
         services.Configure<TotpEncryptionOptions>(configuration.GetSection(nameof(TotpEncryptionOptions)));
         services.Configure<AdminRoleOptions>(configuration.GetSection(nameof(AdminRoleOptions)));
         services.Configure<SessionTrackingOptions>(configuration.GetSection(nameof(SessionTrackingOptions)));
+        services.Configure<FeatureToggleOptions>(configuration.GetSection(nameof(FeatureToggleOptions)));
+
         return services;
     }
 }

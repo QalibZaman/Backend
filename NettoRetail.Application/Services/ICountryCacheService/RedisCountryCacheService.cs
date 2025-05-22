@@ -1,37 +1,57 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Repositories;
+using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 using StackExchange.Redis;
 
 namespace NettoRetail.Application.Services.ICountryCacheService;
 
 public class RedisCountryCacheService : ICountryCacheService
 {
-    private readonly IDistributedCache _redisCache;
+    private readonly IDatabase _redisDb;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public RedisCountryCacheService(IDistributedCache redisCache, IServiceScopeFactory scopeFactory)
+    public RedisCountryCacheService(IConnectionMultiplexer redis, IServiceScopeFactory scopeFactory)
     {
-        _redisCache = redisCache;
+        _redisDb = redis.GetDatabase();
         _scopeFactory = scopeFactory;
     }
 
     public async Task<IEnumerable<CountryEntity>> GetCountriesAsync(CancellationToken cancellationToken)
     {
-        var countriesString = await _redisCache.GetStringAsync(CacheServiceKeys.COUNTRIES_KEY, cancellationToken);
-        if (!countriesString.IsNullOrEmpty())
+        var hashEntries = await _redisDb.HashGetAllAsync(CacheServiceKeys.COUNTRIES_KEY);
+
+        // If the cache is empty, load countries into cache and return loaded data
+        if (hashEntries.Length == 0)
         {
-            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(countriesString!));
-            return await JsonSerializer.DeserializeAsync<IEnumerable<CountryEntity>>(stream, cancellationToken: cancellationToken)
-                ?? new List<CountryEntity>();
+            var countries = await LoadCountriesIntoCacheAsync(cancellationToken);
+
+            hashEntries = await _redisDb.HashGetAllAsync(CacheServiceKeys.COUNTRIES_KEY);
+            return countries;
         }
 
-        return await LoadCountriesIntoCacheAsync(cancellationToken);
+        return hashEntries
+            .Select(entry => JsonSerializer.Deserialize<CountryEntity>(entry.Value!)!)
+            .ToList();
+    }
+
+    public async Task<CountryEntity> GetCountryByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var countryValue = await _redisDb.HashGetAsync(CacheServiceKeys.COUNTRIES_KEY, id.ToString());
+
+        if (countryValue.HasValue)
+        {
+            return JsonSerializer.Deserialize<CountryEntity>(countryValue!)!;
+        }
+
+        var country = await LoadCountryByIdIntoCacheAsync(id, cancellationToken);
+        return country;
     }
 
     private async Task<IEnumerable<CountryEntity>> LoadCountriesIntoCacheAsync(CancellationToken cancellationToken)
@@ -41,51 +61,28 @@ public class RedisCountryCacheService : ICountryCacheService
 
         var countries = await countryRepository.GetAllAsync(cancellationToken);
 
-        await _redisCache.SetAsync(CacheServiceKeys.COUNTRIES_KEY, JsonSerializer.SerializeToUtf8Bytes(countries));
+        var entries = countries
+            .Select(c => new HashEntry(c.Id.ToString(), JsonSerializer.Serialize(c)))
+            .ToArray();
+
+        await _redisDb.HashSetAsync(CacheServiceKeys.COUNTRIES_KEY, entries);
+
         return countries;
     }
-}
 
-
-public class Redis2CountryCacheService : ICountryCacheService
-{
-    private readonly IDatabase _redisDb;
-    private readonly IServiceScopeFactory _scopeFactory;
-
-    public Redis2CountryCacheService(IConnectionMultiplexer redis, IServiceScopeFactory scopeFactory)
-    {
-        _redisDb = redis.GetDatabase();
-        _scopeFactory = scopeFactory;
-    }
-
-    public async Task<IEnumerable<CountryEntity>> GetCountriesAsync(CancellationToken cancellationToken)
-    {
-        var cachedData = await _redisDb.StringGetAsync(CacheServiceKeys.COUNTRIES_KEY);
-        if (cachedData.HasValue)
-        {
-            return JsonSerializer.Deserialize<IEnumerable<CountryEntity>>(cachedData!)!;
-        }
-
-        await LoadCountriesIntoCacheAsync(cancellationToken);
-
-        cachedData = await _redisDb.StringGetAsync(CacheServiceKeys.COUNTRIES_KEY);
-        return cachedData.HasValue
-            ? JsonSerializer.Deserialize<IEnumerable<CountryEntity>>(cachedData!)!
-            : Enumerable.Empty<CountryEntity>();
-    }
-
-    private async Task LoadCountriesIntoCacheAsync(CancellationToken cancellationToken)
+    private async Task<CountryEntity> LoadCountryByIdIntoCacheAsync(int id, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var countryRepository = scope.ServiceProvider.GetRequiredService<ICountryRepository>();
 
-        var countries = await countryRepository.GetAllAsync(cancellationToken);
+        var specification = new GetCountryByIdSpecification(id);
+        var country = await countryRepository.GetAsync(specification, cancellationToken)
+            ?? throw new ArgumentException($"Couldn't find a country with id={id}");
 
-        var jsonData = JsonSerializer.Serialize(countries);
-        await _redisDb.StringSetAsync(
-            CacheServiceKeys.COUNTRIES_KEY,
-            jsonData,
-            TimeSpan.FromHours(24)
-        );
+        var entry = new HashEntry[] { new HashEntry(country.Id.ToString(), JsonSerializer.Serialize(country)) };
+
+        await _redisDb.HashSetAsync(CacheServiceKeys.COUNTRIES_KEY, entry);
+
+        return country;
     }
 }
