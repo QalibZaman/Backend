@@ -56,6 +56,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<IContentRepository, ContentRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IShopRepository, ShopRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
