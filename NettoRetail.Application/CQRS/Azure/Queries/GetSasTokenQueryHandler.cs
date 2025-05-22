@@ -7,7 +7,7 @@ using NettoRetail.Infrastructure.Interfaces;
 
 namespace NettoRetail.Application.CQRS.Azure.Queries;
 
-public record GetSasTokenQuery() : IRequest<SasTokenModel>;
+public record GetSasTokenQuery(string FileName, int ShopId) : IRequest<SasTokenModel>;
 
 public class GetSasTokenQueryHandler(IAzureBlobService azureBlobService,
     IOptions<ConnectionStrings> connectionStrings,

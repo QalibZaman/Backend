@@ -2,5 +2,5 @@
 
 public static class BrandsConstants
 {
-    public const string BrandsBlobPath = "brands/";
+    public const string BrandsBlobPath = "brand-logos/";
 }

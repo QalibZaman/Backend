@@ -51,7 +51,7 @@ public class CreateBrandCommandHandler(
 
         if (request.Model.LogoFile != null)
         {
-            fileName = $"brand-logos/{Guid.NewGuid()}{Path.GetExtension(request.Model.LogoFile.FileName)}";
+            fileName = $"{ImageCategoryEnum.BrandLogos.GetDirectory()}/{Guid.NewGuid()}{Path.GetExtension(request.Model.LogoFile.FileName)}";
         }
 
         if (fileName != null)

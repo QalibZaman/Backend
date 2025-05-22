@@ -6,10 +6,18 @@ namespace NettoRetail.Infrastructure.Interfaces;
 public interface IAzureBlobService
 {
     Task<string> UploadAsync(string fileName, Stream stream, string containerName, BlobContentCategoryEnum category, bool overwrite = true);
+
     Task DeleteByUrlAsync(string blobUrl);
+
     string GenerateContainerSasToken(
-    string containerName,
-    BlobContainerSasPermissions permissions,
-    TimeSpan? expiryDuration = null,
-    string? storedPolicyName = null);
+        string containerName,
+        BlobContainerSasPermissions permissions,
+        TimeSpan? expiryDuration = null,
+        string? storedPolicyName = null);
+
+    string GenerateBlobSasToken(
+        string blobName,
+        BlobContainerSasPermissions permissions,
+        TimeSpan? expiryDuration = null,
+        string? storedPolicyName = null);
 }
