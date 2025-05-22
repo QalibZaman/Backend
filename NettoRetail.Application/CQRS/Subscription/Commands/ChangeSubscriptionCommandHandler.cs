@@ -10,9 +10,9 @@ using NettoRetail.Shared.Interfaces.Services;
 namespace NettoRetail.Application.CQRS.Subscriptions.Commands;
 
 public record ChangeSubscriptionCommand(
-    int shopId,
-    Guid userId,
-    SubscriptionTypeEnum newPlan,
+    int ShopId,
+    Guid UserId,
+    SubscriptionTypeEnum NewPlan,
     string? PaymentMethodId) : IRequest;
 
 public class ChangeSubscriptionCommandHandler(
@@ -22,23 +22,23 @@ public class ChangeSubscriptionCommandHandler(
 {
     public async Task Handle(ChangeSubscriptionCommand request, CancellationToken cancellationToken)
     {
-        var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.shopId, RoleConstants.Admin);
+        var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
         var admin = await accountRepository.GetAsync(adminSpec, cancellationToken)
             ?? throw new ForbiddenException("Shop has no admin.");
 
-        if (admin.Id != request.userId)
+        if (admin.Id != request.UserId)
             throw new ForbiddenException("You are not the owner of this shop");
 
-        var shopSpec = new GetShopByIdSpecification(request.shopId);
+        var shopSpec = new GetShopByIdSpecification(request.ShopId);
         var shop = await shopRepository.GetAsync(shopSpec, cancellationToken)
             ?? throw new NotFoundException("Shop with that Id not found");
 
-        if (shop.Subscription == request.newPlan)
+        if (shop.Subscription == request.NewPlan)
             throw new ConflictException("Shop already has this subscription plan.");
 
         await subscriptionService.ChangeSubscriptionAsync(
             shop,
-            request.newPlan,
+            request.NewPlan,
             request.PaymentMethodId,
             cancellationToken);
     }
