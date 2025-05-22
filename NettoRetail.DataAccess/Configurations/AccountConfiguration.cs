@@ -11,12 +11,14 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.FirstName).HasMaxLength(30);
-
         builder.Property(p => p.LastName).HasMaxLength(30);
-
         builder.Property(p => p.Email).HasMaxLength(256);
-
         builder.Property(p => p.PasswordHash).HasMaxLength(100);
+
+        builder.Property(p => p.City).HasMaxLength(50);
+        builder.Property(p => p.PhoneNumber).HasMaxLength(20);
+        builder.Property(p => p.ShippingAddress).HasMaxLength(300);
+        builder.Property(p => p.ZipCode).HasMaxLength(20);
 
         builder.Property(p => p.RoleId);
 
