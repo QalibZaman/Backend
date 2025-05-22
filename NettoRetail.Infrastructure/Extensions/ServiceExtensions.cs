@@ -4,8 +4,8 @@ using NettoHealth.Infrastructure.Services;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
-using NettoRetail.Shared.Interfaces.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
+using NettoRetail.Shared.Interfaces.Services;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -27,10 +27,14 @@ public static class ServiceExtensions
         services.Configure<StripeOptions>(configuration.GetSection(nameof(StripeOptions)));
         StripeConfiguration.ApiKey = configuration.GetSection(nameof(StripeOptions))["SecretKey"];
 
+        services.AddSingleton<CustomerService>();
+        services.AddSingleton<SubscriptionService>();
+
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
+
         return services;
     }
 }

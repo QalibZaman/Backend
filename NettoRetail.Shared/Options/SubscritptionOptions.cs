@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Shared.Options
 {
-    public class SubscritptionOptions
+    public class SubscriptionOptions
     {
         public required string FreePlanId { get; set; }
         public required string SuperPlanId { get; set; }

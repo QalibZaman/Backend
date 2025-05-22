@@ -19,7 +19,7 @@ public static class ServiceExtensions
         services.Configure<TotpEncryptionOptions>(configuration.GetSection(nameof(TotpEncryptionOptions)));
         services.Configure<AdminRoleOptions>(configuration.GetSection(nameof(AdminRoleOptions)));
         services.Configure<SessionTrackingOptions>(configuration.GetSection(nameof(SessionTrackingOptions)));
-        services.Configure<SubscritptionOptions>(configuration.GetSection(nameof(SubscritptionOptions)));
+        services.Configure<SubscriptionOptions>(configuration.GetSection(nameof(SubscriptionOptions)));
         return services;
     }
 }

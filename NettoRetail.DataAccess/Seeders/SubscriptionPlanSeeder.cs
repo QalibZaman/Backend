@@ -6,7 +6,7 @@ using NettoRetail.Shared.Options;
 
 namespace NettoRetail.DataAccess.Seeding;
 
-public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<SubscritptionOptions> options)
+public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<SubscriptionOptions> options)
 {
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {

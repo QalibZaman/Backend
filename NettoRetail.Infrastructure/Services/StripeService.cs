@@ -7,13 +7,21 @@ namespace NettoRetail.Infrastructure.Services;
 
 public class StripeService : IStripeService
 {
-    private readonly CustomerService customerService = new();
-    private readonly SubscriptionService subscriptionService = new();
-    private readonly PaymentMethodService paymentMethodService = new();
+    private const string PaymentIncomplete = "default_incomplete";
+    private const string ExpandPaymentIntent = "latest_invoice.payment_intent";
 
-    public StripeService(IOptions<StripeOptions> options)
+    private readonly CustomerService customerService;
+    private readonly SubscriptionService subscriptionService;
+
+
+    public StripeService(
+        IOptions<StripeOptions> options,
+        CustomerService customerService,
+        SubscriptionService subscriptionService)
     {
         StripeConfiguration.ApiKey = options.Value.SecretKey;
+        this.customerService = customerService;
+        this.subscriptionService = subscriptionService;
     }
 
     public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken = default)
@@ -41,8 +49,8 @@ public class StripeService : IStripeService
             {
                 new() { Price = priceId }
             },
-            PaymentBehavior = "default_incomplete",
-            Expand = new List<string> { "latest_invoice.payment_intent" }
+            PaymentBehavior = PaymentIncomplete,
+            Expand = new List<string> { ExpandPaymentIntent }
         };
 
         var subscription = await subscriptionService.CreateAsync(subscriptionOptions, cancellationToken: cancellationToken);
