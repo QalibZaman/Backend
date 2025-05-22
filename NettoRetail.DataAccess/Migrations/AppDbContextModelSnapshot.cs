@@ -22,6 +22,29 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlobUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("InventoryItemImages");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -29,7 +52,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("City")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int?>("CountryId")
                         .HasColumnType("integer");
@@ -47,7 +71,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<bool>("IsSubscribedTonewsletter")
+                    b.Property<bool>("IsSubscribedToNewsletter")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
@@ -64,7 +88,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("ProfileImageUrl")
                         .HasColumnType("text");
@@ -73,7 +98,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ShippingAddress")
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<int?>("ShopId")
                         .HasColumnType("integer");
@@ -85,11 +111,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("StripeCustomerId")
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("ZipCode")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -474,7 +504,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
@@ -553,11 +584,13 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(50)
+                        .HasMaxLength(150)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<long>("ProductUpc")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ProductUpc")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
@@ -690,7 +723,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("Creator")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
@@ -739,6 +773,75 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderStatusHistories");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PasswordHistories");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CardBrand")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("CardExpMonth")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CardExpYear")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FourLastCardNumbers")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("StripePaymentMethodId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -922,6 +1025,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("CountryId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DeactivationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeactivationReason")
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -931,6 +1040,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -975,6 +1087,17 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("Shops");
+                });
+
+            modelBuilder.Entity("InventoryItemImageEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("Images")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
@@ -1135,6 +1258,26 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("PasswordHistories")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("PaymentMethods")
+                        .HasForeignKey("AccountId");
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
@@ -1171,6 +1314,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
+                    b.Navigation("PasswordHistories");
+
+                    b.Navigation("PaymentMethods");
+
                     b.Navigation("Sessions");
                 });
 
@@ -1198,6 +1345,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("OrderItems");
                 });
 

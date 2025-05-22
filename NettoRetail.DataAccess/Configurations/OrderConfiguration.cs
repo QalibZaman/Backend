@@ -19,5 +19,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
         builder.HasMany(p => p.OrderItems)
             .WithOne(p => p.Order)
             .HasForeignKey(p => p.OrderId);
+
+        builder.Property(p => p.Creator)
+            .HasMaxLength(200);
     }
 }

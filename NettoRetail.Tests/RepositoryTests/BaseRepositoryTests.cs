@@ -57,7 +57,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "1234",
             Description = "Test shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
         };
 
         // Act
@@ -89,7 +90,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "54321",
             Description = "Shop to be deleted",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
@@ -122,7 +124,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "12345",
             Description = "Test shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
         };
         await _repository.AddAsync(shop, CancellationToken.None);
 
@@ -159,7 +162,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "11111",
             Description = "Shop 1 description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
         };
 
         var shop2 = new ShopEntity
@@ -175,7 +179,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "22222",
             Description = "Shop 2 description",
             CountryId = 2,
-            Country = country2!
+            Country = country2!,
+            IsActive = true,
         };
 
         await _repository.AddAsync(shop1, CancellationToken.None);
@@ -208,7 +213,8 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "112233",
             Description = "Spec delete shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
