@@ -10,9 +10,8 @@ public class StripeService : IStripeService
     private const string PaymentIncomplete = "default_incomplete";
     private const string ExpandPaymentIntent = "latest_invoice.payment_intent";
 
-    private readonly CustomerService customerService;
-    private readonly SubscriptionService subscriptionService;
-
+    private readonly CustomerService _customerService;
+    private readonly SubscriptionService _subscriptionService;
 
     public StripeService(
         IOptions<StripeOptions> options,
@@ -20,8 +19,8 @@ public class StripeService : IStripeService
         SubscriptionService subscriptionService)
     {
         StripeConfiguration.ApiKey = options.Value.SecretKey;
-        this.customerService = customerService;
-        this.subscriptionService = subscriptionService;
+        _customerService = customerService;
+        _subscriptionService = subscriptionService;
     }
 
     public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken = default)
@@ -36,7 +35,7 @@ public class StripeService : IStripeService
             }
         };
 
-        var customer = await customerService.CreateAsync(customerOptions, cancellationToken: cancellationToken);
+        var customer = await _customerService.CreateAsync(customerOptions, cancellationToken: cancellationToken);
         return customer.Id;
     }
 
@@ -53,7 +52,7 @@ public class StripeService : IStripeService
             Expand = new List<string> { ExpandPaymentIntent }
         };
 
-        var subscription = await subscriptionService.CreateAsync(subscriptionOptions, cancellationToken: cancellationToken);
+        var subscription = await _subscriptionService.CreateAsync(subscriptionOptions, cancellationToken: cancellationToken);
         return subscription.Id;
     }
 }
