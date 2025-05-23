@@ -23,7 +23,9 @@ public class AccountEntity
     public DateTime? PasswordUpdatedAt { get; set; }
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }
+    public int? SubscriptionPlanId { get; set; }
 
+    public SubscriptionPlanEntity SubscriptionPlan { get; set; }
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }
