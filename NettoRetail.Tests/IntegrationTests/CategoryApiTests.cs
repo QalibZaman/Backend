@@ -226,6 +226,8 @@ namespace NettoRetail.Tests.IntegrationTests
                         CountryId = 1,
                         Country = countries[0],
                         IsActive = true,
+                        StripeCustomerId = "cus_test_1",
+                        StripeSubscriptionId = "sub_test_1"
                     },
                     new ShopEntity
                     {
@@ -242,6 +244,8 @@ namespace NettoRetail.Tests.IntegrationTests
                         CountryId = 1,
                         IsActive = true,
                         Country = countries[1],
+                        StripeCustomerId = "cus_test_2",
+                        StripeSubscriptionId = "sub_test_2"
                     }
                 };
                 var categories = new List<CategoryEntity>

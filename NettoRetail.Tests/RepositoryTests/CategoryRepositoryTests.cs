@@ -58,6 +58,8 @@ public class CategoryRepositoryTests : IDisposable
             CountryId = 1,
             Country = country,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         var categories = new List<CategoryEntity>

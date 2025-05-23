@@ -59,6 +59,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 1,
             Country = country!,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         // Act
@@ -92,6 +94,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 1,
             Country = country!,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
@@ -126,6 +130,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 1,
             Country = country!,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
         await _repository.AddAsync(shop, CancellationToken.None);
 
@@ -164,6 +170,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 1,
             Country = country!,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         var shop2 = new ShopEntity
@@ -181,6 +189,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 2,
             Country = country2!,
             IsActive = true,
+             StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop1, CancellationToken.None);
@@ -215,6 +225,8 @@ public class BaseRepositoryTests : IDisposable
             CountryId = 1,
             Country = country!,
             IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
