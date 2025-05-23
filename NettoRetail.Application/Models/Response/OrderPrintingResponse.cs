@@ -1,8 +1,5 @@
 ﻿using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Order;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Entities.JunctionEntities;
-using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Models.Response;
 
@@ -14,8 +11,8 @@ public class OrderPrintingResponse
     public required string CustomerFirstName { get; set; }
     public required string CustomerLastName { get; set; }
     public required string CustomerEmail { get; set; }
-    public required OrderStatusEnum OrderStatus { get; set; }
-    public required OrderDeliveryTypeEnum DeliveryType { get; set; }
+    public required string OrderStatus { get; set; }
+    public required string DeliveryType { get; set; }
     public ICollection<OrderStatusHistoryDto>? StatusHistory { get; set; }
     public required int TotalProducts { get; set; }
     public required int TotalQuantity { get; set; }
