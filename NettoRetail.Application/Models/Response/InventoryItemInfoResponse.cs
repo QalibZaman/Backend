@@ -12,7 +12,7 @@ public class InventoryItemInfoResponse
     public required string Description { get; set; }
     public required DateTime LastUpdatedDate { get; set; }
     public required string ProductLocation { get; set; }
-    public required InventoryItemStatusEnum Status { get; set; }
+    public required string Status { get; set; }
     public required int AvailableAmount { get; set; }
     public required int ReservedAmount { get; set; }
     public required int OnHandAmount { get; set; }

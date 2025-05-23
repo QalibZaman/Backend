@@ -17,5 +17,5 @@ public class ClientsShopInfoResponse
     public required string State { get; set; }
     public required string ZipCode { get; set; }
     public required string Description { get; set; }
-    public SubscriptionTypeEnum Subscription { get; set; }
+    public required string Subscription { get; set; }
 }
