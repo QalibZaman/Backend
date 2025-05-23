@@ -136,7 +136,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
         };
 
         var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
-        
+
         var item = await response.Content.ReadFromJsonAsync<ApiResponse<InventoryItemResponse>>();
 
         var model = new UpdateInventoryItemModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = 123456789123 };
@@ -291,7 +291,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
         // Arrange
         var email = "stringaaaa@gmail.com";
         var password = "Stringaaaa1234!";
-        var upc = 123456789012; 
+        var upc = 123456789012;
 
         // Act
         var tokenResponse = await GetTokenResponseAsync(email, password);
@@ -318,7 +318,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
         // Arrange
         var email = "stringaaaa@gmail.com";
         var password = "Stringaaaa1234!";
-        var name = "MacBook Pro 16"; 
+        var name = "MacBook Pro 16";
 
         // Act
         var tokenResponse = await GetTokenResponseAsync(email, password);
@@ -335,9 +335,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
 
         // Assert
         Assert.NotNull(itemsResponse);
-        Assert.Single(itemsResponse.Data); 
+        Assert.Single(itemsResponse.Data);
         Assert.Equal(name, itemsResponse.Data[0].ProductName);
-        Assert.Equal(123456789012, itemsResponse.Data[0].ProductUpc); 
+        Assert.Equal(123456789012, itemsResponse.Data[0].ProductUpc);
     }
 
     public void Dispose()
@@ -392,6 +392,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     CountryId = 1,
                     Country = countries[0],
                     IsActive = true,
+                    StripeCustomerId = "cus_test_1",
+                    StripeSubscriptionId = "sub_test_1"
                 },
                 new ShopEntity
                 {
@@ -407,7 +409,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<P
                     Description = "Premium technology and gadgets",
                     CountryId = 1,
                     Country = countries[1],
-                    IsActive = true
+                    IsActive = true,
+                    StripeCustomerId = "cus_test_2",
+                    StripeSubscriptionId = "sub_test_2"
                 }
             };
 
