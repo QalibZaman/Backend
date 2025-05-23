@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250515110441_AddedConfiguration")]
-    partial class AddedConfiguration
+    [Migration("20250523090506_VeiwContentEntity")]
+    partial class VeiwContentEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,15 +218,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ContentUrl")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Group")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasDefaultValue("");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
@@ -236,16 +229,16 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("SectionType")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.Property<int>("ShopId")
                         .HasColumnType("integer");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -791,6 +784,31 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("OrderStatusHistories");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PasswordHistories");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -820,6 +838,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("StripePaymentMethodId")
                         .IsRequired()
@@ -1235,6 +1256,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("PasswordHistories")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -1279,6 +1311,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
+
+                    b.Navigation("PasswordHistories");
 
                     b.Navigation("PaymentMethods");
 
