@@ -13,9 +13,9 @@ using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
-using Stripe;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using Stripe;
 
 namespace NettoRetail.Application.Extensions;
 

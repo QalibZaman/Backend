@@ -14,6 +14,8 @@ public class ShopEntity
     public required string State { get; set; }
     public required string ZipCode { get; set; }
     public required string Description { get; set; }
+    public required string StripeCustomerId { get; set; }
+    public required string StripeSubscriptionId { get; set; }
     public int CountryId { get; set; }
     public required bool IsActive { get; set; }
     public string? DeactivationReason { get; set; }

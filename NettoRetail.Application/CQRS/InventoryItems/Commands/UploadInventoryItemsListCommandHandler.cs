@@ -6,6 +6,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 
@@ -35,39 +36,51 @@ public class UploadInventoryItemsListCommandHandler(
 
         var inventoryItemsData = csvFileService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(request.CsvItemsFile);
 
+        if (!await inventoryItemsData.AnyAsync(cancellationToken))
+        {
+            throw new BadRequestException("The CSV file is empty. Please provide at least one row of data.");
+        }
+
         var inventoryItemsUpcHash = await inventoryItemRepository.GetAllUpcHashAsync(cancellationToken);
         var categoryDictionary = await categoryRepository.GetCategoryNameAndIdDictionaryAsync(cancellationToken);
 
         var currentBatch = new List<InventoryItemEntity>(_batchDefaults.BatchSize);
 
-        await foreach (var item in inventoryItemsData)
+        try
         {
-            if (inventoryItemsUpcHash.Contains(item.ProductUpc))
+            await foreach (var item in inventoryItemsData)
             {
-                throw new ConflictException("Item with such UPC is registered.");
+                if (inventoryItemsUpcHash.Contains(item.ProductUpc))
+                {
+                    throw new ConflictException("Item with such UPC is registered.");
+                }
+
+                if (!categoryDictionary.TryGetValue(item.ProductCategory, out var categoryId))
+                {
+                    throw new NotFoundException("There is no category with the such name.");
+                }
+
+                item.CategoryId = categoryId;
+                item.ShopId = request.UserShopId;
+
+                var entity = item.Adapt<InventoryItemEntity>();
+                currentBatch.Add(entity);
+
+                if (currentBatch.Count >= _batchDefaults.BatchSize)
+                {
+                    await inventoryItemRepository.AddRangeAsync(currentBatch, cancellationToken);
+                    currentBatch.Clear();
+                }
             }
-
-            if (!categoryDictionary.TryGetValue(item.ProductCategory, out var categoryId))
-            {
-                throw new NotFoundException("There is no category with the such name.");
-            }
-
-            item.CategoryId = categoryId;
-            item.ShopId = request.UserShopId;
-
-            var entity = item.Adapt<InventoryItemEntity>();
-            currentBatch.Add(entity);
-
-            if (currentBatch.Count >= _batchDefaults.BatchSize)
-            {
-                await inventoryItemRepository.AddBulkAsync(currentBatch, cancellationToken);
-                currentBatch.Clear();
-            }
+        }
+        catch (Exception ex)
+        {
+            throw new BadRequestException($"CSV parsing failed. Please ensure values like enum 'Status' are valid. {ex.Message}");
         }
 
         if (currentBatch.Count > 0)
         {
-            await inventoryItemRepository.AddBulkAsync(currentBatch, cancellationToken);
+            await inventoryItemRepository.AddRangeAsync(currentBatch, cancellationToken);
         }
     }
 }

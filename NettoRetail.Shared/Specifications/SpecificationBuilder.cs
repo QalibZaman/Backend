@@ -66,6 +66,30 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
+    public SpecificationBuilder<TEntity> AddOr<TSpecification>(params object?[]? args)
+    where TSpecification : Specification<TEntity>
+    {
+        if (args == null || args.All(a => a == null)) return this;
+
+        // In case the specification can't be built,
+        // which might happen due to incorrect parameter count or types, this will return false.
+        var specificationIsValid = ValidateSpecificationIntegrity<TSpecification>(args);
+
+        // If the check evaluates to false, that means we should throw an error due to incorrect implementation.
+        // This means that the issue on the developer's side and the way the builder is being used should be checked.
+        if (!specificationIsValid)
+        {
+            throw new ArgumentException("Specification could not be built due to incorrect argument count or types");
+        }
+
+        // Otherwise we create the instance of the generic specification dynamically
+        // and then chain it to the previous specification.
+        var newSpecification = (TSpecification)Activator.CreateInstance(typeof(TSpecification), args)!;
+
+        _specification.Or(newSpecification);
+        return this;
+    }
+
     public Specification<TEntity> Build() => _specification;
 
     private bool ValidateSpecificationIntegrity<TSpecification>(object?[] args)
