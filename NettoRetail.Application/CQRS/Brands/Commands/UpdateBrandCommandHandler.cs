@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
@@ -19,7 +20,10 @@ namespace NettoRetail.Application.CQRS.Brands.Commands;
 
 public record UpdateBrandCommand(int Id, string Name, string? Description, IFormFile? Logo, string? WebsiteUrl, int ShopId) : IRequest<BrandResponse>;
 
-public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureBlobService azureBlobService, IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<UpdateBrandCommand, BrandResponse>
+public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
+    IAzureBlobService azureBlobService,
+    IBlobNameGenerator blobNameGenerator,
+    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<UpdateBrandCommand, BrandResponse>
 {
     public async Task<BrandResponse> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
@@ -33,7 +37,7 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureB
         // Upload new logo
         if (request.Logo != null)
         {
-            var blobPath = GenerateBrandLogoBlobPath(brand.Id, request.Logo.FileName);
+            var blobPath = blobNameGenerator.GenerateBlobName(request.Logo.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
 
             var logoUrl = await azureBlobService.UploadAsync(
                 blobPath,
@@ -49,10 +53,5 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository, IAzureB
         await brandRepository.UpdateAsync(brand, cancellationToken);
 
         return brand.Adapt<BrandResponse>();
-    }
-
-    private static string GenerateBrandLogoBlobPath(int brandId, string originalFileName)
-    {
-        return $"{BrandsConstants.BrandsBlobPath}{brandId}/{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
     }
 }

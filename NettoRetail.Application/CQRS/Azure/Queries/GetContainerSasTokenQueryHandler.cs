@@ -7,13 +7,13 @@ using NettoRetail.Infrastructure.Interfaces;
 
 namespace NettoRetail.Application.CQRS.Azure.Queries;
 
-public record GetSasTokenQuery(string FileName, int ShopId) : IRequest<SasTokenModel>;
+public record GetContainerSasTokenQuery() : IRequest<SasTokenModel>;
 
-public class GetSasTokenQueryHandler(IAzureBlobService azureBlobService,
+public class GetContainerSasTokenQueryHandler(IAzureBlobService azureBlobService,
     IOptions<ConnectionStrings> connectionStrings,
-    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<GetSasTokenQuery, SasTokenModel>
+    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<GetContainerSasTokenQuery, SasTokenModel>
 {
-    public Task<SasTokenModel> Handle(GetSasTokenQuery request, CancellationToken cancellationToken)
+    public Task<SasTokenModel> Handle(GetContainerSasTokenQuery request, CancellationToken cancellationToken)
     {
         var azureConnectionString = connectionStrings.Value.AzureConnection;
         var containerName = azureBlobStorageOptions.Value.ContainerName;

@@ -16,8 +16,9 @@ public interface IAzureBlobService
         string? storedPolicyName = null);
 
     string GenerateBlobSasToken(
+        string containerName,
         string blobName,
-        BlobContainerSasPermissions permissions,
+        BlobSasPermissions permissions,
         TimeSpan? expiryDuration = null,
         string? storedPolicyName = null);
 }

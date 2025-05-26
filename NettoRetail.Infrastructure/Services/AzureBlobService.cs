@@ -85,19 +85,25 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
         return sasUri.Query.TrimStart('?');
     }
 
-    public string GenerateBlobSasToken(string blobName, BlobContainerSasPermissions permissions, TimeSpan? expiryDuration = null, string? storedPolicyName = null)
+    public string GenerateBlobSasToken(
+        string containerName,
+        string blobName, 
+        BlobSasPermissions permissions,
+        TimeSpan? expiryDuration = null,
+        string? storedPolicyName = null)
     {
-        var containerClient = blobServiceClient.GetBlobContainerClient(blobName);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(blobName);
 
-        if (!containerClient.CanGenerateSasUri)
+        if (!blobClient.CanGenerateSasUri)
         {
-            throw new InvalidOperationException("Can't generate SAS uri");
+            throw new InvalidOperationException("Can't generate SAS URI for the blob.");
         }
 
         var sasBuilder = new BlobSasBuilder
         {
+            BlobContainerName = containerName,
             BlobName = blobName,
-            // "b" for blob
             Resource = "b",
         };
 
@@ -111,7 +117,7 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
             sasBuilder.SetPermissions(permissions);
         }
 
-        Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
+        Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
         return sasUri.Query.TrimStart('?');
     }
 }

@@ -13,12 +13,12 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class AzureController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("sas/{fileName}")]
-    public async Task<IActionResult> GetSasToken([FromQuery] string fileName)
+    [HttpGet("sas")]
+    public async Task<IActionResult> GetSasToken([FromQuery] string fileUrl)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var getSasTokenQuery = new GetSasTokenQuery(fileName, shopId);
+        var getSasTokenQuery = new GetBlobSasTokenQuery(fileUrl, shopId);
 
         var data = await mediator.Send(getSasTokenQuery);
 
