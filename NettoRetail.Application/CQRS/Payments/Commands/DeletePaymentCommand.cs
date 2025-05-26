@@ -6,7 +6,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.Payments;
+using NettoRetail.DataAccess.Specifications.Payment;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;

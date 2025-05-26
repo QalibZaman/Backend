@@ -49,6 +49,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("{paymentMethodId}")]
         public async Task<IActionResult> DeletePayment(string paymentMethodId, CancellationToken cancellationToken)
         {
@@ -59,6 +60,17 @@ namespace NettoRetail.API.Controllers.V1
             var response = await mediator.Send(command, cancellationToken);
 
             return Ok(new ApiResponse<PaymentMethodDeleteResponse>(response));
+        }
+
+        [Authorize]
+        [HttpPut("default/{paymentMethodId}")]
+        public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
+        {
+            var userId = HttpContext.GetUserId();
+            var command = new ChangeDefaultPaymentCommand(paymentMethodId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return NoContent();
         }
     }
 }
