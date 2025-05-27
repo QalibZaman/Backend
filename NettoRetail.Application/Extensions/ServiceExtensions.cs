@@ -73,8 +73,5 @@ public static class ServiceExtensions
         {
             services.AddSingleton<ICountryCacheService, CountryCacheService>();
         }
-
-        //Decorators
-        //services.Decorate<ICountryRepository, CachedCountryRepository>();
     }
 }
