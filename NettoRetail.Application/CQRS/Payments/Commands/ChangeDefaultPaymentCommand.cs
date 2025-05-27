@@ -15,28 +15,21 @@ public class ChangeDefaultPaymentCommandHandler(IPaymentRepository paymentReposi
 {
     public async Task<bool> Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
     {
-        try
+        var spec = new PaymentMethodsByAccountSpecification(request.PaymentMethodId, request.AccountId);
+        var paymentMethod = await paymentRepository.GetAsync(spec, cancellationToken)
+                            ?? throw new NotFoundException("Payment method not found.");
+
+        var allMethods = paymentMethod.Account.PaymentMethods?.ToList() ?? throw new NotFoundException("No payment methods found for the account.");
+
+        allMethods.ForEach(pm => pm.IsDefault = (pm.StripePaymentMethodId == request.PaymentMethodId));
+
+        foreach (var method in allMethods)
         {
-            var spec = new PaymentMethodsByAccountSpecification(request.PaymentMethodId, request.AccountId);
-            var paymentMethod = await paymentRepository.GetAsync(spec, cancellationToken)
-                                ?? throw new NotFoundException("Payment method not found.");
-
-            var allMethods = paymentMethod.Account.PaymentMethods?.ToList() ?? throw new NotFoundException("No payment methods found for the account.");
-
-            allMethods.ForEach(pm => pm.IsDefault = (pm.StripePaymentMethodId == request.PaymentMethodId));
-
-            foreach (var method in allMethods)
-            {
-                await paymentRepository.UpdateAsync(method, cancellationToken);
-            }
-
-            await paymentMethodService.UpdateAsync(paymentMethod.StripePaymentMethodId, null, null, cancellationToken);
-
-            return true;
+            await paymentRepository.UpdateAsync(method, cancellationToken);
         }
-        catch
-        {
-            throw;
-        }
+
+        await paymentMethodService.UpdateAsync(paymentMethod.StripePaymentMethodId, null, null, cancellationToken);
+
+        return true;
     }
 }

@@ -68,7 +68,7 @@ namespace NettoRetail.API.Controllers.V1
         {
             var userId = HttpContext.GetUserId();
             var command = new ChangeDefaultPaymentCommand(paymentMethodId, userId);
-            var result = await mediator.Send(command, cancellationToken);
+            await mediator.Send(command, cancellationToken);
 
             return NoContent();
         }
