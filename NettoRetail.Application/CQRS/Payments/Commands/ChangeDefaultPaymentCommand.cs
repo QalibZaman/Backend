@@ -23,7 +23,7 @@ public class ChangeDefaultPaymentCommandHandler(IPaymentRepository paymentReposi
 
         allMethods.ForEach(pm => pm.IsDefault = (pm.StripePaymentMethodId == request.PaymentMethodId));
 
-        await Task.WhenAll(allMethods.Select(pm => paymentRepository.UpdateAsync(pm, cancellationToken)));
+        await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
 
         await paymentMethodService.UpdateAsync(paymentMethod.StripePaymentMethodId, null, null, cancellationToken);
 
