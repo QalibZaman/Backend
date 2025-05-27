@@ -14,6 +14,7 @@ using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.Application.Services.IBlobNameGenerator;
 using Stripe;
 
 namespace NettoRetail.Application.Extensions;
@@ -63,5 +64,6 @@ public static class ServiceExtensions
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
+        services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
     }
 }
