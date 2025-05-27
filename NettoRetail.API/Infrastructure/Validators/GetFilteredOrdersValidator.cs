@@ -11,21 +11,21 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
         RuleForEach(x => x.CustomerFirstNames).ChildRules(x =>
         {
             x.RuleFor(v => v)
-                .MaximumLength(50)
+                .MaximumLength(30)
                 .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid first name characters.");
         });
 
         RuleForEach(x => x.CustomerLastNames).ChildRules(x =>
         {
             x.RuleFor(v => v)
-                .MaximumLength(50)
+                .MaximumLength(30)
                 .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid last name characters.");
         });
 
         RuleForEach(x => x.CustomerEmails).ChildRules(x =>
         {
             x.RuleFor(v => v)
-                .MaximumLength(100)
+                .MaximumLength(256)
                 .EmailAddress().WithMessage("Invalid email format.");
         });
 

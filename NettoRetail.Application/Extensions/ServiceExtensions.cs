@@ -17,6 +17,7 @@ using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
+using NettoRetail.Application.Services.IBlobNameGenerator;
 using Stripe;
 
 namespace NettoRetail.Application.Extensions;
@@ -76,5 +77,7 @@ public static class ServiceExtensions
         {
             services.AddSingleton<ICountryCacheService, CountryCacheService>();
         }
+
+        services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
     }
 }
