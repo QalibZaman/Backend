@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
+using NettoRetail.DataAccess.Seeding;
 using NettoRetail.DataAccess.UOW;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -56,6 +57,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<IContentRepository, ContentRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IShopRepository, ShopRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
@@ -66,10 +68,16 @@ public static class ServiceExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+        services.AddScoped<ISubcriptionPlanRepository, SubcriptionPlanRepository>();
+        services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Seeders
+        services.AddTransient<SubscriptionPlanSeeder>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

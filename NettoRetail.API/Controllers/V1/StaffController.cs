@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
@@ -235,11 +236,11 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStaffList([FromQuery] PaginationRequest paginationRequest, [FromQuery] GetFilteredStaffRequest filteredStaffRequest, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetStaffListQuery(model, shopId);
+        var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
 
         var response = await mediator.Send(query, cancellationToken);
 
@@ -300,5 +301,18 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("csv-file")]
+    public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredStaffCsvRequest getFilteredStaffCsvRequest, CancellationToken cancellationToken)
+    {
+        var userShopId = HttpContext.GetUserShopId();
+
+        var staffListDownloadQuery = new DownloadStaffListQuery(userShopId, getFilteredStaffCsvRequest);
+
+        var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
+
+        return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
     }
 }

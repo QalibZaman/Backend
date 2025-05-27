@@ -56,7 +56,10 @@ public class CategoryRepositoryTests : IDisposable
             ZipCode = "1234",
             Description = "Your one-stop shop for all electronics needs",
             CountryId = 1,
-            Country = country
+            Country = country,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         var categories = new List<CategoryEntity>

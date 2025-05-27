@@ -17,6 +17,7 @@ using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
+using Stripe;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -61,6 +62,8 @@ public static class ServiceExtensions
         services.AddScoped<ICsvFileService, CsvFileService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
+        services.AddScoped<PaymentMethodService>();
+        services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();

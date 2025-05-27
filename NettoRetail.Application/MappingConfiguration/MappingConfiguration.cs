@@ -104,7 +104,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem));
+            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
 
         config.NewConfig<OrderEntity, OrderResponse>()
            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
@@ -116,6 +118,21 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.ShopEmail, src => src.Email)
-            .Map(dest => dest.Country, src => src.Country.Name);
+            .Map(dest => dest.Country, src => src.Country.Name)
+            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+
+        config.NewConfig<AccountEntity, StaffCsvModel>()
+            .Map(dest => dest.Role, src => src.Role.Name)
+            .Map(dest => dest.Status, src => src.Status.ToString());
+
+        config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
+            .Map(dest => dest.Status, src => src.Status.ToString());
+
+        config.NewConfig<OrderEntity, OrderHistoryResponse>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
+
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
+            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
     }
 }

@@ -57,7 +57,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "1234",
             Description = "Test shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         // Act
@@ -89,7 +92,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "54321",
             Description = "Shop to be deleted",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
@@ -122,7 +128,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "12345",
             Description = "Test shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
         await _repository.AddAsync(shop, CancellationToken.None);
 
@@ -159,7 +168,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "11111",
             Description = "Shop 1 description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         var shop2 = new ShopEntity
@@ -175,7 +187,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "22222",
             Description = "Shop 2 description",
             CountryId = 2,
-            Country = country2!
+            Country = country2!,
+            IsActive = true,
+             StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop1, CancellationToken.None);
@@ -208,7 +223,10 @@ public class BaseRepositoryTests : IDisposable
             ZipCode = "112233",
             Description = "Spec delete shop description",
             CountryId = 1,
-            Country = country!
+            Country = country!,
+            IsActive = true,
+            StripeCustomerId = "cus_test_1",
+            StripeSubscriptionId = "sub_test_1"
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);

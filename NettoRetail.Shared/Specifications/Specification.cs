@@ -42,6 +42,17 @@ public class Specification<TEntity>
         this.Criteria = combinedExpression;
     }
 
+    public void Or(Specification<TEntity> other)
+    {
+        var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
+            Expression.OrElse(
+                Criteria.Body,
+                Expression.Invoke(other.Criteria, Criteria.Parameters[0])),
+            Criteria.Parameters[0]);
+
+        this.Criteria = combinedExpression;
+    }
+
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
     {
         _includes.Add(includeExpression);

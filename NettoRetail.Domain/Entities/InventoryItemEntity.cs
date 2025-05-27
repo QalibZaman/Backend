@@ -27,4 +27,6 @@ public class InventoryItemEntity
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
     public required int? BrandId { get; set; }
     public required BrandEntity? Brand { get; set; }
+    public ICollection<InventoryItemImageEntity>? Images { get; set; }
+
 }
