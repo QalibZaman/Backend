@@ -4,6 +4,7 @@ using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Extensions;
 using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,16 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddMemoryCache();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+});
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = builder.Configuration.GetConnectionString("RedisConnection");
+    return ConnectionMultiplexer.Connect(configuration!);
+});
 
 var app = builder.Build();
 

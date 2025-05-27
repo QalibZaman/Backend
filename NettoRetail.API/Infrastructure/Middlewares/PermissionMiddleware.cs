@@ -1,15 +1,11 @@
-﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Caching.Memory;
-using NettoRetail.API.Infrastructure.Attributes;
+﻿using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.DataAccess.Specifications.PermissionRole;
 using NettoRetail.Domain.Entities.JunctionEntities;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
-using System.Threading;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
 
