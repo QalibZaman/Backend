@@ -23,6 +23,8 @@ public class ChangeDefaultPaymentCommandHandler(IPaymentRepository paymentReposi
 
             var allMethods = paymentMethod.Account.PaymentMethods?.ToList() ?? throw new NotFoundException("No payment methods found for the account.");
 
+            var oldDefaultMethod = allMethods.FirstOrDefault(pm => pm.IsDefault);
+
             allMethods.ForEach(pm => pm.IsDefault = (pm.StripePaymentMethodId == request.PaymentMethodId));
 
             foreach (var method in allMethods)
@@ -37,6 +39,19 @@ public class ChangeDefaultPaymentCommandHandler(IPaymentRepository paymentReposi
                     { "default", "true" }
                 }
             };
+
+            if (oldDefaultMethod != null)
+            {
+                var stripeRemoveDefaultOptions = new PaymentMethodUpdateOptions
+                {
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "default", "false" }
+                    }
+                };
+                await paymentMethodService.UpdateAsync(oldDefaultMethod.StripePaymentMethodId, stripeRemoveDefaultOptions, null, cancellationToken);
+            }
+
             await paymentMethodService.UpdateAsync(paymentMethod.StripePaymentMethodId, stripeUpdateOptions, null, cancellationToken);
 
             return true;
