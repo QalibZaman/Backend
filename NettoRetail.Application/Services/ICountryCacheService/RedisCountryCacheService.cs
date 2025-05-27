@@ -27,11 +27,10 @@ public class RedisCountryCacheService : ICountryCacheService
     {
         var hashEntries = await _redisDb.HashGetAllAsync(CacheServiceKeys.COUNTRIES_KEY);
 
-        // If the cache is empty, load countries into cache and return loaded data
-        if (hashEntries.Length == 0)
+        var isCacheComplete = await _redisDb.StringGetAsync(CacheServiceKeys.COUNTRIES_CACHE_COMPLETE_KEY);
+        if (!isCacheComplete.HasValue || isCacheComplete != "true")
         {
             var countries = await LoadCountriesIntoCacheAsync(cancellationToken);
-
             hashEntries = await _redisDb.HashGetAllAsync(CacheServiceKeys.COUNTRIES_KEY);
             return countries;
         }
@@ -66,6 +65,8 @@ public class RedisCountryCacheService : ICountryCacheService
             .ToArray();
 
         await _redisDb.HashSetAsync(CacheServiceKeys.COUNTRIES_KEY, entries);
+        // Set a flag to indicate full cache
+        await _redisDb.StringSetAsync(CacheServiceKeys.COUNTRIES_CACHE_COMPLETE_KEY, "true");
 
         return countries;
     }
