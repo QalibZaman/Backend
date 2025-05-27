@@ -8,7 +8,6 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
 {
     public GetFilteredOrdersValidator()
     {
-
         RuleForEach(x => x.CustomerFirstNames).ChildRules(x =>
         {
             x.RuleFor(v => v)

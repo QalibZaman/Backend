@@ -4,6 +4,7 @@ using Hangfire.PostgreSql;
 using Mapster;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.ICountryCacheService;
@@ -14,6 +15,8 @@ using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using Stripe;
 
@@ -51,7 +54,6 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
-        services.AddSingleton<ICountryCacheService, CountryCacheService>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
@@ -64,6 +66,18 @@ public static class ServiceExtensions
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
+
+        var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
+
+        if (featureToggleOptions != null && featureToggleOptions.Redis)
+        {
+            services.AddSingleton<ICountryCacheService, RedisCountryCacheService>();
+        }
+        else
+        {
+            services.AddSingleton<ICountryCacheService, CountryCacheService>();
+        }
+
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
     }
 }
