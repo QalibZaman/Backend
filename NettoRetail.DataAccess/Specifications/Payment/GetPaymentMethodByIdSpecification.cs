@@ -2,12 +2,12 @@
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Payments;
+namespace NettoRetail.DataAccess.Specifications.Payment;
 
 public class GetPaymentMethodByIdSpecification : Specification<PaymentMethodEntity>
 {
     public GetPaymentMethodByIdSpecification(Guid accountId, string paymentMethodId)
-        : base(o => 
+        : base(o =>
             o.AccountId == accountId &&
             o.StripePaymentMethodId == paymentMethodId)
     {
