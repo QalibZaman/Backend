@@ -38,8 +38,8 @@ public class ContentController(IMediator mediator) : Controller
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut("block/{slug}")] // Slug format: shopId-ContentCategory; Format: 1-
-    public async Task<IActionResult> UpdateContentBySlug([FromQuery] string slug, [FromBody] UpdateContentRequest updateContentRequest)
+    [HttpPut("block/{slug}")] // Slug format: shopId-ContentCategory; Example: 1-OurShop
+    public async Task<IActionResult> UpdateContentBySlug(string slug, [FromBody] UpdateContentRequest updateContentRequest)
     {
         var author = HttpContext.GetUserId();
         var command = new UpdateContentBySlugCommand(slug, author, updateContentRequest);

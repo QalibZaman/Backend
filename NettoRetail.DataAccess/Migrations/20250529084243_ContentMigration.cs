@@ -14,16 +14,6 @@ namespace NettoRetail.DataAccess.Migrations
                 name: "ContentUrl",
                 table: "Contents");
 
-            migrationBuilder.AlterColumn<int>(
-                name: "SectionType",
-                table: "Contents",
-                type: "integer",
-                maxLength: 30,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(30)",
-                oldMaxLength: 30);
-
             migrationBuilder.AddColumn<string>(
                 name: "Content",
                 table: "Contents",
@@ -47,16 +37,6 @@ namespace NettoRetail.DataAccess.Migrations
             migrationBuilder.DropColumn(
                 name: "Content",
                 table: "Contents");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "SectionType",
-                table: "Contents",
-                type: "character varying(30)",
-                maxLength: 30,
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer",
-                oldMaxLength: 30);
 
             migrationBuilder.AddColumn<string>(
                 name: "ContentUrl",

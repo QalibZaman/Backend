@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using Ganss.Xss;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Content;
@@ -35,6 +36,10 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         if (contentBlock == null)
         {
             var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
+
+            var sanitizer = new HtmlSanitizer();
+            request.Model.Content = sanitizer.Sanitize(request.Model.Content);
+
             contentBlockToCreate.LastUpdated = DateTime.UtcNow;
             contentBlockToCreate.UpdatedBy = updateAuthorString;
             contentBlockToCreate.SectionType = slugTuple!.Value.SectionType;
