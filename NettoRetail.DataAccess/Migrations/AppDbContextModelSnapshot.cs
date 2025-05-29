@@ -245,10 +245,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ContentUrl")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
@@ -256,10 +254,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("SectionType")
-                        .IsRequired()
+                    b.Property<int>("SectionType")
                         .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ShopId")
                         .HasColumnType("integer");
@@ -270,6 +267,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SectionType", "ShopId")
+                        .IsUnique();
 
                     b.ToTable("Contents", (string)null);
                 });
