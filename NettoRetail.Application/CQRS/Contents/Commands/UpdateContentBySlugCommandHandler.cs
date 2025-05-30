@@ -35,10 +35,10 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
 
         if (contentBlock == null)
         {
-            var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
-
             var sanitizer = new HtmlSanitizer();
             request.Model.Content = sanitizer.Sanitize(request.Model.Content);
+
+            var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
 
             contentBlockToCreate.LastUpdated = DateTime.UtcNow;
             contentBlockToCreate.UpdatedBy = updateAuthorString;
