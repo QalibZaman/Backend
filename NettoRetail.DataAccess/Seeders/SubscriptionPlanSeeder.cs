@@ -1,14 +1,16 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Options;
 
-namespace NettoRetail.DataAccess.Seeding;
+namespace NettoRetail.DataAccess.Seeders;
 
-public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<SubscriptionOptions> options)
+public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<SubscriptionOptions> options) : IDatabaseSeeder
 {
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task SeedAsync(CancellationToken cancellationToken)
     {
         if (dbContext.SubscriptionPlans.Any())
             return;

@@ -1,3 +1,4 @@
+using System.Collections;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.DataAccess.Extensions;
@@ -33,6 +34,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
+
+await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
 app.Migrate();
