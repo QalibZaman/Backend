@@ -15,4 +15,6 @@ public class StaffCsvModel
     public required string Role { get; set; }
     [Name("Status")]
     public required string Status { get; set; }
+    [Name("Password")]
+    public required string Password { get; set; }
 }

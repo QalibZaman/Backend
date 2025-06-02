@@ -3,4 +3,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
-public interface IRoleRepository : IBaseRepository<RoleEntity>;
+public interface IRoleRepository : IBaseRepository<RoleEntity>
+{
+    Task<List<RoleEntity>> GetAllAsync(CancellationToken cancellationToken);
+}
