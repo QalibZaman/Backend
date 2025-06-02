@@ -19,6 +19,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using Stripe;
+using NettoRetail.Application.Services.INotificationService;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -66,6 +67,7 @@ public static class ServiceExtensions
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
 

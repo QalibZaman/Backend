@@ -17,7 +17,7 @@ public class NotificationService : INotificationService
         await _hubContext.Clients.All.ReceiveNotification(message);
     }
 
-    public async Task NotifyGroupAsync(string shopId, string message)
+    public async Task NotifyShopGroupAsync(string shopId, string message)
     {
         var group = $"shop:{shopId}";
         await _hubContext.Clients.Group(group).ReceiveNotification(message);
