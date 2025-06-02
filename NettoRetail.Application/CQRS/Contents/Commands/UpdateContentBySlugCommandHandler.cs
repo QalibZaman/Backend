@@ -24,8 +24,6 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         var updateAuthor = await accountRepository.GetAsync(accountSpecification, cancellationToken)
             ?? throw new BadRequestException("Couldn't find account record with given user identifier");
 
-        var updateAuthorString = updateAuthor.FirstName + " " + updateAuthor.LastName;
-
         var slugTuple = ContentSlugParser.ParseContentSlug(request.Slug);
 
         var spec = new GetContentByShopSpecification(slugTuple!.Value.ShopId);
@@ -41,7 +39,7 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
             var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
 
             contentBlockToCreate.LastUpdated = DateTime.UtcNow;
-            contentBlockToCreate.UpdatedBy = updateAuthorString;
+            contentBlockToCreate.UpdatedBy = updateAuthor.FullName;
             contentBlockToCreate.SectionType = slugTuple!.Value.SectionType;
             contentBlockToCreate.ShopId = slugTuple!.Value.ShopId;
 
@@ -52,7 +50,7 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         contentBlock.Adapt(request.Model);
 
         contentBlock.LastUpdated = DateTime.UtcNow;
-        contentBlock.UpdatedBy = updateAuthorString;
+        contentBlock.UpdatedBy = updateAuthor.FullName;
 
         await contentRepo.UpdateAsync(contentBlock, cancellationToken);
     }
