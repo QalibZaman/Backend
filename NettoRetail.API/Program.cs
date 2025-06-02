@@ -1,5 +1,6 @@
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
+using NettoRetail.Application.Hubs.NotificationHub;
 using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Extensions;
@@ -43,6 +44,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration!);
 });
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -56,6 +59,8 @@ app.UseAuthorization();
 app.UseSessionActivity();
 app.UsePermissionHandling();
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notifications");
 
 app.Run();
 
