@@ -16,9 +16,7 @@ public class ContentEntityConfiguration : IEntityTypeConfiguration<ContentEntity
             .IsRequired()
             .HasMaxLength(30);
 
-        builder.Property(x => x.ContentUrl)
-            .IsRequired()
-            .HasMaxLength(255);
+        builder.Property(x => x.Content);
 
         builder.Property(x => x.UpdatedBy)
             .IsRequired()
@@ -29,5 +27,8 @@ public class ContentEntityConfiguration : IEntityTypeConfiguration<ContentEntity
 
         builder.Property(x => x.IsVisible)
             .IsRequired();
+
+        builder.HasIndex(x => new { x.SectionType, x.ShopId })
+            .IsUnique();
     }
 }
