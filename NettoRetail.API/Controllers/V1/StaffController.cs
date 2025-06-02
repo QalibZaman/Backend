@@ -94,7 +94,7 @@ public class StaffController(
 
         await mediator.Send(changePasswordCommand);
 
-        return NoContent();
+        return NoContent(); 
     }
 
     [HttpPost("forgot-password")]
@@ -314,5 +314,18 @@ public class StaffController(
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
         return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
+    }
+
+    [Authorize]
+    [HttpPost("upload")]
+    public async Task<IActionResult> UploadStaffList(IFormFile file, int id)
+    {
+        var command = new UploadStaffListCommand(file, id);
+        var result = await mediator.Send(command);
+
+        if (!result.Success)
+            return BadRequest(result.Errors);
+
+        return Ok(result);
     }
 }
