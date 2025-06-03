@@ -2,8 +2,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Contents.Commands;
 using NettoRetail.Application.CQRS.Contents.Queries;
+using NettoRetail.Application.Models.Request.Content;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -32,5 +35,16 @@ public class ContentController(IMediator mediator) : Controller
 
         var response = new ApiResponse<ContentBlockResponse>(result);
         return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("block/{slug}")] // Slug format: shopId-ContentCategory; Example: 1-OurShop
+    public async Task<IActionResult> UpdateContentBySlug(string slug, [FromBody] UpdateContentRequest updateContentRequest)
+    {
+        var author = HttpContext.GetUserId();
+        var command = new UpdateContentBySlugCommand(slug, author, updateContentRequest);
+        await mediator.Send(command);
+
+        return NoContent();
     }
 }

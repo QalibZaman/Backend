@@ -8,6 +8,7 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Seeding;
 using NettoRetail.DataAccess.UOW;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 

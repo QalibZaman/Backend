@@ -35,4 +35,6 @@ public class AccountEntity
     public ICollection<PaymentMethodEntity>? PaymentMethods { get; set; }
     public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
     public ICollection<ReviewEntity> Reviews { get; set; } = [];
+
+    public string FullName => FirstName + " " + LastName;
 }

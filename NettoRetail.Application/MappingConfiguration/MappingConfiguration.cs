@@ -11,6 +11,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -134,5 +135,13 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ShopEntity, AllShopsInfoResponse>()
             .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+
+        config.NewConfig<StaffCsvModel, AccountEntity>()
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName)
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
+            .Ignore(dest => dest.Role)
+            .Ignore(dest => dest.PasswordHash);
     }
 }

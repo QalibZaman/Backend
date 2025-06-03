@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using MediatR;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Content;
@@ -16,7 +15,7 @@ public class GetContentBlockByIdHandler(IContentRepository contentRepo)
 {
     public async Task<ContentBlockResponse?> Handle(GetContentBlockByIdQuery request, CancellationToken cancellationToken)
     {
-        var spec = new GetContentBlockByIdSpecification(request.Id, request.ShopId);
+        var spec = new GetContentBlockByShopIdSpecification(request.Id, request.ShopId);
         var contentBlock = await contentRepo.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("Content not found");
 
         return contentBlock.Adapt<ContentBlockResponse>();

@@ -5,5 +5,7 @@ public enum StaffStatusEnum
     CreatePassword,
     Online,
     Offline,
-    Deactivated
+    Deactivated,
+    Active,
+    Inactive
 }
