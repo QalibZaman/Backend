@@ -7,11 +7,9 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Queries.Account;
-using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 

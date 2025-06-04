@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Payments.Commands;
 using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1
 {
