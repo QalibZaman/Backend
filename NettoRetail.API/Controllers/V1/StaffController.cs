@@ -186,7 +186,7 @@ public class StaffController(
 
     [Authorize]
     [HttpGet("personal-information")]
-    public async Task<IActionResult> GetPersonalInformation(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPersonalInformation(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
 
