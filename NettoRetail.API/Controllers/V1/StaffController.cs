@@ -11,6 +11,7 @@ using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
+using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Authentication;
@@ -19,6 +20,7 @@ using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Account;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
 using NettoRetail.Shared.Constants;
@@ -179,6 +181,19 @@ public class StaffController(
         var data = await mediator.Send(query, cancellationToken);
 
         var response = new ApiResponse<StaffDetailsResponse>(data);
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("personal-information")]
+    public async Task<IActionResult> GetPersonalInformation(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var query = new GetPersonalInfoQuery(userId);
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<AccountDetailsResponse>(data);
         return Ok(response);
     }
 
