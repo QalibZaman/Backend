@@ -81,5 +81,6 @@ public static class ServiceExtensions
         }
 
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
+        services.AddScoped<ChargeService>();
     }
 }

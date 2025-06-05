@@ -28,6 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
     public DbSet<SubscriptionPlanEntity> SubscriptionPlans { get; set; }
     public DbSet<PasswordHistoryEntity> PasswordHistories { get; set; }
+    public DbSet<PaymentHistoryEntity> PaymentHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
