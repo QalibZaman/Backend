@@ -1,3 +1,4 @@
+using System.Collections;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
@@ -47,6 +48,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+
+await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
 app.Migrate();
