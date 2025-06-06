@@ -1154,11 +1154,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("StripeCustomerId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("StripeSubscriptionId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Subscription")
