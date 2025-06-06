@@ -5,9 +5,11 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
@@ -23,14 +25,17 @@ public class UploadInventoryItemsImagesHandler(
 {
     public async Task Handle(UploadInventoryItemsImages request, CancellationToken cancellationToken)
     {
-        var specification = new GetInventoryItemWithImageByIdSpecification(request.Id);
-        var item = await inventoryItemRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No item with such id");
+        var spec = new SpecificationBuilder<InventoryItemEntity>()
+            .AddCriteria(x => x.Id == request.Id)
+            .AddInclude(x => x.Images)
+            .Build();
+        var item = await inventoryItemRepository.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("No item with such id");
 
         if (request.Image == null) throw new BadRequestException("No image provided");
 
         await imageValidatorService.ValidateImageAsync(request.Image, cancellationToken);
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
+        var fileName = $"Inventory-item-images/{item.Id}/{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
         var container = azureBlobStorageOptions.Value.ContainerName;
         var category = Shared.Enums.BlobContentCategoryEnum.Image;
         using var stream = request.Image.OpenReadStream();
@@ -41,7 +46,7 @@ public class UploadInventoryItemsImagesHandler(
         {
             blobUrl = await azureBlobService.UploadAsync(fileName, stream, container, category);
 
-            var maxOrder = item.Images?.Max(i => i.Order) ?? -1;
+            var maxOrder = item.Images.Any() ? item.Images.Max(i => i.Order) : -1;
             var nextOrder = maxOrder + 1;
 
             var imageEntity = new InventoryItemImageEntity
