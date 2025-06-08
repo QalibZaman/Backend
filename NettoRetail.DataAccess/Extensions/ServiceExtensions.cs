@@ -6,7 +6,8 @@ using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Seeding;
+using NettoRetail.DataAccess.Seeders;
+using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -74,12 +75,13 @@ public static class ServiceExtensions
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
         services.AddScoped<ISubcriptionPlanRepository, SubcriptionPlanRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
+        services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders
-        services.AddTransient<SubscriptionPlanSeeder>();
+        services.AddScoped<IDatabaseSeeder, SubscriptionPlanSeeder>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

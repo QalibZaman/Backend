@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -10,7 +11,8 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 public record DeleteStaffCommand(Guid Id, int ShopId) : IRequest;
 public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
     ISessionTerminationService sessionTerminationService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    INotificationService notificationService)
     : IRequestHandler<DeleteStaffCommand>
 {
     public async Task Handle(DeleteStaffCommand request, CancellationToken cancellationToken)
@@ -28,6 +30,7 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
         try
         {
             await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
+            await notificationService.NotifyUserAsync(account.Id.ToString(), "Your session has been terminated for security reasons");
             await accountRepository.DeleteAsync(specification, cancellationToken);
             transaction.Commit();
         }

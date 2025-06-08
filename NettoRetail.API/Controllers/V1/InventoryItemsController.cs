@@ -144,6 +144,6 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         var command = new UploadInventoryItemsImages(id, image);
         await mediator.Send(command, cancellationToken);
 
-        return Ok(new ApiResponse<string>("Image uploaded successfully"));
+        return NoContent();
     }
 }

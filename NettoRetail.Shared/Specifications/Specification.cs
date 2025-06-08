@@ -31,7 +31,7 @@ public class Specification<TEntity>
         _orderings = new List<(Expression<Func<TEntity, object>>, bool)>();
     }
 
-    public void And(Specification<TEntity> other)
+    public Specification<TEntity> And(Specification<TEntity> other)
     {
         var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
             Expression.AndAlso(
@@ -40,9 +40,11 @@ public class Specification<TEntity>
             Criteria.Parameters[0]);
 
         this.Criteria = combinedExpression;
+
+        return this;
     }
 
-    public void Or(Specification<TEntity> other)
+    public Specification<TEntity> Or(Specification<TEntity> other)
     {
         var combinedExpression = Expression.Lambda<Func<TEntity, bool>>(
             Expression.OrElse(
@@ -51,6 +53,8 @@ public class Specification<TEntity>
             Criteria.Parameters[0]);
 
         this.Criteria = combinedExpression;
+
+        return this;
     }
 
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
