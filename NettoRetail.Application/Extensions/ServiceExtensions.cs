@@ -2,14 +2,17 @@ using System.Reflection;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.INewsletterService;
+using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
@@ -17,9 +20,7 @@ using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
-using NettoRetail.Application.Services.IBlobNameGenerator;
 using Stripe;
-using NettoRetail.Application.Services.INotificationService;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -27,6 +28,8 @@ public static class ServiceExtensions
 {
     public static void AddApplicationServiceExtensions(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<WebSocketConnectionManager>();
+
         // Mediator
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
