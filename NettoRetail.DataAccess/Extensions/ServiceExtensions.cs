@@ -69,6 +69,7 @@ public static class ServiceExtensions
         services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();

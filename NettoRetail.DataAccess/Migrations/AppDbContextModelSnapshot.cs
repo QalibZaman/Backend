@@ -988,6 +988,60 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateSubmitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("Rating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ShopName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("StaffName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1428,6 +1482,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("Reviews")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
@@ -1467,6 +1532,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("PasswordHistories");
 
                     b.Navigation("PaymentMethods");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("Sessions");
                 });
