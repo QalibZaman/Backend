@@ -47,7 +47,8 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
             return;
         }
 
-        contentBlock.Adapt(request.Model);
+        //contentBlock.Adapt(request.Model);
+        request.Model.Adapt(contentBlock);
 
         contentBlock.LastUpdated = DateTime.UtcNow;
         contentBlock.UpdatedBy = updateAuthor.FullName;
