@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NettoRetail.DataAccess.Context;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612114910_AddCategresSectionFieldsToShop")]
+    partial class AddCategresSectionFieldsToShop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1164,6 +1167,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(90)
                         .HasColumnType("character varying(90)");
+
+                    b.Property<string>("CategoriesSectionName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CategoriesSectionPreview")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("CategoriesSectionVisibility")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("City")
                         .IsRequired()

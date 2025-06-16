@@ -22,6 +22,10 @@ public class ShopEntity
     public DateTime? DeactivationDate { get; set; }
     public SubscriptionTypeEnum Subscription { get; set; } = SubscriptionTypeEnum.Free;
 
+    public bool CategoriesSectionVisibility { get; set; }
+    public string? CategoriesSectionPreview { get; set; }
+    public string? CategoriesSectionName { get; set; }
+
     public ICollection<RoleEntity>? Roles { get; set; }
     public ICollection<CategoryEntity>? Categories { get; set; }
     public required CountryEntity Country { get; set; }
