@@ -10,7 +10,9 @@ public class OfferEntity
     public string? Preview { get; set; }
     public required bool IsVisible { get; set; }
     public SelectionTypeEnum SelectionType { get; set; } = SelectionTypeEnum.Static;
-    public ICollection<OffersProductEntity> Products { get; set; } = new List<OffersProductEntity>();
+
     public DateTime LastUpdated { get; set; }
     public string? UpdatedBy { get; set; }
+
+    public ICollection<OffersProductEntity> Products { get; set; } = new List<OffersProductEntity>();
 }

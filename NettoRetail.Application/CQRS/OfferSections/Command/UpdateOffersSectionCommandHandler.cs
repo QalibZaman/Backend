@@ -14,11 +14,12 @@ public record UpdateOffersSectionCommand(
     string? Preview,
     bool IsVisible,
     SelectionTypeEnum SelectionType,
-    List<int> ProductIds,
-    string UpdatedBy) : IRequest;
+    List<Guid> InventoryItemIds,
+    string UpdatedBy
+) : IRequest;
 
 public class UpdateOffersSectionCommandHandler(
-    IOfferRepository sectionRepo,
+    IOfferRepository offerRepo,
     IOffersProductRepository productRepo,
     IUnitOfWork unitOfWork
 ) : IRequestHandler<UpdateOffersSectionCommand>
@@ -26,51 +27,62 @@ public class UpdateOffersSectionCommandHandler(
     public async Task Handle(UpdateOffersSectionCommand request, CancellationToken cancellationToken)
     {
         var spec = new GetOfferSectionByShopIdSpecification(request.ShopId);
-        var existingSection = await sectionRepo.GetAsync(spec, cancellationToken);
+        var offer = await offerRepo.GetAsync(spec, cancellationToken);
 
         var transaction = unitOfWork.BeginTransaction();
 
-        if (existingSection is null)
+        if (offer is null)
         {
-            var newSection = request.Adapt<OfferEntity>();
-            newSection.Products = CreateOfferProducts(request.ProductIds, newSection);
+            offer = MapToNewOffer(request);
+            offer.Products = BuildLinkedProducts(request.InventoryItemIds, offer);
 
-            await sectionRepo.AddAsync(newSection, cancellationToken);
+            await offerRepo.AddAsync(offer, cancellationToken);
         }
         else
         {
-            UpdateSection(existingSection, request);
+            UpdateOffer(offer, request);
 
-            var deleteSpec = new GetProductsByOfferSectionIdSpecification(existingSection.Id);
+            var deleteSpec = new GetProductsByOfferSectionIdSpecification(offer.Id);
             await productRepo.DeleteManyBySpecAsync(deleteSpec, cancellationToken);
 
-            existingSection.Products = CreateOfferProducts(request.ProductIds, existingSection);
-            await sectionRepo.UpdateAsync(existingSection, cancellationToken);
+            offer.Products = BuildLinkedProducts(request.InventoryItemIds, offer);
+            await offerRepo.UpdateAsync(offer, cancellationToken);
         }
 
         transaction.Commit();
     }
 
-    private static void UpdateSection(OfferEntity section, UpdateOffersSectionCommand request)
+    private static OfferEntity MapToNewOffer(UpdateOffersSectionCommand request) => new()
     {
-        section.Name = request.Name.Trim();
-        section.Preview = request.Preview?.Trim();
-        section.IsVisible = request.IsVisible;
-        section.SelectionType = request.SelectionType;
-        section.LastUpdated = DateTime.UtcNow;
-        section.UpdatedBy = request.UpdatedBy;
+        ShopId = request.ShopId,
+        Name = request.Name.Trim(),
+        Preview = request.Preview?.Trim(),
+        IsVisible = request.IsVisible,
+        SelectionType = request.SelectionType,
+        LastUpdated = DateTime.UtcNow,
+        UpdatedBy = request.UpdatedBy
+    };
+
+    private static void UpdateOffer(OfferEntity offer, UpdateOffersSectionCommand request)
+    {
+        offer.Name = request.Name.Trim();
+        offer.Preview = request.Preview?.Trim();
+        offer.IsVisible = request.IsVisible;
+        offer.SelectionType = request.SelectionType;
+        offer.LastUpdated = DateTime.UtcNow;
+        offer.UpdatedBy = request.UpdatedBy;
     }
 
-    private static List<OffersProductEntity> CreateOfferProducts(
-        List<int> productIds,
-        OfferEntity parentSection)
+    private static List<OffersProductEntity> BuildLinkedProducts(
+        List<Guid> inventoryItemIds,
+        OfferEntity offer)
     {
-        return productIds.Select((pid, index) => new OffersProductEntity
+        return inventoryItemIds.Select((itemId, index) => new OffersProductEntity
         {
-            ProductId = pid,
+            InventoryItemId = itemId,
             DisplayOrder = index,
-            Offer = parentSection,
-            OfferId = parentSection.Id
+            Offer = offer,
+            OfferId = offer.Id
         }).ToList();
     }
 }

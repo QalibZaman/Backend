@@ -16,19 +16,20 @@ public class OfferController(IMediator mediator) : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateOffersSection(
         int shopId,
-        [FromBody] UpdateOffersSectionResponse response,
+        [FromBody] UpdateOffersSectionRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdateOffersSectionCommand(
             ShopId: shopId,
-            Name: response.Name,
-            Preview: response.Preview,
-            IsVisible: response.IsVisible,
-            SelectionType: response.SelectionType,
-            ProductIds: response.ProductIds,
-            UpdatedBy: response.UpdatedBy);
+            Name: request.Name.Trim(),
+            Preview: request.Preview?.Trim(),
+            IsVisible: request.IsVisible,
+            SelectionType: request.SelectionType,
+            InventoryItemIds: request.InventoryItemIds,
+            UpdatedBy: request.UpdatedBy);
 
         await mediator.Send(command, cancellationToken);
+
 
         return NoContent();
     }

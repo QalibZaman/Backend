@@ -13,17 +13,17 @@ public class OffersProductConfiguration : IEntityTypeConfiguration<OffersProduct
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.OfferId).IsRequired();
-        builder.Property(x => x.ProductId).IsRequired();
+        builder.Property(x => x.InventoryItemId).IsRequired();
         builder.Property(x => x.DisplayOrder).IsRequired();
 
         builder.HasOne(x => x.Offer)
-            .WithMany(x => x.Products)
+            .WithMany(x => x.Products) 
             .HasForeignKey(x => x.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Product)
-            .WithMany()
-            .HasForeignKey(x => x.ProductId)
+        builder.HasOne(x => x.InventoryItem)
+            .WithMany() 
+            .HasForeignKey(x => x.InventoryItemId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -23,8 +23,8 @@ public class OfferConfiguration : IEntityTypeConfiguration<OfferEntity>
         builder.Property(x => x.UpdatedBy).HasMaxLength(100);
 
         builder.HasMany(x => x.Products)
-            .WithOne(x => x.OffersSection)
-            .HasForeignKey(x => x.OffersSectionId)
+            .WithOne(x => x.Offer)
+            .HasForeignKey(x => x.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
