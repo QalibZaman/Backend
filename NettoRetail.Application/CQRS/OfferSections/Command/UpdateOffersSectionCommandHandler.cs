@@ -26,28 +26,35 @@ public class UpdateOffersSectionCommandHandler(
 {
     public async Task Handle(UpdateOffersSectionCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetOfferSectionByShopIdSpecification(request.ShopId);
+        var normalized = request with
+        {
+            Name = request.Name.Trim(),
+            Preview = request.Preview?.Trim()
+        };
+
+        var spec = new GetOfferSectionByShopIdSpecification(normalized.ShopId);
         var offer = await offerRepo.GetAsync(spec, cancellationToken);
 
-        var transaction = unitOfWork.BeginTransaction();
+        using var transaction = unitOfWork.BeginTransaction();
 
-        if (offer is null)
-        {
-            offer = MapToNewOffer(request);
-            offer.Products = BuildLinkedProducts(request.InventoryItemIds, offer);
+        var isNew = offer is null;
 
-            await offerRepo.AddAsync(offer, cancellationToken);
-        }
+        if (isNew)
+            offer = MapToNewOffer(normalized);
         else
         {
-            UpdateOffer(offer, request);
+            UpdateOffer(offer, normalized);
 
             var deleteSpec = new GetProductsByOfferSectionIdSpecification(offer.Id);
             await productRepo.DeleteManyBySpecAsync(deleteSpec, cancellationToken);
-
-            offer.Products = BuildLinkedProducts(request.InventoryItemIds, offer);
-            await offerRepo.UpdateAsync(offer, cancellationToken);
         }
+
+        offer.Products = BuildLinkedProducts(normalized.InventoryItemIds, offer);
+
+        if (isNew)
+            await offerRepo.AddAsync(offer, cancellationToken);
+        else
+            await offerRepo.UpdateAsync(offer, cancellationToken);
 
         transaction.Commit();
     }
