@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -62,8 +61,8 @@ public class UpdateOffersSectionCommandHandler(
     private static OfferEntity MapToNewOffer(UpdateOffersSectionCommand request) => new()
     {
         ShopId = request.ShopId,
-        Name = request.Name.Trim(),
-        Preview = request.Preview?.Trim(),
+        Name = request.Name,
+        Preview = request.Preview,
         IsVisible = request.IsVisible,
         SelectionType = request.SelectionType,
         LastUpdated = DateTime.UtcNow,
