@@ -36,9 +36,7 @@ public class UpdateOffersSectionCommandHandler(
 
         using var transaction = unitOfWork.BeginTransaction();
 
-        var isNew = offer is null;
-
-        if (isNew)
+        if (offer is null)
             offer = MapToNewOffer(normalized);
         else
         {
@@ -50,7 +48,7 @@ public class UpdateOffersSectionCommandHandler(
 
         offer.Products = BuildLinkedProducts(normalized.InventoryItemIds, offer);
 
-        if (isNew)
+        if (offer is null)
             await offerRepo.AddAsync(offer, cancellationToken);
         else
             await offerRepo.UpdateAsync(offer, cancellationToken);

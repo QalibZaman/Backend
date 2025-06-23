@@ -30,7 +30,6 @@ public class OfferController(IMediator mediator) : ControllerBase
 
         await mediator.Send(command, cancellationToken);
 
-
         return NoContent();
     }
 }
