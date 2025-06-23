@@ -9,6 +9,7 @@ using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -145,5 +146,15 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("sorted")]
+    public async Task<IActionResult> GetSortedInventoryItems([FromQuery] int shopId, [FromQuery] InventoryItemSortingEnum sortOption, CancellationToken cancellationToken)
+    {
+        var model = new GetSortedInventoryItemsModel { ShopId = shopId, SortOption = sortOption };
+        var query = new GetInventoryItemsSortedByPriceQuery(model);
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(new ApiResponse<List<InventoryItemListResponse>>(result));
     }
 }

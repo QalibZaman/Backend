@@ -16,6 +16,30 @@ public class InventoryItemRepository(AppDbContext dbContext)
         return result;
     }
 
+    public async Task<IEnumerable<InventoryItemEntity>> GetAllBySortedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    {
+        IQueryable<InventoryItemEntity> query = _dbSet.Where(specification.Criteria);
+        foreach (var includeExpression in specification.Includes)
+        {
+            query = query.Include(includeExpression);
+        }
+
+        foreach (var (orderExpression, isDescending) in specification.Orderings)
+        {
+            if (isDescending)
+                query = query.OrderByDescending(orderExpression);
+            else
+                query = query.OrderBy(orderExpression);
+        }
+
+        if (specification.Skip.HasValue)
+            query = query.Skip(specification.Skip.Value);
+        if (specification.Take.HasValue)
+            query = query.Take(specification.Take.Value);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public async Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken)
     {
         var result = await _dbSet.Select(x => x.ProductUpc).ToHashSetAsync(cancellationToken);
