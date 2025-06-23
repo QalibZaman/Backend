@@ -46,5 +46,10 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
 
         builder.Property(p => p.PasswordUpdatedAt)
             .IsRequired(false);
-    }
+
+        builder.HasMany(s => s.Feedbacks)
+            .WithOne(f => f.Account)
+            .HasForeignKey(f => f.AccountId)
+            .OnDelete(DeleteBehavior.SetNull);
+  }
 }

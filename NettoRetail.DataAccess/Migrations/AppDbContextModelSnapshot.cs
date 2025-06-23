@@ -589,6 +589,12 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AccountEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("DateSubmitted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -599,20 +605,6 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Role")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("StaffName")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasDefaultValue("Anonymous");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -630,7 +622,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ShopId");
+                    b.HasIndex("AccountEntityId");
+
+                    b.HasIndex("AccountId");
 
                     b.ToTable("Feedbacks");
                 });
@@ -1428,13 +1422,16 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", null)
                         .WithMany("Feedbacks")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AccountEntityId");
 
-                    b.Navigation("Shop");
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -1601,6 +1598,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
+                    b.Navigation("Feedbacks");
+
                     b.Navigation("PasswordHistories");
 
                     b.Navigation("PaymentMethods");
@@ -1665,8 +1664,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Brands");
 
                     b.Navigation("Categories");
-
-                    b.Navigation("Feedbacks");
 
                     b.Navigation("InventoryItems");
 

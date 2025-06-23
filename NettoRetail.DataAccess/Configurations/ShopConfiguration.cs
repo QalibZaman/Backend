@@ -62,10 +62,5 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
 
         builder.Property(s => s.Subscription)
             .HasConversion<string>();
-
-        builder.HasMany(s => s.Feedbacks)
-            .WithOne(f => f.Shop)
-            .HasForeignKey(f => f.ShopId)
-            .OnDelete(DeleteBehavior.Cascade);
-    }
+  }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NettoRetail.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,11 @@ public class FeedbackResponse
 
   public string? StaffName { get; set; }
 
-  public string? Role { get; set; }
+  public RoleEntity? Role { get; set; }
 
   public DateTime DateSubmitted { get; set; }
 
   public string? Status { get; set; }
 
-  public string ShopName { get; set; } = string.Empty;
+  public string? ShopName { get; set; }
 }

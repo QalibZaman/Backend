@@ -20,12 +20,8 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
         builder.Property(f => f.Text)
             .HasMaxLength(500);
 
-        builder.Property(f => f.StaffName)
-            .HasMaxLength(30)
-            .HasDefaultValue("Anonymous");
-
-        builder.Property(f => f.Role)
-            .HasMaxLength(50);
+        builder.Property(f => f.IsPublic)
+            .IsRequired();
 
         builder.Property(f => f.Status)
             .HasConversion<string>()
@@ -34,9 +30,9 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
         builder.Property(f => f.DateSubmitted)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        builder.HasOne(f => f.Shop)
-            .WithMany(s => s.Feedbacks)
-            .HasForeignKey(f => f.ShopId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(f => f.Account)
+            .WithMany()
+            .HasForeignKey(f => f.AccountId)
+            .OnDelete(DeleteBehavior.SetNull);
   }
 }

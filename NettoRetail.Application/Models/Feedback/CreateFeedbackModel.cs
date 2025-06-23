@@ -6,7 +6,4 @@ public class CreateFeedbackModel
   public string? Title { get; set; }
   public string? Text { get; set; }
   public bool IsPublic { get; set; } = false;
-  public required int ShopId { get; set; }
-  public string? StaffName { get; set; }
-  public string? Role { get; set; }
 }
