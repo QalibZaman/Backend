@@ -76,8 +76,9 @@ public static class ServiceExtensions
         services.AddScoped<ISubcriptionPlanRepository, SubcriptionPlanRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
         services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
+        services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
-        //UnitOfWork
+    //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders
