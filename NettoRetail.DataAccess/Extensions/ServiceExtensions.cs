@@ -70,14 +70,18 @@ public static class ServiceExtensions
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-        services.AddScoped<ISubcriptionPlanRepository, SubcriptionPlanRepository>();
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
+        services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
+        services.AddScoped<IFeatureRepository, FeatureRepository>();
+
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders
         services.AddScoped<IDatabaseSeeder, SubscriptionPlanSeeder>();
+        services.AddScoped<IDatabaseSeeder, FeatureSeeder>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

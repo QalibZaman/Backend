@@ -15,7 +15,7 @@ namespace NettoRetail.API.Controllers.V1;
 public class SubscriptionsController(IMediator mediator) : ControllerBase
 {
     [Authorize]
-    [HttpPut("{shopId}")]
+    [HttpPut("shop/{shopId}")]
     public async Task<IActionResult> ChangeSubscription(int shopId, [FromBody] ChangeSubscriptionRequest request)
     {
         var userId = HttpContext.GetUserId();
@@ -23,4 +23,22 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         await mediator.Send(command);
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPut("plan/{planId}")]
+    public async Task<IActionResult> UpdateSubscription(int planId, [FromBody] UpdateSubscriptionPlanRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new UpdateSubscriptionPlanCommand(
+        planId,
+        userId,
+        request.Name,
+        request.Price,
+        request.Description,
+        request.Motto,
+        request.FeatureIds);
+        await mediator.Send(command);
+        return NoContent();
+    }
+
 }

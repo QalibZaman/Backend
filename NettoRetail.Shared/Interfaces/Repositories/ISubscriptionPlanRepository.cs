@@ -3,7 +3,7 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
-public interface ISubcriptionPlanRepository
+public interface ISubscriptionPlanRepository : IBaseRepository<SubscriptionPlanEntity>
 {
     Task<SubscriptionPlanEntity?> GetByTypeAsync(SubscriptionTypeEnum type, CancellationToken cancellationToken);
 }

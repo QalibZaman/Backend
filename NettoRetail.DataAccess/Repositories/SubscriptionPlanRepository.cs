@@ -6,8 +6,8 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class SubcriptionPlanRepository(AppDbContext context)
-    : BaseRepository<SubscriptionPlanEntity>(context), ISubcriptionPlanRepository
+public class SubscriptionPlanRepository(AppDbContext context)
+    : BaseRepository<SubscriptionPlanEntity>(context), ISubscriptionPlanRepository
 {
     public async Task<SubscriptionPlanEntity?> GetByTypeAsync(SubscriptionTypeEnum type, CancellationToken cancellationToken = default)
     {

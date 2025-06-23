@@ -23,6 +23,7 @@ public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<Subscriptio
             {
                 Id = 1,
                 Type = SubscriptionTypeEnum.Free,
+                Name = "Free",
                 Description = "Free plan",
                 MonthlyPrice = 0,
                 Moto = "Try the app for free",
@@ -32,6 +33,7 @@ public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<Subscriptio
             {
                 Id = 2,
                 Type = SubscriptionTypeEnum.Super,
+                Name = "Super",
                 Description = "Super plan",
                 MonthlyPrice = 20,
                 Moto = "Super features",
@@ -41,6 +43,7 @@ public class SubscriptionPlanSeeder(AppDbContext dbContext, IOptions<Subscriptio
             {
                 Id = 3,
                 Type = SubscriptionTypeEnum.Business,
+                Name = "Business",
                 Description = "Business plan",
                 MonthlyPrice = 30,
                 Moto = "Full business power",

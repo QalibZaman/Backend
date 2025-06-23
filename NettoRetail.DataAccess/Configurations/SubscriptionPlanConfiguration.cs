@@ -10,6 +10,9 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
     {
         builder.HasKey(model => model.Id);
 
+        builder.Property(model => model.Name)
+            .HasMaxLength(25);
+
         builder.Property(model => model.Moto)
             .HasMaxLength(70);
 
