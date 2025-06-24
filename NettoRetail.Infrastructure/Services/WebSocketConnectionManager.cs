@@ -1,9 +1,10 @@
-﻿using System.Net.WebSockets;
+﻿using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Text;
 
 public class WebSocketConnectionManager
 {
-    private readonly Dictionary<string, WebSocket> _connections = new();
+    private readonly ConcurrentDictionary<string, WebSocket> _connections = new();
 
     public void AddConnection(string userId, WebSocket webSocket)
     {
@@ -12,10 +13,9 @@ public class WebSocketConnectionManager
 
     public void RemoveConnection(string userId)
     {
-        if (_connections.TryGetValue(userId, out var socket))
+        if (_connections.TryRemove(userId, out var socket))
         {
             socket.Dispose();
-            _connections.Remove(userId);
         }
     }
 
