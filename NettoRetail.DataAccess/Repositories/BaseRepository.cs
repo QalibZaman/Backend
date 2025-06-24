@@ -92,7 +92,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
         return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    public async Task<List<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var query = _dbSet.Where(specification.Criteria);
 
