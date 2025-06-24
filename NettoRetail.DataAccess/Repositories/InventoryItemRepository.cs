@@ -16,7 +16,7 @@ public class InventoryItemRepository(AppDbContext dbContext)
         return result;
     }
 
-    public async Task<IEnumerable<InventoryItemEntity>> GetAllBySortedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    public async Task<List<InventoryItemEntity>> GetAllBySortedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
     {
         IQueryable<InventoryItemEntity> query = _dbSet.Where(specification.Criteria);
         foreach (var includeExpression in specification.Includes)
