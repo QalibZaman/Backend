@@ -20,13 +20,13 @@ public class OfferController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateOffersSectionCommand(
-            ShopId: shopId,
-            Name: request.Name.Trim(),
-            Preview: request.Preview?.Trim(),
-            IsVisible: request.IsVisible,
-            SelectionType: request.SelectionType,
-            InventoryItemIds: request.InventoryItemIds,
-            UpdatedBy: request.UpdatedBy);
+            shopId,
+            request.Name.Trim(),
+            request.Preview?.Trim(),
+            request.IsVisible,
+            request.SelectionType,
+            request.InventoryItemIds,
+            request.UpdatedBy);
 
         await mediator.Send(command, cancellationToken);
 
