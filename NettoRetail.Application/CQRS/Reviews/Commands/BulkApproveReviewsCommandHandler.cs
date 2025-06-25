@@ -1,7 +1,5 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Specifications.Reviews;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;

@@ -798,6 +798,70 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OfferEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Preview")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("SelectionType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OfferSections", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OffersProductEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("OfferId");
+
+                    b.ToTable("OfferSectionProducts", (string)null);
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1498,6 +1562,25 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OffersProductEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.OfferEntity", "Offer")
+                        .WithMany("Products")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
+
+                    b.Navigation("Offer");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
@@ -1636,6 +1719,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.OfferEntity", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
