@@ -82,6 +82,8 @@ public static class ServiceExtensions
         // Seeders
         services.AddScoped<IDatabaseSeeder, SubscriptionPlanSeeder>();
         services.AddScoped<IDatabaseSeeder, FeatureSeeder>();
+        services.AddScoped<IDatabaseSeeder, FeatureSubscriptionPlanSeeder>();
+        services.AddScoped<IDatabaseSeeder, PriceHistorySeeder>();
 
         // Database related
         services.AddDbContext<AppDbContext>();

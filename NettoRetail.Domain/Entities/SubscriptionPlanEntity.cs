@@ -8,7 +8,7 @@ namespace NettoRetail.Domain.Entities
         public SubscriptionTypeEnum Type { get; set; }
         public required string Name { get; set; }
         public required string Description { get; set; }
-        public required decimal MonthlyPrice { get; set; }
+        public required int MonthlyPrice { get; set; }
         public required string Moto { get; set; }
         public required string SubscriptionId { get; set; }
 

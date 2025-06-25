@@ -15,8 +15,8 @@ namespace NettoRetail.API.Infrastructure.Validators
                 .Must(name => !System.Text.RegularExpressions.Regex.IsMatch(name ?? "", @"(--|__|-_|_-)")).WithMessage("Name must not contain consecutive special characters: --, __, -_, or _-");
 
             RuleFor(x => x.Price)
-                .NotEmpty().WithMessage("\"Field price\" cannot be empty.")
-                .GreaterThanOrEqualTo(0);
+                .GreaterThanOrEqualTo(0).WithMessage("\"Field price\" cannot be empty.");
+
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("\"Field description\" cannot be empty.")

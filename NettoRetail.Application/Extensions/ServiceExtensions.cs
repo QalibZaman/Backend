@@ -15,6 +15,7 @@ using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using Stripe;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.Infrastructure.Services;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -33,20 +34,20 @@ public static class ServiceExtensions
         services.AddHostedService<SessionCleanupService>();
         services.AddHostedService<TokenCleanupService>();
 
-/*         //Hangfire
+        //Hangfire
         services.AddHangfire(config =>
-        {
-            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
+       {
+           var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
 
-            config.UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UsePostgreSqlStorage(options =>
-                {
-                    options.UseNpgsqlConnection(connectionString);
-                });
-        });
+           config.UseSimpleAssemblyNameTypeSerializer()
+               .UseRecommendedSerializerSettings()
+               .UsePostgreSqlStorage(options =>
+               {
+                   options.UseNpgsqlConnection(connectionString);
+               });
+       });
         services.AddHangfireServer();
- */
+
         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
@@ -63,5 +64,7 @@ public static class ServiceExtensions
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
+        services.AddScoped<IPriceHistoryService, PriceHistoryService>();
+        services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
     }
 }

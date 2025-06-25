@@ -1150,8 +1150,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("numeric");
+                    b.Property<int>("MonthlyPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Moto")
                         .IsRequired()
@@ -1186,8 +1186,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime?>("EndDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
