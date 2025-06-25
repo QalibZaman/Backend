@@ -152,8 +152,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [HttpGet("sorted")]
     public async Task<IActionResult> GetSortedInventoryItems([FromQuery] int shopId, [FromQuery] InventoryItemSortingEnum sortOption, CancellationToken cancellationToken)
     {
-        var model = new GetSortedInventoryItemsModel { ShopId = shopId, SortOption = sortOption };
-        var query = new GetInventoryItemsSortedByPriceQuery(model);
+        var query = new GetInventoryItemsSortedByPriceQuery(shopId, sortOption);
         var result = await mediator.Send(query, cancellationToken);
         return Ok(new ApiResponse<List<InventoryItemListResponse>>(result));
     }
