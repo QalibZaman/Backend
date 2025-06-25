@@ -29,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="CQRS\Feedbacks\Queries\" />
       <Folder Include="CQRS\Payments\Queries\" />
     </ItemGroup>
 
