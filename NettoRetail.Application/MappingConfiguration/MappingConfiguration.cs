@@ -12,6 +12,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -143,5 +144,17 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
             .Ignore(dest => dest.Role)
             .Ignore(dest => dest.PasswordHash);
+
+        config.NewConfig<FeedbackEntity, FeedbackResponse>()
+            .Map(dest => dest.Title, src => src.Title)
+            .Map(dest => dest.Text, src => src.Text)
+            .Map(dest => dest.StaffName, src => src.Account.FullName)
+            .Map(dest => dest.Role, src => src.Account.Role)
+            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null)
+            .Ignore(dest => dest.Id)
+            .Ignore(dest => dest.Rating)
+            .Ignore(dest => dest.DateSubmitted)
+            .Ignore(dest => dest.IsPublic);
     }
 }

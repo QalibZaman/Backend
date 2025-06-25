@@ -21,10 +21,9 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
   public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
   {
     var userId = HttpContext.GetUserId();
-    Console.WriteLine("user id" + userId);
     var command = new CreateFeedbackCommand(model, userId);
     var data = await mediator.Send(command, cancellationToken);
     var response = new ApiResponse<FeedbackResponse>(data);
-    return Created(string.Empty, response);
+    return Ok(response);
   }
 }
