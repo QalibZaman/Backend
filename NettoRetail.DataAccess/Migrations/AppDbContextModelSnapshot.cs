@@ -606,14 +606,16 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("RoleId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ShopName")
+                        .IsRequired()
                         .HasMaxLength(90)
                         .HasColumnType("character varying(90)");
 
                     b.Property<string>("StaffName")
+                        .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
@@ -1510,7 +1512,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleId");
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
 
