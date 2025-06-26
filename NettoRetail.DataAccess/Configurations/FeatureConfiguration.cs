@@ -22,7 +22,7 @@ namespace NettoRetail.DataAccess.Configurations
             builder
                 .HasMany(f => f.SubscriptionPlans)
                 .WithMany(p => p.Features)
-                .UsingEntity(j => j.ToTable("FeatureSubscriptionPlans")); // Имя промежуточной таблицы
+                .UsingEntity(j => j.ToTable("FeatureSubscriptionPlans"));
         }
     }
 }

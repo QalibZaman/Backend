@@ -17,7 +17,6 @@ namespace NettoRetail.API.Infrastructure.Validators
             RuleFor(x => x.Price)
                 .GreaterThanOrEqualTo(0).WithMessage("\"Field price\" cannot be empty.");
 
-
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("\"Field description\" cannot be empty.")
                 .NotNull().WithMessage("\"Field description\" cannot be empty.")

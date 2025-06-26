@@ -40,5 +40,4 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         await mediator.Send(command);
         return NoContent();
     }
-
 }

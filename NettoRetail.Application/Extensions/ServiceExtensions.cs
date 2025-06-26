@@ -36,16 +36,16 @@ public static class ServiceExtensions
 
         //Hangfire
         services.AddHangfire(config =>
-       {
-           var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
+        {
+            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
 
-           config.UseSimpleAssemblyNameTypeSerializer()
-               .UseRecommendedSerializerSettings()
-               .UsePostgreSqlStorage(options =>
-               {
-                   options.UseNpgsqlConnection(connectionString);
-               });
-       });
+            config.UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(options =>
+                {
+                    options.UseNpgsqlConnection(connectionString);
+                });
+        });
         services.AddHangfireServer();
 
         //Services
