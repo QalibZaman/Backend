@@ -1,4 +1,6 @@
-﻿namespace NettoRetail.Application.Models.Response;
+﻿using NettoRetail.Domain.Enums;
+
+namespace NettoRetail.Application.Models.Response;
 
 public class ShopResponse
 {
@@ -13,4 +15,5 @@ public class ShopResponse
     public required string State { get; set; }
     public required string ZipCode { get; set; }
     public required string Description { get; set; }
+    public required string Subscription { get; set; }
 }

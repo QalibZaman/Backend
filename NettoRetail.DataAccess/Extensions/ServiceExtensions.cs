@@ -9,6 +9,7 @@ using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Seeders;
 using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.DataAccess.UOW;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -58,6 +59,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<IContentRepository, ContentRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IShopRepository, ShopRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
@@ -66,7 +68,10 @@ public static class ServiceExtensions
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IProductDetailsRepository, ProductDetailsRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOfferRepository, OfferRepository>();
+        services.AddScoped<IOffersProductRepository, OffersProductRepository>();
         services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
@@ -74,7 +79,7 @@ public static class ServiceExtensions
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
         services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<IFeatureRepository, FeatureRepository>();
-
+        services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Payments.Commands;
+using NettoRetail.Application.CQRS.Payments.Queries;
 using NettoRetail.Application.Models.Payments;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -17,6 +17,19 @@ namespace NettoRetail.API.Controllers.V1
     [Route("/api/v{version:apiVersion}/[controller]")]
     public class PaymentsController(IMediator mediator) : ControllerBase
     {
+        [Authorize]
+        [HttpGet("history")]
+        public async Task<IActionResult> GetPaymentHistory([FromQuery] PaginationRequest pageModel)
+        {
+            var userId = HttpContext.GetUserId();
+
+            var query = new GetPaymentHistoryQuery(pageModel, userId);
+
+            var result = await mediator.Send(query);
+
+            return Ok(new ApiResponse<PaginatedResponse<PaymentHistoryResponse>>(result));
+        }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddPayment(AddPaymentRequest model, CancellationToken cancellationToken)
@@ -49,6 +62,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("{paymentMethodId}")]
         public async Task<IActionResult> DeletePayment(string paymentMethodId, CancellationToken cancellationToken)
         {
@@ -59,6 +73,17 @@ namespace NettoRetail.API.Controllers.V1
             var response = await mediator.Send(command, cancellationToken);
 
             return Ok(new ApiResponse<PaymentMethodDeleteResponse>(response));
+        }
+
+        [Authorize]
+        [HttpPut("default/{paymentMethodId}")]
+        public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
+        {
+            var userId = HttpContext.GetUserId();
+            var command = new ChangeDefaultPaymentCommand(paymentMethodId, userId);
+            await mediator.Send(command, cancellationToken);
+
+            return NoContent();
         }
     }
 }

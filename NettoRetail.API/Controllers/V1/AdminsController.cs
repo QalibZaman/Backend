@@ -1,11 +1,15 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
+using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Account;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -29,5 +33,17 @@ public class AdminsController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<TokenResponse>(data);
 
         return Created("", response);
+    }
+
+    [Authorize]
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetStaffById(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var query = new GetAccountDetailsByIdQuery(userId);
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<AccountDetailsResponse>(data);
+        return Ok(response);
     }
 }

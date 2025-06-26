@@ -12,5 +12,6 @@
         public long CardExpYear { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; }
+        public bool IsDefault { get; set; }
     }
 }

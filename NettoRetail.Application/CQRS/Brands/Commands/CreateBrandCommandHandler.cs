@@ -4,10 +4,12 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -18,6 +20,7 @@ public record CreateBrandCommand(CreateBrandRequest Model, int ShopId) : IReques
 public class CreateBrandCommandHandler(
     IBrandRepository brandRepository,
     IAzureBlobService azureBlobService,
+    IBlobNameGenerator blobNameGenerator,
     IOptions<ConnectionStrings> connectionStrings,
     IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<CreateBrandCommand, BrandResponse>
 {
@@ -51,7 +54,7 @@ public class CreateBrandCommandHandler(
 
         if (request.Model.LogoFile != null)
         {
-            fileName = $"brand-logos/{Guid.NewGuid()}{Path.GetExtension(request.Model.LogoFile.FileName)}";
+            fileName = blobNameGenerator.GenerateBlobName(request.Model.LogoFile.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
         }
 
         if (fileName != null)

@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
     public DbSet<ShopEntity> Shops { get; set; }
+    public DbSet<ContentEntity> Contents { get; set; }
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
     public DbSet<InventoryItemImageEntity> InventoryItemImages { get; set; }
@@ -23,12 +24,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<OrderEntity> Orders { get; set; }
     public DbSet<OrderItemEntity> Order_Item { get; set; }
     public DbSet<OrderStatusHistoryEntity> OrderStatusHistories { get; set; }
+    public DbSet<OfferEntity> OfferSections { get; set; }
     public DbSet<BrandEntity> Brands { get; set; }
+    public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
     public DbSet<SubscriptionPlanEntity> SubscriptionPlans { get; set; }
     public DbSet<PasswordHistoryEntity> PasswordHistories { get; set; }
     public DbSet<FeatureEntity> Features { get; set; }
     public DbSet<PriceHistoryEntity> PriceHistories { get; set; }
+    public DbSet<PaymentHistoryEntity> PaymentHistories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

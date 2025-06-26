@@ -9,6 +9,6 @@ namespace NettoRetail.Application.Models.Response
         public required string AdminFullName { get; set; }
         public required string AdminEmail { get; set; }
         public required string AdminPhoneNumber { get; set; }
-        public SubscriptionTypeEnum Subscription { get; set; }
+        public required string Subscription { get; set; }
     }
 }

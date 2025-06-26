@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
+using NettoRetail.Application.CQRS.Subscription.Queries;
 using NettoRetail.Application.CQRS.Subscriptions.Commands;
 using NettoRetail.Application.Models.Request.Subscription;
 
@@ -39,5 +40,13 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         request.FeatureIds);
         await mediator.Send(command);
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("plans")]
+    public async Task<IActionResult> GetPlans()
+    {
+        var result = await mediator.Send(new GetSubscriptionsPlansQuery());
+        return Ok(result);
     }
 }
