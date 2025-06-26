@@ -6,7 +6,7 @@ using NettoRetail.Shared.Interfaces.Services;
 namespace NettoRetail.Infrastructure.Services;
 
 public class ShopSubscriptionService(
-    ISubcriptionPlanRepository subscriptionPlanRepository,
+    ISubscriptionPlanRepository subscriptionPlanRepository,
     IStripeService stripeService
 ) : IShopSubscriptionService
 {

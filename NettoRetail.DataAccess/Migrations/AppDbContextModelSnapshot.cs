@@ -22,6 +22,21 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("FeaturesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionPlansId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FeaturesId", "SubscriptionPlansId");
+
+                    b.HasIndex("SubscriptionPlansId");
+
+                    b.ToTable("FeatureSubscriptionPlans", (string)null);
+                });
+
             modelBuilder.Entity("InventoryItemImageEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -642,6 +657,28 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Feedbacks");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Features", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -1390,13 +1427,18 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("numeric");
+                    b.Property<int>("MonthlyPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Moto")
                         .IsRequired()
                         .HasMaxLength(70)
                         .HasColumnType("character varying(70)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
 
                     b.Property<string>("SubscriptionId")
                         .IsRequired()
@@ -1408,6 +1450,48 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SubscriptionPlans");
+                });
+
+            modelBuilder.Entity("PriceHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubscriptionPlanId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionPlanId");
+
+                    b.ToTable("PriceHistories");
+                });
+
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.FeatureEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FeaturesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlansId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InventoryItemImageEntity", b =>
@@ -1697,6 +1781,17 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("PriceHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubscriptionPlan");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
