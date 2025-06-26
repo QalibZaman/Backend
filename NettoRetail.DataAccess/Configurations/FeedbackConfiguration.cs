@@ -17,6 +17,12 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
         builder.Property(f => f.Title)
             .HasMaxLength(60);
 
+        builder.Property(f => f.StaffName)
+            .HasMaxLength(60);
+
+        builder.Property(f => f.ShopName)
+            .HasMaxLength(90);
+
         builder.Property(f => f.Text)
             .HasMaxLength(500);
 

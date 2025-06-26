@@ -27,6 +27,9 @@ public class CreateFeedbackCommandHandler(
     feedback.AccountId = account.Id;
     feedback.DateSubmitted = DateTime.UtcNow;
     feedback.Status = FeedbackStatusEnum.Pending;
+    if (account.Shop != null) { feedback.ShopName = account.Shop.Name; }
+    if (request.Model.IsPublic) { feedback.StaffName = account.FullName; }
+    feedback.Role = account.Role;
 
     using var transaction = unitOfWork.BeginTransaction();
 

@@ -606,6 +606,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShopName")
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<string>("StaffName")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -625,6 +636,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("AccountEntityId");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Feedbacks");
                 });
@@ -1495,7 +1508,13 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
+
                     b.Navigation("Account");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
