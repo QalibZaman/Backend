@@ -6,11 +6,13 @@ namespace NettoRetail.Domain.Entities
     {
         public int Id { get; set; }
         public SubscriptionTypeEnum Type { get; set; }
+        public required string Name { get; set; }
         public required string Description { get; set; }
-        public required decimal MonthlyPrice { get; set; }
+        public required int MonthlyPrice { get; set; }
         public required string Moto { get; set; }
         public required string SubscriptionId { get; set; }
 
         public ICollection<AccountEntity>? Accounts { get; set; }
+        public ICollection<FeatureEntity>? Features { get; set; }
     }
 }
