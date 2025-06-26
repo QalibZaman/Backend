@@ -6,9 +6,9 @@ public class FeedbackEntity
 {
   public Guid Id { get; set; } = Guid.NewGuid();
   public required int Rating { get; set; }
-  public required string? ShopName { get; set; }
-  public required string? StaffName { get; set; }
-  public required RoleEntity? Role { get; set; }
+  public required string ShopName { get; set; }
+  public required string StaffName { get; set; }
+  public required RoleEntity Role { get; set; }
   public string? Title { get; set; }
   public string? Text { get; set; }
   public bool IsPublic { get; set; } = false;

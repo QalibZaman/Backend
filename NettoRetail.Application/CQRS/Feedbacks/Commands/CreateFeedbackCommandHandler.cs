@@ -17,10 +17,10 @@ public class CreateFeedbackCommandHandler(
   IAccountRepository accountRepository,
   IUnitOfWork unitOfWork) : IRequestHandler<CreateFeedbackCommand, FeedbackResponse>
 {
-  public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)  {
-
+  public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)
+  {
     var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
-    var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new MyUnauthorizedException("Account no found.");
+    var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
 
     var feedback = request.Model.Adapt<FeedbackEntity>();
 
