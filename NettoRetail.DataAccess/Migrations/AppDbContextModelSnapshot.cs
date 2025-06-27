@@ -598,6 +598,67 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("FailedAuthAttempt");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateSubmitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShopName")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<string>("StaffName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountEntityId");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Feedbacks");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1522,6 +1583,28 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", null)
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("AccountEntityId");
+
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.BrandEntity", "Brand")
@@ -1715,6 +1798,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
+
+                    b.Navigation("Feedbacks");
 
                     b.Navigation("PasswordHistories");
 

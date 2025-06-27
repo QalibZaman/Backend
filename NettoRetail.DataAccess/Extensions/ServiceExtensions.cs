@@ -80,8 +80,9 @@ public static class ServiceExtensions
         services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<IFeatureRepository, FeatureRepository>();
         services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
+        services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
-        //UnitOfWork
+    //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders

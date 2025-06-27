@@ -62,5 +62,5 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
 
         builder.Property(s => s.Subscription)
             .HasConversion<string>();
-    }
+  }
 }

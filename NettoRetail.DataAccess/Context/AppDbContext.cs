@@ -33,6 +33,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<FeatureEntity> Features { get; set; }
     public DbSet<PriceHistoryEntity> PriceHistories { get; set; }
     public DbSet<PaymentHistoryEntity> PaymentHistories { get; set; }
+    public DbSet<FeedbackEntity> Feedbacks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
