@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Feedbacks.Commands;
+using NettoRetail.Application.CQRS.Feedbacks.Queries;
 using NettoRetail.Application.Models.Feedback;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -16,7 +18,7 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class FeedbacksController(IMediator mediator) : ControllerBase
 {
-  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  //[Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpPost]
   public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
   {
@@ -25,5 +27,14 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     var data = await mediator.Send(command, cancellationToken);
     var response = new ApiResponse<FeedbackResponse>(data);
     return Ok(response);
+  }
+
+  //[Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [HttpGet]
+  public async Task<IActionResult> GetFeedbacks([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+  {
+    var query = new GetAllFeedbacksQuery(pageModel);
+    var data = await mediator.Send(query, cancellationToken);
+    return Ok(new ApiResponse<PaginatedResponse<FeedbackResponse>>(data));
   }
 }
