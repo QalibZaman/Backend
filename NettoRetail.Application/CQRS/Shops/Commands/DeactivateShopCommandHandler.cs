@@ -1,14 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MediatR;
-using Microsoft.AspNetCore.Http.Features;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Services.INotificationService;
-using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.DataAccess.Specifications.Shop;
-using NettoRetail.Infrastructure.Interfaces;
-using NettoRetail.Infrastructure.Models;
-using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
@@ -17,8 +9,7 @@ public record DeactivateShopCommand(int ShopId, string Reason, DateTime? Deactiv
 
 public class DeactivateShopCommandHandler(
     IShopRepository shopRepository,
-    IMediator mediator,
-    INotificationService notification) : IRequestHandler<DeactivateShopCommand>
+    IMediator mediator) : IRequestHandler<DeactivateShopCommand>
 {
     public async Task Handle(DeactivateShopCommand request, CancellationToken cancellationToken)
     {
@@ -34,9 +25,6 @@ public class DeactivateShopCommandHandler(
         await shopRepository.UpdateAsync(shop, cancellationToken);
 
         await mediator.Publish(new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate), cancellationToken);
-
-        await notification.NotifyShopGroupAsync(shop.Id.ToString(), $"Shop {shop.Id} has been deactivated.");
-        await notification.NotifyAllAsync($"Shop {shop.Id} is now inactive due to: {shop.DeactivationReason}");
 
     }
 }
