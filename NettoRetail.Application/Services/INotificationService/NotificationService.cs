@@ -6,12 +6,10 @@ namespace NettoRetail.Application.Services.INotificationService;
 public class NotificationService : INotificationService
 {
     private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
-    private readonly WebSocketConnectionManager _connectionManager;
 
-    public NotificationService(IHubContext<NotificationHub, INotificationClient> hubContext, WebSocketConnectionManager connectionManager)
+    public NotificationService(IHubContext<NotificationHub, INotificationClient> hubContext)
     {
         _hubContext = hubContext;
-        _connectionManager = connectionManager;
     }
 
     public async Task NotifyAllAsync(string message)
@@ -29,10 +27,4 @@ public class NotificationService : INotificationService
     {
         await _hubContext.Clients.User(userId).ReceiveNotification(message);
     }
-
-    public async Task SendNotificationAsync(string userId, string message)
-    {
-        await _connectionManager.BroadcastMessageAsync($"Notification: {message}");
-    }
-
 }

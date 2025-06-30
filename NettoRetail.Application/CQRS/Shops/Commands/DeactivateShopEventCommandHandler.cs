@@ -43,6 +43,6 @@ public class DeactivateShopEventCommandHandler(
         }
 
         await notification.NotifyShopGroupAsync(shop.Id.ToString(), $"Shop {shop.Id} has been deactivated.");
-        await notification.NotifyAllAsync($"Shop {shop.Id} is now inactive due to: {shop.DeactivationReason}");
+        await notification.NotifyUserAsync(shop.Id.ToString(), $"Shop {shop.Id} is now inactive due to: {shop.DeactivationReason}");
     }
 }
