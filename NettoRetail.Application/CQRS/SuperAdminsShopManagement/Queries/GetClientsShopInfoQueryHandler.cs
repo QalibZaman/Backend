@@ -23,7 +23,7 @@ public class GetClientsShopInfoQueryHandler(
     {
         var specificationBuilder = new SpecificationBuilder<ShopEntity>();
         specificationBuilder.Add<GetShopByIdSpecification>(request.ShopId).AddInclude(x => x.Country);
-        
+
         var shop = await shopRepository.GetAsync(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There is no shop with such Id");
 
         var getClientAccountByIdSpecification = new GetAccountByShopIdAndRoleSpecification(request.ShopId, adminOptions.Value.RoleId);

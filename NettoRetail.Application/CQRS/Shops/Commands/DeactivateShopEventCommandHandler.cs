@@ -1,12 +1,10 @@
-﻿using Azure.Core;
-using MediatR;
-using NettoRetail.Application.CQRS.Shops.Commands;
+﻿using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Repositories;
+using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Infrastructure.Interfaces;
-using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
@@ -18,13 +16,14 @@ public class DeactivateShopEventCommandHandler(
     ISessionRepository sessionRepo,
     ISessionTerminationService sessionTerminator,
     IEmailBuilderService emailBuilder,
-    IEmailSender emailSender) : INotificationHandler<DeactivateShopEventCommand>
+    IEmailSender emailSender,
+    INotificationService notification) : INotificationHandler<DeactivateShopEventCommand>
 {
     public async Task Handle(DeactivateShopEventCommand request, CancellationToken cancellationToken)
     {
         DateTime deactivationDate = request.DeactivationDate ?? DateTime.UtcNow.AddDays(14);
 
-        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken) ?? throw new NotFoundException("Shop not found during event dispatch");
 
         shop.DeactivationReason = request.Reason;
         shop.DeactivationDate = deactivationDate;
@@ -42,5 +41,8 @@ public class DeactivateShopEventCommandHandler(
         {
             await sessionTerminator.TerminateSessionsAsync(session.Id, cancellationToken);
         }
+
+        await notification.NotifyShopGroupAsync(shop.Id.ToString(), $"Shop {shop.Id} has been deactivated.");
+        await notification.NotifyAllAsync($"Shop {shop.Id} is now inactive due to: {shop.DeactivationReason}");
     }
 }
