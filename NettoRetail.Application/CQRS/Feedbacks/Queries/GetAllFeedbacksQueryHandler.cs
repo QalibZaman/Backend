@@ -18,7 +18,11 @@ public class GetAllFeedbacksQueryHandler(IFeedbackRepository feedbackRepository)
     var specBuilder = new SpecificationBuilder<FeedbackEntity>();
     var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
 
-    var specification = specBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
+    var specification = specBuilder
+      .AddOrderBy(f => f.DateSubmitted, isDesc: true)
+      .Skip(skip)
+      .Take(request.PageModel.PageSize)
+      .Build();
 
     var (items, totalAmount) = await feedbackRepository.GetAllPaginatedAsync(specification, cancellationToken);
     var data = items.Adapt<List<FeedbackResponse>>();
