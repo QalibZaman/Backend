@@ -18,7 +18,7 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class FeedbacksController(IMediator mediator) : ControllerBase
 {
-  //[Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpPost]
   public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
   {
@@ -29,7 +29,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     return Ok(response);
   }
 
-  //[Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpGet]
   public async Task<IActionResult> GetFeedbacks([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
   {
