@@ -10,7 +10,6 @@ public class FeedbackResponse
   public string? Text { get; set; }
   public bool IsPublic { get; set; }
   public string? StaffName { get; set; }
-  public RoleEntity? Role { get; set; }
   public DateTime DateSubmitted { get; set; }
   public string? Status { get; set; }
   public string? ShopName { get; set; }
