@@ -19,6 +19,12 @@ public class ContentController(IMediator mediator) : Controller
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{shopId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status500InternalServerError)]
+    [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAllContentBlocks([FromRoute] int shopId, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetAllContentBlocksQuery(shopId), cancellationToken);
@@ -28,6 +34,13 @@ public class ContentController(IMediator mediator) : Controller
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("block/{id}")]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status500InternalServerError)]
+    [MapToApiVersion("1.0")]
+
     public async Task<IActionResult> GetContentBlockById(int id, [FromQuery] int shopId)
     {
         var query = new GetContentBlockByIdQuery(id, shopId);
@@ -39,6 +52,13 @@ public class ContentController(IMediator mediator) : Controller
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("block/{slug}")] // Slug format: shopId-ContentCategory; Example: 1-OurShop
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    [MapToApiVersion("1.0")]
     public async Task<IActionResult> UpdateContentBySlug(string slug, [FromBody] UpdateContentRequest updateContentRequest)
     {
         var author = HttpContext.GetUserId();
