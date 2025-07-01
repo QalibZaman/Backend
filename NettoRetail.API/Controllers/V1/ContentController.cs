@@ -57,7 +57,6 @@ public class ContentController(IMediator mediator) : Controller
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> UpdateContentBySlug(string slug, [FromBody] UpdateContentRequest updateContentRequest)
     {
