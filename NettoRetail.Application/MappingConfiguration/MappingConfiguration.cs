@@ -147,7 +147,6 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<FeedbackEntity, FeedbackResponse>()
             .Map(dest => dest.StaffName, src => src.Account.FullName)
-            .Map(dest => dest.Role, src => src.Account.Role)
             .Map(dest => dest.Status, src => src.Status.ToString())
             .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
   }
