@@ -18,6 +18,7 @@ public class CreateFeedbackCommandHandler(
   public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)
   {
     var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
+    accountByIdSpecification.AddInclude(x => x.Shop!);
     var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
 
     var feedback = request.Model.Adapt<FeedbackEntity>();
