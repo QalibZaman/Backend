@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Shop;
 public class GetShopByIdSpecification : Specification<ShopEntity>
 {
     public GetShopByIdSpecification(int id)
-    : base(x => x.Id == id) { }
+        : base(x => x.Id == id) { }
 }
