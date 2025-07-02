@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250701094951_DeleteRoleFieldInFeedback")]
-    partial class DeleteRoleFieldInFeedback
+    [Migration("20250702131034_AddFeedbackEentity")]
+    partial class AddFeedbackEentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
