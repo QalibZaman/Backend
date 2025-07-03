@@ -11,12 +11,12 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredI
         RuleFor(x => x.ProductName)
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
 
         RuleFor(x => x.ProductLocation)
             .MinimumLength(2).WithMessage("Product location length must be greater than 2 characters long.")
             .MaximumLength(100).WithMessage("Product location length must be less than 100 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductLocation));
 
         RuleFor(x => x.CategoryId)
             .GreaterThanOrEqualTo(0).WithMessage("Category ID must be 0 or greater.");

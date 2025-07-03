@@ -12,7 +12,7 @@ public class GetInventoryItemsByUpcOrNameValidator : AbstractValidator<GetInvent
     {
         RuleFor(x => x.UpcOrName)
             .NotEmpty().NotNull().WithMessage("UPC or Product Name is required.")
-            .Must(BeAValidUpcOrProductName)
+            .When(x => !string.IsNullOrWhiteSpace(x.UpcOrName))
             .WithMessage("Input must be a valid UPC (12-digit numeric) or a valid product name (up to 50 characters, only letters, digits, '-' and '_').");
     }
 
