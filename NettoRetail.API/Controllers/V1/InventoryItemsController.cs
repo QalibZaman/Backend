@@ -126,15 +126,12 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
             var searchData = await mediator.Send(searchQuery, cancellationToken);
             return Ok(new ApiResponse<IEnumerable<InventoryItemListResponse>>(searchData));
         }
-
         if (sortOption.HasValue)
         {
             var sortQuery = new GetInventoryItemsSortedByPriceQuery(shopId.Value, sortOption.Value);
             var sortedData = await mediator.Send(sortQuery, cancellationToken);
             return Ok(new ApiResponse<List<InventoryItemListResponse>>(sortedData));
         }
-
-        // 3. Default: filtrləmə + pagination
         var filterQuery = new GetFilteredInventoryItemsQuery(filterModel, shopId.Value, pageModel);
         var filteredData = await mediator.Send(filterQuery, cancellationToken);
         return Ok(new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(filteredData));
