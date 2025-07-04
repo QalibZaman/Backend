@@ -110,34 +110,11 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("getInventoryItems")]
-    public async Task<IActionResult> GetInventoryItems(
-        [FromQuery] int? shopId,
-        [FromQuery] GetInventoryItemsByUpcOrNameModel searchModel,
-        [FromQuery] InventoryItemSortingEnum? sortOption,
-        [FromQuery] GetFilteredInventoryItemsModel filterModel,
-        [FromQuery] PaginationRequest pageModel,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetInventoryItems([FromQuery] InventoryItemsSearchModel model, CancellationToken cancellationToken)
     {
-        if (shopId is null or <= 0)
-            return BadRequest(new ApiResponse<string>("ShopId is required."));
-        if (!string.IsNullOrWhiteSpace(searchModel.UpcOrName))
-        {
-            var searchQuery = new GetInventoryItemsByUpcOrNameQuery(searchModel, shopId.Value);
-            var searchData = await mediator.Send(searchQuery, cancellationToken);
-            return Ok(new ApiResponse<IEnumerable<InventoryItemListResponse>>(searchData));
-        }
-        if (sortOption.HasValue)
-        {
-            var sortQuery = new GetInventoryItemsSortedByPriceQuery(shopId.Value, sortOption.Value);
-            var sortedData = await mediator.Send(sortQuery, cancellationToken);
-            return Ok(new ApiResponse<List<InventoryItemListResponse>>(sortedData));
-        }
-        var filterQuery = new GetFilteredInventoryItemsQuery(filterModel, shopId.Value, pageModel);
-        var filteredData = await mediator.Send(filterQuery, cancellationToken);
-        return Ok(new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(filteredData));
+        var result = await mediator.Send(new GetInventoryItemsQuery(model), cancellationToken);
+        return Ok(new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(result));
     }
-
-
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("get")]

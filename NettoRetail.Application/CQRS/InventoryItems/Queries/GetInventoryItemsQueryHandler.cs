@@ -1,0 +1,170 @@
+using System.Linq.Expressions;
+using Mapster;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Options;
+using NettoRetail.Shared.Specifications;
+
+namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
+
+public record GetInventoryItemsQuery(InventoryItemsSearchModel Model) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
+
+public class GetInventoryItemsQueryHandler(
+    IInventoryItemRepository inventoryItemRepository,
+    ICategoryRepository categoryRepository,
+    IOptions<SearchOptions> searchOptions) : IRequestHandler<GetInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
+{
+    public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetInventoryItemsQuery request, CancellationToken cancellationToken)
+    {
+        var model = request.Model;
+
+        if (model.ShopId <= 0)
+            throw new ArgumentException("ShopId is required and must be greater than zero.");
+
+        if (!string.IsNullOrWhiteSpace(model.UpcOrName))
+        {
+            var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
+            specificationBuilder.Add<GetInventoryItemsByShopIdSpecification>(model.ShopId);
+
+            if (long.TryParse(model.UpcOrName, out var upc))
+            {
+                specificationBuilder.Add<GetInventoryItemsByPartialUpcSpecification>(upc);
+            }
+            else
+            {
+                specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(model.UpcOrName);
+            }
+
+            var specification = specificationBuilder.Take(searchOptions.Value.InventoryItemSearchSize).Build();
+
+            var (items, totalCount) = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
+            var responseItems = items.Adapt<List<InventoryItemListResponse>>();
+
+            return new PaginatedResponse<InventoryItemListResponse>
+            {
+                Items = responseItems,
+                TotalAmount = totalCount
+            };
+        }
+
+        if (model.SortOption.HasValue)
+        {
+            var specification = new GetInventoryItemPriceSortingSpecification(model.ShopId, model.SortOption.Value);
+            var sortedItems = await inventoryItemRepository.GetAllBySortedAsync(specification, cancellationToken);
+            var responseItems = sortedItems.Adapt<List<InventoryItemListResponse>>();
+
+            return new PaginatedResponse<InventoryItemListResponse>
+            {
+                Items = responseItems,
+                TotalAmount = responseItems.Count
+            };
+        }
+
+        var filterModel = new GetFilteredInventoryItemsModel
+        {
+            ProductName = model.ProductName,
+            ProductLocation = model.ProductLocation,
+            MinAvailableAmount = model.MinAvailableAmount,
+            MinReservedAmount = model.MinReservedAmount,
+            MinOnHandAmount = model.MinOnHandAmount,
+            MinPrice = model.MinPrice,
+            MaxPrice = model.MaxPrice,
+            MaxOnHandAmount = model.MaxOnHandAmount,
+            MaxAvailableAmount = model.MaxAvailableAmount,
+            MaxReservedAmount = model.MaxReservedAmount,
+            CategoryId = model.CategoryId ?? 0,
+            Status = model.Status,
+            BrandName = model.BrandName,
+            SortingOptions = model.SortingOptions
+        };
+
+        var pageModel = new PaginationRequest
+        {
+            PageNumber = model.PageNumber,
+            PageSize = model.PageSize
+        };
+
+        var specificationBuilderFiltered = new SpecificationBuilder<InventoryItemEntity>();
+        var skip = (pageModel.PageNumber - 1) * pageModel.PageSize;
+
+        specificationBuilderFiltered
+            .Add<GetInventoryItemsByPartialNameSpecification>(filterModel.ProductName)
+            .Add<GetInventoryItemsByPartialLocationSpecification>(filterModel.ProductLocation)
+            .Add<GetInventoryItemsByMinAvailableAmountSpecification>(filterModel.MinAvailableAmount)
+            .Add<GetInventoryItemsByMinReservedAmountSpecification>(filterModel.MinReservedAmount)
+            .Add<GetInventoryItemsByMinOnHandAmountSpecification>(filterModel.MinOnHandAmount)
+            .Add<GetInventoryItemsByMinPriceSpecification>(filterModel.MinPrice)
+            .Add<GetInventoryItemsByShopIdSpecification>(model.ShopId);
+
+        if (filterModel.MaxPrice != null)
+            specificationBuilderFiltered.Add<GetInventoryItemsByMaxPriceSpecification>(filterModel.MaxPrice);
+        if (filterModel.MaxOnHandAmount != null)
+            specificationBuilderFiltered.Add<GetInventoryItemsByMaxOnHandAmountSpecification>(filterModel.MaxOnHandAmount);
+        if (filterModel.MaxAvailableAmount != null)
+            specificationBuilderFiltered.Add<GetInventoryItemsByMaxAvailableAmountSpecification>(filterModel.MaxAvailableAmount);
+        if (filterModel.MaxReservedAmount != null)
+            specificationBuilderFiltered.Add<GetInventoryItemsByMaxReservedAmountSpecification>(filterModel.MaxReservedAmount);
+
+        if (filterModel.CategoryId != 0)
+        {
+            var categories = await categoryRepository.GetCategorySubtreeAsync(filterModel.CategoryId, cancellationToken);
+            var ids = categories.Select(c => c.Id).ToList();
+            specificationBuilderFiltered.Add<GetInventoryItemsByCategoriesSpecification>(ids);
+        }
+
+        if (!string.IsNullOrEmpty(filterModel.Status))
+        {
+            if (Enum.TryParse(filterModel.Status, true, out InventoryItemStatusEnum status))
+            {
+                specificationBuilderFiltered.Add<GetInventoryItemsByStatusSpecification>(status);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(filterModel.BrandName))
+        {
+            specificationBuilderFiltered.Add<GetInventoryItemsByBrandsPartialNameSpecification>(filterModel.BrandName);
+        }
+
+        if (filterModel.SortingOptions != null && filterModel.SortingOptions.Any())
+        {
+            foreach (var sortingOption in filterModel.SortingOptions)
+            {
+                specificationBuilderFiltered.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
+            }
+        }
+
+        var specificationFiltered = specificationBuilderFiltered.Skip(skip).Take(pageModel.PageSize).Build();
+
+        var (filteredItems, totalFilteredCount) = await inventoryItemRepository.GetAllPaginatedAsync(specificationFiltered, cancellationToken);
+
+        var responseFilteredItems = filteredItems.Adapt<List<InventoryItemListResponse>>();
+
+        return new PaginatedResponse<InventoryItemListResponse>
+        {
+            Items = responseFilteredItems,
+            TotalAmount = totalFilteredCount
+        };
+    }
+
+    private static Expression<Func<InventoryItemEntity, object>> GetSortingExpression(string fieldName)
+    {
+        return fieldName.ToLower() switch
+        {
+            "productname" => item => item.ProductName,
+            "brandname" => item => item.Brand!.Name,
+            "price" => item => item.Price,
+            "availableamount" => item => item.AvailableAmount,
+            "reservedamount" => item => item.ReservedAmount,
+            "onhandamount" => item => item.OnHandAmount,
+            _ => item => item.ProductName
+        };
+    }
+}
