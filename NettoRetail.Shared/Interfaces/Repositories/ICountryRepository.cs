@@ -4,4 +4,5 @@ namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface ICountryRepository : IBaseRepository<CountryEntity>
 {
+    Task<IEnumerable<CountryEntity>> GetCountriesAsync(CancellationToken cancellationToken);
 }
