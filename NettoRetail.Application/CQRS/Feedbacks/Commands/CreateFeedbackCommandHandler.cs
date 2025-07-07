@@ -28,6 +28,7 @@ public class CreateFeedbackCommandHandler(
     feedback.Status = FeedbackStatusEnum.Pending;
     if (account.Shop != null) { feedback.ShopName = account.Shop.Name; }
     if (request.Model.IsPublic) { feedback.StaffName = account.FullName; }
+    else { feedback.StaffName = "Anonymous"; }
 
     await feedbackRepository.AddAsync(feedback, cancellationToken);
 

@@ -26,6 +26,7 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
     specBuilder.Add<GetFeedbacksByShopNamesSpecification>(request.Model.ShopName);
     specBuilder.Add<GetFeedbacksByPublicitySpecification>(request.Model.IsPublic);
     specBuilder.AddInclude(f => f.Account);
+    specBuilder.AddInclude(f => f.Account.Shop!);
 
     var specification = specBuilder
       .AddOrderBy(f => f.DateSubmitted, isDesc: true)
