@@ -15,40 +15,51 @@ namespace NettoRetail.API.Controllers.V1;
 
 [ApiVersion(1)]
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
-    public async Task<IActionResult> Create(CreateCustomerRequest customer, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
         var command = new CreateCustomerCommand(customer);
-        var data = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<CreateCustomerResponse>(data);
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CreateCustomerResponse>(result);
 
         return Ok(response);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? model, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
+
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
     {
-        var command = new GetCustomersQuery(pageModel, model);
-        var data = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(data);
+        var query = new GetCustomersQuery(pageModel, filter);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<CustomerResponse>>(result);
         return Ok(response);
     }
 
     [Authorize]
     [HttpGet("{loyaltyId}")]
+    [ProducesResponseType(typeof(ApiResponse<CustomerInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerInfo(string loyaltyId, CancellationToken cancellationToken)
     {
-        var command = new GetCustomerInfoQuery(loyaltyId);
-        var data = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<CustomerInfoResponse>(data);
+        var query = new GetCustomerInfoQuery(loyaltyId);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<CustomerInfoResponse>(result);
         return Ok(response);
     }
 
     [Authorize]
     [HttpPut("{loyaltyId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateCustomer(string loyaltyId, [FromBody] UpdateCustomerRequest model, CancellationToken cancellationToken)
     {
         var command = new UpdateCustomerCommand(loyaltyId, model);
@@ -59,6 +70,9 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCustomer(Guid id, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
