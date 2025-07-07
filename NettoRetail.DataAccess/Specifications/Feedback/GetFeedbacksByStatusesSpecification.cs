@@ -8,6 +8,6 @@ public class GetFeedbacksByStatusesSpecification : Specification<FeedbackEntity>
 {
   public GetFeedbacksByStatusesSpecification(List<FeedbackStatusEnum> statuses)
       : base(x => statuses.Contains(x.Status))
-  {
-  }
+{
+}
 }
