@@ -7,8 +7,4 @@ namespace NettoRetail.DataAccess.Repositories;
 
 public class CountryRepository(AppDbContext dbContext) : BaseRepository<CountryEntity>(dbContext), ICountryRepository
 {
-    public async Task<IEnumerable<CountryEntity>> GetCountriesAsync(CancellationToken cancellationToken)
-    {
-        return await _dbContext.Countries.AsNoTracking().ToListAsync(cancellationToken);
-    }
 }
