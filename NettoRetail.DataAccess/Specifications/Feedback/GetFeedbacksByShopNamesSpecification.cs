@@ -7,6 +7,6 @@ public class GetFeedbacksByShopNamesSpecification : Specification<FeedbackEntity
 {
   public GetFeedbacksByShopNamesSpecification(string shopName)
       : base(o => o.ShopName == shopName)
-  {
-  }
+{
+}
 }

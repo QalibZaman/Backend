@@ -6,6 +6,6 @@ public class GetFeedbacksByDateRangeSpecification : Specification<FeedbackEntity
 {
   public GetFeedbacksByDateRangeSpecification(DateTime from, DateTime to)
       : base(x => x.DateSubmitted >= from && x.DateSubmitted <= to)
-  {
-  }
+{
+}
 }

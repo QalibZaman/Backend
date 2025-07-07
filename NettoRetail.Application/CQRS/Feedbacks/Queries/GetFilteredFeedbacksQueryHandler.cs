@@ -37,12 +37,12 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
     var (items, totalAmount) = await feedbackRepository.GetAllPaginatedAsync(specification, cancellationToken);
     var data = items.Adapt<List<FeedbackResponse>>();
 
-    var responeModel = new PaginatedResponse<FeedbackResponse>
+    var responseModel = new PaginatedResponse<FeedbackResponse>
     {
       Items = data,
       TotalAmount = totalAmount
     };
 
-    return responeModel;
+    return responseModel;
   }
 }
