@@ -36,7 +36,6 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
         specBuilder.Add<GetOrdersByEmailsSpecification>(request.Model.CustomerEmails);
         specBuilder.Add<GetOrdersByOrderIdsSpecification>(request.Model.OrderIds);
         specBuilder.Add<GetOrdersByCreatorSpecification>(request.Model.Creators);
-        //specBuilder.Add<GetOrdersByDateRangeSpecification>(request.Model.StartDate, request.Model.EndDate);
         specBuilder.Add<GetOrdersByDateRangeSpecification>(start, end);
 
         if (request.Model.OrderStatuses != null)
