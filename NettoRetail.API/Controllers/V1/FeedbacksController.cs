@@ -8,6 +8,7 @@ using NettoRetail.Application.CQRS.Feedbacks.Commands;
 using NettoRetail.Application.CQRS.Feedbacks.Queries;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Feedback;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -31,9 +32,9 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
 
   [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpGet]
-  public async Task<IActionResult> GetFeedbacks([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+  public async Task<IActionResult> GetFeedbacks([FromQuery] GetFilteredFeedbacksModel filterModel, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
   {
-    var query = new GetAllFeedbacksQuery(pageModel);
+    var query = new GetFilteredFeedbacksQuery(filterModel, pageModel);
     var data = await mediator.Send(query, cancellationToken);
     return Ok(new ApiResponse<PaginatedResponse<FeedbackResponse>>(data));
   }
