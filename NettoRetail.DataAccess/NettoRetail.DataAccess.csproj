@@ -33,7 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Specifications\Feedback\" />
+      <Folder Include="Specifications\Feedback\NewFolder\" />
     </ItemGroup>
 
 </Project>

@@ -37,4 +37,13 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     var data = await mediator.Send(query, cancellationToken);
     return Ok(new ApiResponse<PaginatedResponse<FeedbackResponse>>(data));
   }
+
+  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [HttpDelete("{id:Guid}")]
+  public async Task<IActionResult> DeleteFeedback(Guid id, CancellationToken cancellationToken)
+  {
+    await mediator.Send(new DeleteFeedbackCommand(id), cancellationToken);
+
+    return NoContent();
+  }
 }
