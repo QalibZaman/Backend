@@ -3,6 +3,10 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Feedback;
 
-public class GetFeedbackByIdSpecification(Guid id) : Specification<FeedbackEntity>(o => o.Id == id)
+public class GetFeedbackByIdSpecification : Specification<FeedbackEntity>
 {
+  public GetFeedbackByIdSpecification(Guid id)
+      : base(o => o.Id == id)
+  {
+  }
 }

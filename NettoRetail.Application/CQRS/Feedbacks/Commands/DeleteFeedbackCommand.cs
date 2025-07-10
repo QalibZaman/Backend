@@ -16,6 +16,6 @@ public class DeleteFeedbackCommandHandler(IFeedbackRepository feedbackRepository
     var specification = new GetFeedbackByIdSpecification(request.Id);
 
     var feedback = await feedbackRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no feedback with Id: {request.Id}");
-    await feedbackRepository.DeleteAsync(specification, cancellationToken);
+    await feedbackRepository.DeleteAsync(feedback, cancellationToken);
   }
 }
