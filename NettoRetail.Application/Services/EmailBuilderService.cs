@@ -85,4 +85,28 @@ public class EmailBuilderService(
         };
     }
 
+    public async Task<EmailModel> BuildPlatformAdminActivationEmailAsync(
+    string email,
+    string firstName,
+    string temporaryPassword)
+    {
+        var model = new
+        {
+            first_name = firstName,
+            activation_link = activationLink,
+            current_year = DateTime.UtcNow.Year
+        };
+
+        var body = await emailTemplateService
+          .RenderEmailTemplateAsync(
+            EmailTemplates.PlatformAdminActivation,
+            model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.PlatformAdminActivation,
+            Message = body
+        };
+    }
 }
