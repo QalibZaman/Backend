@@ -6,9 +6,11 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Feedbacks.Commands;
 using NettoRetail.Application.CQRS.Feedbacks.Queries;
+using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Feedback;
+using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -37,5 +39,23 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     var query = new GetFilteredFeedbacksQuery(filterModel, pageModel);
     var data = await mediator.Send(query, cancellationToken);
     return Ok(new ApiResponse<PaginatedResponse<FeedbackResponse>>(data));
+  }
+
+  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [HttpDelete("{id:Guid}")]
+  public async Task<IActionResult> DeleteFeedback(Guid id, CancellationToken cancellationToken)
+  {
+    await mediator.Send(new DeleteFeedbackCommand(id), cancellationToken);
+
+    return NoContent();
+  }
+
+  [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+  [HttpDelete("bulk-delete")]
+  public async Task<IActionResult> BulkDeleteFeedbacks([FromBody] BulkDeleteFeedbacksRequest request, CancellationToken cancellationToken)
+  {
+    var query = new BulkDeleteFeedbacksCommand(request.feedbacksIds);
+    await mediator.Send(query, cancellationToken);
+    return NoContent();
   }
 }
