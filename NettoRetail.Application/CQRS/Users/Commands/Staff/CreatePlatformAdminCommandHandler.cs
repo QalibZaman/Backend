@@ -74,7 +74,6 @@ public class CreatePlatformAdminCommandHandler(
         //        new SendPasswordResetLinkCommand(account.Email),
         //        cancellationToken);
 
-
         return new CreatePlatformAdminResponse
         {
             AccountId = account.Id,
