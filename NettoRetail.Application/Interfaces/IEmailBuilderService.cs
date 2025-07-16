@@ -8,6 +8,6 @@ public interface IEmailBuilderService
     Task<EmailModel> BuildPasswordChangeConfirmationEmailAsync(string email, string firstName);
     Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string firstName, string unsubscribeUrl);
     Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason);
-    Task<EmailModel> BuildPlatformAdminActivationEmailAsync(string email, string firstName, string temporaryPassword);
+    Task<EmailModel> BuildPlatformAdminActivationEmailAsync(string email, string firstName, string activationLink);
 
 }

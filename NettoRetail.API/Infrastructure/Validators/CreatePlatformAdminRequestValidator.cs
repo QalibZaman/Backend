@@ -1,45 +1,60 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.Shared.Constants;
+using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.API.Infrastructure.Validators;
-
-public class CreatePlatformAdminRequestValidator
-    : AbstractValidator<CreatePlatformAdminRequest>
+namespace NettoRetail.API.Infrastructure.Validators
 {
-    private static readonly string[] AllowedPermissions = {
-        Permissions.INVENTORY_MANAGEMENT,
-        Permissions.CUSTOMER_MANAGEMENT,
-        Permissions.ORDERS_MANAGEMENT,
-        Permissions.ADMINS_MANAGEMENT,
-        Permissions.SYSTEM_MANAGEMENT,
-        Permissions.SUPERADMINS_MANAGEMENT
-
-    };
-
-    public CreatePlatformAdminRequestValidator()
+    public class CreatePlatformAdminRequestValidator
+        : AbstractValidator<CreatePlatformAdminRequest>
     {
-        RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("EM-32: First Name is required");
+        private static readonly string[] AllowedPermissions =
+        {
+            Permissions.INVENTORY_MANAGEMENT,
+            Permissions.CUSTOMER_MANAGEMENT,
+            Permissions.ORDERS_MANAGEMENT,
+            Permissions.ADMINS_MANAGEMENT,
+            Permissions.SYSTEM_MANAGEMENT,
+            Permissions.SUPERADMINS_MANAGEMENT
+        };
 
-        RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("EM-33: Last Name is required");
+        public CreatePlatformAdminRequestValidator(
+            IAccountRepository accountRepo,
+            IPermissionRepository permissionRepo)
+        {
+            RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required.")
+            .NotNull().WithMessage("First name is required.")
+            .MinimumLength(2).WithMessage("First name length must be greater than 2 characters long.")
+            .MaximumLength(30).WithMessage("First name length must be less than 30 characters long.")
+            .Matches("^[A-Za-z]+$").WithMessage("First name must contain only Latin characters.")
+            .Matches("^[A-Z][a-z]*$").WithMessage("First name must start with a single uppercase letter followed by lowercase letters only.")
+            .Matches(@"^[^\s].*[^\s]$").WithMessage("First name must not start or end with spaces.");
 
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("EM-34: Email is required")
-            .EmailAddress().WithMessage("EM-34: Invalid email format");
+            RuleFor(x => x.LastName)
+                .NotEmpty().WithMessage("Last name is required.")
+                .NotNull().WithMessage("Last name is required.")
+                .MinimumLength(2).WithMessage("Last name length must be greater than 2 characters long.")
+                .MaximumLength(30).WithMessage("Last name length must be less than 30 characters long.")
+                .Matches("^[A-Za-z]+$").WithMessage("Last name must contain only Latin characters.")
+                .Matches("^[A-Z][a-z]*$").WithMessage("Last name must start with a single uppercase letter followed by lowercase letters only.")
+                .Matches(@"^[^\s].*[^\s]$").WithMessage("Last name must not start or end with spaces.");
 
-        RuleFor(x => x.PhoneNumber)
-            .Matches(@"^\+?[0-9\s\-]+$")
-            .When(x => !string.IsNullOrEmpty(x.PhoneNumber))
-            .WithMessage("EM-67: Invalid phone number");
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Email is required.")
+                .NotNull().WithMessage("Email is required.")
+                .MaximumLength(256).WithMessage("Email length must be less than 256 characters long.")
+                .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$").WithMessage("Email must be in a valid format.");
 
-        RuleFor(x => x.Permissions)
-            .NotEmpty()
-            .WithMessage("At least one permission must be selected");
+            RuleFor(x => x.PhoneNumber)
+                .Must(x => !string.IsNullOrWhiteSpace(x))
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                .WithMessage("Phone number can't be empty if country id is being provided");
 
-        RuleForEach(x => x.Permissions)
-            .Must(p => AllowedPermissions.Contains(p))
-            .WithMessage("One or more invalid permissions selected");
+            RuleFor(x => x.Permissions)
+                 .NotNull()
+                    .WithMessage("Permissions must be provided.");
+        }
     }
 }
