@@ -10,7 +10,6 @@ using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Feedback;
-using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -23,6 +22,11 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
 {
   [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpPost]
+  [ProducesResponseType(typeof(ApiResponse<FeedbackResponse>), StatusCodes.Status201Created)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(StatusCodes.Status403Forbidden)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
   {
     var userId = HttpContext.GetUserId();
@@ -34,6 +38,10 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
 
   [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpGet]
+  [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<FeedbackResponse>>), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(StatusCodes.Status403Forbidden)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> GetFeedbacks([FromQuery] GetFilteredFeedbacksModel filterModel, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
   {
     var query = new GetFilteredFeedbacksQuery(filterModel, pageModel);
@@ -43,6 +51,12 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
 
   [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpDelete("{id:Guid}")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(StatusCodes.Status403Forbidden)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> DeleteFeedback(Guid id, CancellationToken cancellationToken)
   {
     await mediator.Send(new DeleteFeedbackCommand(id), cancellationToken);
@@ -52,10 +66,16 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
 
   [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
   [HttpDelete("bulk-delete")]
+  [ProducesResponseType(StatusCodes.Status204NoContent)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+  [ProducesResponseType(StatusCodes.Status403Forbidden)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> BulkDeleteFeedbacks([FromBody] BulkDeleteFeedbacksRequest request, CancellationToken cancellationToken)
   {
-    var query = new BulkDeleteFeedbacksCommand(request.feedbacksIds);
-    await mediator.Send(query, cancellationToken);
+    var command = new BulkDeleteFeedbacksCommand(request.feedbacksIds);
+    await mediator.Send(command, cancellationToken);
     return NoContent();
   }
 }
