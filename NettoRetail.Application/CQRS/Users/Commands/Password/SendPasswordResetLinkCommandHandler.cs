@@ -45,7 +45,7 @@ public class SendPasswordResetLinkCommandHandler(
 
         var resetToken = jwtManager.Generate(
             claims,
-            TimeSpan.FromHours(_opts.TokenExpirationHours)
+            TimeSpan.FromHours(_opts.ActivationTokenExpirationHours)
         );
 
         var link = string.Format(
