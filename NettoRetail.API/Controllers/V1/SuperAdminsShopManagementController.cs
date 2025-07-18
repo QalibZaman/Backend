@@ -3,14 +3,17 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Attributes;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.CQRS.Reviews.Queries;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
+using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Models.ClientsShop;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
+using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
@@ -196,5 +199,21 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         var response = await mediator.Send(query, cancellationToken);
         var result = new ApiResponse<ReviewDetailResponse>(response);
         return Ok(result);
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("platform-admins/{id:guid}")]
+    public async Task<IActionResult> EditPlatformAdmin(Guid id, [FromBody] EditPlatformAdminRequest request, CancellationToken cancellationToken)
+    {
+        var currentUserId = User.GetUserId();
+        var command = new EditPlatformAdminCommand(id, currentUserId, request);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 }
