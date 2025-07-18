@@ -2,9 +2,11 @@
 
 public class CreatePlatformAdminRequest
 {
-    public string FirstName { get; set; } = default!;
-    public string LastName { get; set; } = default!;
-    public string Email { get; set; } = default!;
+    public required string FirstName { get; set; } = default!;
+    public required string LastName { get; set; } = default!;
+    public required string Email { get; set; } = default!;
     public string? PhoneNumber { get; set; }
-    public List<string> Permissions { get; set; } = new();
+    public required PlatformAdminPermissionRequest Permissions { get; init; }
+        = new PlatformAdminPermissionRequest();
+
 }

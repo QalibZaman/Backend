@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using NettoRetail.Application.CQRS.Users.Commands.Password;
+using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Permissions;
@@ -8,6 +8,8 @@ using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Specifications;
+using System.ComponentModel.DataAnnotations;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
@@ -16,27 +18,37 @@ public record CreatePlatformAdminCommand(
     Guid SuperAdminId
 ) : IRequest<CreatePlatformAdminResponse>;
 
-public class CreatePlatformAdminCommandHandler(
-        IAccountRepository accountRepo,
-        IRoleRepository roleRepo,
-        IPermissionRepository permissionRepo,
-        IMediator mediator,
-        IUnitOfWork unitOfWork
-    ) : IRequestHandler<CreatePlatformAdminCommand, CreatePlatformAdminResponse>
+public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
+    IRoleRepository roleRepo,
+    IPermissionRepository permissionRepo, 
+    IUnitOfWork unitOfWork)
+        : IRequestHandler<CreatePlatformAdminCommand, CreatePlatformAdminResponse>
 {
     public async Task<CreatePlatformAdminResponse> Handle(
         CreatePlatformAdminCommand request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var model = request.Model;
-
         var email = model.Email.Trim().ToLowerInvariant();
         var firstName = model.FirstName.Trim();
         var lastName = model.LastName.Trim();
+        var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+
+        var existingEmails = await accountRepo.GetAccountEmailsAsync(
+            new Specification<AccountEntity>(a => a.Email == normalizedEmail),
+            cancellationToken);
+
+        if (existingEmails.Any())
+            throw new ValidationException($"Email is already in use.");
+
+        var titles = model.Permissions
+            .ToTitles()
+            .ToList();
 
         var matchingIds = (await permissionRepo
                 .GetIdsBySpecAsync(
-                    new GetPermissionsByTitlesSpecification(model.Permissions),
+                    new GetPermissionsByTitlesSpecification(titles),
                     cancellationToken))
             .ToList();
 
@@ -44,14 +56,11 @@ public class CreatePlatformAdminCommandHandler(
         {
             Name = $"PlatformAdmin_{Guid.NewGuid():N}",
             Description = "Dynamic role for platform admin",
-            ShopId = null
+            ShopId = null,
+            PermissionRoles = matchingIds
+                .Select(id => new PermissionRoleEntity { PermissionId = id })
+                .ToList()
         };
-        matchingIds.ForEach(id =>
-            role.PermissionRoles.Add(new PermissionRoleEntity
-            {
-                PermissionId = id,
-                Role = role
-            }));
 
         var account = new AccountEntity
         {
@@ -69,17 +78,12 @@ public class CreatePlatformAdminCommandHandler(
         await accountRepo.AddAsync(account, cancellationToken);
         tx.Commit();
 
-        // activation logic via SendPasswordResetLinkCommand
-        //    await mediator.Send(
-        //        new SendPasswordResetLinkCommand(account.Email),
-        //        cancellationToken);
-
         return new CreatePlatformAdminResponse
         {
             AccountId = account.Id,
             Email = account.Email,
             Status = account.Status,
-            AssignedPermissions = model.Permissions.ToList()
+            Permissions = model.Permissions
         };
     }
 }
