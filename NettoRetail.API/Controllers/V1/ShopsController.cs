@@ -19,10 +19,14 @@ namespace NettoRetail.API.Controllers.V1;
 public class ShopsController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<ShopResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetShop(int id)
     {
-        var getShopByIdQuery = new GetShopByIdQuery(id);
-        var data = await mediator.Send(getShopByIdQuery);
+        var query = new GetShopByIdQuery(id);
+        var data = await mediator.Send(query);
 
         var response = new ApiResponse<ShopResponse>(data);
 
@@ -33,8 +37,8 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateShop([FromBody] ShopModel shop)
     {
-        var createShopCommand = new CreateShopCommand(HttpContext.GetUserId(), shop);
-        var data = await mediator.Send(createShopCommand);
+        var command = new CreateShopCommand(HttpContext.GetUserId(), shop);
+        var data = await mediator.Send(command);
 
         var response = new ApiResponse<ShopResponse>(data);
 
@@ -46,8 +50,8 @@ public class ShopsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> UpdateShop([FromBody] ShopModel shop)
     {
         var shopId = HttpContext.GetUserShopId();
-        var updateShopCommand = new UpdateShopCommand(shopId, shop);
-        await mediator.Send(updateShopCommand);
+        var command = new UpdateShopCommand(shopId, shop);
+        await mediator.Send(command);
 
         return NoContent();
     }
