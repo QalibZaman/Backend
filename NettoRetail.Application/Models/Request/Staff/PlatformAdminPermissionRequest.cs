@@ -1,19 +1,26 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace NettoRetail.Application.Models.Request.Staff;
 
 public class PlatformAdminPermissionRequest
 {
     [JsonPropertyName("INVENTORY_MANAGEMENT")]
-    public bool INVENTORY_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool INVENTORY_MANAGEMENT { get; init; }
     [JsonPropertyName("CUSTOMER_MANAGEMENT")]
-    public bool CUSTOMER_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool CUSTOMER_MANAGEMENT { get; init; }
     [JsonPropertyName("ORDERS_MANAGEMENT")]
-    public bool ORDERS_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool ORDERS_MANAGEMENT { get; init; }
     [JsonPropertyName("ADMINS_MANAGEMENT")]
-    public bool ADMINS_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool ADMINS_MANAGEMENT { get; init; }
     [JsonPropertyName("SYSTEM_MANAGEMENT")]
-    public bool SYSTEM_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool SYSTEM_MANAGEMENT { get; init; }
     [JsonPropertyName("SUPERADMINS_MANAGEMENT")]
-    public bool SUPERADMINS_MANAGEMENT { get; init; } = false;
+    [DefaultValue(false)]
+    public bool SUPERADMINS_MANAGEMENT { get; init; }
 }
