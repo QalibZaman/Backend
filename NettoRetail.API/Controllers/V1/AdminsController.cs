@@ -19,13 +19,6 @@ namespace NettoRetail.API.Controllers.V1;
 public class AdminsController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
-    [AllowAnonymous]
-    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
     public async Task<IActionResult> SignUp(AdminSignUpModel model)
     {
         var adminCreationCommand = new CreateAdminCommand(model);
@@ -44,12 +37,6 @@ public class AdminsController(IMediator mediator) : ControllerBase
 
     [Authorize]
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<AccountDetailsResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
     public async Task<IActionResult> GetStaffById(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
