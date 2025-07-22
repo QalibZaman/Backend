@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Permissions;
@@ -29,8 +30,10 @@ public record EditPlatformAdminCommand(
     if (request.EditorId == request.PlatformAdminId)
       throw new InvalidOperationException("You cannot edit your own account.");
 
-    //if (model.AssignedPermissions == null || !model.AssignedPermissions.Any())
-    //  throw new BadRequestException("At least one permission must be selected");
+    var permissionTitles = model.Permissions.ToTitles().ToList();
+
+    if (!permissionTitles.Any())
+      throw new BadRequestException("At least one permission must be selected.");
 
     var accountByIdSpecification = new GetAccountByIdSpecification(request.PlatformAdminId);
     accountByIdSpecification.AddInclude(x => x.Role.PermissionRoles);
@@ -38,7 +41,7 @@ public record EditPlatformAdminCommand(
 
     var newPermissionIds = (await permissionRepository
         .GetIdsBySpecAsync(
-            new GetPermissionsByTitlesSpecification(model.AssignedPermissions),
+            new GetPermissionsByTitlesSpecification(permissionTitles),
             cancellationToken))
         .ToHashSet();
 

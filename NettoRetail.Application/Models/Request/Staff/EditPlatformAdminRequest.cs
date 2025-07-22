@@ -2,5 +2,5 @@
 
 public class EditPlatformAdminRequest
 {
-  public List<string> AssignedPermissions { get; set; } = new();
+  public PlatformAdminPermissionRequest Permissions { get; set; } = new();
 }
