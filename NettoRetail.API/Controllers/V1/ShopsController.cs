@@ -25,8 +25,8 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetShop(int id)
     {
-        var query = new GetShopByIdQuery(id);
-        var data = await mediator.Send(query);
+        var getShopByIdQuery = new GetShopByIdQuery(id);
+        var data = await mediator.Send(getShopByIdQuery);
 
         var response = new ApiResponse<ShopResponse>(data);
 
@@ -35,21 +35,29 @@ public class ShopsController(IMediator mediator) : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateShop([FromBody] ShopModel shop)
+    [ProducesResponseType(typeof(ApiResponse<ShopResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ApiResponse<ShopResponse>>> CreateShop([FromBody] ShopModel shop)
     {
-        var command = new CreateShopCommand(HttpContext.GetUserId(), shop);
-        var data = await mediator.Send(command);
+        var userId = HttpContext.GetUserId();
+        var command = new CreateShopCommand(userId, shop);
+        var createdShop = await mediator.Send(command);
 
-        var response = new ApiResponse<ShopResponse>(data);
+        var response = new ApiResponse<ShopResponse>(createdShop);
 
-        return CreatedAtAction(nameof(GetShop), new { id = data.Id }, response);
+        return CreatedAtAction(nameof(GetShop), new { id = createdShop.Id }, response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateShop([FromBody] ShopModel shop)
     {
         var shopId = HttpContext.GetUserShopId();
+
         var command = new UpdateShopCommand(shopId, shop);
         await mediator.Send(command);
 
@@ -66,9 +74,9 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [HttpPut("activation/{shopId:int}")]
     public async Task<IActionResult> ActivateShop(int shopId)
     {
-        var activateShopCommand = new ActivateShopCommand(shopId);
+        var command = new ActivateShopCommand(shopId);
 
-        await mediator.Send(activateShopCommand);
+        await mediator.Send(command);
 
         return Ok("Shop successfully activated.");
     }
@@ -79,13 +87,16 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize]
     [HttpPut("deactivation/{shopId:int}")]
     public async Task<IActionResult> DeactivateShop(int shopId, [FromBody] DeactivateShopRequest request)
     {
-        var deactivateShopCommand = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate);
+        var command = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate);
 
-        await mediator.Send(deactivateShopCommand);
+        await mediator.Send(command);
 
         return Ok("Shop successfully deactivated.");
     }
