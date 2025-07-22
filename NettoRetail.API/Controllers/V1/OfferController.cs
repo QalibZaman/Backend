@@ -14,6 +14,11 @@ public class OfferController(IMediator mediator) : ControllerBase
 {
     [Authorize]
     [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateOffersSection(
         int shopId,
         [FromBody] UpdateOffersSectionRequest request,
