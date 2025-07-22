@@ -27,16 +27,21 @@ public class ShopsController(IMediator mediator) : ControllerBase
     {
         var getShopByIdQuery = new GetShopByIdQuery(id);
         var data = await mediator.Send(getShopByIdQuery);
-
+        if (data is null)
+            return NotFound();
         var response = new ApiResponse<ShopResponse>(data);
 
         return Ok(response);
     }
 
+
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<ShopResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<ShopResponse>>> CreateShop([FromBody] ShopModel shop)
     {
         var userId = HttpContext.GetUserId();
@@ -48,12 +53,16 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return CreatedAtAction(nameof(GetShop), new { id = createdShop.Id }, response);
     }
 
+
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
     public async Task<IActionResult> UpdateShop([FromBody] ShopModel shop)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -70,6 +79,11 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize]
     [HttpPut("activation/{shopId:int}")]
     public async Task<IActionResult> ActivateShop(int shopId)
@@ -90,6 +104,8 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize]
     [HttpPut("deactivation/{shopId:int}")]
     public async Task<IActionResult> DeactivateShop(int shopId, [FromBody] DeactivateShopRequest request)
