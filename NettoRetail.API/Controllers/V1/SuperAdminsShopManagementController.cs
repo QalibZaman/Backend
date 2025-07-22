@@ -1,4 +1,6 @@
-﻿using Asp.Versioning;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +19,6 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -96,7 +96,6 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
         return Ok(new ApiResponse<List<ReviewResponse>>(reviews));
     }
-
 
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
@@ -227,9 +226,5 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
             cancellationToken);
 
         return Ok(new ApiResponse<CreatePlatformAdminResponse>(response));
-
     }
-
-
-
 }

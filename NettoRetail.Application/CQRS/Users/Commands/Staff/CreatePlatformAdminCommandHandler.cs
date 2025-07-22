@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.ComponentModel.DataAnnotations;
+using MediatR;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
@@ -9,7 +10,6 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
-using System.ComponentModel.DataAnnotations;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
