@@ -2,6 +2,7 @@
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICountryCacheService;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Countries.Queries;
 

@@ -20,6 +20,12 @@ public class BrandsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BrandResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
     public async Task<IActionResult> GetShopBrands(CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -33,6 +39,12 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{brandId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
     public async Task<IActionResult> GetBrand([FromQuery] int brandId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -46,6 +58,12 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json", "multipart/form-data")]
     public async Task<IActionResult> CreateBrand([FromForm] CreateBrandRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -60,6 +78,11 @@ public class BrandsController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{brandId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -67,11 +90,18 @@ public class BrandsController(IMediator mediator) : ControllerBase
         var deleteBrandCommand = new DeleteBrandCommand(brandId, shopId);
         await mediator.Send(deleteBrandCommand, cancellationToken);
 
-        return Ok();
+        return NoContent();
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{brandId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json", "multipart/form-data")]
     public async Task<IActionResult> UpdateBrand(
         int brandId,
         [FromForm] UpdateBrandRequest model,

@@ -25,6 +25,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<OrderItemEntity> Order_Item { get; set; }
     public DbSet<OrderStatusHistoryEntity> OrderStatusHistories { get; set; }
     public DbSet<OfferEntity> OfferSections { get; set; }
+    public DbSet<OffersProductEntity> OffersProducts { get; set; }
     public DbSet<BrandEntity> Brands { get; set; }
     public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }

@@ -6,6 +6,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
@@ -18,6 +19,7 @@ public class CreateFeedbackCommandHandler(
   public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)
   {
     var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
+    accountByIdSpecification.AddInclude(x => x.Shop!);
     var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
 
     var feedback = request.Model.Adapt<FeedbackEntity>();
@@ -27,7 +29,7 @@ public class CreateFeedbackCommandHandler(
     feedback.Status = FeedbackStatusEnum.Pending;
     if (account.Shop != null) { feedback.ShopName = account.Shop.Name; }
     if (request.Model.IsPublic) { feedback.StaffName = account.FullName; }
-    feedback.Role = account.Role;
+    else { feedback.StaffName = FeedbackConstants.AnonymousStaffName; }
 
     await feedbackRepository.AddAsync(feedback, cancellationToken);
 

@@ -5,7 +5,7 @@
 namespace NettoRetail.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class OfferEntityMigration : Migration
+    public partial class AddFeedbackEentity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

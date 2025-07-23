@@ -1,12 +1,10 @@
-﻿using NettoRetail.DataAccess.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class CountryRepository : BaseRepository<CountryEntity>, ICountryRepository
+public class CountryRepository(AppDbContext dbContext) : BaseRepository<CountryEntity>(dbContext), ICountryRepository
 {
-    public CountryRepository(AppDbContext dbContext)
-        : base(dbContext)
-    { }
 }

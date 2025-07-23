@@ -2,5 +2,5 @@
 
 public class GetInventoryItemsByUpcOrNameModel
 {
-    public required string UpcOrName { get; set; }
+    public string? UpcOrName { get; set; }
 }
