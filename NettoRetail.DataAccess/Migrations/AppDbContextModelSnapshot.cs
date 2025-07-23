@@ -598,6 +598,28 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("FailedAuthAttempt");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Features", (string)null);
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -657,28 +679,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Feedbacks");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Features", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -1450,6 +1450,48 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SubscriptionPlans");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.TeaserSectionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdditionalText")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AdditionalTextAlignment")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AdditionalTextColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Heading")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("HeadingAlignment")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("HeadingColor")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TeaserImageUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TeaserSection");
                 });
 
             modelBuilder.Entity("PriceHistoryEntity", b =>
