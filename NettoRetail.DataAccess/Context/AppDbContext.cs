@@ -7,7 +7,7 @@ using NettoRetail.Domain.Entities.JunctionEntities;
 
 namespace NettoRetail.DataAccess.Context;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions, DbSet<NewProductsSectionEntity> newProductsSections, DbSet<NewProductsProductEntity> newProductsProducts) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
 {
   public DbSet<AccountEntity> Accounts { get; set; }
   public DbSet<RoleEntity> Roles { get; set; }
