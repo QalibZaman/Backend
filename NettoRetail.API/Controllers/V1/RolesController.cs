@@ -18,20 +18,31 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
 [ApiController]
-public class RolesController(IMediator mediator) : ControllerBase
+public class RolesController : ControllerBase
 {
+    private readonly IMediator mediator;
+
+    public RolesController(IMediator mediator)
+    {
+        this.mediator = mediator;
+    }
+
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission("System settings")]
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddRole(CreateRoleRequest model, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<CreateRoleResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole(
+        [FromBody] CreateRoleRequest model,
+        CancellationToken cancellationToken)
     {
-        var command = model.Adapt<CreateRoleCommand>();
-
-        var shopId = HttpContext.GetUserShopId();
-
-        command = command with { ShopId = shopId };
+        var command = model.Adapt<CreateRoleCommand>() with
+        {
+            ShopId = HttpContext.GetUserShopId()
+        };
 
         var role = await mediator.Send(command, cancellationToken);
 
@@ -40,26 +51,25 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize]
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetAllRolesResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<ApiResponse<IEnumerable<GetAllRolesResponse>>>> GetAllRoles(
+        CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId();
-
-        var query = new GetAllRolesQuery(shopId);
+        var query = new GetAllRolesQuery(HttpContext.GetUserShopId());
         var data = await mediator.Send(query, cancellationToken);
 
-        var response = new ApiResponse<IEnumerable<GetAllRolesResponse>>(data);
-
-        return Ok(response);
+        return Ok(new ApiResponse<IEnumerable<GetAllRolesResponse>>(data));
     }
 
     [Authorize]
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteRole(int id, CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId();
-
-        var command = new DeleteRoleCommand(id, shopId);
-
+        var command = new DeleteRoleCommand(id, HttpContext.GetUserShopId());
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
@@ -67,12 +77,13 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetRoles([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<ApiResponse<PaginatedResponse<RoleResponse>>>> GetRoles(
+        [FromQuery] PaginationRequest model,
+        CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId();
-
-        var query = new GetRolesQuery(model, shopId);
-
+        var query = new GetRolesQuery(model, HttpContext.GetUserShopId());
         var response = await mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<RoleResponse>>(response));
@@ -80,12 +91,18 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> EditRole(int id, UpdateRoleRequest model, CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EditRole(
+        int id,
+        [FromBody] UpdateRoleRequest model,
+        CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId();
-        var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
-
-        await mediator.Send(roleUpdateCommand, cancellationToken);
+        var command = new RoleUpdateCommand(id, HttpContext.GetUserShopId(), model);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
