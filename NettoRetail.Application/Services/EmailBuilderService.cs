@@ -93,7 +93,8 @@ public class EmailBuilderService(
         {
             first_name = firstName,
             activation_link = activationLink,
-            current_year = DateTime.UtcNow.Year
+            current_year = DateTime.UtcNow.Year,
+            token_expiration_hours = passwordOptions.Value.TokenExpirationHours
         };
 
         var body = await emailTemplateService.RenderEmailTemplateAsync(

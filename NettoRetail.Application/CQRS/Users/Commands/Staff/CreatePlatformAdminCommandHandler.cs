@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
@@ -45,6 +46,9 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
         var titles = model.Permissions
             .ToTitles()
             .ToList();
+
+        if (!titles.Any())
+              throw new BadRequestException("At least one permission must be selected.");
 
         var matchingIds = (await permissionRepo
                 .GetIdsBySpecAsync(
