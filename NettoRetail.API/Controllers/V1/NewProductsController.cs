@@ -2,15 +2,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.Application.CQRS.NewProducts.Command;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.CQRS.NewProductsSection.Command;
+using NettoRetail.Application.CQRS.NewProductsSection.Queries;
+using NettoRetail.Application.Models.NewProductsSection;
 
 namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
-public class NewProductsController(IMediator mediator) : ControllerBase
+public class NewProductsSectionController(IMediator mediator) : ControllerBase
 {
   [Authorize]
   [HttpPut]
@@ -26,5 +27,19 @@ public class NewProductsController(IMediator mediator) : ControllerBase
     await mediator.Send(command, cancellationToken);
 
     return NoContent();
+  }
+
+  [Authorize]
+  [HttpGet("{shopId}")]
+  public async Task<IActionResult> GetNewProductsSection(
+        int shopId,
+        CancellationToken cancellationToken)
+  {
+    var result = await mediator.Send(new GetNewProductsSectionByShopIdQuery(shopId), cancellationToken);
+
+    if (result is null)
+      return NotFound();
+
+    return Ok(result);
   }
 }

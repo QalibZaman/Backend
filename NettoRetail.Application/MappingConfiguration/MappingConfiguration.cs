@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
@@ -148,5 +149,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<FeedbackEntity, FeedbackResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString())
             .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
+
+        config.NewConfig<NewProductsSectionEntity, GetNewProductsSectionResponse>()
+            .Map(dest => dest.SelectionType, src => src.SelectionType.ToString())
+            .Map(dest => dest.Products, src => src.Products.Select(p => p.InventoryItemId).ToList());
   }
 }

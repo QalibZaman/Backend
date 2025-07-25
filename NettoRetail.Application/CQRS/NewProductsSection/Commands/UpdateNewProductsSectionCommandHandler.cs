@@ -1,12 +1,12 @@
 ﻿using MediatR;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.DataAccess.Specifications.NewProductSection;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
-namespace NettoRetail.Application.CQRS.NewProducts.Command;
+namespace NettoRetail.Application.CQRS.NewProductsSection.Command;
 
 public record UpdateNewProductsSectionCommand(
     int ShopId,

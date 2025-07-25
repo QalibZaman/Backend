@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using NettoRetail.Application.CQRS.NewProducts.Command;
+using NettoRetail.Application.CQRS.NewProductsSection.Command;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
