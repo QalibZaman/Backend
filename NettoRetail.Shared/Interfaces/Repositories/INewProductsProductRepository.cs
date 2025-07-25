@@ -3,5 +3,5 @@
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface INewProductsProductRepository : IBaseRepository<NewProductsProductEntity>
-  {
-  }
+{
+}

@@ -6,25 +6,25 @@ namespace NettoRetail.DataAccess.Configurations;
 
 public class NewProductsSectionConfiguration : IEntityTypeConfiguration<NewProductsSectionEntity>
 {
-  public void Configure(EntityTypeBuilder<NewProductsSectionEntity> builder)
-  {
-    builder.ToTable("NewProductsSections");
+    public void Configure(EntityTypeBuilder<NewProductsSectionEntity> builder)
+    {
+        builder.ToTable("NewProductsSections");
 
-    builder.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-    builder.Property(x => x.ShopId).IsRequired();
-    builder.Property(x => x.Name).IsRequired().HasMaxLength(150);
-    builder.Property(x => x.Preview).HasMaxLength(1000);
-    builder.Property(x => x.IsVisible).IsRequired();
-    builder.Property(x => x.SelectionType)
-        .HasConversion<int>()
-        .IsRequired();
-    builder.Property(x => x.LastUpdated).IsRequired();
-    builder.Property(x => x.UpdatedBy).HasMaxLength(100);
+        builder.Property(x => x.ShopId).IsRequired();
+        builder.Property(x => x.Name).IsRequired().HasMaxLength(150);
+        builder.Property(x => x.Preview).HasMaxLength(1000);
+        builder.Property(x => x.IsVisible).IsRequired();
+        builder.Property(x => x.SelectionType)
+            .HasConversion<int>()
+            .IsRequired();
+        builder.Property(x => x.LastUpdated).IsRequired();
+        builder.Property(x => x.UpdatedBy).HasMaxLength(100);
 
-    builder.HasMany(x => x.Products)
-        .WithOne(x => x.Section)
-        .HasForeignKey(x => x.SectionId)
-        .OnDelete(DeleteBehavior.Cascade);
-  }
+        builder.HasMany(x => x.Products)
+            .WithOne(x => x.Section)
+            .HasForeignKey(x => x.SectionId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }

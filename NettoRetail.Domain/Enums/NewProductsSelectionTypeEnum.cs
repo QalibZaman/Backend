@@ -2,6 +2,6 @@
 
 public enum NewProductsSelectionTypeEnum
 {
-  Static = 1,
-  IsLastAdded = 2
+    Static = 1,
+    IsLastAdded = 2
 }
