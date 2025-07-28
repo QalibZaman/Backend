@@ -18,15 +18,8 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiVersion(1)]
 [Route("/api/v{version:apiVersion}/[controller]")]
 [ApiController]
-public class RolesController : ControllerBase
+public class RolesController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator mediator;
-
-    public RolesController(IMediator mediator)
-    {
-        this.mediator = mediator;
-    }
-
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission("System settings")]
@@ -35,15 +28,11 @@ public class RolesController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CreateRoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole(
-        [FromBody] CreateRoleRequest model,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole([FromBody] CreateRoleRequest model, CancellationToken cancellationToken)
     {
-        var command = model.Adapt<CreateRoleCommand>() with
-        {
-            ShopId = HttpContext.GetUserShopId()
-        };
-
+        var shopId = HttpContext.GetUserShopId();
+        var command = model.Adapt<CreateRoleCommand>() with { ShopId = shopId };
         var role = await mediator.Send(command, cancellationToken);
 
         return Ok(new ApiResponse<CreateRoleResponse>(role));
@@ -52,58 +41,67 @@ public class RolesController : ControllerBase
     [Authorize]
     [HttpGet("all")]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetAllRolesResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse<IEnumerable<GetAllRolesResponse>>>> GetAllRoles(
-        CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<IEnumerable<GetAllRolesResponse>>>> GetAllRoles(CancellationToken cancellationToken)
     {
-        var query = new GetAllRolesQuery(HttpContext.GetUserShopId());
-        var data = await mediator.Send(query, cancellationToken);
-
-        return Ok(new ApiResponse<IEnumerable<GetAllRolesResponse>>(data));
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetAllRolesQuery(shopId);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<IEnumerable<GetAllRolesResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize]
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteRole(int id, CancellationToken cancellationToken)
     {
-        var command = new DeleteRoleCommand(id, HttpContext.GetUserShopId());
+        var shopId = HttpContext.GetUserShopId();
+        var command = new DeleteRoleCommand(id, shopId);
+
         await mediator.Send(command, cancellationToken);
 
-        return NoContent();
+        return Ok(new ApiResponse<string>("Role deleted successfully"));
     }
 
     [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ApiResponse<PaginatedResponse<RoleResponse>>>> GetRoles(
-        [FromQuery] PaginationRequest model,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<PaginatedResponse<RoleResponse>>>> GetRoles([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
     {
-        var query = new GetRolesQuery(model, HttpContext.GetUserShopId());
-        var response = await mediator.Send(query, cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<RoleResponse>>(response));
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetRolesQuery(model, shopId);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> EditRole(
-        int id,
-        [FromBody] UpdateRoleRequest model,
-        CancellationToken cancellationToken)
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> EditRole(int id, [FromBody] UpdateRoleRequest model, CancellationToken cancellationToken)
     {
-        var command = new RoleUpdateCommand(id, HttpContext.GetUserShopId(), model);
-        await mediator.Send(command, cancellationToken);
+        var shopId = HttpContext.GetUserShopId();
+        var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
 
-        return NoContent();
+        await mediator.Send(roleUpdateCommand, cancellationToken);
+
+        return Ok(new ApiResponse<string>("Role updated successfully"));
     }
 }
