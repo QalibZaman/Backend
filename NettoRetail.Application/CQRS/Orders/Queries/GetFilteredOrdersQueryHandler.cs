@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Order;
@@ -27,7 +27,6 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
         var end = request.Model.EndDate.HasValue
             ? DateTime.SpecifyKind(request.Model.EndDate.Value, DateTimeKind.Utc)
             : (DateTime?)null;
-
         specBuilder.Add<GetOrdersByShopIdSpecification>(request.ShopId);
 
         specBuilder.Add<GetOrdersByCustomerIdsSpecification>(request.Model.CustomerIds);
@@ -36,7 +35,7 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
         specBuilder.Add<GetOrdersByEmailsSpecification>(request.Model.CustomerEmails);
         specBuilder.Add<GetOrdersByOrderIdsSpecification>(request.Model.OrderIds);
         specBuilder.Add<GetOrdersByCreatorSpecification>(request.Model.Creators);
-        specBuilder.Add<GetOrdersByDateRangeSpecification>(start, end);
+        specBuilder.Add<GetOrdersByDateRangeSpecification>(request.Model.StartDate, request.Model.EndDate);
 
         if (request.Model.OrderStatuses != null)
         {
