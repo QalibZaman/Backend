@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.Shared.Constants;
@@ -9,16 +10,6 @@ namespace NettoRetail.API.Infrastructure.Validators
     public class CreatePlatformAdminRequestValidator
         : AbstractValidator<CreatePlatformAdminRequest>
     {
-        private static readonly string[] AllowedPermissions =
-        {
-            Permissions.INVENTORY_MANAGEMENT,
-            Permissions.CUSTOMER_MANAGEMENT,
-            Permissions.ORDERS_MANAGEMENT,
-            Permissions.ADMINS_MANAGEMENT,
-            Permissions.SYSTEM_MANAGEMENT,
-            Permissions.SUPERADMINS_MANAGEMENT
-        };
-
         public CreatePlatformAdminRequestValidator(
             IAccountRepository accountRepo,
             IPermissionRepository permissionRepo)
@@ -54,7 +45,8 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             RuleFor(x => x.Permissions)
                  .NotNull()
-                    .WithMessage("Permissions must be provided.");
+                    .WithMessage("Permissions must be provided.")
+                    .NotEmpty().WithMessage("Permissions list must not be empty.");
         }
     }
 }

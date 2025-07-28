@@ -1,4 +1,7 @@
-﻿namespace NettoRetail.Application.Models.Request.Staff;
+﻿using NettoRetail.Domain.Enums;
+using System.Text.Json.Serialization;
+
+namespace NettoRetail.Application.Models.Request.Staff;
 
 public class CreatePlatformAdminRequest
 {
@@ -6,7 +9,5 @@ public class CreatePlatformAdminRequest
     public required string LastName { get; set; } = default!;
     public required string Email { get; set; } = default!;
     public string? PhoneNumber { get; set; }
-    public required PlatformAdminPermissionRequest Permissions { get; init; }
-        = new PlatformAdminPermissionRequest();
-
+    public List<PlatformAdminPermission> Permissions { get; init; } = [];
 }

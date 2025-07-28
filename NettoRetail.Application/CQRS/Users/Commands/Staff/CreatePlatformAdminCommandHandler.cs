@@ -21,20 +21,20 @@ public record CreatePlatformAdminCommand(
 
 public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
     IRoleRepository roleRepo,
-    IPermissionRepository permissionRepo, 
+    IPermissionRepository permissionRepo,
     IUnitOfWork unitOfWork)
         : IRequestHandler<CreatePlatformAdminCommand, CreatePlatformAdminResponse>
 {
     public async Task<CreatePlatformAdminResponse> Handle(
         CreatePlatformAdminCommand request,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         var model = request.Model;
         var email = model.Email.Trim().ToLowerInvariant();
         var firstName = model.FirstName.Trim();
         var lastName = model.LastName.Trim();
         var normalizedEmail = model.Email.Trim().ToLowerInvariant();
+        List<string> permissionTitles;
 
         var existingEmails = await accountRepo.GetAccountEmailsAsync(
             new Specification<AccountEntity>(a => a.Email == normalizedEmail),
@@ -43,17 +43,19 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
         if (existingEmails.Any())
             throw new ValidationException($"Email is already in use.");
 
-        var titles = model.Permissions
-            .ToTitles()
-            .ToList();
-
-        if (!titles.Any())
+        if (model.Permissions == null || !model.Permissions.Any())
+            {
               throw new BadRequestException("At least one permission must be selected.");
+            }
+            else
+            {
+              permissionTitles = [.. model.Permissions.Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct()];
+            }
 
         var matchingIds = (await permissionRepo
-                .GetIdsBySpecAsync(
-                    new GetPermissionsByTitlesSpecification(titles),
-                    cancellationToken))
+            .GetIdsBySpecAsync(
+                new GetPermissionsByTitlesSpecification(permissionTitles),
+                cancellationToken))
             .ToList();
 
         var role = new RoleEntity

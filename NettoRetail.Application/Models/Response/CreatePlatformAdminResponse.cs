@@ -8,5 +8,5 @@ public class CreatePlatformAdminResponse
     public Guid AccountId { get; init; }
     public required string Email { get; init; } = string.Empty;
     public required StaffStatusEnum Status { get; init; }
-    public required PlatformAdminPermissionRequest Permissions { get; init; }
+    public required List<PlatformAdminPermission> Permissions { get; init; }
 }

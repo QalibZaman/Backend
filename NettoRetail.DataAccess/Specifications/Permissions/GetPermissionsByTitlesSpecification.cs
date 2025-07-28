@@ -6,7 +6,7 @@ namespace NettoRetail.DataAccess.Specifications.Permissions
     public class GetPermissionsByTitlesSpecification : Specification<PermissionEntity>
     {
         public GetPermissionsByTitlesSpecification(IEnumerable<string> titles)
-            : base(p => titles.Contains(p.Title))
+            : base(p => titles.Contains(p.Title.ToLower()))
         {
         }
     }
