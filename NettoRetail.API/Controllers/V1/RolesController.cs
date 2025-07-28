@@ -33,9 +33,9 @@ public class RolesController(IMediator mediator) : ControllerBase
     {
         var shopId = HttpContext.GetUserShopId();
         var command = model.Adapt<CreateRoleCommand>() with { ShopId = shopId };
-        var role = await mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponse<CreateRoleResponse>(role));
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CreateRoleResponse>(result);
+        return Ok(response);
     }
 
     [Authorize]
@@ -65,10 +65,9 @@ public class RolesController(IMediator mediator) : ControllerBase
     {
         var shopId = HttpContext.GetUserShopId();
         var command = new DeleteRoleCommand(id, shopId);
-
         await mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponse<string>("Role deleted successfully"));
+        var response = new ApiResponse<string>("Role deleted successfully");
+        return Ok(response);
     }
 
     [Authorize]
@@ -99,9 +98,8 @@ public class RolesController(IMediator mediator) : ControllerBase
     {
         var shopId = HttpContext.GetUserShopId();
         var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
-
         await mediator.Send(roleUpdateCommand, cancellationToken);
-
-        return Ok(new ApiResponse<string>("Role updated successfully"));
+        var response = new ApiResponse<string>("Role updated successfully");
+        return Ok(response);
     }
 }
