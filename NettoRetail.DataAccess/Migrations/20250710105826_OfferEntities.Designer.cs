@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250618121720_OfferEntityMigration")]
-    partial class OfferEntityMigration
+    [Migration("20250710105826_OfferEntities")]
+    partial class OfferEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace NettoRetail.DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("FeaturesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionPlansId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FeaturesId", "SubscriptionPlansId");
+
+                    b.HasIndex("SubscriptionPlansId");
+
+                    b.ToTable("FeatureSubscriptionPlans", (string)null);
+                });
 
             modelBuilder.Entity("InventoryItemImageEntity", b =>
                 {
@@ -584,6 +599,84 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("FailedAuthAttempt");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Features", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateSubmitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShopName")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<string>("StaffName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountEntityId");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -1332,13 +1425,18 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("numeric");
+                    b.Property<int>("MonthlyPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Moto")
                         .IsRequired()
                         .HasMaxLength(70)
                         .HasColumnType("character varying(70)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
 
                     b.Property<string>("SubscriptionId")
                         .IsRequired()
@@ -1350,6 +1448,48 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SubscriptionPlans");
+                });
+
+            modelBuilder.Entity("PriceHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubscriptionPlanId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionPlanId");
+
+                    b.ToTable("PriceHistories");
+                });
+
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.FeatureEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FeaturesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlansId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InventoryItemImageEntity", b =>
@@ -1437,6 +1577,20 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", null)
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("AccountEntityId");
+
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Account");
                 });
@@ -1619,10 +1773,23 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Country");
                 });
 
+            modelBuilder.Entity("PriceHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubscriptionPlan");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
+
+                    b.Navigation("Feedbacks");
 
                     b.Navigation("PasswordHistories");
 

@@ -19,6 +19,8 @@ namespace NettoRetail.API.Controllers.V1
     {
         [Authorize]
         [HttpGet("history")]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<PaymentHistoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetPaymentHistory([FromQuery] PaginationRequest pageModel)
         {
             var userId = HttpContext.GetUserId();
@@ -32,6 +34,9 @@ namespace NettoRetail.API.Controllers.V1
 
         [Authorize]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AddPayment(AddPaymentRequest model, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
@@ -45,7 +50,9 @@ namespace NettoRetail.API.Controllers.V1
 
         [Authorize]
         [HttpPut("{id}")]
-
+        [ProducesResponseType(typeof(ApiResponse<PaymentHistoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> EditPayment(Guid id, [FromBody] EditPaymentRequest model, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
@@ -64,6 +71,8 @@ namespace NettoRetail.API.Controllers.V1
 
         [Authorize]
         [HttpDelete("{paymentMethodId}")]
+        [ProducesResponseType(typeof(ApiResponse<PaymentMethodDeleteResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeletePayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
@@ -77,6 +86,8 @@ namespace NettoRetail.API.Controllers.V1
 
         [Authorize]
         [HttpPut("default/{paymentMethodId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
