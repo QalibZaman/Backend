@@ -5,8 +5,7 @@ namespace NettoRetail.DataAccess.Specifications.Feedback;
 
 public class GetFeedbackByIdSpecification : Specification<FeedbackEntity>
 {
-  public GetFeedbackByIdSpecification(Guid id)
-      : base(o => o.Id == id)
-  {
-  }
+    public GetFeedbackByIdSpecification(Guid id) : base(o => o.Id == id)
+    {
+    }
 }
