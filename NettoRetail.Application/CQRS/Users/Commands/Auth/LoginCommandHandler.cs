@@ -4,6 +4,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.PlatformAdmin;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
@@ -12,6 +13,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
 public class LoginCommandHandler(IAccountRepository repository,
+    IPlatformAdminRepository platformAdminRepository,
     IJwtManager jwtManager,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService)
@@ -31,7 +33,12 @@ public class LoginCommandHandler(IAccountRepository repository,
             throw new MyUnauthorizedException("Account is locked. Try again later.");
         }
 
-        if (user.Status == StaffStatusEnum.Deactivated)
+
+        var platformAdminSpec = new GetPlatformAdminByIdSpecification(user.Id);
+
+        var platformAdmin = await platformAdminRepository.GetAsync(platformAdminSpec, cancellationToken);
+
+        if (user.Status == StaffStatusEnum.Deactivated || platformAdmin?.PlatformAdminStatus == PlatformAdminStatusEnum.Inactive)
         {
             throw new MyUnauthorizedException("Your account has been deactivated.");
         }

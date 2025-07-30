@@ -81,8 +81,9 @@ public static class ServiceExtensions
         services.AddScoped<IFeatureRepository, FeatureRepository>();
         services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        services.AddScoped<IPlatformAdminRepository, PlatfromAdminRepository>();
 
-    //UnitOfWork
+        //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders
