@@ -56,7 +56,7 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize]
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,7 +87,7 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
