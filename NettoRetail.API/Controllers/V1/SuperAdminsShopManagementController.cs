@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +17,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 
@@ -94,7 +97,6 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
         return Ok(new ApiResponse<List<ReviewResponse>>(reviews));
     }
-
 
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
@@ -200,6 +202,33 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         var result = new ApiResponse<ReviewDetailResponse>(response);
         return Ok(result);
     }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPost("platform-admins")]
+    public async Task<IActionResult> Create(
+        [FromBody] CreatePlatformAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        var nameId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(nameId) || !Guid.TryParse(nameId, out var superAdminId))
+        {
+            return Unauthorized(new { message = "Missing or invalid subject claim." });
+        }
+
+        var response = await mediator.Send(
+            new CreatePlatformAdminCommand(request, superAdminId),
+            cancellationToken);
+
+        return Ok(new ApiResponse<CreatePlatformAdminResponse>(response));
+    }
+}
 
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]

@@ -143,6 +143,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("CountryId");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("RoleId");
 
                     b.HasIndex("ShopId");
