@@ -1,6 +1,8 @@
-﻿namespace NettoRetail.Application.Models.Request.Staff;
+﻿using NettoRetail.Domain.Enums;
+
+namespace NettoRetail.Application.Models.Request.Staff;
 
 public class EditPlatformAdminRequest
 {
-  public PlatformAdminPermissionRequest Permissions { get; set; } = new();
+  public List<PlatformAdminPermission> Permissions { get; init; } = [];
 }

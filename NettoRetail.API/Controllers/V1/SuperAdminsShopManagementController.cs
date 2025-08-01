@@ -228,7 +228,6 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
         return Ok(new ApiResponse<CreatePlatformAdminResponse>(response));
     }
-}
 
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
