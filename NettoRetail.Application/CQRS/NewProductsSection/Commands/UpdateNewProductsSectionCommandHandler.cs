@@ -22,7 +22,7 @@ public class UpdateNewProductsSectionCommandHandler(
     public async Task Handle(UpdateNewProductsSectionCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetNewProductsSectionByShopIdSpecification(request.ShopId);
-        var section = await sectionRepo.GetAsync(specification, cancellationToken);
+        var section = await sectionRepo.GetAsync(specification, cancellationToken);        
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -68,7 +68,6 @@ public class UpdateNewProductsSectionCommandHandler(
         section.LastUpdated = DateTime.UtcNow;
         section.UpdatedBy = request.Model.UpdatedBy;
     }
-
     private static List<NewProductsProductEntity> BuildLinkedProducts(List<Guid> ids, NewProductsSectionEntity section)
     {
         return ids.Select((id, i) => new NewProductsProductEntity
