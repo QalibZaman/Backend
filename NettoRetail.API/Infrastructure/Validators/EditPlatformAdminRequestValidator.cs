@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using FluentValidation;
+﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Staff;
 
 namespace NettoRetail.API.Infrastructure.Validators;
@@ -10,6 +9,8 @@ public class EditPlatformAdminRequestValidator : AbstractValidator<EditPlatformA
   {
     RuleFor(x => x.Permissions)
         .NotNull()
-        .WithMessage("Permissions object cannot be null.");
+        .WithMessage("Permissions object cannot be null.")
+        .NotEmpty()
+        .WithMessage("At least one permission must be selected.");
   }
 }

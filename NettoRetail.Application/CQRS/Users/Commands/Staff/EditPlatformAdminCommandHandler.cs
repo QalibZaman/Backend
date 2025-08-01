@@ -26,14 +26,19 @@ public record EditPlatformAdminCommand(
       CancellationToken cancellationToken)
   {
     var model = request.Model;
+    List<string> permissionTitles;
 
     if (request.EditorId == request.PlatformAdminId)
       throw new InvalidOperationException("You cannot edit your own account.");
 
-    var permissionTitles = model.Permissions.ToTitles().ToList();
-
-    if (!permissionTitles.Any())
+    if (model.Permissions == null || !model.Permissions.Any())
+    {
       throw new BadRequestException("At least one permission must be selected.");
+    }
+    else
+    {
+      permissionTitles = [.. model.Permissions.Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct()];
+    }
 
     var accountByIdSpecification = new GetAccountByIdSpecification(request.PlatformAdminId);
     accountByIdSpecification.AddInclude(x => x.Role.PermissionRoles);
