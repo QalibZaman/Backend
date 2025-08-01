@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Order;
@@ -20,6 +20,13 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
     {
         var specBuilder = new SpecificationBuilder<OrderEntity>();
         var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var start = request.Model.StartDate.HasValue
+            ? DateTime.SpecifyKind(request.Model.StartDate.Value, DateTimeKind.Utc)
+            : (DateTime?)null;
+
+        var end = request.Model.EndDate.HasValue
+            ? DateTime.SpecifyKind(request.Model.EndDate.Value, DateTimeKind.Utc)
+            : (DateTime?)null;
         specBuilder.Add<GetOrdersByShopIdSpecification>(request.ShopId);
 
         specBuilder.Add<GetOrdersByCustomerIdsSpecification>(request.Model.CustomerIds);
