@@ -1514,6 +1514,48 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("SubscriptionPlans");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.TeaserSectionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdditionalText")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AdditionalTextAlignment")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AdditionalTextColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Heading")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("HeadingAlignment")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("HeadingColor")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TeaserImageUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TeaserSection");
+                });
+
             modelBuilder.Entity("PriceHistoryEntity", b =>
                 {
                     b.Property<int>("Id")

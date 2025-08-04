@@ -19,6 +19,8 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
 using Stripe;
+using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IImageUploadService;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -51,7 +53,7 @@ public static class ServiceExtensions
         });
         services.AddHangfireServer();
 
-        //Services
+         //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
@@ -69,6 +71,7 @@ public static class ServiceExtensions
         services.AddScoped<IPriceHistoryService, PriceHistoryService>();
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IImageUploadService, ImageUploadService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
 
