@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome Aboard!</h1>
+        </div>
+
+        <p>Hi {{first_name}},</p>
+
+        <p>
+            A new platform admin account has been created for you.
+            To get started, please activate your account by clicking the button below:
+        </p>
+
+        <a href="{{activation_link}}"
+           class="button"
+           target="_blank"
+           rel="noopener">
+            Activate Your Account
+        </a>
+
+        <p>
+            If the button above doesn’t work, copy and paste this URL into your browser:
+            <br /><code>{{activation_link}}</code>
+        </p>
+
+        <p>This link will expire in {{token_expiration_hours}} hours.</p>
+
+        <div class="footer">
+            &copy; {{current_year}} Your Company Name. All rights reserved.
+        </div>
+    </div>
+
+</body>
+</html>
