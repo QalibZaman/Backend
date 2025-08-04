@@ -26,7 +26,9 @@ public class PermissionMiddleware
             return;
         }
 
-        var permissions = permissionCacheService.GetPermissions();
+        var userId = context.GetUserId();
+
+        var permissions = permissionCacheService.GetPermissions(userId);
         if (permissions == null || !permissions.Any())
         {
             var roleId = context.GetRoleId();
@@ -36,7 +38,7 @@ public class PermissionMiddleware
             var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, context.RequestAborted) ?? throw new BadRequestException("No permissions");
 
             permissions = userPermissions;
-            permissionCacheService.SetPermissions(permissions);
+            permissionCacheService.SetPermissions(permissions, userId);
         }
 
         var endpoint = context.GetEndpoint();

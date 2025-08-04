@@ -1159,7 +1159,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("AccountId");
 
-                    b.ToTable("PlatformAdminEntity");
+                    b.ToTable("PlatformAdmins");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
