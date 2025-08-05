@@ -14,24 +14,20 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class SessionsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator mediator = mediator;
-
     [Authorize]
     [HttpGet]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<SessionResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetActiveSessions(CancellationToken cancellationToken)
     {
-        Guid userId;
-        try
-        {
-            userId = HttpContext.GetUserId();
-        }
-        catch (Exception)
-        {
-            return NotFound(new ApiResponse("User context is unavailable"));
-        }
-
-        var getActiveSessionsQuery = new GetActiveSessionsQuery(userId);
+        var id = HttpContext.GetUserId();
+        var getActiveSessionsQuery = new GetActiveSessionsQuery(id);
         var result = await mediator.Send(getActiveSessionsQuery, cancellationToken);
-        return Ok(new ApiResponse<IEnumerable<SessionResponse>>(result));
+        var response = new ApiResponse<IEnumerable<SessionResponse>>(result);
+
+        return Ok(response);
     }
 }
