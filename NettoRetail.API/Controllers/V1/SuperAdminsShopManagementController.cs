@@ -267,4 +267,20 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
         return NoContent();
     }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("platform-admins/{id:guid}")]
+    public async Task<IActionResult> EditPlatformAdmin(Guid id, [FromBody] EditPlatformAdminRequest request, CancellationToken cancellationToken)
+    {
+        var currentUserId = User.GetUserId();
+        var command = new EditPlatformAdminCommand(id, currentUserId, request);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
 }
