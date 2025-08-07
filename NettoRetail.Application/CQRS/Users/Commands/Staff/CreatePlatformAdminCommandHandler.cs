@@ -11,7 +11,6 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
-using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
