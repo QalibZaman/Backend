@@ -15,61 +15,59 @@ public record EditPlatformAdminCommand(
     Guid EditorId,
     EditPlatformAdminRequest Model) : IRequest;
 
- public class EditPlatformAdminCommandHandler(
-    IAccountRepository accountRepository,
-    IPermissionRepository permissionRepository,
-    IUnitOfWork unitOfWork
+public class EditPlatformAdminCommandHandler(
+   IAccountRepository accountRepository,
+   IPermissionRepository permissionRepository,
+   IUnitOfWork unitOfWork
 ) : IRequestHandler<EditPlatformAdminCommand>
 {
-  public async Task Handle(
-      EditPlatformAdminCommand request,
-      CancellationToken cancellationToken)
-  {
-    var model = request.Model;
-    List<string> permissionTitles;
-
-    if (request.EditorId == request.PlatformAdminId)
-      throw new InvalidOperationException("You cannot edit your own account.");
-
-    if (model.Permissions == null || !model.Permissions.Any())
+    public async Task Handle(
+        EditPlatformAdminCommand request,
+        CancellationToken cancellationToken)
     {
-      throw new BadRequestException("At least one permission must be selected.");
+        var model = request.Model;
+        List<string> permissionTitles;
+
+        if (request.EditorId == request.PlatformAdminId)
+            throw new InvalidOperationException("You cannot edit your own account.");
+
+        if (model.Permissions == null || !model.Permissions.Any())
+        {
+            throw new BadRequestException("At least one permission must be selected.");
+        }
+
+        permissionTitles = model.GetPermissionTitles();
+
+        var accountByIdSpecification = new GetAccountByIdSpecification(request.PlatformAdminId);
+        accountByIdSpecification.AddInclude(x => x.Role.PermissionRoles);
+        var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
+
+        var newPermissionIds = (await permissionRepository
+            .GetIdsBySpecAsync(
+                new GetPermissionsByTitlesSpecification(permissionTitles),
+                cancellationToken))
+            .ToHashSet();
+
+        var existingPermissionIds = account.Role.PermissionRoles
+            .Select(pr => pr.PermissionId)
+            .ToHashSet();
+
+        if (newPermissionIds.SetEquals(existingPermissionIds))
+            throw new BadRequestException("No changes to save");
+
+        using var transaction = unitOfWork.BeginTransaction();
+
+        account.Role.PermissionRoles.Clear();
+        foreach (var id in newPermissionIds)
+        {
+            account.Role.PermissionRoles.Add(new PermissionRoleEntity
+            {
+                RoleId = account.Role.Id,
+                PermissionId = id
+            });
+        }
+
+        await accountRepository.UpdateAsync(account, cancellationToken);
+        transaction.Commit();
     }
-    else
-    {
-      permissionTitles = [.. model.Permissions.Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct()];
-    }
-
-    var accountByIdSpecification = new GetAccountByIdSpecification(request.PlatformAdminId);
-    accountByIdSpecification.AddInclude(x => x.Role.PermissionRoles);
-    var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
-
-    var newPermissionIds = (await permissionRepository
-        .GetIdsBySpecAsync(
-            new GetPermissionsByTitlesSpecification(permissionTitles),
-            cancellationToken))
-        .ToHashSet();
-
-    var existingPermissionIds = account.Role.PermissionRoles
-        .Select(pr => pr.PermissionId)
-        .ToHashSet();
-
-    if (newPermissionIds.SetEquals(existingPermissionIds))
-      throw new BadRequestException("No changes to save");
-
-    using var transaction = unitOfWork.BeginTransaction();
-
-    account.Role.PermissionRoles.Clear();
-    foreach (var id in newPermissionIds)
-    {
-      account.Role.PermissionRoles.Add(new PermissionRoleEntity
-      {
-        RoleId = account.Role.Id,
-        PermissionId = id
-      });
-    }
-
-    await accountRepository.UpdateAsync(account, cancellationToken);
-    transaction.Commit();
-  }
 }
