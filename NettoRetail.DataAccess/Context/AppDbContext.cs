@@ -35,7 +35,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<PriceHistoryEntity> PriceHistories { get; set; }
     public DbSet<PaymentHistoryEntity> PaymentHistories { get; set; }
     public DbSet<FeedbackEntity> Feedbacks { get; set; }
-    public DbSet<PlatformAdminEntity> PlatformAdmins { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

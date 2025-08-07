@@ -20,8 +20,7 @@ public record CreatePlatformAdminCommand(
     Guid SuperAdminId
 ) : IRequest<CreatePlatformAdminResponse>;
 
-public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo, 
-    IPlatformAdminRepository platformAdminRepo,
+public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
     IRoleRepository roleRepo,
     IPermissionRepository permissionRepo,
     IUnitOfWork unitOfWork)
@@ -81,16 +80,9 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
             PasswordHash = string.Empty
         };
 
-        var platformAdmin = new PlatformAdminEntity
-        {
-            AccountId = account.Id,
-            PlatformAdminStatus = PlatformAdminStatusEnum.Active
-        };
-
         using var tx = unitOfWork.BeginTransaction();
         await roleRepo.AddAsync(role, cancellationToken);
         await accountRepo.AddAsync(account, cancellationToken);
-        await platformAdminRepo.AddAsync(platformAdmin, cancellationToken);
         tx.Commit();
 
         return new CreatePlatformAdminResponse
