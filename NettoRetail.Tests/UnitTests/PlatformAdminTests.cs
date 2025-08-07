@@ -1,6 +1,7 @@
 ﻿using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Services;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -74,6 +75,39 @@ namespace NettoRetail.Tests.UnitTests
                  .ReturnsNull();
 
             var command = new ActivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
+
+            // Act
+            var act = async () => await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<NotFoundException>(act);
+        }
+
+        [Fact]
+        public async Task ActivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
+        {
+            // Arrange
+            var notAdmin = new AccountEntity
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Not",
+                LastName = "Admin",
+                Email = "notadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Online,
+                Role = new RoleEntity
+                {
+                    Name = "TestRole",
+                    Description = "Test role description",
+                }
+            };
+
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
+
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+                 .ReturnsNull();
+
+            var command = new ActivatePlatfromAdminCommand(notAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -197,6 +231,39 @@ namespace NettoRetail.Tests.UnitTests
                  .ReturnsNull();
 
             var command = new DeactivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
+
+            // Act
+            var act = async () => await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<NotFoundException>(act);
+        }
+
+        [Fact]
+        public async Task DeactivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
+        {
+            // Arrange
+            var notAdmin = new AccountEntity
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Not",
+                LastName = "Admin",
+                Email = "notadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Online,
+                Role = new RoleEntity
+                {
+                    Name = "TestRole",
+                    Description = "Test role description",
+                }
+            };
+
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
+
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+                 .ReturnsNull();
+
+            var command = new DeactivatePlatfromAdminCommand(notAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
