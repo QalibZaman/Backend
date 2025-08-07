@@ -1,7 +1,7 @@
 ﻿using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.PlatformAdmin;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -12,63 +12,68 @@ namespace NettoRetail.Tests.UnitTests
 {
     public class PlatformAdminTests
     {
-        private readonly IPlatformAdminRepository _adminRepo;
+        private readonly IAccountRepository _accRepo;
         private readonly ISessionTerminationService _sessionTerminationService;
+
+        private readonly AccountEntity admin;
+
 
         public PlatformAdminTests()
         {
-            _adminRepo = Substitute.For<IPlatformAdminRepository>();
+            _accRepo = Substitute.For<IAccountRepository>();
             _sessionTerminationService = Substitute.For<ISessionTerminationService>();
+
+            admin = new AccountEntity
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Plartform",
+                LastName = "Admin",
+                Email = "platformadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Active
+            };
         }
 
         [Fact]
-        public async Task ActivateAdmin_ShouldUpdateStatusToActive_WhenAdminIsInactive()
+        public async Task ActivateAdmin_ShouldUpdateStatusToActive_WhenAdminIsDeactivated()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
+            var inactiveAdmin = new AccountEntity
             {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
+                Id = Guid.NewGuid(),
+                FirstName = "Plartform",
+                LastName = "Admin",
+                Email = "platformadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Deactivated
             };
 
-            var inactiveAdmin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Inactive
-            };
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            var handler = new ActivatePlatformAdminCommandHandler(_adminRepo);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
-            var command = new ActivatePlatfromAdminCommand(inactiveAdmin.AccountId, admin.AccountId);
+            var command = new ActivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);
 
             // Act
             await handler.Handle(command, CancellationToken.None);
 
             // Assert
-            await _adminRepo.Received(1).UpdateAsync(inactiveAdmin, Arg.Any<CancellationToken>());
+            await _accRepo.Received(1).UpdateAsync(inactiveAdmin, Arg.Any<CancellationToken>());
 
-            Assert.Equal(PlatformAdminStatusEnum.Active, inactiveAdmin.PlatformAdminStatus);
+            Assert.Equal(StaffStatusEnum.Active, inactiveAdmin.Status);
         }
 
         [Fact]
         public async Task ActivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotFound()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            var handler = new ActivatePlatformAdminCommandHandler(_adminRepo);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
-            var command = new ActivatePlatfromAdminCommand(Guid.NewGuid(), admin.AccountId);
+            var command = new ActivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -81,18 +86,12 @@ namespace NettoRetail.Tests.UnitTests
         public async Task ActivateAdmin_ShouldReturnBadRequestException_WhenAdminsIdsIsMatches()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            var handler = new ActivatePlatformAdminCommandHandler(_adminRepo);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(admin);
 
-            var command = new ActivatePlatfromAdminCommand(admin.AccountId, admin.AccountId);
+            var command = new ActivatePlatfromAdminCommand(admin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -105,24 +104,22 @@ namespace NettoRetail.Tests.UnitTests
         public async Task ActivateAdmin_ShouldReturnBadRequestException_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
+            var pendingAdmin = new AccountEntity
             {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
+                Id = Guid.NewGuid(),
+                FirstName = "Plartform",
+                LastName = "Admin",
+                Email = "platformadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Pending
             };
 
-            var pendingAdmin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Pending
-            };
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            var handler = new ActivatePlatformAdminCommandHandler(_adminRepo);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(pendingAdmin);
 
-            var command = new ActivatePlatfromAdminCommand(pendingAdmin.AccountId, admin.AccountId);
+            var command = new ActivatePlatfromAdminCommand(pendingAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -135,24 +132,22 @@ namespace NettoRetail.Tests.UnitTests
         public async Task ActivateAdmin_ShouldReturnBadRequestException_WhenAdminHasActiveStatus()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
+            var activeAdmin = new AccountEntity
             {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
+                Id = Guid.NewGuid(),
+                FirstName = "Plartform",
+                LastName = "Admin",
+                Email = "platformadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Active
             };
 
-            var activeAdmin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            var handler = new ActivatePlatformAdminCommandHandler(_adminRepo);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
-            var command = new ActivatePlatfromAdminCommand(activeAdmin.AccountId, admin.AccountId);
+            var command = new ActivatePlatfromAdminCommand(activeAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -162,65 +157,46 @@ namespace NettoRetail.Tests.UnitTests
         }
 
         [Fact]
-        public async Task DeactivateAdmin_ShouldUpdateStatusToInactive_WhenAdminIsActive()
+        public async Task DeactivateAdmin_ShouldUpdateStatusToDeactivated_WhenAdminIsActive()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
-
-            var account = new AccountEntity
+            var activeAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Plartform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Online
+                Status = StaffStatusEnum.Active
             };
 
-            var activeAdmin = new PlatformAdminEntity
-            {
-                AccountId = account.Id,
-                Account = account,
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
-            var command = new DeactivatePlatfromAdminCommand(activeAdmin.AccountId, admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(activeAdmin.Id, admin.Id);
 
             // Act
             await handler.Handle(command, CancellationToken.None);
 
             // Assert
-            await _sessionTerminationService.Received(1).TerminateSessionsAsync(activeAdmin.AccountId, Arg.Any<CancellationToken>());
-            await _adminRepo.Received(1).UpdateAsync(activeAdmin, Arg.Any<CancellationToken>());
+            await _sessionTerminationService.Received(1).TerminateSessionsAsync(activeAdmin.Id, Arg.Any<CancellationToken>());
+            await _accRepo.Received(1).UpdateAsync(activeAdmin, Arg.Any<CancellationToken>());
 
-            Assert.Equal(PlatformAdminStatusEnum.Inactive, activeAdmin.PlatformAdminStatus);
+            Assert.Equal(StaffStatusEnum.Deactivated, activeAdmin.Status);
         }
 
         [Fact]
         public async Task DeactivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotFound()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
-            var command = new DeactivatePlatfromAdminCommand(Guid.NewGuid(), admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -233,18 +209,12 @@ namespace NettoRetail.Tests.UnitTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminsIdsIsMatches()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(admin);
 
-            var command = new DeactivatePlatfromAdminCommand(admin.AccountId, admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(admin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -257,24 +227,22 @@ namespace NettoRetail.Tests.UnitTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
+            var pendingAdmin = new AccountEntity
             {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
+                Id = Guid.NewGuid(),
+                FirstName = "Plartform",
+                LastName = "Admin",
+                Email = "platformadmin@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = StaffStatusEnum.Pending
             };
 
-            var pendingAdmin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Pending
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(pendingAdmin);
 
-            var command = new DeactivatePlatfromAdminCommand(pendingAdmin.AccountId, admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(pendingAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -287,13 +255,7 @@ namespace NettoRetail.Tests.UnitTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasCreatePasswordStaffStatus()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
-
-            var account = new AccountEntity
+            var inactiveAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Plartform",
@@ -303,19 +265,12 @@ namespace NettoRetail.Tests.UnitTests
                 Status = StaffStatusEnum.CreatePassword
             };
 
-            var inactiveAdmin = new PlatformAdminEntity
-            {
-                AccountId = account.Id,
-                Account = account,
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
-            var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.AccountId, admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -325,38 +280,25 @@ namespace NettoRetail.Tests.UnitTests
         }
 
         [Fact]
-        public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasInactiveStatus()
+        public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasDeactivatedStatus()
         {
             // Arrange
-            var admin = new PlatformAdminEntity
-            {
-                AccountId = Guid.NewGuid(),
-                PlatformAdminStatus = PlatformAdminStatusEnum.Active
-            };
-
-            var account = new AccountEntity
+            var inactiveAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Plartform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Online
+                Status = StaffStatusEnum.Deactivated
             };
 
-            var inactiveAdmin = new PlatformAdminEntity
-            {
-                AccountId = account.Id,
-                Account = account,
-                PlatformAdminStatus = PlatformAdminStatusEnum.Inactive
-            };
+            var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            var handler = new DeactivatePlatformAdminCommandHandler(_adminRepo, _sessionTerminationService);
-
-            _adminRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
-            var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.AccountId, admin.AccountId);
+            var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
