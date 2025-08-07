@@ -1148,20 +1148,6 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PlatformAdminEntity", b =>
-                {
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PlatformAdminStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("AccountId");
-
-                    b.ToTable("PlatformAdminEntity");
-                });
-
             modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1741,17 +1727,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
                         .WithMany("PaymentMethods")
                         .HasForeignKey("AccountId");
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PlatformAdminEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
-                        .WithOne()
-                        .HasForeignKey("NettoRetail.Domain.Entities.PlatformAdminEntity", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Account");
                 });
