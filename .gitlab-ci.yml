@@ -49,7 +49,7 @@ containerization:
     - echo ${CI_REGISTRY_PASSWORD} | docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} --password-stdin
   script:
     - echo "Building Docker image..."
-    - docker build -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f Dockerfile-test .
+    - docker build -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} .
     - echo "Pushing Docker image..."
     - docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
     - echo "Cleaning up local Docker images..."
@@ -83,4 +83,4 @@ deploy:
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
   only:
-    - feature/DevOps
+    - dev
