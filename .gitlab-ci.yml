@@ -37,7 +37,7 @@ build:
         -p:PublishTrimmed=true \
         -p:PublishSingleFile=true \
         -p:IncludeNativeLibrariesForSelfExtract=true \
-        -o publish
+        -o publish /p:UseAppHost=false
   artifacts:
     paths:
       - build
