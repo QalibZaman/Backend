@@ -83,4 +83,4 @@ deploy:
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
   only:
-    - dev
+    - feature/DevOps
