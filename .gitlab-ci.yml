@@ -1,33 +1,79 @@
+workflow:
+  name: 'Pipeline for Branch - $CI_COMMIT_BRANCH'
+
 stages:
+  - restore
   - build
+  - containerization
+  - migration
   - deploy
 
 variables:
   DOCKER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAME}
+  BUILD_CONFIGURATION: Release
+
+restore:
+  stage: restore
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  cache:
+    key: ${CI_PROJECT_NAME}-nuget
+    paths:
+      - ~/.nuget/packages/
+    policy: pull-push
+  script:
+    - dotnet restore "NettoRetail.API/NettoRetail.API.csproj"
 
 build:
   stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs:
+    - job: restore
+  script:
+    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build
+    - dotnet publish "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o publish /p:UseAppHost=false
+  artifacts:
+    paths:
+      - build
+      - publish
+    expire_in: "2 days"
+
+
+containerization:
+  stage: containerization
   image: $AND_DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
+  needs:
+    - job: build
   services:
     - docker:26.1.4-dind
   before_script:
     - echo ${CI_REGISTRY_PASSWORD} | docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} --password-stdin
   script:
     - echo "Building Docker image..."
-    - docker build . -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f ./NettoRetail.API/Dockerfile
-      --build-arg AND_DOCKER_PROXY_REGISTRY_NAME=$AND_DOCKER_PROXY_REGISTRY_NAME
+    - docker build -t ${DOCKER_IMAGE}:${CI_PIPELINE_ID} -f Dockerfile-test .
     - echo "Pushing Docker image..."
     - docker push ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
     - echo "Cleaning up local Docker images..."
     - docker rmi ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
 
+migration:
+  stage: migration
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs:
+    - job: build
+      artifacts: true
+  before_script:
+    - dotnet tool install --global dotnet-ef
+    - export PATH="$PATH:/root/.dotnet/tools"
+  script:
+    - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API
+  when: manual
+
 deploy:
   stage: deploy
-  image: $AND_DOCKER_PROXY_REGISTRY_NAME/debian:12.10
+  image: mcr.microsoft.com/azure-cli
+  needs:
+    - job: containerization
   before_script:
-    - apt update
-    - apt install -y curl
-    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
     - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
   script:
     - echo "Deploying Docker image to Azure Web App..."
