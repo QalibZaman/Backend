@@ -1,7 +1,6 @@
 ﻿using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Services;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -27,7 +26,7 @@ namespace NettoRetail.Tests.UnitTests
             admin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -42,7 +41,7 @@ namespace NettoRetail.Tests.UnitTests
             var inactiveAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -141,7 +140,7 @@ namespace NettoRetail.Tests.UnitTests
             var pendingAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -169,7 +168,7 @@ namespace NettoRetail.Tests.UnitTests
             var activeAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -197,7 +196,7 @@ namespace NettoRetail.Tests.UnitTests
             var activeAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -297,7 +296,7 @@ namespace NettoRetail.Tests.UnitTests
             var pendingAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
@@ -325,7 +324,7 @@ namespace NettoRetail.Tests.UnitTests
             var inactiveAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = string.Empty,
@@ -353,7 +352,7 @@ namespace NettoRetail.Tests.UnitTests
             var inactiveAdmin = new AccountEntity
             {
                 Id = Guid.NewGuid(),
-                FirstName = "Plartform",
+                FirstName = "Platform",
                 LastName = "Admin",
                 Email = "platformadmin@gmail.com",
                 PasswordHash = "hashedpassword",
