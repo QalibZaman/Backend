@@ -40,4 +40,11 @@ public static class ClaimsPrincipalExtensions
             parsedRoleId :
             throw new BadRequestException("role_id is unavailable");
     }
+
+    public static bool IsTempToken(this ClaimsPrincipal? principal)
+    {
+        var tokenType = principal?.FindFirstValue(AuthClaims.TokenType);
+        var isTempToken = tokenType == AuthTokenTypes.Temp;
+        return isTempToken;
+    }
 }
