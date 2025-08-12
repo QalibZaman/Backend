@@ -67,6 +67,7 @@ migration:
   script:
     - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API
   when: manual
+  manual_confirmation: "Execute database migration?"
 
 deploy:
   stage: deploy
@@ -82,5 +83,24 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-  only:
-    - dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+deploy_to_staging:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli
+  needs:
+    - job: containerization
+  before_script:
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+  script:
+    - echo "Deploying Docker image to Azure Web App..."
+    - az webapp config container set
+          --name ${APP_NAME}-staging
+          --resource-group ${RESOURCE_GROUP}
+          --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
+          --container-registry-url https://${CI_REGISTRY}
+  rules:
+    - if: $CI_COMMIT_BRANCH == "test"
+  when: manual
+  manual_confirmation: "Deploy to test environment?"
