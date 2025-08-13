@@ -67,7 +67,6 @@ migration:
   script:
     - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API
   when: manual
-  manual_confirmation: "Execute database migration?"
 
 deploy:
   stage: deploy
@@ -103,4 +102,3 @@ deploy_to_staging:
   rules:
     - if: $CI_COMMIT_BRANCH == "test"
   when: manual
-  manual_confirmation: "Deploy to test environment?"
