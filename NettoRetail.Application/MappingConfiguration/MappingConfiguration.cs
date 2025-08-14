@@ -153,5 +153,17 @@ public class MappingConfiguration : IRegister
         config.NewConfig<NewProductsSectionEntity, GetNewProductsSectionResponse>()
             .Map(dest => dest.SelectionType, src => src.SelectionType.ToString())
             .Map(dest => dest.Products, src => src.Products.Select(p => p.InventoryItemId).ToList());
-  }
+
+        config.NewConfig<AccountEntity, PlatformAdminResponse>()
+            .Map(
+                dest => dest.LastActivityTime,
+                src => src.Sessions != null && src.Sessions.Any()
+                ? src.Sessions.Max(s => s.LastActivityTime)
+                : (DateTime?)null)
+            .Map(
+                dest => dest.Permissions,
+                src => src.Role != null && src.Role.PermissionRoles != null
+                ? src.Role.PermissionRoles.Select(p => p.PermissionId).ToList()
+                : new List<int>());
+    }
 }

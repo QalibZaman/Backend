@@ -10,6 +10,7 @@ using NettoRetail.Application.CQRS.Reviews.Queries;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
+using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Models.ClientsShop;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
@@ -282,5 +283,17 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         var command = new EditPlatformAdminCommand(id, currentUserId, request);
         await mediator.Send(command, cancellationToken);
         return NoContent();
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpGet("platform-admins")]
+    public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
+    {
+        var query = new GetAllPlatformAdminsQuery();
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<List<PlatformAdminResponse>>(data);
+
+        return Ok(response);
     }
 }

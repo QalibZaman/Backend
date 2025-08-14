@@ -21,6 +21,7 @@ public class AccountEntity
     public bool TwoFactorEnabled { get; set; }
     public string? EncryptedTotpSecret { get; set; }
     public DateTime? PasswordUpdatedAt { get; set; }
+    public DateTime DateCreated { get; set; } = DateTime.UtcNow;
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }
     public int? SubscriptionPlanId { get; set; }
