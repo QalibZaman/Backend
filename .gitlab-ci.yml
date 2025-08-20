@@ -4,6 +4,8 @@ workflow:
 stages:
   - restore
   - build
+  - test
+  - sonarqube
   - containerization
   - migration
   - deploy
@@ -37,12 +39,79 @@ build:
       - publish
     expire_in: "2 days"
 
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs:
+    - job: build
+  cache:
+    key: "nuget-tools"
+    policy: pull-push
+    paths:
+      - .nuget/packages/
+      - .dotnet/tools/
+      - .local/share/NuGet/v3-cache/
+  before_script:
+    - dotnet tool install -g dotnet-reportgenerator-globaltool
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - mkdir coverage-report
+  script:
+    - dotnet test "NettoRetail.Tests/NettoRetail.Tests.csproj" -c $BUILD_CONFIGURATION --results-directory TestResults --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
+  artifacts:
+    when: always
+    expire_in: "7 days"
+    paths:
+      - '**/TestResults/**/test_results.trx'
+      - '**/TestResults/**/coverage.*'
+      - '**/TestResults/**/*.cobertura.xml'
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: '**/TestResults/**/*.cobertura.xml'
+  allow_failure: true
+
+sonarqube:
+  stage: sonarqube
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  needs:
+    - job: test
+      artifacts: true
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre-headless gettext-base
+    - dotnet tool install --global dotnet-sonarscanner
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - export SONAR_KEY=$(echo 'netto-retailtech-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME' | envsubst)
+    - if [ -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then export SONAR_KEY="netto-retailtech-$CI_COMMIT_REF_SLUG"; fi
+    - echo "Using SONAR_KEY=$SONAR_KEY"
+    - SONAR_DASHBOARD="$SONAR_HOST_URL/dashboard?id=$SONAR_KEY"
+    - echo "SONAR_DASHBOARD=$SONAR_DASHBOARD" > sonar.env
+  script:
+    - >
+      dotnet-sonarscanner begin
+      /k:"$SONAR_KEY"
+      /d:sonar.host.url="$SONAR_HOST_URL"
+      /d:sonar.login="$SONAR_TOKEN"
+      /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
+    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION
+    - dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+  artifacts:
+    paths:
+      - report-task.txt
+    reports:
+      dotenv: sonar.env
+
+  environment:
+    name: "SonarQube Dashboard"
+    url: $SONAR_DASHBOARD
+
 
 containerization:
   stage: containerization
   image: $AND_DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
   needs:
     - job: build
+    - job: test
+    - job: sonarqube
   services:
     - docker:26.1.4-dind
   before_script:
@@ -84,3 +153,20 @@ deploy:
           --container-registry-url https://${CI_REGISTRY}
   only:
     - dev
+
+deploy_to_staging:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli
+  needs:
+    - job: containerization
+  before_script:
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+  script:
+    - echo "Deploying Docker image to Azure Web App..."
+    - az webapp config container set
+          --name ${APP_NAME}-staging
+          --resource-group ${RESOURCE_GROUP}
+          --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
+          --container-registry-url https://${CI_REGISTRY}
+  only:
+    - test
