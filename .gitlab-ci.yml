@@ -98,6 +98,7 @@ sonarqube:
     - >
       dotnet-sonarscanner begin
       /k:"$SONAR_KEY"
+      /n:"${SONAR_KEY}-dotnet"
       /d:sonar.host.url="$SONAR_HOST_URL"
       /d:sonar.login="$SONAR_TOKEN"
       /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
