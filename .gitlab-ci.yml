@@ -13,6 +13,7 @@ stages:
 variables:
   DOCKER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAME}
   BUILD_CONFIGURATION: Release
+  APP_VERSION: "0.0.${CI_PIPELINE_IID}"
 
 restore:
   stage: restore
@@ -31,7 +32,7 @@ build:
   needs:
     - job: restore
   script:
-    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build
+    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build /p:VersionPrefix=1.0.0 /p:VersionSuffix=ci.${CI_COMMIT_SHORT_SHA}
     - dotnet publish "NettoRetail.API/NettoRetail.API.csproj" -c Release -r linux-x64 --self-contained true -p:PublishTrimmed=false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
   artifacts:
     paths:
@@ -85,6 +86,14 @@ sonarqube:
     - echo "Using SONAR_KEY=$SONAR_KEY"
     - SONAR_DASHBOARD="$SONAR_HOST_URL/dashboard?id=$SONAR_KEY"
     - echo "SONAR_DASHBOARD=$SONAR_DASHBOARD" > sonar.env
+    - |
+      cat > annotations.json <<EOF
+      {
+        "sonar": [
+          { "external_link": { "label": "Open SonarQube Dashboard", "url": "${SONAR_DASHBOARD}" } }
+         ]
+       }
+      EOF
   script:
     - >
       dotnet-sonarscanner begin
@@ -92,19 +101,15 @@ sonarqube:
       /d:sonar.host.url="$SONAR_HOST_URL"
       /d:sonar.login="$SONAR_TOKEN"
       /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
+      /v:"$APP_VERSION"
+      /d:sonar.qualitygate.wait=true
     - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION
     - dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
   artifacts:
-    paths:
-      - report-task.txt
     reports:
-      dotenv: sonar.env
-
-  environment:
-    name: "SonarQube Dashboard"
-    url: $SONAR_DASHBOARD
-
-
+      annotations: annotations.json
+  allow_failure: true
+  
 containerization:
   stage: containerization
   image: $AND_DOCKER_PROXY_REGISTRY_NAME/docker:26.1.4
