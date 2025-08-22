@@ -39,7 +39,6 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<FeedbackResponse>>), StatusCodes.Status200OK)]
@@ -83,7 +82,6 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
@@ -102,4 +100,31 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
 
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("feedback/{feedbackId}/approve")]
+    public async Task<IActionResult> ApproveFeedback(Guid feedbackId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ApproveFeedbackCommand(feedbackId), cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("feedback/{feedbackId}/reject")]
+    public async Task<IActionResult> RejectFeedback(Guid feedbackId, [FromBody] RejectFeedbackRequest request, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new RejectFeedbackCommand(feedbackId, request.Reason), cancellationToken);
+        return NoContent();
+    }
 }

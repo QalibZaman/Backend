@@ -20,6 +20,9 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
         builder.Property(f => f.StaffName)
             .HasMaxLength(60);
 
+        builder.Property(f => f.RejectionReason)
+            .HasMaxLength(500);
+
         builder.Property(f => f.ShopName)
             .HasMaxLength(90);
 
@@ -27,6 +30,9 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
             .HasMaxLength(500);
 
         builder.Property(f => f.IsPublic)
+            .IsRequired();
+
+        builder.Property(f => f.IsVisible)
             .IsRequired();
 
         builder.Property(f => f.Status)
