@@ -18,6 +18,22 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
 {
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetShopFilteredCatalogQuery request, CancellationToken cancellationToken)
     {
+        var specification = BuildInventoryItemSpecification(request);
+
+        var (items, totalAmount) = await itemsRepository.GetAllPaginatedAsync(specification, cancellationToken);
+
+        var responseItems = items.Adapt<List<InventoryItemListResponse>>();
+
+        var response = new PaginatedResponse<InventoryItemListResponse>
+        {
+            Items = responseItems,
+            TotalAmount = totalAmount
+        };
+        return response;
+    }
+
+    private Specification<InventoryItemEntity> BuildInventoryItemSpecification(GetShopFilteredCatalogQuery request)
+    {
         var specBuilder = new SpecificationBuilder<InventoryItemEntity>();
 
         specBuilder.Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
@@ -60,17 +76,8 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
 
         var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
 
-        var specification = specBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
+        specBuilder.Skip(skip).Take(request.PageModel.PageSize);
 
-        var (items, totalAmount) = await itemsRepository.GetAllPaginatedAsync(specification, cancellationToken);
-
-        var responseItems = items.Adapt<List<InventoryItemListResponse>>();
-
-        var response = new PaginatedResponse<InventoryItemListResponse>
-        {
-            Items = responseItems,
-            TotalAmount = totalAmount
-        };
-        return response;
+        return specBuilder.Build();
     }
 }
