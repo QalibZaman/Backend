@@ -8,6 +8,8 @@ public class InventoryItemListResponse
     public required string ProductLocation { get; set; }
     public long ProductUpc { get; set; }
     public decimal Price { get; set; }
+    public bool IsPromoted { get; set; }
+    public decimal? PromotionPrice { get; set; }
     public int AvailableAmount { get; set; }
     public int ReservedAmount { get; set; }
     public int OnHandAmount { get; set; }
