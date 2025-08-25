@@ -15,7 +15,6 @@ public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
     public async Task<List<PlatformAdminResponse>> Handle(GetAllPlatformAdminsQuery request, CancellationToken cancellationToken)
     {
         var specBuilder = new SpecificationBuilder<AccountEntity>();
-
         specBuilder.AddInclude(a => a.Sessions!);
         specBuilder.AddInclude(a => a.Role);
         specBuilder.AddInclude(a => a.Role.PermissionRoles);
