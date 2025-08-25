@@ -26,39 +26,41 @@ public class PermissionMiddleware
             return;
         }
 
-        var userId = context.GetUserId();
-
-        var permissions = permissionCacheService.GetPermissions(userId);
-        if (permissions == null || !permissions.Any())
+        if (!context.IsTempToken())
         {
-            var roleId = context.GetRoleId();
+            var userId = context.GetUserId();
 
-            var specificationBuilder = new SpecificationBuilder<PermissionRoleEntity>();
-            var permissionSpecification = specificationBuilder.Add<GetPermissionsByRoleIdSpecification>(roleId).Build();
-            var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, context.RequestAborted) ?? throw new BadRequestException("No permissions");
-
-            permissions = userPermissions;
-            permissionCacheService.SetPermissions(permissions, userId);
-        }
-
-        var endpoint = context.GetEndpoint();
-        var requiredPermissions = endpoint?.Metadata?.GetOrderedMetadata<RequiresPermissionAttribute>();
-
-        if (requiredPermissions != null && requiredPermissions.Any())
-        {
-            var missingPermissions = requiredPermissions
-                 .Where(required => !permissions.Any(permission => permission == required.Permission))
-                 .Select(rp => rp.Permission)
-                 .ToList();
-
-            if (missingPermissions.Any())
+            var permissions = permissionCacheService.GetPermissions(userId);
+            if (permissions == null || !permissions.Any())
             {
-                throw new ForbiddenException("You don't have required permissions");
+                var roleId = context.GetRoleId();
+
+                var specificationBuilder = new SpecificationBuilder<PermissionRoleEntity>();
+                var permissionSpecification = specificationBuilder.Add<GetPermissionsByRoleIdSpecification>(roleId).Build();
+                var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, context.RequestAborted) ?? throw new BadRequestException("No permissions");
+
+                permissions = userPermissions;
+                permissionCacheService.SetPermissions(permissions, userId);
+            }
+
+            var endpoint = context.GetEndpoint();
+            var requiredPermissions = endpoint?.Metadata?.GetOrderedMetadata<RequiresPermissionAttribute>();
+
+            if (requiredPermissions != null && requiredPermissions.Any())
+            {
+                var missingPermissions = requiredPermissions
+                     .Where(required => !permissions.Any(permission => permission == required.Permission))
+                     .Select(rp => rp.Permission)
+                     .ToList();
+
+                if (missingPermissions.Any())
+                {
+                    throw new ForbiddenException("You don't have required permissions");
+                }
             }
         }
 
         await _next(context);
         return;
     }
-
 }

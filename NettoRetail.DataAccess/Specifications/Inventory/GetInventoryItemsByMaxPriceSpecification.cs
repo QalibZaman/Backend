@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 public class GetInventoryItemsByMaxPriceSpecification : Specification<InventoryItemEntity>
 {
     public GetInventoryItemsByMaxPriceSpecification(decimal maxPrice)
-        : base(x => x.Price <= maxPrice) { }
+         : base(x => x.IsPromoted == true ? x.PromotionPrice <= maxPrice : x.Price <= maxPrice) { }
 }

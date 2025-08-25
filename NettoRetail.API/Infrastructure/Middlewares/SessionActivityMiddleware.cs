@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Options;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -12,30 +13,33 @@ public class SessionActivityMiddleware(RequestDelegate next)
     {
         if (context.Request.Headers.TryGetValue("Authorization", out var authHeader))
         {
-            var token = authHeader.ToString().Split(" ")[1];
-
-            var session = await sessionRepository.GetByJwtAsync(token);
-
-            if (session is null || !session.IsActive)
+            if (!context.IsTempToken())
             {
-                throw new MyUnauthorizedException("Session expired or not found.");
-            }
+                var token = authHeader.ToString().Split(" ")[1];
 
-            var now = DateTime.UtcNow;
-            var inactivityLimit = TimeSpan.FromMinutes(sessionOptions.Value.InactivityTimeoutMinutes);
-            var updateThreshold = TimeSpan.FromMinutes(sessionOptions.Value.UpdateThresholdMinutes);
-            var inactivityDuration = now - session.LastActivityTime;
+                var session = await sessionRepository.GetByJwtAsync(token);
 
-            if (inactivityDuration > inactivityLimit)
-            {
-                await mediator.Send(new LogoutCommand(token, session.AccountId));
-                throw new MyUnauthorizedException("Session expired due to inactivity");
-            }
+                if (session is null || !session.IsActive)
+                {
+                    throw new MyUnauthorizedException("Session expired or not found.");
+                }
 
-            if (inactivityDuration > updateThreshold)
-            {
-                session.LastActivityTime = now;
-                await sessionRepository.UpdateAsync(session, context.RequestAborted);
+                var now = DateTime.UtcNow;
+                var inactivityLimit = TimeSpan.FromMinutes(sessionOptions.Value.InactivityTimeoutMinutes);
+                var updateThreshold = TimeSpan.FromMinutes(sessionOptions.Value.UpdateThresholdMinutes);
+                var inactivityDuration = now - session.LastActivityTime;
+
+                if (inactivityDuration > inactivityLimit)
+                {
+                    await mediator.Send(new LogoutCommand(token, session.AccountId));
+                    throw new MyUnauthorizedException("Session expired due to inactivity");
+                }
+
+                if (inactivityDuration > updateThreshold)
+                {
+                    session.LastActivityTime = now;
+                    await sessionRepository.UpdateAsync(session, context.RequestAborted);
+                }
             }
         }
 

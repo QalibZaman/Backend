@@ -287,6 +287,25 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
+    [HttpDelete("platform-admins/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeletePlatformAdmin(Guid id)
+    {
+        var currentAdminId = HttpContext.GetUserId();
+
+        var deletePlatfromAdminCommand = new DeletePlatformAdminCommand(id, currentAdminId);
+        await mediator.Send(deletePlatfromAdminCommand);
+
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
     [HttpGet("platform-admins")]
     public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
     {
