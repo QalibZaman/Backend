@@ -32,7 +32,7 @@ public class UpdateStaffCommandHandler(
 
         if (request.Model.RoleId != null)
         {
-            var roleSpec = new GetRoleByIdSpecification(request.Model.RoleId, request.ShopId);
+            var roleSpec = new GetRoleByShopIdOrAdminIdSpecification(request.Model.RoleId, request.ShopId);
             var role = await roleRepository.GetAsync(roleSpec, cancellationToken);
 
             if (role is null)
