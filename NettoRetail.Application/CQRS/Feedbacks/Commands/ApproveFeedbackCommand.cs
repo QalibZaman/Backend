@@ -7,19 +7,19 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
 
 public record ApproveFeedbackCommand(Guid Id) : IRequest;
-public class ApproveFeedbackCommandHandler(IFeedbackRepository feedabackRepository)
+public class ApproveFeedbackCommandHandler(IFeedbackRepository feedbackRepository)
     : IRequestHandler<ApproveFeedbackCommand>
 {
     public async Task Handle(ApproveFeedbackCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetFeedbackByIdSpecification(request.Id);
-        var feedback = await feedabackRepository.GetAsync(specification, cancellationToken)
+        var feedback = await feedbackRepository.GetAsync(specification, cancellationToken)
                       ?? throw new NotFoundException("Pending feedback not found.");
 
         if (feedback.Status != FeedbackStatusEnum.Pending)
             throw new BadRequestException("Only pending feedbacks can be approved.");
 
         feedback.Status = FeedbackStatusEnum.Approved;
-        await feedabackRepository.UpdateAsync(feedback, cancellationToken);
+        await feedbackRepository.UpdateAsync(feedback, cancellationToken);
     }
 }
