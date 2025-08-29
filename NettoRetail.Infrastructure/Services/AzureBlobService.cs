@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
@@ -8,20 +9,34 @@ namespace NettoRetail.Infrastructure.Services;
 public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobService
 {
     public async Task<string> UploadAsync(
-           string fileName,
-           Stream stream,
-           string containerName,
-           BlobContentCategoryEnum category,
-           bool overwrite = true)
+         string fileName,
+         Stream stream,
+         string containerName,
+         BlobContentCategoryEnum category,
+         bool overwrite = true,
+         string? contentType = null)
     {
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-
         string prefix = category.GetDirectory();
-
         var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
 
-        await blobClient.UploadAsync(stream, overwrite: overwrite);
+        var headers = new BlobHttpHeaders
+        {
+            ContentType = contentType ?? "application/octet-stream"
+        };
 
+        await blobClient.UploadAsync(
+            stream,
+            new BlobUploadOptions { HttpHeaders = headers },
+            cancellationToken: default);
+
+        return blobClient.Uri.ToString();
+    }
+
+    public string GetBlobUrl(string containerName, string blobName)
+    {
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(blobName);
         return blobClient.Uri.ToString();
     }
 
@@ -46,6 +61,17 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
         string blobName = string.Join('/', segments.Skip(containerIndex + 1));
 
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(blobName);
+
+        await blobClient.DeleteIfExistsAsync();
+    }
+
+    public async Task DeleteBlobAsync(string blobName)
+    {
+        if (string.IsNullOrWhiteSpace(blobName))
+            return;
+
+        var containerClient = blobServiceClient.GetBlobContainerClient("dot-net");
         var blobClient = containerClient.GetBlobClient(blobName);
 
         await blobClient.DeleteIfExistsAsync();
@@ -87,7 +113,7 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
 
     public string GenerateBlobSasToken(
         string containerName,
-        string blobName, 
+        string blobName,
         BlobSasPermissions permissions,
         TimeSpan? expiryDuration = null,
         string? storedPolicyName = null)
