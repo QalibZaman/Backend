@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
 
 public record BulkRejectFeedbacksCommand(List<Guid> Ids, string Reason) : IRequest;
 
-public class BulkRejectFeedbacksCommandHadler(IFeedbackRepository feedabackRepository,
+public class BulkRejectFeedbacksCommandHadler(IFeedbackRepository feedbackRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService)
     : IRequestHandler<BulkRejectFeedbacksCommand>
@@ -18,7 +18,7 @@ public class BulkRejectFeedbacksCommandHadler(IFeedbackRepository feedabackRepos
     public async Task Handle(BulkRejectFeedbacksCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetBulkExistedFeedbacksSpecification(request.Ids);
-        var feedbacks = await feedabackRepository.GetAllBySpecAsync(specification, cancellationToken);
+        var feedbacks = await feedbackRepository.GetAllBySpecAsync(specification, cancellationToken);
         if (feedbacks == null || !feedbacks.Any()) throw new NotFoundException("No valid feedbacks found.");
 
         foreach (var feedback in feedbacks)
@@ -33,6 +33,6 @@ public class BulkRejectFeedbacksCommandHadler(IFeedbackRepository feedabackRepos
             await emailSender.SendAsync(emailModel);
         }
 
-        await feedabackRepository.UpdateManyAsync(feedbacks, cancellationToken);
+        await feedbackRepository.UpdateManyAsync(feedbacks, cancellationToken);
     }
 }

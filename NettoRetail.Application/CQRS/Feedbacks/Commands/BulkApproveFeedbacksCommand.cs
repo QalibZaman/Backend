@@ -9,14 +9,14 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
 
 public record BulkApproveFeedbacksCommand(List<Guid> Ids) : IRequest;
 
-public class BulkApproveFeedbacksCommandHadler(IFeedbackRepository feedabackRepository)
+public class BulkApproveFeedbacksCommandHadler(IFeedbackRepository feedbackRepository)
     : IRequestHandler<BulkApproveFeedbacksCommand>
 {
     public async Task Handle(BulkApproveFeedbacksCommand request, CancellationToken cancellationToken)
     {
         if (request.Ids.IsNullOrEmpty()) throw new BadRequestException("At least one Id must be provided.");
         var specification = new GetBulkExistedFeedbacksSpecification(request.Ids);
-        var feedbacks = await feedabackRepository.GetAllBySpecAsync(specification, cancellationToken);
+        var feedbacks = await feedbackRepository.GetAllBySpecAsync(specification, cancellationToken);
         if (feedbacks == null || !feedbacks.Any()) throw new NotFoundException("No valid feedbacks found.");
 
         foreach (var feedback in feedbacks)
@@ -26,6 +26,6 @@ public class BulkApproveFeedbacksCommandHadler(IFeedbackRepository feedabackRepo
             feedback.Status = FeedbackStatusEnum.Approved;
         }
 
-        await feedabackRepository.UpdateManyAsync(feedbacks, cancellationToken);
+        await feedbackRepository.UpdateManyAsync(feedbacks, cancellationToken);
     }
 }
