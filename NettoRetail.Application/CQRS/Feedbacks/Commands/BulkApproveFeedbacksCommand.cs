@@ -25,7 +25,6 @@ public class BulkApproveFeedbacksCommandHadler(IFeedbackRepository feedabackRepo
                 throw new BadRequestException("Only pending feedbacks can be approved.");
             feedback.Status = FeedbackStatusEnum.Approved;
         }
-
         await feedabackRepository.UpdateManyAsync(feedbacks, cancellationToken);
     }
 }
