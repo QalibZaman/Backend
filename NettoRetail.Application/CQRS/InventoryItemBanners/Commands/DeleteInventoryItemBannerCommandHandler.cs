@@ -47,8 +47,10 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
                 foreach (var banner in bannersToReorder)
                 {
                     banner.OrderIndex -= 1;
-                    await _bannerRepository.UpdateAsync(banner, cancellationToken);
                 }
+
+                await _bannerRepository.UpdateManyAsync(bannersToReorder, cancellationToken);
+
             }
             catch (Exception ex)
             {

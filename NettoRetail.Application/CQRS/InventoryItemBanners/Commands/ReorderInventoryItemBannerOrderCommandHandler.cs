@@ -2,9 +2,11 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.ProductBanners.Commands
@@ -41,17 +43,18 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
                 .OrderBy(b => b.OrderIndex)
                 .ToList();
 
-            if (request.NewOrderIndex < 0 || request.NewOrderIndex >= banners.Count)
+            if (request.NewOrderIndex < 0 || request.NewOrderIndex > banners.Count)
                 throw new BadRequestException("New order index is out of range.");
 
             banners.Remove(banner);
-            banners.Insert(request.NewOrderIndex, banner);
+            banners.Insert(request.NewOrderIndex - 1, banner);
 
             for (int i = 0; i < banners.Count; i++)
             {
-                banners[i].OrderIndex = i;
-                await _bannerRepository.UpdateAsync(banners[i], cancellationToken);
+                banners[i].OrderIndex = i + 1;
             }
+
+            await _bannerRepository.UpdateManyAsync(banners, cancellationToken);
 
             var responses = new List<GetInventoryItemBannerResponse>();
             foreach (var b in banners)
@@ -72,5 +75,4 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
             return responses;
         }
     }
-
 }

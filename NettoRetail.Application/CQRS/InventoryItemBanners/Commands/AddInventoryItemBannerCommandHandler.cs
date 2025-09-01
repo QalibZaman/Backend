@@ -13,12 +13,12 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
     Guid InventoryItemId,
     IFormFile[] Files) : IRequest<List<GetInventoryItemBannerResponse>>;
 
-    public class AddProductBannersCommandHandler : IRequestHandler<AddInventoryItemBannersCommand, List<GetInventoryItemBannerResponse>>
+    public class AddInventoryItemBannerCommandHandler : IRequestHandler<AddInventoryItemBannersCommand, List<GetInventoryItemBannerResponse>>
     {
         private readonly IInventoryItemBannerRepository _bannerRepository;
         private readonly IAzureBlobService _blobService;
 
-        public AddProductBannersCommandHandler(
+        public AddInventoryItemBannerCommandHandler(
             IInventoryItemBannerRepository bannerRepository,
             IAzureBlobService blobService)
         {
