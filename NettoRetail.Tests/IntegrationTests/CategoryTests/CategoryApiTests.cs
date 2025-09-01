@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Categories.Commands;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
@@ -11,7 +10,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace NettoRetail.Tests.IntegrationTests
+namespace NettoRetail.Tests.IntegrationTests.CategoryTests
 {
     [Collection("Sequential Tests")]
     public class CategoryApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable

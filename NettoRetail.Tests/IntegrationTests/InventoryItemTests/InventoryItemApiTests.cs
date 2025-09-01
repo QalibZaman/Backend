@@ -11,12 +11,10 @@ using NettoRetail.Application.Models.Authentication;
 using Newtonsoft.Json;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.API.Controllers.V1;
-using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Models.InventoryItem;
 
 
-namespace NettoRetail.Tests.IntegrationTests;
+namespace NettoRetail.Tests.IntegrationTests.InventoryItemTests;
 
 [Collection("Sequential Tests")]
 public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
