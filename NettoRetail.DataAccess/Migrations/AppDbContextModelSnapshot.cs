@@ -73,6 +73,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int?>("CountryId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
