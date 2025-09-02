@@ -19,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }
     public DbSet<InventoryItemImageEntity> InventoryItemImages { get; set; }
+    public DbSet<InventoryItemBannerEntity> InventoryItemBanners { get; set; }
     public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<OrderEntity> Orders { get; set; }
