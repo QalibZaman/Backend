@@ -648,8 +648,15 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("ShopName")
                         .IsRequired()
