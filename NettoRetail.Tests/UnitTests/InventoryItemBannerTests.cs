@@ -1,7 +1,6 @@
 ﻿using Azure.Storage.Sas;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Moq;
 using NettoRetail.Application.CQRS.ProductBanners.Commands;
 using NettoRetail.Application.CQRS.ProductBanners.Queries;
 using NettoRetail.Application.Exceptions;
