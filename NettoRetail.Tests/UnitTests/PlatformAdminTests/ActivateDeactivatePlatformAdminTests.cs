@@ -8,9 +8,9 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 
-namespace NettoRetail.Tests.UnitTests
+namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 {
-    public class PlatformAdminTests
+    public class ActivateDeactivatePlatformAdminTests
     {
         private readonly IAccountRepository _accRepo;
         private readonly ISessionTerminationService _sessionTerminationService;
@@ -18,7 +18,7 @@ namespace NettoRetail.Tests.UnitTests
         private readonly AccountEntity admin;
 
 
-        public PlatformAdminTests()
+        public ActivateDeactivatePlatformAdminTests()
         {
             _accRepo = Substitute.For<IAccountRepository>();
             _sessionTerminationService = Substitute.For<ISessionTerminationService>();
