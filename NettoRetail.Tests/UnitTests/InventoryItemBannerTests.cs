@@ -10,6 +10,8 @@ using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace NettoRetail.Tests.UnitTests
 {
@@ -19,62 +21,50 @@ namespace NettoRetail.Tests.UnitTests
         public async Task Handle_WithFiles_UploadsAndReturnsResponses()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
+            bannerRepo.GetMaxOrderIndexAsync(inventoryItemId, Arg.Any<CancellationToken>()).Returns(0);
 
-            bannerRepoMock
-                .Setup(r => r.GetMaxOrderIndexAsync(inventoryItemId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(0);
-
-
-            bannerRepoMock
-                .Setup(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity banner, CancellationToken _) =>
+            bannerRepo.AddAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>())
+                .Returns(call =>
                 {
+                    var banner = call.Arg<InventoryItemBannerEntity>();
                     banner.Id = Guid.NewGuid();
                     return banner;
                 });
 
+            blobService.UploadAsync(
+                    Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(),
+                    Arg.Any<BlobContentCategoryEnum>(), true, "image/png")
+                .Returns("mock-file-id");
 
-            blobServiceMock.Setup(s => s.UploadAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<Stream>(),
-                    It.IsAny<string>(),
-                    It.IsAny<BlobContentCategoryEnum>(),
-                    true,
-                    "image/png"))
-                .ReturnsAsync("mock-file-id");
+            blobService.GetBlobUrl(Arg.Any<string>(), Arg.Any<string>())
+                .Returns(call =>
+                {
+                    var container = call.ArgAt<string>(0);
+                    var path = call.ArgAt<string>(1);
+                    return $"https://mock.blob/{path}";
+                });
 
-
-            blobServiceMock.Setup(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string container, string path) => $"https://mock.blob/{path}");
-
-            blobServiceMock.Setup(s => s.GenerateBlobSasToken(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<BlobSasPermissions>(),
-                    null,
-                    null))
+            blobService.GenerateBlobSasToken(
+                    Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("mock-sas-token");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
 
-
-            var fileMock = new Mock<IFormFile>();
+            var fileMock = Substitute.For<IFormFile>();
             var content = "Fake image content";
             var fileName = "test.png";
             var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
 
-            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
-            fileMock.Setup(f => f.FileName).Returns(fileName);
-            fileMock.Setup(f => f.ContentType).Returns("image/png");
-            fileMock.Setup(f => f.Length).Returns(ms.Length);
+            fileMock.OpenReadStream().Returns(ms);
+            fileMock.FileName.Returns(fileName);
+            fileMock.ContentType.Returns("image/png");
+            fileMock.Length.Returns(ms.Length);
 
-            var command = new AddInventoryItemBannersCommand(
-                inventoryItemId,
-                new[] { fileMock.Object });
+            var command = new AddInventoryItemBannersCommand(inventoryItemId, new[] { fileMock });
 
             // Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -86,10 +76,9 @@ namespace NettoRetail.Tests.UnitTests
             Assert.Contains("https://mock.blob/images/", response.FileUrl);
             Assert.Contains("mock-sas-token", response.FileUrl);
 
-
-            bannerRepoMock.Verify(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Once);
-            blobServiceMock.Verify(s => s.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<BlobContentCategoryEnum>(), true, "image/png"), Times.Once);
-            blobServiceMock.Verify(s => s.GenerateBlobSasToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BlobSasPermissions>(), null, null), Times.Once);
+            await bannerRepo.Received(1).AddAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>());
+            await blobService.Received(1).UploadAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<BlobContentCategoryEnum>(), true, "image/png");
+            blobService.Received(1).GenerateBlobSasToken(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null);
         }
 
 
@@ -97,57 +86,65 @@ namespace NettoRetail.Tests.UnitTests
         public async Task Handle_AddBanners_WithNonZeroMaxOrderIndex_IncrementsCorrectly()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
-            bannerRepoMock.Setup(r => r.GetMaxOrderIndexAsync(inventoryItemId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(5);
+            bannerRepo.GetMaxOrderIndexAsync(inventoryItemId, Arg.Any<CancellationToken>()).Returns(5);
 
-            bannerRepoMock.Setup(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity banner, CancellationToken _) =>
+            bannerRepo.AddAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>())
+                .Returns(call =>
                 {
+                    var banner = call.Arg<InventoryItemBannerEntity>();
                     banner.Id = Guid.NewGuid();
                     return banner;
                 });
 
-            blobServiceMock.Setup(s => s.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<BlobContentCategoryEnum>(), true, "image/png"))
-                .ReturnsAsync("mock-file-id");
-            blobServiceMock.Setup(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string _, string path) => $"https://mock.blob/{path}");
-            blobServiceMock.Setup(s => s.GenerateBlobSasToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BlobSasPermissions>(), null, null))
+            blobService.UploadAsync(
+                    Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(),
+                    Arg.Any<BlobContentCategoryEnum>(), true, "image/png")
+                .Returns("mock-file-id");
+
+            blobService.GetBlobUrl(Arg.Any<string>(), Arg.Any<string>())
+                .Returns(call => {
+                    var container = call.ArgAt<string>(0);
+                    var path = call.ArgAt<string>(1);
+                    return $"https://mock.blob/{path}";
+                });
+
+            blobService.GenerateBlobSasToken(
+                    Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("sas");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
 
-            var fileMock = new Mock<IFormFile>();
+            var fileMock = Substitute.For<IFormFile>();
             var content = "content";
             var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
-            fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
-            fileMock.Setup(f => f.FileName).Returns("test.png");
-            fileMock.Setup(f => f.ContentType).Returns("image/png");
-            fileMock.Setup(f => f.Length).Returns(ms.Length);
+            fileMock.OpenReadStream().Returns(ms);
+            fileMock.FileName.Returns("test.png");
+            fileMock.ContentType.Returns("image/png");
+            fileMock.Length.Returns(ms.Length);
 
-            var command = new AddInventoryItemBannersCommand(inventoryItemId, new[] { fileMock.Object });
+            var command = new AddInventoryItemBannersCommand(inventoryItemId, new[] { fileMock });
 
             // Act
             var result = await handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Single(result);
-            bannerRepoMock.Verify(r => r.GetMaxOrderIndexAsync(inventoryItemId, It.IsAny<CancellationToken>()), Times.Once);
             Assert.Equal(6, result[0].OrderIndex);
+            await bannerRepo.Received(1).GetMaxOrderIndexAsync(inventoryItemId, Arg.Any<CancellationToken>());
         }
-
 
 
         [Fact]
         public async Task Handle_WithNoFiles_ReturnsEmptyList()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
 
             var command = new AddInventoryItemBannersCommand(Guid.NewGuid(), Array.Empty<IFormFile>());
 
@@ -156,56 +153,62 @@ namespace NettoRetail.Tests.UnitTests
 
             // Assert
             Assert.Empty(result);
-
-            bannerRepoMock.Verify(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Never);
-            blobServiceMock.Verify(s => s.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<BlobContentCategoryEnum>(), true, "image/png"), Times.Never);
-            blobServiceMock.Verify(s => s.GenerateBlobSasToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BlobSasPermissions>(), null, null), Times.Never);
+            await bannerRepo.DidNotReceiveWithAnyArgs().AddAsync(default, default);
+            await blobService.DidNotReceiveWithAnyArgs().UploadAsync(default, default, default, default, default, default);
+            blobService.DidNotReceiveWithAnyArgs().GenerateBlobSasToken(default, default, default, default, default);
         }
+
 
         [Fact]
         public async Task Handle_WithMultipleFiles_UploadsAllAndReturnsResponses()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
-            bannerRepoMock
-                .Setup(r => r.GetMaxOrderIndexAsync(inventoryItemId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(0);
+            bannerRepo.GetMaxOrderIndexAsync(inventoryItemId, Arg.Any<CancellationToken>()).Returns(0);
 
-            bannerRepoMock
-                .Setup(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity banner, CancellationToken _) =>
+            bannerRepo.AddAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>())
+                .Returns(call =>
                 {
+                    var banner = call.Arg<InventoryItemBannerEntity>();
                     banner.Id = Guid.NewGuid();
                     return banner;
                 });
 
-            blobServiceMock.Setup(s => s.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<BlobContentCategoryEnum>(), true, "image/png"))
-                .ReturnsAsync("mock-file-id");
+            blobService.UploadAsync(
+                    Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(),
+                    Arg.Any<BlobContentCategoryEnum>(), true, "image/png")
+                .Returns("mock-file-id");
 
-            blobServiceMock.Setup(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string container, string path) => $"https://mock.blob/{path}");
+            blobService.GetBlobUrl(Arg.Any<string>(), Arg.Any<string>())
+                .Returns(call =>
+                {
+                    var container = call.ArgAt<string>(0);
+                    var path = call.ArgAt<string>(1);
+                    return $"https://mock.blob/{path}";
+                });
 
-            blobServiceMock.Setup(s => s.GenerateBlobSasToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BlobSasPermissions>(), null, null))
+            blobService.GenerateBlobSasToken(
+                    Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("mock-sas-token");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
-
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
 
             var files = Enumerable.Range(1, 2).Select(i =>
             {
-                var fileMock = new Mock<IFormFile>();
+                var fileMock = Substitute.For<IFormFile>();
                 var content = $"Fake content {i}";
                 var fileName = $"test{i}.png";
                 var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
 
-                fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
-                fileMock.Setup(f => f.FileName).Returns(fileName);
-                fileMock.Setup(f => f.ContentType).Returns("image/png");
-                fileMock.Setup(f => f.Length).Returns(ms.Length);
-                return fileMock.Object;
+                fileMock.OpenReadStream().Returns(ms);
+                fileMock.FileName.Returns(fileName);
+                fileMock.ContentType.Returns("image/png");
+                fileMock.Length.Returns(ms.Length);
+
+                return fileMock;
             }).ToArray();
 
             var command = new AddInventoryItemBannersCommand(inventoryItemId, files);
@@ -221,29 +224,18 @@ namespace NettoRetail.Tests.UnitTests
                 Assert.Contains("mock-sas-token", response.FileUrl);
             }
 
-            bannerRepoMock.Verify(r => r.AddAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            blobServiceMock.Verify(s => s.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<BlobContentCategoryEnum>(), true, "image/png"), Times.Exactly(2));
-            blobServiceMock.Verify(s => s.GenerateBlobSasToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BlobSasPermissions>(), null, null), Times.Exactly(2));
-
-
+            await bannerRepo.Received(2).AddAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>());
+            await blobService.Received(2).UploadAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<BlobContentCategoryEnum>(), true, "image/png");
+            blobService.Received(2).GenerateBlobSasToken(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null);
         }
-
-
-
-
-
-
-
-
-
 
 
         [Fact]
         public async Task Handle_WithValidBanner_DeletesBannerAndReorders_1Based()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
 
             var bannerId = Guid.NewGuid();
             var inventoryItemId = Guid.NewGuid();
@@ -262,74 +254,62 @@ namespace NettoRetail.Tests.UnitTests
                 new InventoryItemBannerEntity { Id = Guid.NewGuid(), InventoryItemId = inventoryItemId, OrderIndex = 5, FileIdentifier = "file-789" }
             };
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingBanner);
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns(existingBanner);
+            bannerRepo.DeleteAsync(existingBanner, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            bannerRepo.GetByInventoryItemIdAsync(
+                inventoryItemId,
+                Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                Arg.Any<CancellationToken>()).Returns(bannersToReorder);
 
-            bannerRepoMock.Setup(r => r.DeleteAsync(existingBanner, It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            blobService.DeleteBlobAsync(existingBanner.FileIdentifier!).Returns(Task.CompletedTask);
 
-            bannerRepoMock.Setup(r => r.GetByInventoryItemIdAsync(
-                    inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(bannersToReorder);
-
-            blobServiceMock.Setup(s => s.DeleteBlobAsync(existingBanner.FileIdentifier))
-                .Returns(Task.CompletedTask);
-
-            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepo, blobService);
             var command = new DeleteInventoryItemBannerCommand(bannerId);
-
 
             // Act
             var result = await handler.Handle(command, CancellationToken.None);
 
             // Assert
-
             Assert.Equal(Unit.Value, result);
 
-            bannerRepoMock.Verify(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()), Times.Once);
-            blobServiceMock.Verify(s => s.DeleteBlobAsync("file-123"), Times.Once);
-            bannerRepoMock.Verify(r => r.DeleteAsync(existingBanner, It.IsAny<CancellationToken>()), Times.Once);
-            bannerRepoMock.Verify(r => r.UpdateManyAsync(It.IsAny<IEnumerable<InventoryItemBannerEntity>>(), It.IsAny<CancellationToken>()), Times.Once);
-
+            await bannerRepo.Received(1).GetByIdAsync(bannerId, Arg.Any<CancellationToken>());
+            await blobService.Received(1).DeleteBlobAsync("file-123");
+            await bannerRepo.Received(1).DeleteAsync(existingBanner, Arg.Any<CancellationToken>());
+            await bannerRepo.Received(1).UpdateManyAsync(Arg.Any<IEnumerable<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>());
 
             Assert.Equal(3, bannersToReorder[0].OrderIndex);
             Assert.Equal(4, bannersToReorder[1].OrderIndex);
         }
 
 
-
         [Fact]
         public async Task Handle_BannerNotFound_ThrowsNotFoundException()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
 
             var bannerId = Guid.NewGuid();
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns((InventoryItemBannerEntity?)null);
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity?)null);
-
-            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
-
+            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepo, blobService);
             var command = new DeleteInventoryItemBannerCommand(bannerId);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
 
-            bannerRepoMock.Verify(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()), Times.Once);
-            blobServiceMock.Verify(s => s.DeleteBlobAsync(It.IsAny<string>()), Times.Never);
-            bannerRepoMock.Verify(r => r.DeleteAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Never);
+            await bannerRepo.Received(1).GetByIdAsync(bannerId, Arg.Any<CancellationToken>());
+            await blobService.DidNotReceiveWithAnyArgs().DeleteBlobAsync(default!);
+            await bannerRepo.DidNotReceiveWithAnyArgs().DeleteAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>());
         }
+
 
         [Fact]
         public async Task Handle_BannerWithNoFileIdentifier_SkipsBlobDeletion()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
 
             var bannerId = Guid.NewGuid();
             var inventoryItemId = Guid.NewGuid();
@@ -342,20 +322,12 @@ namespace NettoRetail.Tests.UnitTests
                 OrderIndex = 1
             };
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingBanner);
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns(existingBanner);
+            bannerRepo.DeleteAsync(existingBanner, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            bannerRepo.GetByInventoryItemIdAsync(inventoryItemId, Arg.Any<Specification<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(new List<InventoryItemBannerEntity>());
 
-            bannerRepoMock.Setup(r => r.DeleteAsync(existingBanner, It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
-
-            bannerRepoMock.Setup(r => r.GetByInventoryItemIdAsync(
-                    inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<InventoryItemBannerEntity>());
-
-            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
-
+            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepo, blobService);
             var command = new DeleteInventoryItemBannerCommand(bannerId);
 
             // Act
@@ -364,16 +336,17 @@ namespace NettoRetail.Tests.UnitTests
             // Assert
             Assert.Equal(Unit.Value, result);
 
-            blobServiceMock.Verify(s => s.DeleteBlobAsync(It.IsAny<string>()), Times.Never);
-            bannerRepoMock.Verify(r => r.DeleteAsync(existingBanner, It.IsAny<CancellationToken>()), Times.Once);
+            await blobService.DidNotReceiveWithAnyArgs().DeleteBlobAsync(default!);
+            await bannerRepo.Received(1).DeleteAsync(existingBanner, Arg.Any<CancellationToken>());
         }
+
 
         [Fact]
         public async Task Handle_WhenExceptionOccurs_ThrowsBadRequestException()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
 
             var bannerId = Guid.NewGuid();
 
@@ -385,40 +358,27 @@ namespace NettoRetail.Tests.UnitTests
                 OrderIndex = 0
             };
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingBanner);
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns(existingBanner);
+            blobService.DeleteBlobAsync(Arg.Any<string>()).ThrowsAsync(new Exception("blob service failure"));
 
-            blobServiceMock.Setup(s => s.DeleteBlobAsync(It.IsAny<string>()))
-                .ThrowsAsync(new Exception("blob service failure"));
-
-            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
-
+            var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepo, blobService);
             var command = new DeleteInventoryItemBannerCommand(bannerId);
 
             // Act & Assert
             var ex = await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
             Assert.Contains("blob service failure", ex.Message);
 
-            blobServiceMock.Verify(s => s.DeleteBlobAsync("file-123"), Times.Once);
-            bannerRepoMock.Verify(r => r.DeleteAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Never);
+            await blobService.Received(1).DeleteBlobAsync("file-123");
+            await bannerRepo.DidNotReceiveWithAnyArgs().DeleteAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>());
         }
-
-
-
-
-
-
-
-
-
 
 
         [Fact]
         public async Task Handle_WithValid_UpdatesOrderAndReturnsResponses_1Based()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
 
             var bannerId = Guid.NewGuid();
             var inventoryItemId = Guid.NewGuid();
@@ -433,32 +393,18 @@ namespace NettoRetail.Tests.UnitTests
 
             var newOrderIndex = 2;
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(banners[2]);
-
-            bannerRepoMock.Setup(r => r.GetByInventoryItemIdAsync(
-                    inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(banners);
-
-            bannerRepoMock.Setup(r => r.UpdateManyAsync(It.IsAny<IEnumerable<InventoryItemBannerEntity>>(), It.IsAny<CancellationToken>()))
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns(banners[2]);
+            bannerRepo.GetByInventoryItemIdAsync(inventoryItemId, Arg.Any<Specification<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(banners);
+            bannerRepo.UpdateManyAsync(Arg.Any<IEnumerable<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(Task.CompletedTask);
 
-            blobServiceMock.Setup(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string container, string path) => $"https://mock.blob/{path}");
-
-            blobServiceMock.Setup(s =>
-                s.GenerateBlobSasToken(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<BlobSasPermissions>(),
-                    It.IsAny<TimeSpan>(),
-                    It.IsAny<string?>()
-                ))
+            blobService.GetBlobUrl(Arg.Any<string>(), Arg.Any<string>())
+                .Returns(callInfo => $"https://mock.blob/{callInfo.ArgAt<string>(1)}");
+            blobService.GenerateBlobSasToken(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), Arg.Any<TimeSpan>(), Arg.Any<string?>())
                 .Returns("mock-sas-token");
 
-            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepo, blobService);
             var command = new ReorderInventoryItemBannerOrderCommand(bannerId, newOrderIndex);
 
             // Act
@@ -472,36 +418,37 @@ namespace NettoRetail.Tests.UnitTests
             Assert.Equal(3, result[2].OrderIndex);
             Assert.Equal(4, result[3].OrderIndex);
 
-            bannerRepoMock.Verify(r => r.UpdateManyAsync(It.Is<IEnumerable<InventoryItemBannerEntity>>(list => list.Count() == 4), It.IsAny<CancellationToken>()), Times.Once);
-
+            await bannerRepo.Received(1).UpdateManyAsync(
+                Arg.Is<IEnumerable<InventoryItemBannerEntity>>(list => list.Count() == 4),
+                Arg.Any<CancellationToken>());
         }
-
 
 
         [Fact]
         public async Task Handle_BannerNotFoundReorder_ThrowsNotFoundException()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+
             var bannerId = Guid.NewGuid();
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns((InventoryItemBannerEntity?)null);
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity?)null);
-
-            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepo, blobService);
             var command = new ReorderInventoryItemBannerOrderCommand(bannerId, 1);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
         }
 
+
         [Fact]
         public async Task Handle_NewOrderIndexOutOfRange_ThrowsBadRequestException()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+
             var bannerId = Guid.NewGuid();
             var inventoryItemId = Guid.NewGuid();
 
@@ -513,16 +460,11 @@ namespace NettoRetail.Tests.UnitTests
                 FileIdentifier = "file-0"
             };
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(banner);
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns(banner);
+            bannerRepo.GetByInventoryItemIdAsync(inventoryItemId, Arg.Any<Specification<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(new List<InventoryItemBannerEntity> { banner });
 
-            bannerRepoMock.Setup(r => r.GetByInventoryItemIdAsync(
-                    inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<InventoryItemBannerEntity> { banner });
-
-            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepo, blobService);
             var command = new ReorderInventoryItemBannerOrderCommand(bannerId, 5);
 
             // Act & Assert
@@ -534,41 +476,33 @@ namespace NettoRetail.Tests.UnitTests
         public async Task Handle_WithNoBanners_DoesNothingAndReturnsEmptyList()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+
             var bannerId = Guid.NewGuid();
             var inventoryItemId = Guid.NewGuid();
 
-            bannerRepoMock.Setup(r => r.GetByIdAsync(bannerId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InventoryItemBannerEntity?)null);
+            bannerRepo.GetByIdAsync(bannerId, Arg.Any<CancellationToken>()).Returns((InventoryItemBannerEntity?)null);
 
-            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new ReorderInventoryItemBannerOrderCommandHandler(bannerRepo, blobService);
             var command = new ReorderInventoryItemBannerOrderCommand(bannerId, 1);
 
             // Act & Assert
             var ex = await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
             Assert.Contains("not found", ex.Message);
 
-            bannerRepoMock.Verify(r => r.UpdateAsync(It.IsAny<InventoryItemBannerEntity>(), It.IsAny<CancellationToken>()), Times.Never);
-            blobServiceMock.VerifyNoOtherCalls();
+            await bannerRepo.DidNotReceiveWithAnyArgs().UpdateAsync(default!, default);
+            blobService.DidNotReceiveWithAnyArgs().GetBlobUrl(default!, default!);
+            blobService.DidNotReceiveWithAnyArgs().GenerateBlobSasToken(default!, default!, default, default, default);
         }
-
-
-
-
-
-
-
-
-
 
 
         [Fact]
         public async Task Handle_WithBanners_ReturnsOrderedResponses()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
             var banners = new List<InventoryItemBannerEntity>
@@ -590,26 +524,25 @@ namespace NettoRetail.Tests.UnitTests
                     FileName = "banner0.png"
                 }
             };
+    
+            bannerRepo.GetByInventoryItemIdAsync(
+                inventoryItemId,
+                Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                Arg.Any<CancellationToken>())
+                .Returns(banners);
 
-            bannerRepoMock
-                .Setup(r => r.GetByInventoryItemIdAsync(
-                    inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(banners);
+            blobService.GetBlobUrl(Arg.Any<string>(), Arg.Any<string>())
+                .Returns(callInfo => $"https://mock.blob/{callInfo.ArgAt<string>(1)}");
 
-            blobServiceMock.Setup(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string _, string path) => $"https://mock.blob/{path}");
-
-            blobServiceMock.Setup(s => s.GenerateBlobSasToken(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<BlobSasPermissions>(),
-                    It.IsAny<TimeSpan?>(),
-                    It.IsAny<string?>()))
+            blobService.GenerateBlobSasToken(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<BlobSasPermissions>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<string?>())
                 .Returns("mock-sas-token");
 
-            var handler = new GetInventoryItemBannersQueryHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new GetInventoryItemBannersQueryHandler(bannerRepo, blobService);
             var query = new GetInventoryItemBannersQuery(inventoryItemId);
 
             // Act
@@ -623,46 +556,53 @@ namespace NettoRetail.Tests.UnitTests
 
             Assert.All(result, r => Assert.Contains("mock-sas-token", r.FileUrl));
 
-            bannerRepoMock.Verify(r => r.GetByInventoryItemIdAsync(
+            await bannerRepo.Received(1).GetByInventoryItemIdAsync(
                 inventoryItemId,
-                It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                It.IsAny<CancellationToken>()), Times.Once);
+                Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                Arg.Any<CancellationToken>());
 
-            blobServiceMock.Verify(s => s.GetBlobUrl(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
-            blobServiceMock.Verify(s => s.GenerateBlobSasToken(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<BlobSasPermissions>(),
-                It.IsAny<TimeSpan?>(),
-                It.IsAny<string?>()), Times.Exactly(2));
+            blobService.Received(2).GetBlobUrl(Arg.Any<string>(), Arg.Any<string>());
+            blobService.GenerateBlobSasToken(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<BlobSasPermissions>(),
+                Arg.Any<TimeSpan?>(),
+                Arg.Any<string?>())
+                .Returns("mock-sas-token");
+
         }
-
 
 
         [Fact]
         public async Task Handle_WithNoBanners_ReturnsEmptyList()
         {
             // Arrange
-            var bannerRepoMock = new Mock<IInventoryItemBannerRepository>();
-            var blobServiceMock = new Mock<IAzureBlobService>();
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
-            bannerRepoMock.Setup(r => r.GetByInventoryItemIdAsync(
+            bannerRepo.GetByInventoryItemIdAsync(
                     inventoryItemId,
-                    It.IsAny<Specification<InventoryItemBannerEntity>>(),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<InventoryItemBannerEntity>());
+                    Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(new List<InventoryItemBannerEntity>());
 
-            var handler = new GetInventoryItemBannersQueryHandler(bannerRepoMock.Object, blobServiceMock.Object);
+            var handler = new GetInventoryItemBannersQueryHandler(bannerRepo, blobService);
 
             // Act
             var result = await handler.Handle(new GetInventoryItemBannersQuery(inventoryItemId), CancellationToken.None);
 
             // Assert
             Assert.Empty(result);
+
+            await bannerRepo.Received(1).GetByInventoryItemIdAsync(
+                inventoryItemId,
+                Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                Arg.Any<CancellationToken>());
+
+            blobService.DidNotReceiveWithAnyArgs().GetBlobUrl(default!, default!);
+            blobService.DidNotReceiveWithAnyArgs().GenerateBlobSasToken(default!, default!, default, default, default);
         }
-
     }
-
 }
 
