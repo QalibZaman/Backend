@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -11,11 +12,17 @@ namespace NettoRetail.Application.CQRS.Roles.Commands;
 
 public record RoleUpdateCommand(int Id, int ShopId, UpdateRoleRequest Model) : IRequest;
 
-public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IPermissionRepository permissionRepository) : IRequestHandler<RoleUpdateCommand>
+public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IPermissionRepository permissionRepository, IShopRepository shopRepository) : IRequestHandler<RoleUpdateCommand>
 {
     public async Task Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
-        var roleByIdSpecification = new GetRoleByIdSpecification(request.Id, request.ShopId);
+        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        if (!shopExists)
+        {
+            throw new NotFoundException($"No shop with Id: {request.ShopId}");
+        }
+
+        var roleByIdSpecification = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
         var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken) ?? throw new NotFoundException("The role with such id doesn't exist.");
         request.Model.Adapt(role);
 
