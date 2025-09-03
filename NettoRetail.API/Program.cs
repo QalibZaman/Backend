@@ -1,12 +1,9 @@
-using System.Collections;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
 using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Extensions;
-using Serilog;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,12 +36,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
 });
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    var configuration = builder.Configuration.GetConnectionString("RedisConnection");
-    return ConnectionMultiplexer.Connect(configuration!);
-});
 
+builder.Services.AddCachingServices(builder.Configuration);
 builder.Services.AddSignalR();
 
 var app = builder.Build();
