@@ -24,13 +24,13 @@ public class RejectFeedbackCommandHandler(
                       ?? throw new NotFoundException("Feedback not found.");
 
         if (feedback.Status != FeedbackStatusEnum.Pending)
-            throw new BadRequestException("Only pending feedbacks can be approved.");
+            throw new BadRequestException("Only pending feedbacks can be rejected.");
         feedback.Status = FeedbackStatusEnum.Rejected;
         feedback.RejectionReason = request.Reason;
         await feedbackRepository.UpdateAsync(feedback, cancellationToken);
 
         //SmtpClient not working
-        var emailModel = await emailBuilderService.BuildFeedbackRejectedEmailAsync(feedback.Account.Email, feedback.Account.FirstName, request.Reason);
-        await emailSender.SendAsync(emailModel);
+        var bulkEmailModel = await emailBuilderService.BuildFeedbackRejectedEmailsAsync([feedback.Account.Email], request.Reason);
+        await emailSender.SendBulkAsync(bulkEmailModel);
     }
 }

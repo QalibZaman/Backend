@@ -18,21 +18,26 @@ public class BulkRejectFeedbacksCommandHadler(IFeedbackRepository feedbackReposi
     public async Task Handle(BulkRejectFeedbacksCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetBulkExistedFeedbacksSpecification(request.Ids);
+        specification.AddInclude(f => f.Account);
         var feedbacks = await feedbackRepository.GetAllBySpecAsync(specification, cancellationToken);
         if (feedbacks == null || !feedbacks.Any()) throw new NotFoundException("No valid feedbacks found.");
+
+        var emailAddresses = new List<string>();
 
         foreach (var feedback in feedbacks)
         {
             if (feedback.Status != FeedbackStatusEnum.Pending)
-                throw new BadRequestException("Only pending feedbacks can be approved.");
+                throw new BadRequestException("Only pending feedbacks can be rejected.");
             feedback.Status = FeedbackStatusEnum.Rejected;
             feedback.RejectionReason = request.Reason;
-            //SmtpClient not  working
 
-            var emailModel = await emailBuilderService.BuildFeedbackRejectedEmailAsync(feedback.Account.Email, feedback.Account.FirstName, request.Reason);
-            await emailSender.SendAsync(emailModel);
+            //SmtpClient not  working
+            emailAddresses.Add(feedback.Account.Email);
         }
 
         await feedbackRepository.UpdateManyAsync(feedbacks, cancellationToken);
+
+        var bulkEmailModel = await emailBuilderService.BuildFeedbackRejectedEmailsAsync(emailAddresses, request.Reason);
+        await emailSender.SendBulkAsync(bulkEmailModel);
     }
 }
