@@ -7,13 +7,11 @@ using NettoRetail.Application.Models.Response;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Application.Models.Admin;
-using NettoRetail.Application.Models.Request.Token;
 using System.Net.Http.Headers;
 using NettoRetail.Application.Models.TwoFactorAuth;
 using NettoRetail.Application.Models.Request.Password;
-using System;
 
-namespace NettoRetail.Tests.Integrationtests;
+namespace NettoRetail.Tests.IntegrationTests.AccountTests;
 
 [Collection("Sequential Tests")]
 public class AccountApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
