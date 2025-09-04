@@ -25,6 +25,7 @@ public class AccountEntity
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }
     public int? SubscriptionPlanId { get; set; }
+    public bool IsOnboardingCompleted { get; set; } = false;
 
     public SubscriptionPlanEntity SubscriptionPlan { get; set; }
     public CountryEntity? Country { get; set; }

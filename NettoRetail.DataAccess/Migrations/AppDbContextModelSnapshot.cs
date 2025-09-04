@@ -91,6 +91,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<bool>("IsOnboardingCompleted")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsSubscribedToNewsletter")
                         .HasColumnType("boolean");
 
