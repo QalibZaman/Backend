@@ -49,10 +49,13 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-await app.UseDatabaseSeedingAsync();
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
+{
+    app.Migrate();
+    await app.UseDatabaseSeedingAsync();
+}
 
 app.UseCors("CorsPolicy");
-app.Migrate();
 app.UseTracing();
 //app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
