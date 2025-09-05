@@ -167,7 +167,6 @@ migration:
     - echo "Starting the Database migration..."
     - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API -- --environment "$ASPNETCORE_ENVIRONMENT"
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^(dev|test|prod)$/'
     - when: manual
       allow_failure: true
         
