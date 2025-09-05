@@ -13,7 +13,7 @@ workflow:
     - when: always
       variables:
         ASPNETCORE_ENVIRONMENT: "Development"
-        
+
 stages:
   - restore
   - build
@@ -181,9 +181,6 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-    - az webapp config appsettings set 
-          --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME} 
           --settings ASPNETCORE_ENVIRONMENT=Development
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
@@ -198,15 +195,11 @@ deploy_to_test:
     - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
   script:
     - echo "Deploying Docker image to Azure Web App..."
-    - APP_NAME_FULL="${APP_NAME}${APP_NAME_SUFFIX}"
     - az webapp config container set
-          --name ${APP_NAME_FULL}
+          --name ${APP_NAME}-prod
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-    - az webapp config appsettings set 
-          --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME}-staging 
           --settings ASPNETCORE_ENVIRONMENT=Testing
   rules:
     - if: '$CI_COMMIT_BRANCH == "test"'
@@ -226,9 +219,6 @@ deploy_to_prod:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-    - az webapp config appsettings set 
-          --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME}-prod
           --settings ASPNETCORE_ENVIRONMENT=Production
   rules:
     - if: '$CI_COMMIT_BRANCH == "prod"'
