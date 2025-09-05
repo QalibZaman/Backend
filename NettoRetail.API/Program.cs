@@ -52,8 +52,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 {
     app.Migrate();
-    await app.UseDatabaseSeedingAsync();
 }
+
+await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
 app.UseTracing();
