@@ -5,5 +5,5 @@ EXPOSE 8080
 EXPOSE 8081
 COPY ["NettoRetail.Infrastructure/EmailTemplates", "/app"]
 COPY ./publish/ .
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Local
 ENTRYPOINT ["./NettoRetail.API"]
