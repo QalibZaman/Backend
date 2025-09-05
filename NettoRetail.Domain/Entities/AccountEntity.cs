@@ -27,7 +27,7 @@ public class AccountEntity
     public int? SubscriptionPlanId { get; set; }
     public bool IsOnboardingCompleted { get; set; } = false;
 
-    public SubscriptionPlanEntity SubscriptionPlan { get; set; }
+    public SubscriptionPlanEntity? SubscriptionPlan { get; set; }
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }
