@@ -16,7 +16,7 @@ workflow:
     - when: always
       variables:
         ASPNETCORE_ENVIRONMENT: "Development"
-        APP_NAME_FULL: ${APP_NAME}
+        APP_NAME_SUFFIX: ""
 
 stages:
   - restore
@@ -185,6 +185,9 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
+    - az webapp config appsettings set 
+          --resource-group ${RESOURCE_GROUP} 
+          --name ${APP_NAME_FULL} 
           --settings ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(dev|test|prod)$/'
