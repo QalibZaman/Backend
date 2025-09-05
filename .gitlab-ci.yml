@@ -154,21 +154,21 @@ containerization:
     - echo "Cleaning up local Docker images..."
     - docker rmi ${DOCKER_IMAGE}:${CI_PIPELINE_ID}
 
-migration:
-  stage: migration
-  image: mcr.microsoft.com/dotnet/sdk:8.0
-  needs:
-    - job: build
-      artifacts: true
-  before_script:
-    - dotnet tool install --global dotnet-ef
-    - export PATH="$PATH:/root/.dotnet/tools"
-  script:
-    - echo "Starting the Database migration..."
-    - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API -- --environment "$ASPNETCORE_ENVIRONMENT"
-  rules:
-    - when: manual
-      allow_failure: true
+# migration:
+#  stage: migration
+#  image: mcr.microsoft.com/dotnet/sdk:8.0
+#  needs:
+#    - job: build
+#      artifacts: true
+#  before_script:
+#    - dotnet tool install --global dotnet-ef
+#    - export PATH="$PATH:/root/.dotnet/tools"
+#  script:
+#    - echo "Starting the Database migration..."
+#    - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API -- --environment "$ASPNETCORE_ENVIRONMENT"
+#  rules:
+#    - when: manual
+#      allow_failure: true
         
 deploy:
   stage: deploy
@@ -188,7 +188,53 @@ deploy:
     - az webapp config appsettings set 
           --resource-group ${RESOURCE_GROUP} 
           --name ${APP_NAME_FULL} 
-          --settings ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+          --settings ASPNETCORE_ENVIRONMENT=Development
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^(dev|test|prod)$/'
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - when: never
+
+deploy_to_test:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli
+  needs:
+    - job: containerization
+  before_script:
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+  script:
+    - echo "Deploying Docker image to Azure Web App..."
+    - APP_NAME_FULL="${APP_NAME}${APP_NAME_SUFFIX}"
+    - az webapp config container set
+          --name ${APP_NAME_FULL}
+          --resource-group ${RESOURCE_GROUP}
+          --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
+          --container-registry-url https://${CI_REGISTRY}
+    - az webapp config appsettings set 
+          --resource-group ${RESOURCE_GROUP} 
+          --name ${APP_NAME_FULL} 
+          --settings ASPNETCORE_ENVIRONMENT=Testing
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "test"'
+    - when: never
+
+deploy_to_prod:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli
+  needs:
+    - job: containerization
+  before_script:
+    - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
+  script:
+    - echo "Deploying Docker image to Azure Web App..."
+    - APP_NAME_FULL="${APP_NAME}${APP_NAME_SUFFIX}"
+    - az webapp config container set
+          --name ${APP_NAME_FULL}
+          --resource-group ${RESOURCE_GROUP}
+          --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
+          --container-registry-url https://${CI_REGISTRY}
+    - az webapp config appsettings set 
+          --resource-group ${RESOURCE_GROUP} 
+          --name ${APP_NAME_FULL} 
+          --settings ASPNETCORE_ENVIRONMENT=Production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "prod"'
     - when: never
