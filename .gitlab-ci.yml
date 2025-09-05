@@ -4,20 +4,16 @@ workflow:
     - if: '$CI_COMMIT_BRANCH == "dev"' 
       variables:
         ASPNETCORE_ENVIRONMENT: "Development"
-        APP_NAME_SUFFIX: ""
     - if: '$CI_COMMIT_BRANCH == "test"'
       variables:
         ASPNETCORE_ENVIRONMENT: "Testing"
-        APP_NAME_SUFFIX: "-staging"
     - if: '$CI_COMMIT_BRANCH == "prod"'
       variables:
         ASPNETCORE_ENVIRONMENT: "Production"
-        APP_NAME_SUFFIX: "-prod"
     - when: always
       variables:
         ASPNETCORE_ENVIRONMENT: "Development"
-        APP_NAME_SUFFIX: ""
-
+        
 stages:
   - restore
   - build
@@ -187,7 +183,7 @@ deploy:
           --container-registry-url https://${CI_REGISTRY}
     - az webapp config appsettings set 
           --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME_FULL} 
+          --name ${APP_NAME} 
           --settings ASPNETCORE_ENVIRONMENT=Development
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
@@ -210,7 +206,7 @@ deploy_to_test:
           --container-registry-url https://${CI_REGISTRY}
     - az webapp config appsettings set 
           --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME_FULL} 
+          --name ${APP_NAME}-staging 
           --settings ASPNETCORE_ENVIRONMENT=Testing
   rules:
     - if: '$CI_COMMIT_BRANCH == "test"'
@@ -225,15 +221,14 @@ deploy_to_prod:
     - az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"
   script:
     - echo "Deploying Docker image to Azure Web App..."
-    - APP_NAME_FULL="${APP_NAME}${APP_NAME_SUFFIX}"
     - az webapp config container set
-          --name ${APP_NAME_FULL}
+          --name ${APP_NAME}-prod
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
     - az webapp config appsettings set 
           --resource-group ${RESOURCE_GROUP} 
-          --name ${APP_NAME_FULL} 
+          --name ${APP_NAME}-prod
           --settings ASPNETCORE_ENVIRONMENT=Production
   rules:
     - if: '$CI_COMMIT_BRANCH == "prod"'
