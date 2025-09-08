@@ -342,4 +342,17 @@ public class StaffController(
 
         return Ok(result);
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("toggle-onboarding-status")]
+    public async Task<IActionResult> ToggleOnboardingStatus([FromQuery] ToggleOnboardingStatusRequest request, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new ToggleOnboardingStatusCommand(userId, request.IsOnboardingCompleted);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
 }
