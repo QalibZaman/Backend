@@ -59,8 +59,7 @@ namespace NettoRetail.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Feedbacks");
+            migrationBuilder.DropTable(name: "Feedbacks");
         }
     }
 }
