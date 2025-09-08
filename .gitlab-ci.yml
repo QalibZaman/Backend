@@ -181,7 +181,6 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-          --settings ASPNETCORE_ENVIRONMENT=Development
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
     - when: never
@@ -200,7 +199,6 @@ deploy_to_test:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-          --settings ASPNETCORE_ENVIRONMENT=Testing
   rules:
     - if: '$CI_COMMIT_BRANCH == "test"'
     - when: never
@@ -219,7 +217,6 @@ deploy_to_prod:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-          --settings ASPNETCORE_ENVIRONMENT=Production
   rules:
     - if: '$CI_COMMIT_BRANCH == "prod"'
     - when: never
