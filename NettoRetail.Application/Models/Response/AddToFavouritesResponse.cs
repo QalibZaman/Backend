@@ -2,6 +2,6 @@
 
 public class AddToFavouritesResponse
 {
-    public int AccountId { get; set; }
-    public int InventoryItemId { get; set; }
+    public Guid AccountId { get; set; }
+    public Guid InventoryItemId { get; set; }
 }

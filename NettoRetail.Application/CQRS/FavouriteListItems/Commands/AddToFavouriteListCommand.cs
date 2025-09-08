@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -29,6 +30,13 @@ public class AddToFavouriteListCommandHandler(
         if (!accountExists)
         {
             throw new NotFoundException($"No account with Id: {request.UserId}");
+        }
+
+        var favouriteListItemSpec = new GetFavouriteListItemByAccountAndItemId(request.UserId, request.InventoryItemId);
+        var favouriteItemExists = await favouriteListItemRepository.Exists(favouriteListItemSpec, cancellationToken);
+        if (favouriteItemExists)
+        {
+            throw new BadRequestException("Item is already in favourites");
         }
 
         var favouriteListItem = new FavouriteListItemEntity
