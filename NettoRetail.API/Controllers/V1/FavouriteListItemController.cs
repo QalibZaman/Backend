@@ -40,6 +40,9 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RemoveFromFavourites(Guid itemId, CancellationToken cancellationToken)
         {
+            var userId = HttpContext.GetUserId();
+            var command = new RemoveFromFavouriteListCommand(userId, itemId);
+            await mediator.Send(command, cancellationToken);
             return NoContent();
         }
     }
