@@ -221,6 +221,61 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Brands");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CartItemEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("ProductUpc")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("PromotionPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.ToTable("CartItems");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1682,6 +1737,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CartItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CartEntity", "Cart")
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "ParentCategory")
@@ -1963,6 +2029,11 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
                 {
                     b.Navigation("InventoryItems");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>

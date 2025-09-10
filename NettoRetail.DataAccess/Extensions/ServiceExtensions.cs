@@ -59,6 +59,7 @@ public static class ServiceExtensions
         services.AddScoped<IInventoryItemBannerRepository, InventoryItemBannerRepository>();
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IContentRepository, ContentRepository>();
         services.AddScoped<ICountryRepository, CountryRepository>();
