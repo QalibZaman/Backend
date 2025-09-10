@@ -21,6 +21,7 @@ using NettoRetail.Shared.Options;
 using Stripe;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.ICartService;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -44,6 +45,9 @@ public static class ServiceExtensions
         {
             var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
 
+
+
+
             config.UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UsePostgreSqlStorage(options =>
@@ -59,6 +63,7 @@ public static class ServiceExtensions
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
+        services.AddScoped<ICartService, CartService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<ITotpService, TotpService>();
