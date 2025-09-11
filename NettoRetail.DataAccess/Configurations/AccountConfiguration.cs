@@ -13,6 +13,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
         builder.Property(p => p.FirstName).HasMaxLength(30);
         builder.Property(p => p.LastName).HasMaxLength(30);
         builder.Property(p => p.Email).HasMaxLength(256);
+        builder.HasIndex(p => p.Email).IsUnique();
         builder.Property(p => p.PasswordHash).HasMaxLength(100);
 
         builder.Property(p => p.City).HasMaxLength(50);
@@ -51,5 +52,8 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .WithOne(f => f.Account)
             .HasForeignKey(f => f.AccountId)
             .OnDelete(DeleteBehavior.SetNull);
-  }
+
+        builder.Property(f => f.DateCreated)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+    }
 }

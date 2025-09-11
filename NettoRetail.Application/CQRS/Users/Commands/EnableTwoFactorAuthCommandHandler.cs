@@ -33,6 +33,11 @@ public class EnableTwoFactorAuthCommandHandler(
         var user = await accountRepository.GetAsync(specification, cancellationToken)
                    ?? throw new NotFoundException("User not found.");
 
+        if (user.TwoFactorEnabled)
+        {
+            throw new BadRequestException("Two-factor authentication is already enabled for this account.");
+        }
+
         var loginSpecification = new GetFailedAuthAttemptByAccountIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
 

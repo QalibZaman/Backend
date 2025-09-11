@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.Services.PermissionCache;
@@ -12,9 +13,11 @@ public class PermissionCacheService : IPermissionCacheService
         _memoryCache = memoryCache;
     }
 
-    public IEnumerable<string>? GetPermissions()
+    public IEnumerable<string>? GetPermissions(Guid userId)
     {
-        if (_memoryCache.TryGetValue(CacheServiceKeys.PERMISSIONS_KEY, out IEnumerable<string>? permissions))
+        var key = CreateCacheKey(userId);
+
+        if (_memoryCache.TryGetValue(key, out IEnumerable<string>? permissions))
         {
             return permissions;
         }
@@ -22,18 +25,26 @@ public class PermissionCacheService : IPermissionCacheService
         return [];
     }
 
-    public void SetPermissions(IEnumerable<string> permissions)
+    public void SetPermissions(IEnumerable<string> permissions, Guid userId)
     {
-        _memoryCache.Set(CacheServiceKeys.PERMISSIONS_KEY, permissions);
+        var key = CreateCacheKey(userId);
+        _memoryCache.Set(key, permissions);
     }
 
-    public void RemovePermissions()
+    public void RemovePermissions(Guid userId)
     {
-        _memoryCache.Remove(CacheServiceKeys.PERMISSIONS_KEY);
+        var key = CreateCacheKey(userId);
+        _memoryCache.Remove(key);
     }
 
-    public bool IsPermissionsExists()
+    public bool IsPermissionsExists(Guid userId)
     {
-        return _memoryCache.TryGetValue(CacheServiceKeys.PERMISSIONS_KEY, out IEnumerable<string>? permissions);
+        var key = CreateCacheKey(userId);
+        return _memoryCache.TryGetValue(key, out IEnumerable<string>? permissions);
+    }
+
+    private string CreateCacheKey(Guid userId)
+    {
+        return $"{CacheServiceKeys.PERMISSIONS_KEY}-{userId}";
     }
 }

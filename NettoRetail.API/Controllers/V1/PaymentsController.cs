@@ -21,23 +21,23 @@ namespace NettoRetail.API.Controllers.V1
         [HttpGet("history")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<PaymentHistoryResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetPaymentHistory([FromQuery] PaginationRequest pageModel)
+        public async Task<IActionResult> GetPaymentHistory([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
 
             var query = new GetPaymentHistoryQuery(pageModel, userId);
 
-            var result = await mediator.Send(query);
+            var result = await mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<PaginatedResponse<PaymentHistoryResponse>>(result));
         }
 
         [Authorize]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> AddPayment(AddPaymentRequest model, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddPayment([FromBody] AddPaymentRequest model, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
 
@@ -45,22 +45,21 @@ namespace NettoRetail.API.Controllers.V1
 
             await mediator.Send(command, cancellationToken);
 
-            return Ok();
+            return NoContent();
         }
 
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(ApiResponse<PaymentHistoryResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
         public async Task<IActionResult> EditPayment(Guid id, [FromBody] EditPaymentRequest model, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
 
-            if (id == default)
-            {
-                return BadRequest("Invalid payment method ID.");
-            }
+            if (id == Guid.Empty)
+                return BadRequest(new ApiResponse<string>("Invalid payment method ID."));
 
             var command = new EditPaymentCommand(userId, id, model);
 
@@ -84,14 +83,17 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<PaymentMethodDeleteResponse>(response));
         }
 
+
         [Authorize]
-        [HttpPut("default/{paymentMethodId}")]
+        [HttpPut("{paymentMethodId}/set-default")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
+
             var command = new ChangeDefaultPaymentCommand(paymentMethodId, userId);
+
             await mediator.Send(command, cancellationToken);
 
             return NoContent();

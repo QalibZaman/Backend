@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Infrastructure.EmailTemplates;
@@ -85,4 +84,48 @@ public class EmailBuilderService(
         };
     }
 
+    public async Task<EmailModel> BuildPlatformAdminActivationEmailAsync(
+        string email,
+        string firstName,
+        string activationLink)
+    {
+        var templateModel = new
+        {
+            first_name = firstName,
+            activation_link = activationLink,
+            current_year = DateTime.UtcNow.Year,
+            token_expiration_hours = passwordOptions.Value.TokenExpirationHours
+        };
+
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.PlatformAdminActivation,
+            templateModel);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.PlatformAdminActivation,
+            Message = body
+        };
+    }
+
+    public async Task<BulkEmailModel> BuildFeedbackRejectedEmailsAsync(
+        List<string> emails,
+        string reason)
+    {
+        var templateModel = new
+        {
+            reason = reason
+        };
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.FeedbackRejectionNotification,
+            templateModel);
+
+        return new BulkEmailModel
+        {
+            EmailAddresses = emails,
+            Subject = EmailSubjects.FeedbackRejectionNotification,
+            Message = body
+        };
+    }
 }

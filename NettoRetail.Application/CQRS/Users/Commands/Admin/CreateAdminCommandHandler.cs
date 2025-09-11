@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
@@ -33,6 +34,7 @@ public class CreateAdminCommandHandler(IAccountRepository accountRepository,
 
         var admin = request.Model.Adapt<AccountEntity>();
         admin.RoleId = adminOptions.Value.RoleId;
+        admin.Status = StaffStatusEnum.Online;
 
         admin.PasswordHash = PasswordHasher.HashPassword(admin.PasswordHash);
         var user = await accountRepository.AddAsync(admin, cancellationToken);
