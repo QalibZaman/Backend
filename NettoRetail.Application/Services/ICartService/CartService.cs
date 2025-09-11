@@ -75,6 +75,10 @@ public class CartService : ICartService
         if (existingItem != null)
         {
             var newQuantity = existingItem.Quantity + increment;
+
+            if (newQuantity > product.AvailableAmount)
+                throw new BadRequestException("Quantity exceeds available stock.");
+
             existingItem.Quantity = newQuantity;
             existingItem.ProductName = product.ProductName;
             existingItem.Price = product.Price;
@@ -82,13 +86,15 @@ public class CartService : ICartService
         }
         else
         {
+            if (increment > product.AvailableAmount)
+                throw new BadRequestException("Quantity exceeds available stock.");
+
             cart.Items.Add(new CartItemEntity
             {
                 Id = Guid.NewGuid(),
                 CartId = cart.Id,
                 InventoryItemId = product.Id,
                 InventoryItem = product,
-
                 ProductUpc = product.ProductUpc,
                 ProductName = product.ProductName,
                 Price = product.Price,
@@ -100,7 +106,6 @@ public class CartService : ICartService
 
         cart.LastUpdatedAt = DateTime.UtcNow;
     }
-
     private async Task SaveCartAsync(CartEntity cart, CancellationToken cancellationToken)
     {
         var existing = await _cartRepository.GetByCustomerIdAsync(cart.CustomerId, cancellationToken);
