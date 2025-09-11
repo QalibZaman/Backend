@@ -182,7 +182,6 @@ deploy:
           --container-registry-url https://${CI_REGISTRY}
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
-    - if: '$CI_COMMIT_BRANCH == "feature/LNP-1262-DevOps-Project-environments-creation"'
     - when: never
 
 deploy_to_test:
