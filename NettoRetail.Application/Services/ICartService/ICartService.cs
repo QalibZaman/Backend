@@ -4,15 +4,9 @@ namespace NettoRetail.Application.Services.ICartService
 {
     public interface ICartService
     {
-        Task<CartEntity> GetCartAsync(Guid customerId, CancellationToken cancellationToken);
-
         Task<CartEntity> AddItemForUserAsync(
             Guid customerId,
-            CartItemEntity item,
+            Guid inventoryItemId,
             CancellationToken cancellationToken = default);
-
-        Task<bool> IsProductAvailableAsync(
-            long productUpc,
-            CancellationToken cancellationToken);
     }
 }

@@ -58,12 +58,4 @@ public class InventoryItemRepository(AppDbContext dbContext)
             yield return item;
         }
     }
-
-    public async Task<InventoryItemEntity?> GetByUpcAsync(long upc, CancellationToken cancellationToken)
-    {
-        var spec = new Specification<InventoryItemEntity>(x => x.ProductUpc == upc);
-        var items = await GetAllBySortedAsync(spec, cancellationToken);
-        return items.FirstOrDefault();
-    }
-
 }

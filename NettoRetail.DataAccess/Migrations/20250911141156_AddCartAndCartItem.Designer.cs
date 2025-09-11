@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250909212126_AddCartAndCartItem")]
+    [Migration("20250911141156_AddCartAndCartItem")]
     partial class AddCartAndCartItem
     {
         /// <inheritdoc />
@@ -241,6 +241,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
                     b.ToTable("Carts");
                 });
 
@@ -251,6 +254,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
@@ -275,6 +281,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
+
+                    b.HasIndex("InventoryItemId");
 
                     b.ToTable("CartItems");
                 });
@@ -1740,6 +1748,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
+                        .WithOne("Cart")
+                        .HasForeignKey("NettoRetail.Domain.Entities.CartEntity", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CartItemEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CartEntity", "Cart")
@@ -1748,7 +1767,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Cart");
+
+                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
@@ -2053,6 +2080,9 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
                 {
+                    b.Navigation("Cart")
+                        .IsRequired();
+
                     b.Navigation("Order");
                 });
 

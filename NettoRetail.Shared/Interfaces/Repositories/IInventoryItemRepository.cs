@@ -9,5 +9,4 @@ public interface IInventoryItemRepository : IBaseRepository<InventoryItemEntity>
     Task<List<InventoryItemEntity>> GetAllBySortedAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
     Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken);
     IAsyncEnumerable<InventoryItemEntity> GetRangeByIdsAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken);
-    Task<InventoryItemEntity?> GetByUpcAsync(long upc, CancellationToken cancellationToken);
 }

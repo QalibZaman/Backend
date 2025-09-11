@@ -1,5 +1,6 @@
 ﻿using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ICartService;
+using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,81 +16,86 @@ public class CartService : ICartService
         _inventoryRepository = inventoryRepository;
     }
 
-    public async Task<CartEntity> GetCartAsync(Guid customerId, CancellationToken cancellationToken)
+    public async Task<CartEntity> AddItemForUserAsync(Guid customerId, Guid inventoryItemId, CancellationToken cancellationToken = default)
     {
-        var cart = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken);
-        if (cart == null)
-            throw new NotFoundException("Cart not found.");
+        const int increment = 1;
 
-        cart.Items ??= new List<CartItemEntity>();
-        return cart;
-    }
+        var product = await ValidateProductAsync(inventoryItemId, increment, cancellationToken);
 
-    public async Task<CartEntity> AddItemForUserAsync(Guid customerId, CartItemEntity item, CancellationToken cancellationToken = default)
-    {
-        var product = await ValidateProductAsync(item, cancellationToken);
         var cart = await LoadCartAsync(customerId, cancellationToken);
-        AddOrUpdateCartItem(cart, item, product);
+
+        AddOrUpdateCartItem(cart, product, null, increment);
+
         await SaveCartAsync(cart, cancellationToken);
+
         return cart;
     }
 
-    public async Task<bool> IsProductAvailableAsync(long productUpc, CancellationToken cancellationToken)
+    private async Task<InventoryItemEntity> ValidateProductAsync(
+    Guid inventoryItemId,
+    int increment,
+    CancellationToken cancellationToken)
     {
-        var product = await _inventoryRepository.GetByUpcAsync(productUpc, cancellationToken);
+        var spec = new GetInventoryItemByIdSpecification(inventoryItemId);
 
-        return product != null
-               && product.Status == InventoryItemStatusEnum.Available
-               && product.AvailableAmount > 0;
-    }
+        var product = await _inventoryRepository.GetAsync(spec, cancellationToken);
 
-    private async Task<InventoryItemEntity> ValidateProductAsync(CartItemEntity item, CancellationToken cancellationToken)
-    {
-        var product = await _inventoryRepository.GetByUpcAsync(item.ProductUpc, cancellationToken);
-        if (product == null || product.Status != InventoryItemStatusEnum.Available || product.AvailableAmount <= 0)
-            throw new Exception("Product is out of stock.");
+        if (product == null)
+            throw new NotFoundException("Product not found.");
 
-        if (item.Quantity <= 0 || item.Quantity > product.AvailableAmount)
-            throw new Exception("Invalid quantity.");
+        if (product.Status != InventoryItemStatusEnum.Available || product.AvailableAmount <= 0)
+            throw new BadRequestException("Product is out of stock.");
 
-        if (item.Price != product.Price)
-            throw new Exception("Price mismatch.");
-
-        if (item.PromotionPrice.HasValue && item.PromotionPrice.Value > product.Price)
-            throw new Exception("Promotion price cannot exceed original product price.");
+        if (increment <= 0 || increment > product.AvailableAmount)
+            throw new BadRequestException("Invalid quantity.");
 
         return product;
     }
 
     private async Task<CartEntity> LoadCartAsync(Guid customerId, CancellationToken cancellationToken)
     {
-        return await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken)
-               ?? new CartEntity
-               {
-                   Id = Guid.NewGuid(),
-                   CustomerId = customerId,
-                   Items = new List<CartItemEntity>()
-               };
+        var existing = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken);
+        if (existing != null)
+            return existing;
+
+        return new CartEntity
+        {
+            Id = Guid.NewGuid(),
+            CustomerId = customerId,
+            Items = new List<CartItemEntity>()
+        };
     }
 
-    private void AddOrUpdateCartItem(CartEntity cart, CartItemEntity item, InventoryItemEntity product)
+    private void AddOrUpdateCartItem(CartEntity cart, InventoryItemEntity product, string? requestedSize, int increment)
     {
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductUpc == item.ProductUpc && i.Size == item.Size);
+        var size = requestedSize;
+
+        var existingItem = cart.Items.FirstOrDefault(i => i.InventoryItemId == product.Id && i.Size == size);
+
         if (existingItem != null)
         {
-            var newQuantity = existingItem.Quantity + item.Quantity;
-            if (newQuantity > product.AvailableAmount)
-                throw new Exception("Cannot add more than available stock.");
-
+            var newQuantity = existingItem.Quantity + increment;
             existingItem.Quantity = newQuantity;
+            existingItem.ProductName = product.ProductName;
             existingItem.Price = product.Price;
-            existingItem.PromotionPrice = item.PromotionPrice;
+            existingItem.PromotionPrice = product.IsPromoted ? product.PromotionPrice : null;
         }
         else
         {
-            item.Id = Guid.NewGuid();
-            item.Price = product.Price;
-            cart.Items.Add(item);
+            cart.Items.Add(new CartItemEntity
+            {
+                Id = Guid.NewGuid(),
+                CartId = cart.Id,
+                InventoryItemId = product.Id,
+                InventoryItem = product,
+
+                ProductUpc = product.ProductUpc,
+                ProductName = product.ProductName,
+                Price = product.Price,
+                PromotionPrice = product.IsPromoted ? product.PromotionPrice : null,
+                Quantity = increment,
+                Size = size
+            });
         }
 
         cart.LastUpdatedAt = DateTime.UtcNow;
@@ -97,10 +103,16 @@ public class CartService : ICartService
 
     private async Task SaveCartAsync(CartEntity cart, CancellationToken cancellationToken)
     {
-        var exists = await _cartRepository.GetByIdAsync(cart.Id, cancellationToken);
-        if (exists == null)
+        var existing = await _cartRepository.GetByCustomerIdAsync(cart.CustomerId, cancellationToken);
+
+        if (existing == null)
+        {
             await _cartRepository.AddAsync(cart, cancellationToken);
+        }
         else
+        {
+            cart.Id = existing.Id;
             await _cartRepository.UpdateAsync(cart, cancellationToken);
+        }
     }
 }
