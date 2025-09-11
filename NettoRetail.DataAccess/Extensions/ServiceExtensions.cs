@@ -81,6 +81,8 @@ public static class ServiceExtensions
         services.AddScoped<IFeatureRepository, FeatureRepository>();
         services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        services.AddScoped<IOnboardingSlideRepository, OnboardingSlideRepository>();
+        services.AddScoped<IOnboardingSlideDraftRepository, OnboardingSlideDraftRepository>();
 
     //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
