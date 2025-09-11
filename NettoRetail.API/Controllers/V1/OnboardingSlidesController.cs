@@ -14,6 +14,7 @@ namespace NettoRetail.API.Controllers.V1
     [ApiController]
     [ApiVersion(1)]
     [Route("/api/v{version:apiVersion}/onboarding-slides")]
+    [Authorize(Policy = "SuperAdminPolicy")]
 
     public class OnboardingSlidesController(IMediator mediator) : ControllerBase
     {
@@ -43,7 +44,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPost("create")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(typeof(ApiResponse<OnboardingSlideResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -58,7 +58,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(typeof(ApiResponse<OnboardingSlideResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -74,7 +73,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -90,11 +88,11 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPost("reorder")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ReorderSlides([FromBody] ReorderOnboardingSlidesRequest request, CancellationToken cancellationToken)
         {
             await mediator.Send(new ReorderOnboardingSlidesCommand(request), cancellationToken);
@@ -103,7 +101,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpPost("draft")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -117,7 +114,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpGet("draft/{slideId:int?}")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(typeof(ApiResponse<OnboardingSlideDraftResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -131,7 +127,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [HttpDelete("draft/{slideId:int?}")]
-        [Authorize(Policy = "SuperAdminPolicy")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
