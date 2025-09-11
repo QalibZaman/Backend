@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.Country;
+using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.FavouriteListItems.Commands;
