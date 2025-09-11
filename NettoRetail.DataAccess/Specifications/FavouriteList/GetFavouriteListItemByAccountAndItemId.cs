@@ -1,7 +1,7 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Country;
+namespace NettoRetail.DataAccess.Specifications.FavouriteList;
 
 public class GetFavouriteListItemByAccountAndItemId : Specification<FavouriteListItemEntity>
 {
