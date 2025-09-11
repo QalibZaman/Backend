@@ -10,31 +10,13 @@ namespace NettoRetail.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsVisible",
-                table: "Feedbacks",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "RejectionReason",
-                table: "Feedbacks",
-                type: "character varying(500)",
-                maxLength: 500,
-                nullable: true);
+            // intentionally left blank
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsVisible",
-                table: "Feedbacks");
-
-            migrationBuilder.DropColumn(
-                name: "RejectionReason",
-                table: "Feedbacks");
+            // intentionally left blank
         }
     }
 }
