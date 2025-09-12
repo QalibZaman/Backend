@@ -38,6 +38,7 @@ public class AccountEntity
     public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
     public ICollection<ReviewEntity> Reviews { get; set; } = [];
     public ICollection<FeedbackEntity>? Feedbacks { get; set; }
+    public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
 
     public string FullName => FirstName + " " + LastName;
 }

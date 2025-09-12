@@ -10,11 +10,11 @@ using NettoRetail.Domain.Enums;
 namespace NettoRetail.Tests.IntegrationTests.ShopTests
 {
     [Collection("Sequential Tests")]
-    public class ShopFilteredCatalogHandlerTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
+    public class ShopFilteredCatalogHandlerTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
     {
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public ShopFilteredCatalogHandlerTests(CustomWebApplicationFactory<Program> factory)
+        public ShopFilteredCatalogHandlerTests(CustomWebApplicationFactory factory)
         {
             _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
 

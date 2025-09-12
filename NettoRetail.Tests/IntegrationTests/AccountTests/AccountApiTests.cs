@@ -14,13 +14,13 @@ using NettoRetail.Application.Models.Request.Password;
 namespace NettoRetail.Tests.IntegrationTests.AccountTests;
 
 [Collection("Sequential Tests")]
-public class AccountApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
+public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly List<string> _testEmails = new();
 
-    public AccountApiTests(CustomWebApplicationFactory<Program> factory)
+    public AccountApiTests(CustomWebApplicationFactory factory)
     {
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
