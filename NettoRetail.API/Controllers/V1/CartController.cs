@@ -30,7 +30,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddItem([FromQuery] Guid inventoryItemId, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddItem([FromBody] Guid inventoryItemId, CancellationToken cancellationToken)
         {
             var customerId = HttpContext.GetUserId();
             var command = new AddItemToCartCommand(
