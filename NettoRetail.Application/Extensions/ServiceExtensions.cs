@@ -1,7 +1,8 @@
-using System.Reflection;
+using EntityFramework.Exceptions.PostgreSQL;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
@@ -9,18 +10,20 @@ using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
+using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.INewsletterService;
+using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
+using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
 using Stripe;
-using NettoRetail.Application.Services.INotificationService;
-using NettoRetail.Application.Services.IImageUploadService;
+using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -28,6 +31,13 @@ public static class ServiceExtensions
 {
     public static void AddApplicationServiceExtensions(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("DefaultConnection");
+            options.UseNpgsql(connectionString)
+                .UseExceptionProcessor();
+        });
+
         // Mediator
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 

@@ -1,4 +1,3 @@
-using EntityFramework.Exceptions.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Options;
@@ -42,8 +41,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(connectionStringsOptions.Value.DefaultConnection)
-            .UseExceptionProcessor();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

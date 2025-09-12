@@ -17,12 +17,12 @@ using NettoRetail.Application.Models.InventoryItem;
 namespace NettoRetail.Tests.IntegrationTests.InventoryItemTests;
 
 [Collection("Sequential Tests")]
-public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
+public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public InventoryItemApiTests(CustomWebApplicationFactory<Program> factory)
+    public InventoryItemApiTests(CustomWebApplicationFactory factory)
     {
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {

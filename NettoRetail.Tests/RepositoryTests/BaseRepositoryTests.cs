@@ -1,46 +1,33 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.DataAccess.Context;
-using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Interfaces.Repositories;
-using NSubstitute;
 
 namespace NettoRetail.Tests.RepositoryTests;
 
-public class BaseRepositoryTests : IDisposable
+[Collection("Sequential Tests")]
+public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
-    private readonly AppDbContext _dbContext;
-    private readonly BaseRepository<ShopEntity> _repository;
-    private readonly CountryRepository _countryRepository;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public BaseRepositoryTests()
+    public BaseRepositoryTests(CustomWebApplicationFactory factory)
     {
-        var mockConnectionStrings = Substitute.For<IOptions<ConnectionStrings>>();
-        mockConnectionStrings.Value.Returns(new ConnectionStrings
-        {
-            DefaultConnection = "Server=localhost;Database=nrt_test2;Port=5432;User Id=postgres;Password=admin;",
-            AzureConnection = "FakeConnectionString"
-        });
-
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql()
-            .Options;
-
-        _dbContext = new AppDbContext(options, mockConnectionStrings);
-        InitializeDatabase();
-
-        _countryRepository = new CountryRepository(_dbContext);
-        _repository = new ShopRepository(_dbContext);
+        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();       
     }
 
     [Fact]
     public async Task AddAsync_ShouldAddEntity()
     {
         // Arrange
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _countryRepository = new CountryRepository(context);
+        var _repository = new ShopRepository(context);
+
         var countrySpecification = new GetCountryByIdSpecification(1);
         var country = await _countryRepository.GetAsync(countrySpecification, CancellationToken.None);
 
@@ -67,7 +54,7 @@ public class BaseRepositoryTests : IDisposable
         var addedShop = await _repository.AddAsync(shop, CancellationToken.None);
 
         // Assert
-        var shopInDb = await _dbContext.Set<ShopEntity>().FirstOrDefaultAsync(s => s.Id == 1);
+        var shopInDb = await context.Set<ShopEntity>().FirstOrDefaultAsync(s => s.Id == 1);
         Assert.NotNull(shopInDb);
         Assert.Equal("Test Shop", shopInDb?.Name);
     }
@@ -76,6 +63,12 @@ public class BaseRepositoryTests : IDisposable
     public async Task DeleteAsync_ShouldDeleteEntity()
     {
         // Arrange
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _countryRepository = new CountryRepository(context);
+        var _repository = new ShopRepository(context);
+
         var countrySpecification = new GetCountryByIdSpecification(1);
         var country = await _countryRepository.GetAsync(countrySpecification, CancellationToken.None);
 
@@ -104,7 +97,7 @@ public class BaseRepositoryTests : IDisposable
         await _repository.DeleteAsync(shop, CancellationToken.None);
 
         // Assert
-        var deletedShop = await _dbContext.Set<ShopEntity>().FindAsync(1);
+        var deletedShop = await context.Set<ShopEntity>().FindAsync(1);
         Assert.Null(deletedShop);
     }
 
@@ -112,6 +105,12 @@ public class BaseRepositoryTests : IDisposable
     public async Task GetAsync_ShouldReturnEntity()
     {
         // Arrange
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _countryRepository = new CountryRepository(context);
+        var _repository = new ShopRepository(context);
+
         var countrySpecification = new GetCountryByIdSpecification(1);
         var country = await _countryRepository.GetAsync(countrySpecification, CancellationToken.None);
 
@@ -149,6 +148,12 @@ public class BaseRepositoryTests : IDisposable
     public async Task GetAmountAsync_ShouldReturnCorrectCount()
     {
         // Arrange
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _countryRepository = new CountryRepository(context);
+        var _repository = new ShopRepository(context);
+
         var countrySpecification = new GetCountryByIdSpecification(1);
         var country = await _countryRepository.GetAsync(countrySpecification, CancellationToken.None);
 
@@ -207,6 +212,12 @@ public class BaseRepositoryTests : IDisposable
     public async Task DeleteAsync_WithSpecification_ShouldDeleteEntity()
     {
         // Arrange
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _countryRepository = new CountryRepository(context);
+        var _repository = new ShopRepository(context);
+
         var countrySpecification = new GetCountryByIdSpecification(1);
         var country = await _countryRepository.GetAsync(countrySpecification, CancellationToken.None);
 
@@ -237,17 +248,19 @@ public class BaseRepositoryTests : IDisposable
         await _repository.DeleteAsync(specification, CancellationToken.None);
 
         // Assert
-        var deletedShop = await _dbContext.Set<ShopEntity>().FindAsync(1);
+        var deletedShop = await context.Set<ShopEntity>().FindAsync(1);
         Assert.Null(deletedShop);
-    }
-
-    private void InitializeDatabase()
-    {
-        _dbContext.Database.EnsureCreated();
     }
 
     public void Dispose()
     {
-        _dbContext.Database.EnsureDeleted();
+        using var scope = _scopeFactory.CreateScope();
+        
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        dbContext.Shops.RemoveRange(dbContext.Shops);
+
+        dbContext.SaveChanges();
+        
     }
 }

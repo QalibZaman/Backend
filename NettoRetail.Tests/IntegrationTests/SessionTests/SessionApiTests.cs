@@ -12,13 +12,13 @@ using System.Net.Http.Headers;
 namespace NettoRetail.Tests.IntegrationTests.SessionTests;
 
 [Collection("Sequential Tests")]
-public class SessionApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
+public class SessionApiTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly List<string> _testEmails = new();
 
-    public SessionApiTests(CustomWebApplicationFactory<Program> factory)
+    public SessionApiTests(CustomWebApplicationFactory factory)
     {
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
