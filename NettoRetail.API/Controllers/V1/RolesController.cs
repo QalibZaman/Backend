@@ -22,8 +22,10 @@ public class RolesController(IMediator mediator) : ControllerBase
 {
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
-    [RequiresPermission("System settings")]
-    [Authorize]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CreateRoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,23 +40,12 @@ public class RolesController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize]
-    [HttpGet("all")]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetAllRolesResponse>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<IEnumerable<GetAllRolesResponse>>>> GetAllRoles(CancellationToken cancellationToken)
-    {
-        var shopId = HttpContext.GetUserShopId();
-        var query = new GetAllRolesQuery(shopId);
-        var result = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<IEnumerable<GetAllRolesResponse>>(result);
-        return Ok(response);
-    }
-
-    [Authorize]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,7 +60,12 @@ public class RolesController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,6 +81,11 @@ public class RolesController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

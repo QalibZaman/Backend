@@ -20,7 +20,11 @@ public class CreateRoleCommandHandler(IPermissionRepository permissionRepository
 {
     public async Task<CreateRoleResponse> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken) ?? throw new NotFoundException($"No shop with Id: {request.ShopId}");
+        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        if (!shopExists)
+        {
+            throw new NotFoundException($"No shop with Id: {request.ShopId}");
+        }
 
         var role = request.Adapt<RoleEntity>();
 

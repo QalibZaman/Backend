@@ -9,7 +9,7 @@ using NettoRetail.DataAccess.Context;
 using NettoRetail.Application.Models.Entities;
 using System.Net.Http.Headers;
 
-namespace NettoRetail.Tests.IntegrationTests;
+namespace NettoRetail.Tests.IntegrationTests.SessionTests;
 
 [Collection("Sequential Tests")]
 public class SessionApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable

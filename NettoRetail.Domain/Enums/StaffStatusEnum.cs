@@ -6,6 +6,6 @@ public enum StaffStatusEnum
     Online,
     Offline,
     Deactivated,
-    Active,
-    Inactive
+    Pending,
+    Active
 }

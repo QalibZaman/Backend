@@ -108,4 +108,24 @@ public class EmailBuilderService(
             Message = body
         };
     }
+
+    public async Task<BulkEmailModel> BuildFeedbackRejectedEmailsAsync(
+        List<string> emails,
+        string reason)
+    {
+        var templateModel = new
+        {
+            reason = reason
+        };
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.FeedbackRejectionNotification,
+            templateModel);
+
+        return new BulkEmailModel
+        {
+            EmailAddresses = emails,
+            Subject = EmailSubjects.FeedbackRejectionNotification,
+            Message = body
+        };
+    }
 }

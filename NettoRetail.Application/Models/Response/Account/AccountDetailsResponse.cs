@@ -8,6 +8,7 @@ public class AccountDetailsResponse
     public required string Email { get; set; }
     public required int RoleId { get; set; }
     public required string Status { get; set; }
+    public required bool IsOnboardingCompleted { get; set; }
     public string? PhoneNumber { get; set; }
     public string? ShippingAddress { get; set; }
     public string? City { get; set; }

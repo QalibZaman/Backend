@@ -1,16 +1,16 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Attributes;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.CQRS.Reviews.Queries;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 using NettoRetail.Application.CQRS.SuperAdminsShopManagement.Queries;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
+using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Models.ClientsShop;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
@@ -19,6 +19,8 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -226,5 +228,95 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
             cancellationToken);
 
         return Ok(new ApiResponse<CreatePlatformAdminResponse>(response));
+    }
+
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPost("platform-admins/{id:guid}/activate")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ActivatePlatformAdmin(Guid id)
+    {
+        var currentAdminId = HttpContext.GetUserId();
+
+        var activatePlatformAdminCommand = new ActivatePlatfromAdminCommand(id, currentAdminId);
+        await mediator.Send(activatePlatformAdminCommand);
+
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPost("platform-admins/{id:guid}/deactivate")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeactivatePlatformAdmin(Guid id)
+    {
+        var currentAdminId = HttpContext.GetUserId();
+
+        var deactivatePlatfromAdminCommand = new DeactivatePlatfromAdminCommand(id, currentAdminId);
+        await mediator.Send(deactivatePlatfromAdminCommand);
+
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("platform-admins/{id:guid}")]
+    public async Task<IActionResult> EditPlatformAdmin(Guid id, [FromBody] EditPlatformAdminRequest request, CancellationToken cancellationToken)
+    {
+        var currentUserId = User.GetUserId();
+        var command = new EditPlatformAdminCommand(id, currentUserId, request);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpDelete("platform-admins/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeletePlatformAdmin(Guid id)
+    {
+        var currentAdminId = HttpContext.GetUserId();
+
+        var deletePlatfromAdminCommand = new DeletePlatformAdminCommand(id, currentAdminId);
+        await mediator.Send(deletePlatfromAdminCommand);
+
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpGet("platform-admins")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
+    {
+        var query = new GetAllPlatformAdminsQuery();
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<List<PlatformAdminResponse>>(data);
+
+        return Ok(response);
     }
 }

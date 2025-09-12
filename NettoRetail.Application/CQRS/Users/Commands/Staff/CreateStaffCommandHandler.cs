@@ -31,7 +31,7 @@ public class CreateStaffCommandHandler(
         if (existingAccount != null)
             throw new ConflictException("An account with this email already exists.");
 
-        var roleSpecification = new GetRoleByIdSpecification(request.Model.RoleId, request.ShopId);
+        var roleSpecification = new GetRoleByShopIdOrAdminIdSpecification(request.Model.RoleId, request.ShopId);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
             ?? throw new NotFoundException("Role not found");
 

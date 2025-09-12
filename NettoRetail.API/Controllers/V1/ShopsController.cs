@@ -7,6 +7,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Shops.Commands;
 using NettoRetail.Application.CQRS.Shops.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Shared.Constants;
@@ -34,7 +35,6 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<ShopResponse>), StatusCodes.Status201Created)]
@@ -52,7 +52,6 @@ public class ShopsController(IMediator mediator) : ControllerBase
 
         return CreatedAtAction(nameof(GetShop), new { id = createdShop.Id }, response);
     }
-
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut]
@@ -115,5 +114,20 @@ public class ShopsController(IMediator mediator) : ControllerBase
         await mediator.Send(command);
 
         return Ok("Shop successfully deactivated.");
+    }
+
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemListResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{shopId:int}/catalog")]
+    public async Task<IActionResult> GetCatalog(int shopId, [FromQuery] GetFilteredCatalogModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+    {
+        var query = new GetShopFilteredCatalogQuery(model, shopId, pageModel);
+
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(data);
+
+        return Ok(response);
     }
 }
