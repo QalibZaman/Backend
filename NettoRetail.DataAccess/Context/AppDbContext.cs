@@ -38,6 +38,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<TeaserSectionEntity> TeaserSection { get; set; }
     public DbSet<NewProductsSectionEntity> NewProductsSections { get; set; }
     public DbSet<NewProductsProductEntity> NewProductsProducts { get; set; }
+    public DbSet<FavouriteListItemEntity> FavouriteListItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
