@@ -91,6 +91,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<bool>("IsOnboardingCompleted")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsSubscribedToNewsletter")
                         .HasColumnType("boolean");
 
@@ -669,6 +672,21 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("FailedAuthAttempt");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FavouriteListItemEntity", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AccountId", "InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("FavouriteListItems");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -711,8 +729,15 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("ShopName")
                         .IsRequired()
@@ -1815,6 +1840,25 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FavouriteListItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("FavouriteListItems")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("FavouriteListItems")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", null)
@@ -2042,6 +2086,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
+                    b.Navigation("FavouriteListItems");
+
                     b.Navigation("Feedbacks");
 
                     b.Navigation("PasswordHistories");
@@ -2085,6 +2131,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("FavouriteListItems");
+
                     b.Navigation("Images");
 
                     b.Navigation("OrderItems");

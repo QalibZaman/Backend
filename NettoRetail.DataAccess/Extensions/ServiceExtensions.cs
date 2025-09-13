@@ -86,6 +86,7 @@ public static class ServiceExtensions
         services.AddScoped<ITeaserSectionRepository, TeaserSectionRepository>();
         services.AddScoped<INewProductsRepository, NewProductsRepository>();
         services.AddScoped<INewProductsProductRepository, NewProductsProductRepository>();
+        services.AddScoped<IFavouriteListItemRepository, FavouriteListItemRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,47 +1,81 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.DataAccess.Context;
-using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Options;
-using NSubstitute;
 
 namespace NettoRetail.Tests.RepositoryTests;
 
-public class CategoryRepositoryTests : IDisposable
+[Collection("Sequential Tests")]
+public class CategoryRepositoryTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
-    private readonly CategoryRepository _categoryRepository;
-    private readonly AppDbContext _dbContext;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public CategoryRepositoryTests()
+    public CategoryRepositoryTests(CustomWebApplicationFactory factory)
     {
-        var mockConnectionStrings = Substitute.For<IOptions<ConnectionStrings>>();
-        mockConnectionStrings.Value.Returns(new ConnectionStrings
-        {
-            DefaultConnection = "Server=localhost;Database=nrt_test1;Port=5432;User Id=postgres;Password=admin;",
-            AzureConnection = "FakeConnectionString"
-        });
+        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
 
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseNpgsql()
-                .Options;
-
-        _dbContext = new AppDbContext(options, mockConnectionStrings);
-        InitializeDatabase();
-
-        _categoryRepository = new CategoryRepository(_dbContext);
+        SeedData();
     }
 
-    private void InitializeDatabase()
+    [Fact]
+    public async Task GetCategorySubtreeAsync_ShouldReturnSubtreeOfSelectedCategory()
     {
-        _dbContext.Database.EnsureCreated();
-        SeedData();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _categoryRepository = new CategoryRepository(context);
+
+        var result = await _categoryRepository.GetCategorySubtreeAsync(1, CancellationToken.None);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, c => c.Id == 1);
+        Assert.Contains(result, c => c.Id == 2);
+        Assert.Contains(result, c => c.Id == 5);
+        Assert.Contains(result, c => c.Id == 6);
+        Assert.Contains(result, c => c.Id == 3);
+        Assert.Contains(result, c => c.Id == 7);
+        Assert.Contains(result, c => c.Id == 4);
+        Assert.Contains(result, c => c.Id == 8);
+        Assert.Contains(result, c => c.Id == 9);
+        Assert.Contains(result, c => c.Id == 10);
+    }
+
+    [Fact]
+    public async Task GetCategoryWithHierarchyAsync_ShouldReturnCategoriesBottomUpToRoot()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var _categoryRepository = new CategoryRepository(context);
+
+        var result = await _categoryRepository.GetCategoryWithHierarchyAsync(5, CancellationToken.None);
+
+        Assert.NotEmpty(result);
+        Assert.Equal(3, result.Count);
+        Assert.Equal(1, result[0].Id);
+        Assert.Equal(2, result[1].Id);
+        Assert.Equal(5, result[2].Id);
+    }
+
+    public void Dispose()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        dbContext.Categories.RemoveRange(dbContext.Categories);
+        dbContext.Shops.RemoveRange(dbContext.Shops);
+
+        dbContext.SaveChanges();
+        
     }
 
     private void SeedData()
     {
-        var country = _dbContext.Countries.Where(c => c.Id == 1).First();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var country = context.Countries.Where(c => c.Id == 1).First();
 
         var shop = new ShopEntity
         {
@@ -80,43 +114,8 @@ public class CategoryRepositoryTests : IDisposable
             new CategoryEntity { Id = 14, Name = "Child 2 of Root2", URL = "something.com/child2root2", Visibility = true, Level = 2, ParentId = 11, ShopId = 1, Shop = shop }
         };
 
-        _dbContext.Categories.AddRange(categories);
-        _dbContext.Shops.Add(shop);
-        _dbContext.SaveChanges();
-    }
-
-    [Fact]
-    public async Task GetCategorySubtreeAsync_ShouldReturnSubtreeOfSelectedCategory()
-    {
-        var result = await _categoryRepository.GetCategorySubtreeAsync(1, CancellationToken.None);
-
-        Assert.NotEmpty(result);
-        Assert.Contains(result, c => c.Id == 1);
-        Assert.Contains(result, c => c.Id == 2);
-        Assert.Contains(result, c => c.Id == 5);
-        Assert.Contains(result, c => c.Id == 6);
-        Assert.Contains(result, c => c.Id == 3);
-        Assert.Contains(result, c => c.Id == 7);
-        Assert.Contains(result, c => c.Id == 4);
-        Assert.Contains(result, c => c.Id == 8);
-        Assert.Contains(result, c => c.Id == 9);
-        Assert.Contains(result, c => c.Id == 10);
-    }
-
-    [Fact]
-    public async Task GetCategoryWithHierarchyAsync_ShouldReturnCategoriesBottomUpToRoot()
-    {
-        var result = await _categoryRepository.GetCategoryWithHierarchyAsync(5, CancellationToken.None);
-
-        Assert.NotEmpty(result);
-        Assert.Equal(3, result.Count);
-        Assert.Equal(1, result[0].Id);
-        Assert.Equal(2, result[1].Id);
-        Assert.Equal(5, result[2].Id);
-    }
-
-    public void Dispose()
-    {
-        _dbContext.Database.EnsureDeleted();
+        context.Categories.AddRange(categories);
+        context.Shops.Add(shop);
+        context.SaveChanges();
     }
 }

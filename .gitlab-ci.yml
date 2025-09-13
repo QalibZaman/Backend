@@ -1,5 +1,18 @@
 workflow:
   name: 'Pipeline for Branch - $CI_COMMIT_BRANCH'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"' 
+      variables:
+        ASPNETCORE_ENVIRONMENT: "Development"
+    - if: '$CI_COMMIT_BRANCH == "test"'
+      variables:
+        ASPNETCORE_ENVIRONMENT: "Testing"
+    - if: '$CI_COMMIT_BRANCH == "prod"'
+      variables:
+        ASPNETCORE_ENVIRONMENT: "Production"
+    - when: always
+      variables:
+        ASPNETCORE_ENVIRONMENT: "Development"
 
 stages:
   - restore
@@ -19,10 +32,10 @@ restore:
   stage: restore
   image: mcr.microsoft.com/dotnet/sdk:8.0
   cache:
-    key: ${CI_PROJECT_NAME}-nuget
-    paths:
-      - ~/.nuget/packages/
+    key: "${CI_PROJECT_NAME}-nuget"
     policy: pull-push
+    paths:
+      - .nuget/packages/
   script:
     - dotnet restore "NettoRetail.API/NettoRetail.API.csproj"
 
@@ -32,6 +45,7 @@ build:
   needs:
     - job: restore
   script:
+    - echo "Building the application..."
     - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build /p:VersionPrefix=1.0.0 /p:VersionSuffix=ci.${CI_COMMIT_SHORT_SHA}
     - dotnet publish "NettoRetail.API/NettoRetail.API.csproj" -c Release -r linux-x64 --self-contained true -p:PublishTrimmed=false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
   artifacts:
@@ -56,9 +70,10 @@ test:
     - dotnet tool install -g dotnet-reportgenerator-globaltool
     - export PATH="$PATH:/root/.dotnet/tools"
     - dotnet add NettoRetail.Tests package JunitXml.TestLogger
-    - dotnet restore NettoRetail.Tests/NettoRetail.Tests.csproj        # ← важно
+    - dotnet restore NettoRetail.Tests/NettoRetail.Tests.csproj
     - mkdir -p TestResults   
   script:
+    - echo "Beginning testing process..."
     - dotnet test "NettoRetail.Tests/NettoRetail.Tests.csproj" -c $BUILD_CONFIGURATION --results-directory TestResults --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage" --logger "junit;LogFilePath=TestResults/junit.xml" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
   artifacts:
     when: always
@@ -99,6 +114,7 @@ sonarqube:
        }
       EOF
   script:
+    - echo "Sonarqube initialization..."
     - >
       dotnet-sonarscanner begin
       /k:"$SONAR_KEY"
@@ -144,9 +160,12 @@ migration:
     - dotnet tool install --global dotnet-ef
     - export PATH="$PATH:/root/.dotnet/tools"
   script:
-    - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API
-  when: manual
-
+    - echo "Starting the Database migration..."
+    - dotnet ef database update --project NettoRetail.DataAccess --startup-project NettoRetail.API -- --environment "$ASPNETCORE_ENVIRONMENT"
+  rules:
+    - when: manual
+      allow_failure: true
+        
 deploy:
   stage: deploy
   image: mcr.microsoft.com/azure-cli
@@ -161,10 +180,11 @@ deploy:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-  only:
-    - dev
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - when: never
 
-deploy_to_staging:
+deploy_to_test:
   stage: deploy
   image: mcr.microsoft.com/azure-cli
   needs:
@@ -178,8 +198,9 @@ deploy_to_staging:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-  only:
-    - test
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "test"'
+    - when: never
 
 deploy_to_prod:
   stage: deploy
@@ -195,5 +216,6 @@ deploy_to_prod:
           --resource-group ${RESOURCE_GROUP}
           --container-image-name ${CI_REGISTRY}/${CI_PROJECT_NAME}:${CI_PIPELINE_ID}
           --container-registry-url https://${CI_REGISTRY}
-  only:
-    - prod
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "prod"'
+    - when: never

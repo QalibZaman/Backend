@@ -318,6 +318,20 @@ public class StaffController(
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpDelete("{id:guid}/profile-image")]
+    public async Task<IActionResult> DeleteProfileImage([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+
+        var command = new DeleteProfileImageCommand(id);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredStaffCsvRequest getFilteredStaffCsvRequest, CancellationToken cancellationToken)
     {
@@ -341,5 +355,18 @@ public class StaffController(
             return BadRequest(result.Errors);
 
         return Ok(result);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("toggle-onboarding-status")]
+    public async Task<IActionResult> ToggleOnboardingStatus([FromQuery] ToggleOnboardingStatusRequest request, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new ToggleOnboardingStatusCommand(userId, request.IsOnboardingCompleted);
+
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
     }
 }

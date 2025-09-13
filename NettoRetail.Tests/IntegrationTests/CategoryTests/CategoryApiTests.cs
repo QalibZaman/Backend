@@ -13,12 +13,12 @@ using System.Net.Http.Json;
 namespace NettoRetail.Tests.IntegrationTests.CategoryTests
 {
     [Collection("Sequential Tests")]
-    public class CategoryApiTests : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable
+    public class CategoryApiTests : IClassFixture<CustomWebApplicationFactory>, IDisposable
     {
         private readonly HttpClient _client;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public CategoryApiTests(CustomWebApplicationFactory<Program> factory)
+        public CategoryApiTests(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient(new WebApplicationFactoryClientOptions
             {

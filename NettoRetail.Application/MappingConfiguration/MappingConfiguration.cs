@@ -165,5 +165,7 @@ public class MappingConfiguration : IRegister
                 src => src.Role != null && src.Role.PermissionRoles != null
                 ? src.Role.PermissionRoles.Select(p => p.PermissionId).ToList()
                 : new List<int>());
+
+        config.NewConfig<FavouriteListItemEntity, AddToFavouritesResponse>();
     }
 }

@@ -12,6 +12,7 @@ using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Feedback;
+using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -38,7 +39,6 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<FeedbackResponse>(data);
         return Ok(response);
     }
-
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
@@ -83,7 +83,6 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-
     [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
     [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
@@ -102,4 +101,76 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
 
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("{id:Guid}/approve")]
+    public async Task<IActionResult> ApproveFeedback(Guid id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ApproveFeedbackCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("{id:Guid}/reject")]
+    public async Task<IActionResult> RejectFeedback(Guid id, [FromBody] RejectFeedbackRequest request, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new RejectFeedbackCommand(id, request.Reason), cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("bulk-approve")]
+    public async Task<IActionResult> BulkApproveFeedbacks([FromBody] List<Guid> ids, CancellationToken cancellationToken)
+    {
+        var command = new BulkApproveFeedbacksCommand(ids);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("bulk-reject")]
+    public async Task<IActionResult> BulkRejectFeedbacks([FromBody] BulkRejectFeedbacksRequest request, CancellationToken cancellationToken)
+    {
+        var command = new BulkRejectFeedbacksCommand(request.FeedBackIds, request.Reason);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPatch("{id:Guid}/toggle-visibility")]
+    public async Task<IActionResult> ToggleVisibilityFeedbacks(Guid id, [FromBody] ToggleVisibilityRequest request, CancellationToken cancellationToken)
+    {
+        var command = new ToggleVisibilityCommand(id, request.IsVisible);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
 }
