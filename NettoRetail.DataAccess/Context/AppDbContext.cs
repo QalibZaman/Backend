@@ -14,6 +14,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
     public DbSet<ShopEntity> Shops { get; set; }
+    public DbSet<CartEntity> Carts { get; set; }
+    public DbSet<CartItemEntity> CartItems { get; set; }
     public DbSet<ContentEntity> Contents { get; set; }
     public DbSet<CountryEntity> Countries { get; set; }
     public DbSet<InventoryItemEntity> InventoryItems { get; set; }

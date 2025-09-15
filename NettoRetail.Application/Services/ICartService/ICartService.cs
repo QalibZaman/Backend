@@ -1,0 +1,12 @@
+﻿using NettoRetail.Domain.Entities;
+
+namespace NettoRetail.Application.Services.ICartService
+{
+    public interface ICartService
+    {
+        Task<CartEntity> AddItemForUserAsync(
+            Guid customerId,
+            Guid inventoryItemId,
+            CancellationToken cancellationToken = default);
+    }
+}
