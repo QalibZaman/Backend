@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;

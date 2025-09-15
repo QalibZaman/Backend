@@ -1,10 +1,10 @@
 ﻿using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Services.ICartService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
+namespace NettoRetail.Application.Services.ICartService;
 public class CartService : ICartService
 {
     private readonly ICartRepository _cartRepository;
