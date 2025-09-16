@@ -7,7 +7,6 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Cart.Commands;
 using NettoRetail.Application.Models.Request.Cart;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Migrations;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -24,7 +23,7 @@ namespace NettoRetail.API.Controllers.V1
             _mediator = mediator;
         }
 
-        [HttpPost("add")]
+        [HttpPost("items")]
         [ProducesResponseType(typeof(ApiResponse<AddToCartResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -41,6 +40,22 @@ namespace NettoRetail.API.Controllers.V1
             var addToCartResponse = await _mediator.Send(command, cancellationToken);
 
             return Created(string.Empty, new ApiResponse<AddToCartResponse>(addToCartResponse));
+        }
+
+        [HttpDelete("items/{itemId:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteItem(Guid itemId, CancellationToken cancellationToken)
+        {
+            var customerId = HttpContext.GetUserId();
+            var command = new DeleteItemFromCartCommand(itemId, customerId);
+
+            await _mediator.Send(command, cancellationToken);
+
+            return NoContent();
         }
 
         [HttpPut("items/{cartItemId:guid}/quantity")]

@@ -71,6 +71,16 @@ public class CartService : ICartService
         return cartItem;
     }
 
+    public async Task DeleteCartItemAsync(Guid customerId, Guid inventoryItemId, CancellationToken cancellationToken = default)
+    {
+        var cart = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken) ?? throw new NotFoundException("Cart not found");
+
+        var spec = new GetCartItemByCartAndItemIdSpecification(cart.Id, inventoryItemId);
+        var cartItem = await _cartItemRepository.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("Item not found in cart");
+
+        await _cartItemRepository.DeleteAsync(cartItem, cancellationToken);
+    }
+
     private async Task<InventoryItemEntity> ValidateProductAsync(
         Guid inventoryItemId,
         int increment,

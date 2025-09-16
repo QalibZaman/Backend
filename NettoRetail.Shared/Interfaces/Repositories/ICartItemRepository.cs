@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NettoRetail.Shared.Interfaces.Repositories
+namespace NettoRetail.Shared.Interfaces.Repositories;
+
+public interface ICartItemRepository : IBaseRepository<CartItemEntity>
 {
-    public interface ICartItemRepository : IBaseRepository<CartItemEntity>
-    {
-    }
 }

@@ -8,10 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NettoRetail.DataAccess.Repositories
+namespace NettoRetail.DataAccess.Repositories;
+
+public class CartItemRepository(AppDbContext dbContext) : BaseRepository<CartItemEntity>(dbContext), ICartItemRepository
 {
-    public class CartItemRepository : BaseRepository<CartItemEntity>, ICartItemRepository
-    {
-        public CartItemRepository(AppDbContext dbContext) : base(dbContext) { }
-    }
 }
