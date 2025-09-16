@@ -31,6 +31,38 @@ public class CartService : ICartService
         return cart;
     }
 
+    public async Task<CartItemEntity> UpdateItemQuantityAsync(Guid customerId, Guid cartItemId, int newQuantity, CancellationToken cancellationToken = default)
+    {
+        var cart = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken)
+           ?? throw new NotFoundException("Cart not found.");
+
+        var cartItem = cart.Items.FirstOrDefault(x => x.Id == cartItemId)
+           ?? throw new NotFoundException("Cart item not found.");
+
+        if (newQuantity < 1)
+            throw new BadRequestException("Quantity must be at least 1");
+
+        var specification = new GetInventoryItemByIdSpecification(cartItem.InventoryItemId);
+
+        var product = await _inventoryRepository.GetAsync(specification, cancellationToken);
+
+        if (product == null || product.Status != InventoryItemStatusEnum.Available)
+            throw new BadRequestException("Product is not available");
+
+        if (newQuantity > product.AvailableAmount)
+            throw new BadRequestException($"Only {product.AvailableAmount} items available in stock.");
+
+        cartItem.Quantity = newQuantity;
+        cartItem.Price = product.Price;
+        cartItem.PromotionPrice = product.IsPromoted ? product.PromotionPrice : null;
+
+        cart.LastUpdatedAt = DateTime.UtcNow;
+
+        await _cartRepository.UpdateAsync(cart, cancellationToken);
+
+        return cartItem;
+    }
+
     private async Task<InventoryItemEntity> ValidateProductAsync(
     Guid inventoryItemId,
     int increment,
@@ -106,6 +138,7 @@ public class CartService : ICartService
 
         cart.LastUpdatedAt = DateTime.UtcNow;
     }
+
     private async Task SaveCartAsync(CartEntity cart, CancellationToken cancellationToken)
     {
         var existing = await _cartRepository.GetByCustomerIdAsync(cart.CustomerId, cancellationToken);

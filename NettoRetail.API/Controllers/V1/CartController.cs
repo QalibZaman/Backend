@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Cart.Commands;
+using NettoRetail.Application.Models.Request.Cart;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Migrations;
 
@@ -40,6 +41,27 @@ namespace NettoRetail.API.Controllers.V1
             var addToCartResponse = await _mediator.Send(command, cancellationToken);
 
             return Created(string.Empty, new ApiResponse<AddToCartResponse>(addToCartResponse));
+        }
+
+        [HttpPut("items/{cartItemId}/quantity")]
+        [ProducesResponseType(typeof(ApiResponse<CartItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> UpdateCartItemQuantity(Guid cartItemId, [FromBody] UpdateCartItemQuantityRequest quantity, CancellationToken cancellationToken)
+        {
+            var customerId = HttpContext.GetUserId();
+            var command = new UpdateCartItemQuantityCommand(
+                CartItemId: cartItemId,
+                Quantity: quantity.Quantity,
+                CustomerId: customerId);
+
+            var response = await _mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponse<CartItemResponse>(response));
         }
     }
 }
