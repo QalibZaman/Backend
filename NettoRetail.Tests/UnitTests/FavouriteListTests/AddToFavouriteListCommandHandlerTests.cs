@@ -30,7 +30,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
             _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
-                 .Returns(true);
+                 .Returns(false);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None)); ;
