@@ -1,4 +1,5 @@
 ﻿using NettoRetail.Application.Exceptions;
+using NettoRetail.DataAccess.Specifications.CartItem;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -87,7 +88,8 @@ public class CartService : ICartService
     {
         var size = requestedSize;
 
-        var existingItem = await _cartItemRepository.GetByCartAndInventoryAsync(cart.Id, product.Id, size, ct);
+        var spec = new GetCartItemByCartAndInventorySpecification(cart.Id, product.Id, size);
+        var existingItem = await _cartItemRepository.GetAsync(spec, ct);
 
         cart.LastUpdatedAt = DateTime.UtcNow;
 

@@ -9,6 +9,5 @@ namespace NettoRetail.Shared.Interfaces.Repositories
 {
     public interface ICartItemRepository : IBaseRepository<CartItemEntity>
     {
-        Task<CartItemEntity?> GetByCartAndInventoryAsync(Guid cartId, Guid inventoryItemId, string? size, CancellationToken ct);
     }
 }

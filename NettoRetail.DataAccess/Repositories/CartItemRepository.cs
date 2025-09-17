@@ -13,15 +13,5 @@ namespace NettoRetail.DataAccess.Repositories
     public class CartItemRepository : BaseRepository<CartItemEntity>, ICartItemRepository
     {
         public CartItemRepository(AppDbContext dbContext) : base(dbContext) { }
-
-        public async Task<CartItemEntity?> GetByCartAndInventoryAsync(Guid cartId, Guid inventoryItemId, string? size, CancellationToken ct)
-        {
-            return await _dbSet.FirstOrDefaultAsync(
-                x => x.CartId == cartId
-                  && x.InventoryItemId == inventoryItemId
-                  && x.Size == size,
-                ct
-            );
-        }
     }
 }
