@@ -46,7 +46,7 @@ build:
     - job: restore
   script:
     - echo "Building the application..."
-    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build /p:VersionPrefix=1.0.0 /p:VersionSuffix=ci.${CI_COMMIT_SHORT_SHA}
+    - dotnet build "NettoRetail.API/NettoRetail.API.csproj" -c $BUILD_CONFIGURATION -o build /p:Version=1.0.0-ci-${CI_COMMIT_SHORT_SHA}
     - dotnet publish "NettoRetail.API/NettoRetail.API.csproj" -c Release -r linux-x64 --self-contained true -p:PublishTrimmed=false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
   artifacts:
     paths:
