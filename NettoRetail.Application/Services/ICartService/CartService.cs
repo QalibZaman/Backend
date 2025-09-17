@@ -44,10 +44,10 @@ public class CartService : ICartService
     private async Task<InventoryItemEntity> ValidateProductAsync(
         Guid inventoryItemId,
         int increment,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         var spec = new GetInventoryItemByIdSpecification(inventoryItemId);
-        var product = await _inventoryRepository.GetAsync(spec, ct);
+        var product = await _inventoryRepository.GetAsync(spec, cancellationToken);
 
         if (product == null)
             throw new NotFoundException("Product not found.");
@@ -61,9 +61,9 @@ public class CartService : ICartService
         return product;
     }
 
-    private async Task<CartEntity> LoadCartAsync(Guid customerId, CancellationToken ct)
+    private async Task<CartEntity> LoadCartAsync(Guid customerId, CancellationToken cancellationToken)
     {
-        var existing = await _cartRepository.GetByCustomerIdAsync(customerId, ct);
+        var existing = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken);
         if (existing != null)
             return existing;
 
@@ -75,7 +75,7 @@ public class CartService : ICartService
             LastUpdatedAt = DateTime.UtcNow
         };
 
-        await _cartRepository.AddAsync(newCart, ct);
+        await _cartRepository.AddAsync(newCart, cancellationToken);
         return newCart;
     }
 
@@ -84,12 +84,12 @@ public class CartService : ICartService
         InventoryItemEntity product,
         string? requestedSize,
         int increment,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         var size = requestedSize;
 
         var spec = new GetCartItemByCartAndInventorySpecification(cart.Id, product.Id, size);
-        var existingItem = await _cartItemRepository.GetAsync(spec, ct);
+        var existingItem = await _cartItemRepository.GetAsync(spec, cancellationToken);
 
         cart.LastUpdatedAt = DateTime.UtcNow;
 
@@ -104,7 +104,7 @@ public class CartService : ICartService
             existingItem.Price = product.Price;
             existingItem.PromotionPrice = product.IsPromoted ? product.PromotionPrice : null;
 
-            await _cartItemRepository.UpdateAsync(existingItem, ct);
+            await _cartItemRepository.UpdateAsync(existingItem, cancellationToken);
         }
         else
         {
@@ -123,7 +123,7 @@ public class CartService : ICartService
                 Size = size
             };
 
-            await _cartItemRepository.AddAsync(newItem, ct);
+            await _cartItemRepository.AddAsync(newItem, cancellationToken);
         }
     }
 }

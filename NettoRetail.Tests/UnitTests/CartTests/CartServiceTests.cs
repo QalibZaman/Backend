@@ -1,4 +1,6 @@
 ﻿using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Services.ICartService;
+using NettoRetail.DataAccess.Specifications.CartItem;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -11,15 +13,21 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
     {
         private readonly ICartRepository _cartRepo;
         private readonly IInventoryItemRepository _invRepo;
+        private readonly ICartItemRepository _cartItemRepo;
         private readonly CartService _cartService;
 
         public CartServiceTests()
         {
             _cartRepo = Substitute.For<ICartRepository>();
             _invRepo = Substitute.For<IInventoryItemRepository>();
-            _cartService = new CartService(_cartRepo, _invRepo);
-        }
+            _cartItemRepo = Substitute.For<ICartItemRepository>();
 
+            _cartService = new CartService(
+                cartRepository: _cartRepo,
+                cartItemRepository: _cartItemRepo,
+                inventoryRepository: _invRepo
+            );
+        }
 
         [Fact]
         public async Task AddItemForUserAsync_AddsNewItem_WhenCartDoesNotExist()
@@ -27,67 +35,76 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var customerId = Guid.NewGuid();
             var product = MakeProduct(5);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None)
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None)
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
                 .Returns((CartEntity?)null);
+
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
 
             var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
 
-            Assert.Single(cart.Items);
-            Assert.Equal(product.Id, cart.Items[0].InventoryItemId);
-            Assert.Equal(1, cart.Items[0].Quantity);
+            await _cartRepo.Received(1).AddAsync(Arg.Is<CartEntity>(c => c.CustomerId == customerId), Arg.Any<CancellationToken>());
 
-            await _cartRepo.Received(2).GetByCustomerIdAsync(customerId, CancellationToken.None);
-            await _cartRepo.Received(1).AddAsync(Arg.Any<CartEntity>(), CancellationToken.None);
-            await _cartRepo.DidNotReceive().UpdateAsync(Arg.Any<CartEntity>(), CancellationToken.None);
+            await _cartItemRepo.Received(1).AddAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.CartId != Guid.Empty &&
+                    i.InventoryItemId == product.Id &&
+                    i.Quantity == 1 &&
+                    i.ProductName == product.ProductName &&
+                    i.Price == product.Price),
+                Arg.Any<CancellationToken>());
+
+            await _cartRepo.DidNotReceive().UpdateAsync(Arg.Any<CartEntity>(), Arg.Any<CancellationToken>());
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_IncrementsQuantity_WhenItemExists()
         {
             var customerId = Guid.NewGuid();
             var product = MakeProduct(10);
+            var cart = new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId };
 
-            var existingCart = new CartEntity
+            var existingItem = new CartItemEntity
             {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                Items = new List<CartItemEntity>
-                {
-                    new CartItemEntity
-                    {
-                        InventoryItemId = product.Id,
-                        ProductName = "Old",
-                        Price = 5,
-                        Quantity = 1
-                    }
-                }
+                CartId = cart.Id,
+                InventoryItemId = product.Id,
+                Quantity = 1,
+                ProductName = "Old",
+                Price = 5m
             };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(existingCart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
+                .Returns(cart);
 
-            var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
 
-            Assert.Single(cart.Items);
-            Assert.Equal(2, cart.Items[0].Quantity);
-            Assert.Equal(product.ProductName, cart.Items[0].ProductName);
-            Assert.Equal(product.Price, cart.Items[0].Price);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns(existingItem);
 
-            await _cartRepo.Received(2).GetByCustomerIdAsync(customerId, CancellationToken.None);
-            await _cartRepo.Received(1).UpdateAsync(Arg.Any<CartEntity>(), CancellationToken.None);
+            await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+
+            await _cartItemRepo.Received(1).UpdateAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.InventoryItemId == product.Id &&
+                    i.Quantity == 2 &&                               
+                    i.ProductName == product.ProductName &&         
+                    i.Price == product.Price &&                      
+                    i.PromotionPrice == null),                       
+                Arg.Any<CancellationToken>());
+
+            await _cartItemRepo.DidNotReceive().AddAsync(Arg.Any<CartItemEntity>(), Arg.Any<CancellationToken>());
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_Throws_WhenProductNotFound()
         {
             var customerId = Guid.NewGuid();
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None)
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns((InventoryItemEntity?)null);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
@@ -95,6 +112,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
 
             await _cartRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
             await _cartRepo.DidNotReceiveWithAnyArgs().UpdateAsync(default!, default);
+            await _cartItemRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+            await _cartItemRepo.DidNotReceiveWithAnyArgs().UpdateAsync(default!, default);
         }
 
         [Fact]
@@ -103,43 +122,42 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var customerId = Guid.NewGuid();
             var product = MakeProduct(0);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None)
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             await Assert.ThrowsAsync<BadRequestException>(() =>
                 _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None));
-        }
 
+            await _cartItemRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+            await _cartItemRepo.DidNotReceiveWithAnyArgs().UpdateAsync(default!, default);
+        }
 
         [Fact]
         public async Task AddItemForUserAsync_Throws_WhenExceedsStock_RED()
         {
             var customerId = Guid.NewGuid();
             var product = MakeProduct(1);
+            var cart = new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId };
 
-            var cart = new CartEntity
+            var existingItem = new CartItemEntity
             {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                Items = new List<CartItemEntity>
-                {
-                    new CartItemEntity
-                    {
-                        InventoryItemId = product.Id,
-                        ProductName = product.ProductName,
-                        Price = product.Price,
-                        Quantity = 1
-                    }
-                }
+                CartId = cart.Id,
+                InventoryItemId = product.Id,
+                Quantity = 1, 
+                ProductName = product.ProductName,
+                Price = product.Price
             };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns(existingItem);
 
             await Assert.ThrowsAsync<BadRequestException>(() =>
                 _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None));
-        }
 
+            await _cartItemRepo.DidNotReceive().UpdateAsync(Arg.Any<CartItemEntity>(), Arg.Any<CancellationToken>());
+        }
 
         [Fact]
         public async Task AddItemForUserAsync_Updates_LastUpdatedAt()
@@ -155,14 +173,16 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
                 Items = new List<CartItemEntity>()
             };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
 
             var before = cart.LastUpdatedAt;
-
             var result = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
 
             Assert.True(result.LastUpdatedAt > before);
+            await _cartItemRepo.Received(1).AddAsync(Arg.Any<CartItemEntity>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -173,12 +193,22 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             product.IsPromoted = true;
             product.PromotionPrice = 7m;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns((CartEntity?)null);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
 
-            var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
+                .Returns(new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId });
 
-            Assert.Equal(7m, cart.Items[0].PromotionPrice);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
+
+            await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+
+            await _cartItemRepo.Received(1).AddAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.InventoryItemId == product.Id &&
+                    i.PromotionPrice == 7m),
+                Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -189,31 +219,29 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             product.IsPromoted = false;
             product.PromotionPrice = null;
 
-            var existingCart = new CartEntity
+            var cart = new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId };
+
+            var existingItem = new CartItemEntity
             {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                Items = new List<CartItemEntity>
-                {
-                    new CartItemEntity
-                    {
-                        InventoryItemId = product.Id,
-                        ProductName = product.ProductName,
-                        Price = product.Price,
-                        Quantity = 1,
-                        PromotionPrice = 5m
-                    }
-                }
+                CartId = cart.Id,
+                InventoryItemId = product.Id,
+                Quantity = 1,
+                PromotionPrice = 5m
             };
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(existingCart);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns(existingItem);
 
-            var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+            await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
 
-            Assert.Null(cart.Items[0].PromotionPrice);
+            await _cartItemRepo.Received(1).UpdateAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.InventoryItemId == product.Id &&
+                    i.PromotionPrice == null),
+                Arg.Any<CancellationToken>());
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_AddsDifferentProducts_AsSeparateLines()
@@ -222,32 +250,23 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var product1 = MakeProduct(5);
             var product2 = MakeProduct(10);
 
-            var cart = new CartEntity
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                Items = new List<CartItemEntity>
-                {
-                    new CartItemEntity
-                    {
-                        InventoryItemId = product1.Id,
-                        ProductName = product1.ProductName,
-                        Price = product1.Price,
-                        Quantity = 1
-                    }
-                }
-            };
+            var cart = new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product2);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
 
-            var result = await _cartService.AddItemForUserAsync(customerId, product2.Id, CancellationToken.None);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product2);
 
-            Assert.Equal(2, result.Items.Count);
-            Assert.Contains(result.Items, i => i.InventoryItemId == product1.Id);
-            Assert.Contains(result.Items, i => i.InventoryItemId == product2.Id);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
+
+            _ = await _cartService.AddItemForUserAsync(customerId, product2.Id, CancellationToken.None);
+
+            await _cartItemRepo.Received(1).AddAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.InventoryItemId == product2.Id && i.Quantity == 1),
+                Arg.Any<CancellationToken>());
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_ShouldThrow_WhenStatusIsUnavailable()
@@ -256,12 +275,12 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var product = MakeProduct(3);
             product.Status = InventoryItemStatusEnum.Unavailable;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
 
             await Assert.ThrowsAsync<BadRequestException>(() =>
                 _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None));
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_ShouldUpdateCartTimestamp()
@@ -277,15 +296,16 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
                 Items = new List<CartItemEntity>()
             };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
 
             var before = cart.LastUpdatedAt;
             var result = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
 
             Assert.True(result.LastUpdatedAt > before);
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_ShouldApplyPromotionPrice_WhenProductIsOnPromotion()
@@ -295,14 +315,23 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             product.IsPromoted = true;
             product.PromotionPrice = 4.99m;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product);
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns((CartEntity?)null);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
 
-            var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
+                .Returns(new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId });
 
-            Assert.Equal(4.99m, cart.Items[0].PromotionPrice);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
+
+            await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
+
+            await _cartItemRepo.Received(1).AddAsync(
+                Arg.Is<CartItemEntity>(i =>
+                    i.InventoryItemId == product.Id &&
+                    i.PromotionPrice == 4.99m),
+                Arg.Any<CancellationToken>());
         }
-
 
         [Fact]
         public async Task AddItemForUserAsync_ShouldCreateSeparateLine_ForDifferentProducts()
@@ -311,30 +340,21 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var product1 = MakeProduct(5);
             var product2 = MakeProduct(7);
 
-            var existingCart = new CartEntity
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                Items = new List<CartItemEntity>
-                {
-                    new CartItemEntity
-                    {
-                    InventoryItemId = product1.Id,
-                    ProductName = product1.ProductName,
-                    Price = product1.Price,
-                    Quantity = 1
-                    }
-                }
-            };
+            var cart = new CartEntity { Id = Guid.NewGuid(), CustomerId = customerId };
 
-            _cartRepo.GetByCustomerIdAsync(customerId, CancellationToken.None).Returns(existingCart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), CancellationToken.None).Returns(product2);
+            _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
 
-            var cart = await _cartService.AddItemForUserAsync(customerId, product2.Id, CancellationToken.None);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product2);
 
-            Assert.Equal(2, cart.Items.Count);
-            Assert.Contains(cart.Items, i => i.InventoryItemId == product1.Id);
-            Assert.Contains(cart.Items, i => i.InventoryItemId == product2.Id);
+            _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
+                .Returns((CartItemEntity?)null);
+
+            _ = await _cartService.AddItemForUserAsync(customerId, product2.Id, CancellationToken.None);
+
+            await _cartItemRepo.Received(1).AddAsync(
+                Arg.Is<CartItemEntity>(i => i.InventoryItemId == product2.Id && i.Quantity == 1),
+                Arg.Any<CancellationToken>());
         }
 
         private static InventoryItemEntity MakeProduct(int availableAmount)
