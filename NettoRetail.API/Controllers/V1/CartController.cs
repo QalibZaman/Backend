@@ -43,7 +43,7 @@ namespace NettoRetail.API.Controllers.V1
             return Created(string.Empty, new ApiResponse<AddToCartResponse>(addToCartResponse));
         }
 
-        [HttpPut("items/{cartItemId}/quantity")]
+        [HttpPut("items/{cartItemId:guid}/quantity")]
         [ProducesResponseType(typeof(ApiResponse<CartItemResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

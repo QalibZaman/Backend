@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace NettoRetail.Application.Models.Request.Cart;
 
-namespace NettoRetail.Application.Models.Request.Cart
+public class UpdateCartItemQuantityRequest
 {
-    public class UpdateCartItemQuantityRequest
-    {
-        public int Quantity { get; set; }
-    }
+    public int Quantity { get; set; }
 }

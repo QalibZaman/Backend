@@ -2,38 +2,32 @@
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICartService;
 
-namespace NettoRetail.Application.CQRS.Cart.Commands
-{
-    public record UpdateCartItemQuantityCommand(
+namespace NettoRetail.Application.CQRS.Cart.Commands;
+
+public record UpdateCartItemQuantityCommand(
         Guid CartItemId,
         int Quantity,
         Guid CustomerId) : IRequest<CartItemResponse>;
-    public class UpdateCartItemQuantityCommandHandler : IRequestHandler<UpdateCartItemQuantityCommand, CartItemResponse>
+public class UpdateCartItemQuantityCommandHandler(ICartService cartService) : IRequestHandler<UpdateCartItemQuantityCommand, CartItemResponse>
+{
+    private readonly ICartService _cartService = cartService;
+
+    public async Task<CartItemResponse> Handle(UpdateCartItemQuantityCommand request, CancellationToken cancellationToken)
     {
-        private readonly ICartService _cartService;
+        var updatedItem = await _cartService.UpdateItemQuantityAsync(
+                    request.CustomerId,
+                    request.CartItemId,
+                    request.Quantity,
+                    cancellationToken);
 
-        public UpdateCartItemQuantityCommandHandler(ICartService cartService)
+        return new CartItemResponse
         {
-            _cartService = cartService;
-        }
-
-        public async Task<CartItemResponse> Handle(UpdateCartItemQuantityCommand request, CancellationToken cancellationToken)
-        {
-            var updatedItem = await _cartService.UpdateItemQuantityAsync(
-                        request.CustomerId,
-                        request.CartItemId,
-                        request.Quantity,
-                        cancellationToken);
-
-            return new CartItemResponse
-            {
-                ProductUpc = updatedItem.ProductUpc,
-                ProductName = updatedItem.ProductName,
-                Price = updatedItem.Price,
-                Quantity = updatedItem.Quantity,
-                Size = updatedItem.Size,
-                PromotionPrice = updatedItem.PromotionPrice
-            };
-        }
+            ProductUpc = updatedItem.ProductUpc,
+            ProductName = updatedItem.ProductName,
+            Price = updatedItem.Price,
+            Quantity = updatedItem.Quantity,
+            Size = updatedItem.Size,
+            PromotionPrice = updatedItem.PromotionPrice
+        };
     }
 }
