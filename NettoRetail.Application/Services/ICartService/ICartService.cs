@@ -15,6 +15,9 @@ namespace NettoRetail.Application.Services.ICartService
             int newQuantity,
             CancellationToken cancellationToken = default);
 
-        Task DeleteCartItemAsync(Guid customerId, Guid inventoryItemId, CancellationToken cancellationToken = default);
+        Task DeleteCartItemAsync(
+            Guid customerId,
+            Guid inventoryItemId,
+            CancellationToken cancellationToken = default);
     }
 }
