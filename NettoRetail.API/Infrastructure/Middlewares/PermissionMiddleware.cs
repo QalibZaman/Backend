@@ -18,7 +18,7 @@ public class PermissionMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, IPermissionRoleRepository permissionRoleRepository, IPermissionCacheService permissionCacheService)
+    public async Task InvokeAsync(HttpContext context, IPermissionRoleRepository permissionRoleRepository, ISessionRepository sessionRepository, IPermissionCacheService permissionCacheService)
     {
         if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
         {
@@ -28,9 +28,16 @@ public class PermissionMiddleware
 
         if (!context.IsTempToken())
         {
-            var userId = context.GetUserId();
+            if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
+                throw new BadRequestException("Authorization header is missing");
 
-            var permissions = permissionCacheService.GetPermissions(userId);
+            var token = authHeader.ToString().Split(" ")[1];
+
+            var session = await sessionRepository.GetByJwtAsync(token);
+
+            var sessionId = session!.Id;
+
+            var permissions = permissionCacheService.GetPermissions(sessionId);
             if (permissions == null || !permissions.Any())
             {
                 var roleId = context.GetRoleId();
@@ -40,7 +47,7 @@ public class PermissionMiddleware
                 var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, context.RequestAborted) ?? throw new BadRequestException("No permissions");
 
                 permissions = userPermissions;
-                permissionCacheService.SetPermissions(permissions, userId);
+                permissionCacheService.SetPermissions(permissions, sessionId);
             }
 
             var endpoint = context.GetEndpoint();
