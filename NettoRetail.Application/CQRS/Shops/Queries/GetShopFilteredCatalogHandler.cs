@@ -71,6 +71,24 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
             }
         }
 
+        if (request.FilteredCatalogModel.SortingBy != null)
+        {
+            switch (request.FilteredCatalogModel.SortingBy)
+            {
+                case ShopCatalogSortingEnum.PriceLowToHigh:
+                    specBuilder.AddOrderBy(x => x.IsPromoted ? x.PromotionPrice! : x.Price);
+                    break;
+
+                case ShopCatalogSortingEnum.PriceHighToLow:
+                    specBuilder.AddOrderBy(x => x.IsPromoted ? x.PromotionPrice! : x.Price, true);
+                    break;
+
+                case ShopCatalogSortingEnum.Newest:
+                    specBuilder.AddOrderBy(x => x.LastUpdatedDate, true);
+                    break;
+            }
+        }
+
         specBuilder.AddInclude(x => x.Brand!)
             .AddInclude(x => x.Category);
 

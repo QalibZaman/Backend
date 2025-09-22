@@ -1,4 +1,6 @@
-﻿namespace NettoRetail.Application.Models.Shop;
+﻿using NettoRetail.Domain.Enums;
+
+namespace NettoRetail.Application.Models.Shop;
 
 public class GetFilteredCatalogModel
 {
@@ -8,4 +10,6 @@ public class GetFilteredCatalogModel
     public bool? IsPromoted { get; set; }
     public string? ProductName { get; set; }
     public string? ItemStatus { get; set; }
+
+    public ShopCatalogSortingEnum? SortingBy { get; set; }
 }
