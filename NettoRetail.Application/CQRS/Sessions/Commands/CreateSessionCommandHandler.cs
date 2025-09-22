@@ -41,22 +41,15 @@ public class CreateSessionCommandHandler(
 
         var session = sessionModel.Adapt<SessionEntity>();
 
-        try
-        {
-            await sessionRepository.AddAsync(session, cancellationToken);
+        await sessionRepository.AddAsync(session, cancellationToken);
 
-            var accSpecification = new GetAccountByIdSpecification(session.AccountId);
-            var account = await accountRepository.GetAsync(accSpecification, cancellationToken) ?? throw new NotFoundException("Account not found");
-            var roleId = account.RoleId;
+        var accSpecification = new GetAccountByIdSpecification(session.AccountId);
+        var account = await accountRepository.GetAsync(accSpecification, cancellationToken) ?? throw new NotFoundException("Account not found");
+        var roleId = account.RoleId;
 
-            var permissionSpecification = new GetPermissionsByRoleIdSpecification(roleId);
-            var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, cancellationToken) ?? throw new BadRequestException("No permissions");
+        var permissionSpecification = new GetPermissionsByRoleIdSpecification(roleId);
+        var userPermissions = await permissionRoleRepository.GetPermissionsByRoleIdAsync(permissionSpecification, cancellationToken) ?? throw new BadRequestException("No permissions");
 
-            permissionCacheService.SetPermissions(userPermissions, session.Id);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+        permissionCacheService.SetPermissions(userPermissions, session.Id);
     }
 }
