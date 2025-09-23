@@ -108,10 +108,10 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpGet("feedback/{feedbackId}")]
-    public async Task<IActionResult> GetFeedbackDetail(Guid feedbackId, CancellationToken cancellationToken)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetFeedbackDetail(Guid id, CancellationToken cancellationToken)
     {
-        var query = new GetFeedbackDetailQuery(feedbackId);
+        var query = new GetFeedbackDetailQuery(id);
 
         var response = await mediator.Send(query, cancellationToken);
 
