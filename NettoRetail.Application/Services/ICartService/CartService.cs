@@ -79,6 +79,20 @@ public class CartService : ICartService
         var cartItem = await _cartItemRepository.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("Item not found in cart");
 
         await _cartItemRepository.DeleteAsync(cartItem, cancellationToken);
+
+        cart.LastUpdatedAt = DateTime.UtcNow;
+        await _cartRepository.UpdateAsync(cart, cancellationToken);
+    }
+
+    public async Task ClearCartItemsAsync(Guid customerId, CancellationToken cancellationToken = default)
+    {
+        var cart = await _cartRepository.GetByCustomerIdAsync(customerId, cancellationToken) ?? throw new NotFoundException("Cart not found");
+
+        var spec = new GetCartItemsByCartIdSpecification(cart.Id);
+        await _cartItemRepository.DeleteManyBySpecAsync(spec, cancellationToken);
+
+        cart.LastUpdatedAt = DateTime.UtcNow;
+        await _cartRepository.UpdateAsync(cart, cancellationToken);
     }
 
     private async Task<InventoryItemEntity> ValidateProductAsync(

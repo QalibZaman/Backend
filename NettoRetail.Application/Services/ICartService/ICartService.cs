@@ -19,5 +19,9 @@ namespace NettoRetail.Application.Services.ICartService
             Guid customerId,
             Guid inventoryItemId,
             CancellationToken cancellationToken = default);
+
+        Task ClearCartItemsAsync(
+            Guid customerId,
+            CancellationToken cancellationToken = default);
     }
 }

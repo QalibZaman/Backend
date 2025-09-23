@@ -42,6 +42,22 @@ namespace NettoRetail.API.Controllers.V1
             return Created(string.Empty, new ApiResponse<AddToCartResponse>(addToCartResponse));
         }
 
+        [HttpDelete("items")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ClearItems(CancellationToken cancellationToken)
+        {
+            var customerId = HttpContext.GetUserId();
+            var command = new ClearItemsFromCartCommand(customerId);
+
+            await _mediator.Send(command, cancellationToken);
+
+            return NoContent();
+        }
+
         [HttpDelete("items/{itemId:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
