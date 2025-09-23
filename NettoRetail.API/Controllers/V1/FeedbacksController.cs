@@ -114,7 +114,6 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         var query = new GetFeedbackDetailQuery(id);
 
         var response = await mediator.Send(query, cancellationToken);
-
         var result = new ApiResponse<FeedbackDetailResponse>(response);
         return Ok(result);
     }
