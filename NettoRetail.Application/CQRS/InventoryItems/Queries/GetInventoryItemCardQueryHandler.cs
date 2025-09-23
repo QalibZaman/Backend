@@ -1,7 +1,11 @@
 ﻿using MediatR;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
@@ -9,20 +13,20 @@ public record GetInventoryItemCardsQuery(
         int ShopId,
         int? CategoryId,
         string? Search,
-        int Page,
-        int PageSize) : IRequest<PaginatedResponse<InventoryItemCardResponse>>;
+        PaginationRequest Paginated) : IRequest<PaginatedResponse<InventoryItemCardResponse>>;
 public class GetInventoryItemCardQueryHandler(IInventoryItemRepository inventoryItemRepository) : IRequestHandler<GetInventoryItemCardsQuery, PaginatedResponse<InventoryItemCardResponse>>
 {
-    private const string Placeholder = "/images/placeholder.png";
+    private const string Placeholder = ImagePlaceholdersConstants.InventoryItem;
 
     public async Task<PaginatedResponse<InventoryItemCardResponse>> Handle(GetInventoryItemCardsQuery request, CancellationToken cancellationToken)
     {
-        var spec = new GetInventoryItemCardSpecification(
-        shopId: request.ShopId,
-        categoryId: request.CategoryId,
-        search: request.Search,
-        page: request.Page,
-        pageSize: request.PageSize);
+        var spec = new SpecificationBuilder<InventoryItemEntity>()
+        .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId)
+        .Add<GetInventoryItemsByCategoriesSpecification>(new List<int> { request.CategoryId.Value })
+        .Add<GetInventoryItemsByPartialNameSpecification>(request.Search)
+        .Skip((request.Paginated.PageNumber - 1) * request.Paginated.PageSize)
+        .Take(request.Paginated.PageSize)
+        .Build();
 
         var (items, total) = await inventoryItemRepository.GetAllPaginatedAsync(spec, cancellationToken);
 

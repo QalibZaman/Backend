@@ -61,15 +61,14 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetInventoryItemCards(
     [FromQuery] int? categoryId,
     [FromQuery] string? search,
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 20,
+    [FromQuery] PaginationRequest pagination,
     CancellationToken cancellationToken = default)
     {
         var shopId = HttpContext.GetUserShopId();
 
         var result = await mediator.Send(
             new GetInventoryItemCardsQuery(
-            shopId, categoryId, search, page, pageSize), cancellationToken);
+            shopId, categoryId, search, pagination), cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<InventoryItemCardResponse>>(result));
     }
