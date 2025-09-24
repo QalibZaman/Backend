@@ -57,23 +57,6 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("cards")]
-    public async Task<IActionResult> GetInventoryItemCards(
-    [FromQuery] int? categoryId,
-    [FromQuery] string? search,
-    [FromQuery] PaginationRequest pagination,
-    CancellationToken cancellationToken = default)
-    {
-        var shopId = HttpContext.GetUserShopId();
-
-        var result = await mediator.Send(
-            new GetInventoryItemCardsQuery(
-            shopId, categoryId, search, pagination), cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<InventoryItemCardResponse>>(result));
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
