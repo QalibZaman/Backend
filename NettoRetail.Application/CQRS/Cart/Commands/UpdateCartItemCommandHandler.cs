@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICartService;
 
@@ -20,14 +21,8 @@ public class UpdateCartItemQuantityCommandHandler(ICartService cartService) : IR
                     request.Quantity,
                     cancellationToken);
 
-        return new CartItemResponse
-        {
-            ProductUpc = updatedItem.ProductUpc,
-            ProductName = updatedItem.ProductName,
-            Price = updatedItem.Price,
-            Quantity = updatedItem.Quantity,
-            Size = updatedItem.Size,
-            PromotionPrice = updatedItem.PromotionPrice
-        };
+        var response = updatedItem.Adapt<CartItemResponse>();
+
+        return response;
     }
 }

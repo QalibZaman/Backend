@@ -13,6 +13,8 @@
         public int Quantity { get; set; }
         public string? Size { get; set; }
         public decimal? PromotionPrice { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public string? DeletionJobId { get; set; }
         public decimal GetEffectivePrice() => PromotionPrice ?? Price;
     }
 }

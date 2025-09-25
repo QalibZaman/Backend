@@ -74,6 +74,42 @@ namespace NettoRetail.API.Controllers.V1
             return NoContent();
         }
 
+        [HttpPut("items/restore")]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CartItemResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RestoreAllItems(CancellationToken cancellationToken)
+        {
+            var customerId = HttpContext.GetUserId();
+            var command = new RestoreAllCartItemsCommand(customerId);
+
+            var data = await _mediator.Send(command, cancellationToken);
+
+            var response = new ApiResponse<IEnumerable<CartItemResponse>>(data);
+
+            return Ok(response);
+        }
+
+        [HttpPut("items/{itemId:guid}/restore")]
+        [ProducesResponseType(typeof(ApiResponse<CartItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RestoreItem(Guid itemId, CancellationToken cancellationToken)
+        {
+            var customerId = HttpContext.GetUserId();
+            var command = new RestoreCartItemCommand(itemId, customerId);
+
+            var data = await _mediator.Send(command, cancellationToken);
+
+            var response = new ApiResponse<CartItemResponse>(data);
+
+            return Ok(response);
+        }
+
         [HttpPut("items/{cartItemId:guid}/quantity")]
         [ProducesResponseType(typeof(ApiResponse<CartItemResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
