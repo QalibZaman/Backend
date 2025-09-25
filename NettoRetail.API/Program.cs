@@ -24,7 +24,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         "CorsPolicy",
-        policy => policy.WithOrigins("https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net", "http://localhost:4200")
+        policy => policy.WithOrigins(
+            "https://thankful-sea-0d7005210-develop.centralus.4.azurestaticapps.net",
+            "http://localhost:4200",
+            "https://thankful-sea-0d7005210-staging.centralus.4.azurestaticapps.net",
+            "https://thankful-sea-0d7005210.4.azurestaticapps.net")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials());
