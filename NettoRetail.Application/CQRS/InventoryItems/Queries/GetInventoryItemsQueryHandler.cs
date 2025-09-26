@@ -22,6 +22,9 @@ public class GetInventoryItemsQueryHandler(
     {
         var model = request.Model;
 
+        if (request.ShopId <= 0)
+            throw new ArgumentException("ShopId is required and must be greater than zero.");
+
         if (!string.IsNullOrWhiteSpace(model.UpcOrName))
         {
             var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
