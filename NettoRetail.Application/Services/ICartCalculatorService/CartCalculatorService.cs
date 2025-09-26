@@ -32,8 +32,20 @@ public class CartCalculatorService : ICartCalculatorService
 
     public decimal CalculateShipping(CartEntity cart) => 0m;
 
-    public CartSummaryResponse GetSummary(CartEntity cart)
+    public CartSummaryResponse GetSummary(CartEntity? cart)
     {
+        if (cart == null)
+        {
+            return new CartSummaryResponse
+            {
+                Subtotal = 0m,
+                Tax = 0m,
+                Shipping = 0m,
+                Total = 0m,
+                TotalQuantity = 0
+            };
+        }
+
         var subtotal = CalculateSubtotal(cart);
         var tax = CalculateTax(cart);
         var shipping = CalculateShipping(cart);

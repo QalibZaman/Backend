@@ -15,19 +15,7 @@ public class GetCartSummaryQueryHandler(ICartCalculatorService calculator, ICart
 
     public async Task<CartSummaryResponse> Handle(GetCartSummaryQuery request, CancellationToken cancellationToken)
     {
-        var cart = await _cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken); 
-
-        if (cart == null)
-        {
-            return new CartSummaryResponse
-            {
-                Subtotal = 0m,
-                Tax = 0m,
-                Shipping = 0m,
-                Total = 0m,
-                TotalQuantity = 0
-            };
-        }
+        var cart = await _cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
 
         return _calculator.GetSummary(cart);
     }
