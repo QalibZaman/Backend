@@ -1,8 +1,6 @@
 using System.Linq.Expressions;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -10,29 +8,24 @@ using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record GetInventoryItemsQuery(InventoryItemsSearchModel Model) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
+public record GetInventoryItemsQuery(int ShopId, InventoryItemsSearchModel Model) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
 public class GetInventoryItemsQueryHandler(
     IInventoryItemRepository inventoryItemRepository,
-    ICategoryRepository categoryRepository,
-    IOptions<SearchOptions> searchOptions) : IRequestHandler<GetInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
+    ICategoryRepository categoryRepository) : IRequestHandler<GetInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetInventoryItemsQuery request, CancellationToken cancellationToken)
     {
         var model = request.Model;
 
-        if (model.ShopId <= 0)
-            throw new ArgumentException("ShopId is required and must be greater than zero.");
-
         if (!string.IsNullOrWhiteSpace(model.UpcOrName))
         {
             var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
-            specificationBuilder.Add<GetInventoryItemsByShopIdSpecification>(model.ShopId);
+            specificationBuilder.Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
             if (long.TryParse(model.UpcOrName, out var upc))
             {
@@ -43,7 +36,8 @@ public class GetInventoryItemsQueryHandler(
                 specificationBuilder.Add<GetInventoryItemsByPartialNameSpecification>(model.UpcOrName);
             }
 
-            var specification = specificationBuilder.Take(searchOptions.Value.InventoryItemSearchSize).Build();
+            var skipItems = (model.PageNumber - 1) * model.PageSize;
+            var specification = specificationBuilder.Skip(skipItems).Take(model.PageSize).Build();
 
             var (items, totalCount) = await inventoryItemRepository.GetAllPaginatedAsync(specification, cancellationToken);
             var responseItems = items.Adapt<List<InventoryItemListResponse>>();
@@ -57,7 +51,7 @@ public class GetInventoryItemsQueryHandler(
 
         if (model.SortOption.HasValue)
         {
-            var specification = new GetInventoryItemPriceSortingSpecification(model.ShopId, model.SortOption.Value);
+            var specification = new GetInventoryItemPriceSortingSpecification(request.ShopId, model.SortOption.Value);
             var sortedItems = await inventoryItemRepository.GetAllBySortedAsync(specification, cancellationToken);
             var responseItems = sortedItems.Adapt<List<InventoryItemListResponse>>();
 
@@ -102,7 +96,7 @@ public class GetInventoryItemsQueryHandler(
             .Add<GetInventoryItemsByMinReservedAmountSpecification>(filterModel.MinReservedAmount)
             .Add<GetInventoryItemsByMinOnHandAmountSpecification>(filterModel.MinOnHandAmount)
             .Add<GetInventoryItemsByMinPriceSpecification>(filterModel.MinPrice)
-            .Add<GetInventoryItemsByShopIdSpecification>(model.ShopId);
+            .Add<GetInventoryItemsByShopIdSpecification>(request.ShopId);
 
         if (filterModel.MaxPrice != null)
             specificationBuilderFiltered.Add<GetInventoryItemsByMaxPriceSpecification>(filterModel.MaxPrice);
