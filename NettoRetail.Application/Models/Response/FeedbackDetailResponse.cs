@@ -9,8 +9,10 @@ public class FeedbackDetailResponse
     public string? Email { get; set; }
     public string? Text { get; set; }
     public bool IsPublic { get; set; }
+    public bool IsVisible { get; set; }
     public string? StaffName { get; set; }
     public DateTime DateSubmitted { get; set; }
     public string? Status { get; set; }
+    public string? RejectionReason { get; set; }
     public string? ShopName { get; set; }
 }
