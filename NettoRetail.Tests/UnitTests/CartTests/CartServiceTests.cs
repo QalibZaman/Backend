@@ -95,10 +95,10 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             await _cartItemRepo.Received(1).UpdateAsync(
                 Arg.Is<CartItemEntity>(i =>
                     i.InventoryItemId == product.Id &&
-                    i.Quantity == 2 &&                               
-                    i.ProductName == product.ProductName &&         
-                    i.Price == product.Price &&                      
-                    i.PromotionPrice == null),                       
+                    i.Quantity == 2 &&
+                    i.ProductName == product.ProductName &&
+                    i.Price == product.Price &&
+                    i.PromotionPrice == null),
                 Arg.Any<CancellationToken>());
 
             await _cartItemRepo.DidNotReceive().AddAsync(Arg.Any<CartItemEntity>(), Arg.Any<CancellationToken>());
@@ -148,7 +148,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             {
                 CartId = cart.Id,
                 InventoryItemId = product.Id,
-                Quantity = 1, 
+                Quantity = 1,
                 ProductName = product.ProductName,
                 Price = product.Price
             };
@@ -399,3 +399,4 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
         }
     }
 }
+

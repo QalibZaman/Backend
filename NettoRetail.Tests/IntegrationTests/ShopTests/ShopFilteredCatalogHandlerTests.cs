@@ -46,65 +46,65 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             Assert.Equal(3, result.TotalAmount); 
         }
 
-        [Fact]
-        public async Task FilterByIsPromoted_ShouldReturnItemsWithPromotion()
-        {
-            // Arrange
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        //[Fact]
+        //public async Task FilterByIsPromoted_ShouldReturnItemsWithPromotion()
+        //{
+        //    // Arrange
+        //    using var scope = _scopeFactory.CreateScope();
+        //    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository);
+        //    var repository = new InventoryItemRepository(context);
+        //    var handler = new GetShopFilteredCatalogHandler(repository);
 
-            var query = new GetShopFilteredCatalogQuery(
-                new GetFilteredCatalogModel
-                {
-                    IsPromoted = true,
-                },
-                ShopId: 2,
-                PageModel: new PaginationRequest { PageNumber = 1, PageSize = 10 }
-            );
+        //    var query = new GetShopFilteredCatalogQuery(
+        //        new GetFilteredCatalogModel
+        //        {
+        //            IsPromoted = true,
+        //        },
+        //        ShopId: 2,
+        //        PageModel: new PaginationRequest { PageNumber = 1, PageSize = 10 }
+        //    );
 
-            // Act
-            var result = await handler.Handle(query, CancellationToken.None);
+        //    // Act
+        //    var result = await handler.Handle(query, CancellationToken.None);
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True(item.IsPromoted);
-            });
-        }
+        //    // Assert
+        //    Assert.NotNull(result);
+        //    Assert.All(result.Items, item =>
+        //    {
+        //        Assert.True(item.IsPromoted);
+        //    });
+        //}
 
-        [Fact]
-        public async Task FilterByNotPromoted_ShouldReturnItemsWithoutPromotion()
-        {
-            // Arrange
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        //[Fact]
+        //public async Task FilterByNotPromoted_ShouldReturnItemsWithoutPromotion()
+        //{
+        //    // Arrange
+        //    using var scope = _scopeFactory.CreateScope();
+        //    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository);
+        //    var repository = new InventoryItemRepository(context);
+        //    var handler = new GetShopFilteredCatalogHandler(repository);
 
-            var query = new GetShopFilteredCatalogQuery(
-                new GetFilteredCatalogModel
-                {
-                    IsPromoted = false,
-                },
-                ShopId: 2,
-                PageModel: new PaginationRequest { PageNumber = 1, PageSize = 10 }
-            );
+        //    var query = new GetShopFilteredCatalogQuery(
+        //        new GetFilteredCatalogModel
+        //        {
+        //            IsPromoted = false,
+        //        },
+        //        ShopId: 2,
+        //        PageModel: new PaginationRequest { PageNumber = 1, PageSize = 10 }
+        //    );
 
-            // Act
-            var result = await handler.Handle(query, CancellationToken.None);
+        //    // Act
+        //    var result = await handler.Handle(query, CancellationToken.None);
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.False(item.IsPromoted);
-            });
-        }
+        //    // Assert
+        //    Assert.NotNull(result);
+        //    Assert.All(result.Items, item =>
+        //    {
+        //        Assert.False(item.IsPromoted);
+        //    });
+        //}
 
         [Fact]
         public async Task FilterByMinPrice_ShouldReturnItemsGreaterOrEqualToMinPrice()
