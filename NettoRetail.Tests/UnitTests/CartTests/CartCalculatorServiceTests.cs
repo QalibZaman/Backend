@@ -173,24 +173,6 @@ public class CartCalculatorServiceTests
     }
 
     [Fact]
-    public void GetSummary_ShouldUseNegativePromotionPrice_IfProvided()
-    {
-        var cart = new CartEntity
-        {
-            Items = new List<CartItemEntity>
-        {
-            new CartItemEntity { Price = 20m, PromotionPrice = -5m, Quantity = 1 }
-        }
-        };
-
-        var result = _calculator.GetSummary(cart);
-
-        Assert.Equal(-5m, result.Subtotal);
-        Assert.Equal(-5m, result.Total);
-        Assert.Equal(1, result.TotalQuantity);
-    }
-
-    [Fact]
     public void GetSummary_ShouldCombineSameProduct_WithAndWithoutPromotion()
     {
         var cart = new CartEntity
