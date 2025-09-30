@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
@@ -75,6 +76,13 @@ public static class RuleBuilderOptionsExtensions
         return ruleBuilder.Must(type =>
         {
             return string.IsNullOrWhiteSpace(type) || Enum.TryParse(typeof(OrderDeliveryTypeEnum), type, true, out _);
+        });
+    }
+    public static IRuleBuilderOptions<T, string?> MustBeAValidPartOfProductUpcOrName<T>(this IRuleBuilder<T, string?> ruleBuilder)
+    {
+        return ruleBuilder.Must(value =>
+        {
+            return string.IsNullOrWhiteSpace(value) || Regex.IsMatch(value, @"^\d{1,12}$") || Regex.IsMatch(value, @"^[a-zA-Z0-9\-_]{1,50}$");
         });
     }
 }

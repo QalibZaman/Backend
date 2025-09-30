@@ -15,6 +15,7 @@ public class GetFeedbackDetailQueryHandler(IFeedbackRepository feedbackRepositor
     public async Task<FeedbackDetailResponse> Handle(GetFeedbackDetailQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetFeedbackByIdSpecification(request.FeedbackId);
+        spec.AddInclude(f => f.Account);
         var feedback = await feedbackRepository.GetAsync(spec, cancellationToken)
                       ?? throw new NotFoundException("Feedback not found.");
 

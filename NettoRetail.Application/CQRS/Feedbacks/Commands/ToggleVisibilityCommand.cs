@@ -16,7 +16,7 @@ public class ToggleVisibilityCommandHandler(IFeedbackRepository feedbackReposito
         var feedback = await feedbackRepository.GetAsync(specification, cancellationToken)
                       ?? throw new NotFoundException("Feedback not  found.");
 
-        if (feedback.Status != FeedbackStatusEnum.Approved || feedback.IsPublic)
+        if (feedback.Status != FeedbackStatusEnum.Approved || !feedback.IsPublic)
             throw new BadRequestException("Not available for anonymous or unapproved feedbacks.");
 
         feedback.IsVisible = request.IsVisible;

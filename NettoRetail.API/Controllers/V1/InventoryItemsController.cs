@@ -112,40 +112,10 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [HttpGet("getInventoryItems")]
     public async Task<IActionResult> GetInventoryItems([FromQuery] InventoryItemsSearchModel model, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetInventoryItemsQuery(model), cancellationToken);
+        var shopId = HttpContext.GetUserShopId();
+
+        var result = await mediator.Send(new GetInventoryItemsQuery(shopId, model), cancellationToken);
         return Ok(new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(result));
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("get")]
-    [Obsolete("This endpoint is deprecated. Please use GET /api/v1/inventory-items/get2 instead.")]
-    public async Task<IActionResult> GetFilteredInventoryItems([FromQuery] GetFilteredInventoryItemsModel model, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
-    {
-        var userShopId = HttpContext.GetUserShopId();
-
-        var getFilteredInventoryItemsQuery = new GetFilteredInventoryItemsQuery(model, userShopId, pageModel);
-
-        var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
-
-        var response = new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(data);
-
-        return Ok(response);
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("search")]
-    [Obsolete("This endpoint is deprecated. Please use GET /api/v1/inventory-items/get2 instead.")]
-    public async Task<IActionResult> GetInventoryItemByUpcOrName([FromQuery] GetInventoryItemsByUpcOrNameModel model, CancellationToken cancellationToken)
-    {
-        var userShopId = HttpContext.GetUserShopId();
-
-        var getFilteredInventoryItemsQuery = new GetInventoryItemsByUpcOrNameQuery(model, userShopId);
-
-        var data = await mediator.Send(getFilteredInventoryItemsQuery, cancellationToken);
-
-        var response = new ApiResponse<IEnumerable<InventoryItemListResponse>>(data);
-
-        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
@@ -156,15 +126,5 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("sorted")]
-    [Obsolete("This endpoint is deprecated. Please use GET /api/v1/inventory-items/get2 instead.")]
-    public async Task<IActionResult> GetSortedInventoryItems([FromQuery] int shopId, [FromQuery] InventoryItemSortingEnum sortOption, CancellationToken cancellationToken)
-    {
-        var query = new GetInventoryItemsSortedByPriceQuery(shopId, sortOption);
-        var result = await mediator.Send(query, cancellationToken);
-        return Ok(new ApiResponse<List<InventoryItemListResponse>>(result));
     }
 }
