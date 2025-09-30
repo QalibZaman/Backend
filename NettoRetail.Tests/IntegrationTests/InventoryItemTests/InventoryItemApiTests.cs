@@ -157,7 +157,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var requestUri = "api/v1/inventory-items/getinventoryitems?pageSize=3&pageNumber=0&" +
+        var requestUri = "api/v1/inventory-items/getinventoryitems?pageSize=3&pageNumber=1&" +
             "categoryId=1&" +
             "MaxPrice=2500.00&" +
             "MinPrice=200.00&" +
