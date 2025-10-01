@@ -116,7 +116,7 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return Ok("Shop successfully deactivated.");
     }
 
-    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemListResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemCardResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -126,7 +126,7 @@ public class ShopsController(IMediator mediator) : ControllerBase
         var query = new GetShopFilteredCatalogQuery(model, shopId, pageModel);
 
         var data = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(data);
+        var response = new ApiResponse<PaginatedResponse<InventoryItemCardResponse>>(data);
 
         return Ok(response);
     }
