@@ -43,7 +43,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-            var itemsResponse = await _client.GetAsync("api/v1/categories?pageNumber=0&pageSize=5&shopId=1");
+            var itemsResponse = await _client.GetAsync("api/v1/categories?pageNumber=1&pageSize=5&shopId=1");
 
             // Asserts
             Assert.Equal(HttpStatusCode.OK, itemsResponse.StatusCode);

@@ -104,7 +104,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var itemsResponse = await _client.GetAsync("api/v1/inventory-items?categoryId=2&MaxPrice=1000.00&MinPrice=10.00" +
+        var itemsResponse = await _client.GetAsync("api/v1/inventory-items/getinventoryitems?categoryId=2&MaxPrice=1000.00&MinPrice=10.00" +
             "&SortingOptions[0].Field=ProductName&SortingOptions[0].IsDescending=true&SortingOptions[1].Field=Price&SortingOptions[1].IsDescending=true");
 
         // Assert
@@ -157,7 +157,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var requestUri = "api/v1/inventory-items?pageSize=3&pageNumber=0&" +
+        var requestUri = "api/v1/inventory-items/getinventoryitems?pageSize=3&pageNumber=1&" +
             "categoryId=1&" +
             "MaxPrice=2500.00&" +
             "MinPrice=200.00&" +
@@ -199,7 +199,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var requestUri = "api/v1/inventory-items?pageSize=3&pageNumber=0&" +
+        var requestUri = "api/v1/inventory-items/getinventoryitems?pageSize=3&pageNumber=1&" +
             "SortingOptions[0].Field=ProductName&" +
             "SortingOptions[0].IsDescending=true";
 
@@ -248,7 +248,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var itemsResponse = await _client.GetAsync("api/v1/inventory-items?categoryId=8&MaxPrice=100.00");
+        var itemsResponse = await _client.GetAsync("api/v1/inventory-items/getinventoryitems?categoryId=8&MaxPrice=100.00");
 
         // Assert
         itemsResponse.EnsureSuccessStatusCode();
@@ -272,7 +272,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var itemsResponse = await _client.GetAsync("api/v1/inventory-items");
+        var itemsResponse = await _client.GetAsync("api/v1/inventory-items/getinventoryitems");
 
         // Assert
         itemsResponse.EnsureSuccessStatusCode();
@@ -296,18 +296,18 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var queryString = $"api/v1/inventory-items/search?upcOrName={upc}";
+        var queryString = $"api/v1/inventory-items/getinventoryitems?upcOrName={upc}";
 
         var response = await _client.GetAsync(queryString);
 
         // Assert
         var responseContent = await response.Content.ReadAsStringAsync();
-        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<List<InventoryItemListResponse>>>(responseContent);
+        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<PaginatedResponse<InventoryItemListResponse>>>(responseContent);
 
         Assert.NotNull(itemsResponse);
-        Assert.Single(itemsResponse.Data); // Only one item should be returned
-        Assert.Equal(upc, itemsResponse.Data[0].ProductUpc);
-        Assert.Equal("MacBook Pro 16", itemsResponse.Data[0].ProductName);
+        Assert.Single(itemsResponse.Data.Items); // Only one item should be returned
+        Assert.Equal(upc, itemsResponse.Data.Items.First().ProductUpc);
+        Assert.Equal("MacBook-Pro-16", itemsResponse.Data.Items.First().ProductName);
     }
 
     [Fact]
@@ -316,26 +316,26 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         // Arrange
         var email = "stringaaaa@gmail.com";
         var password = "Stringaaaa1234!";
-        var name = "MacBook Pro 16";
+        var name = "MacBook-Pro-16";
 
         // Act
         var tokenResponse = await GetTokenResponseAsync(email, password);
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-        var queryString = $"api/v1/inventory-items/search?upcOrName={name}";
+        var queryString = $"api/v1/inventory-items/getinventoryitems?upcOrName={name}";
 
         var response = await _client.GetAsync(queryString);
 
         // Assert
         var responseContent = await response.Content.ReadAsStringAsync();
-        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<List<InventoryItemListResponse>>>(responseContent);
+        var itemsResponse = JsonConvert.DeserializeObject<ApiResponse<PaginatedResponse<InventoryItemListResponse>>>(responseContent);
 
         // Assert
         Assert.NotNull(itemsResponse);
-        Assert.Single(itemsResponse.Data);
-        Assert.Equal(name, itemsResponse.Data[0].ProductName);
-        Assert.Equal(123456789012, itemsResponse.Data[0].ProductUpc);
+        Assert.Single(itemsResponse.Data.Items);
+        Assert.Equal(name, itemsResponse.Data.Items.First().ProductName);
+        Assert.Equal(123456789012, itemsResponse.Data.Items.First().ProductUpc);
     }
 
     public void Dispose()
@@ -739,7 +739,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             {
                 new InventoryItemEntity
                 {
-                    ProductName = "MacBook Pro 16",
+                    ProductName = "MacBook-Pro-16",
                     ProductUpc = 123456789012,
                     Price = 2499.99m,
                     Description = "16-inch MacBook Pro with M2 Pro chip",
@@ -759,7 +759,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 },
                 new InventoryItemEntity
                 {
-                    ProductName = "iPhone 15 Pro",
+                    ProductName = "iPhone-15-Pro",
                     ProductUpc = 987654321098,
                     Price = 999.00m,
                     Description = "Latest iPhone with A16 Bionic chip",
@@ -779,7 +779,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 },
                 new InventoryItemEntity
                 {
-                    ProductName = "AirPods Pro (2nd Gen)",
+                    ProductName = "AirPods-Pro-(2nd-Gen)",
                     ProductUpc = 567890123456,
                     Price = 249.00m,
                     Description = "Premium wireless earbuds with ANC",
@@ -801,7 +801,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 // Shop 2 items
                 new InventoryItemEntity
                 {
-                    ProductName = "Samsung Galaxy S23 Ultra",
+                    ProductName = "Samsung-Galaxy-S23-Ultra",
                     ProductUpc = 345678901234,
                     Price = 1199.99m,
                     Description = "Flagship Android smartphone with S Pen",
@@ -821,7 +821,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 },
                 new InventoryItemEntity
                 {
-                    ProductName = "PlayStation 5",
+                    ProductName = "PlayStation-5",
                     ProductUpc = 789012345678,
                     Price = 499.99m,
                     Description = "Next-gen gaming console",
@@ -841,7 +841,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 },
                 new InventoryItemEntity
                 {
-                    ProductName = "iPad Air (5th Gen)",
+                    ProductName = "iPad-Air-(5th-Gen)",
                     ProductUpc = 901234567890,
                     Price = 599.00m,
                     Description = "Powerful tablet with M1 chip",

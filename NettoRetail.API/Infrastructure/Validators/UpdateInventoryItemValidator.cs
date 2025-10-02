@@ -23,8 +23,10 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .WithMessage("At least one field must be provided to update the inventory item.")
             .Must(model => model.ReservedAmount <= model.AvailableAmount)
             .WithMessage("Reserved amount cannot exceed the available amount.")
+            .When(x => x.ReservedAmount.HasValue && x.AvailableAmount.HasValue, ApplyConditionTo.CurrentValidator)
             .Must(model => model.OnHandAmount >= model.ReservedAmount + model.AvailableAmount)
-            .WithMessage("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
+            .WithMessage("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.")
+            .When(x => x.ReservedAmount.HasValue && x.AvailableAmount.HasValue && x.OnHandAmount.HasValue, ApplyConditionTo.CurrentValidator);
 
         RuleFor(x => x.ProductName)
             .NotEmpty().WithMessage("Product name is required.")
