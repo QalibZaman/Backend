@@ -9,6 +9,7 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Comparison;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -167,8 +168,6 @@ public class MappingConfiguration : IRegister
                 : new List<int>());
 
         config.NewConfig<FavouriteListItemEntity, AddToFavouritesResponse>();
-
-        config.NewConfig<CartItemEntity, CartItemResponse>()
-            .Map(dest => dest.ProductId, src => src.InventoryItemId);
+        config.NewConfig<ComparisonListItemEntity, ComparisonItemResponse>();
     }
 }
