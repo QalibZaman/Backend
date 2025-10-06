@@ -5,7 +5,6 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 

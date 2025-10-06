@@ -85,7 +85,7 @@ public class UpdateOrderCommandHandler(
                 order.OrderItems.Remove(itemToRemove);
             }
 
-            await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
+            await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
 
             if (order.OrderItems.Any())
                 await orderRepository.UpdateAsync(order, cancellationToken);
