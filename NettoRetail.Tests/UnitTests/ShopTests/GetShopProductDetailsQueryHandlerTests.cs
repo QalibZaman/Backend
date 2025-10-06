@@ -339,7 +339,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
         }
 
         [Fact]
-        public async Task Handle_ShouldSetIsOnSaleTrue_WhenItemPromotionPriceIsNull()
+        public async Task Handle_ShouldSetIsOnSaleFalse_WhenItemPromotionPriceIsNull()
         {
             // Arrange
             var shopId = 1;
