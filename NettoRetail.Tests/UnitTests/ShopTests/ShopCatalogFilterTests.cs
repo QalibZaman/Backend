@@ -27,11 +27,13 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
         public async Task ShopCatalogFilter_ShouldReturnPaginatedResponse_WhenRequestIsValid()
         {
             // Arrange
+            var category = new CategoryEntity { Id = 1, Name = "Cat1", ShopId = _shopId, URL = "cat", Visibility = true };
+
             var itemsList = new List<InventoryItemEntity>
             {
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create(),
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create(),
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create()
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create(),
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create(),
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create()
             };
 
             var handler = new GetShopFilteredCatalogHandler(_itemsRepo);
