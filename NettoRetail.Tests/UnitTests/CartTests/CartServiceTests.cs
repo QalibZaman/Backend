@@ -1,4 +1,5 @@
 ﻿using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Services.ICartService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
