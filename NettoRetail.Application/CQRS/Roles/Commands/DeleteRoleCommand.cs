@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http.Features;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Role;
@@ -18,6 +19,8 @@ public class DeleteRoleCommandHandler(IRoleRepository roleRepository, IAccountRe
         {
             throw new NotFoundException($"No shop with Id: {request.ShopId}");
         }
+
+        if (request.Id == 1) throw new ConflictException("The admin role cannot be deleted.");
 
         var specification = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
 
