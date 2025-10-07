@@ -53,6 +53,10 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .HasForeignKey(f => f.AccountId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasOne(s => s.CommunicationPreference)
+            .WithOne(p => p.User)
+            .HasForeignKey<CommunicationPreferenceEntity>(p => p.UserId);
+
         builder.Property(f => f.DateCreated)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
