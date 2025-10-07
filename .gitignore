@@ -472,3 +472,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /.containers/postgres-db
+/NettoRetail.API/appsettings.Development.json
