@@ -29,4 +29,5 @@ public class InventoryItemEntity
     public required BrandEntity? Brand { get; set; }
     public ICollection<InventoryItemImageEntity> Images { get; set; } = [];
     public ICollection<FavouriteListItemEntity>? FavouriteListItems { get; set; }
+    public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
 }

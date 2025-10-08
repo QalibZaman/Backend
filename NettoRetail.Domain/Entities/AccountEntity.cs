@@ -40,6 +40,7 @@ public class AccountEntity
     public ICollection<FeedbackEntity>? Feedbacks { get; set; }
     public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
+    public ICollection<RecentlyViewedProductEntity> RecentlyViewedProducts { get; set; } = [];
 
     public string FullName => FirstName + " " + LastName;
 }
