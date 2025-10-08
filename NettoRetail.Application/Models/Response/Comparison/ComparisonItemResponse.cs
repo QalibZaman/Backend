@@ -1,6 +1,4 @@
-﻿using NettoRetail.Infrastructure.Models;
-
-namespace NettoRetail.Application.Models.Response.Comparison
+﻿namespace NettoRetail.Application.Models.Response.Comparison
 {
     public class ComparisonItemResponse
     {

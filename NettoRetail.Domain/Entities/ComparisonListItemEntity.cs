@@ -13,11 +13,11 @@
         public required int OnHandAmount { get; set; }
         public required string ProductLocation { get; set; }
 
-        public Guid InventoryItemId { get; set; } //FK to InventoryItem table
-        public required InventoryItemEntity InventoryItem { get; set; } //Navigation
+        public Guid InventoryItemId { get; set; }
+        public required InventoryItemEntity InventoryItem { get; set; }
 
-        public int ComparisonListId { get; set; } //FK to ComparisonList table
-        public required ComparisonListEntity ComparisonList { get; set; } //Navigation property
+        public int ComparisonListId { get; set; }
+        public required ComparisonListEntity ComparisonList { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
     }

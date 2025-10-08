@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
 
-        public required string UserId { get; set; } //User id for authenticated users only (FE handles guests)
+        public required string UserId { get; set; }
         public int CategoryId { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
