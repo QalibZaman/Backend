@@ -8,7 +8,7 @@ namespace NettoRetail.DataAccess.Repositories;
 
 public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionEntity>(dbContext), ISessionRepository
 {
-    public async Task UpdateAsync(
+    public async Task<SessionEntity?> UpdateAsync(
         Specification<SessionEntity> specification,
         string? currentJwt,
         string? currentRefreshToken,
@@ -30,6 +30,8 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return entityToUpdate;
     }
 
     public async Task<SessionEntity?> GetByJwtAsync(string jwt)
