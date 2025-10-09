@@ -58,7 +58,7 @@ public class CreateOrderCommandHandler(
             var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
             var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no customer with such id.");
 
-            await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
+            await inventoryItemRepository.UpdateBulkAsync(itemsList, cancellationToken);
             var data = await AddOrderAsync(request, customer, account, itemsIdsQuantityDictionary, cancellationToken);
 
             transaction.Commit();
