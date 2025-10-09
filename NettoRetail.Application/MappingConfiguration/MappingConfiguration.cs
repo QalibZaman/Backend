@@ -167,5 +167,8 @@ public class MappingConfiguration : IRegister
                 : new List<int>());
 
         config.NewConfig<FavouriteListItemEntity, AddToFavouritesResponse>();
+
+        config.NewConfig<CartItemEntity, CartItemResponse>()
+            .Map(dest => dest.ProductId, src => src.InventoryItemId);
     }
 }

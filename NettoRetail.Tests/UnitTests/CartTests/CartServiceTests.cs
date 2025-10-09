@@ -5,6 +5,7 @@ using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.CartServiceTest
@@ -14,6 +15,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
         private readonly ICartRepository _cartRepo;
         private readonly IInventoryItemRepository _invRepo;
         private readonly ICartItemRepository _cartItemRepo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly CartService _cartService;
 
         public CartServiceTests()
@@ -21,11 +23,14 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             _cartRepo = Substitute.For<ICartRepository>();
             _invRepo = Substitute.For<IInventoryItemRepository>();
             _cartItemRepo = Substitute.For<ICartItemRepository>();
+            _unitOfWork = Substitute.For<IUnitOfWork>();
 
             _cartService = new CartService(
                 cartRepository: _cartRepo,
                 cartItemRepository: _cartItemRepo,
-                inventoryRepository: _invRepo
+                inventoryRepository: _invRepo,
+                unitOfWork: _unitOfWork
+
             );
         }
 
