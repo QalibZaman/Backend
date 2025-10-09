@@ -19,7 +19,7 @@ public class GetCommunicationPreferencesByAccountIdQueryHandler(ICommunicationPr
         var specification = new GetCommunicationPreferencesByAccountIdSpecification(request.userId);
 
         var returnedPreferences = await communicationPreferencesRepository
-            .GetByUserIdAsync(specification, cancellationToken) ?? throw new NotFoundException("Preferences not found");
+            .GetAsync(specification, cancellationToken) ?? throw new NotFoundException("Preferences not found");
 
         var preferencesResponse = returnedPreferences.Adapt<CommunicationPreferencesResponse>();
 

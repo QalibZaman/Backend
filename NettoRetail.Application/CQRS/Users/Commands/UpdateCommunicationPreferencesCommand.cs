@@ -14,7 +14,7 @@ public class UpdateCommunicationCommandPreferencesHandler(ICommunicationPreferen
     {
         var specification = new GetCommunicationPreferencesByAccountIdSpecification(request.UserId);
 
-        var communicationPreferencesToUpdate = await communicationPreferencesRepository.GetByUserIdAsync(specification, cancellationToken)
+        var communicationPreferencesToUpdate = await communicationPreferencesRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Preferences not found");
 
         request.Model.Adapt(communicationPreferencesToUpdate);
