@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Mapster;
 using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -71,6 +72,11 @@ public class GetFilteredOrdersQueryHandler(IOrderRepository orderRepository) : I
         var specification = specBuilder.Skip(skip).Take(request.PageModel.PageSize).Build();
 
         var (items, totalAmount) = await orderRepository.GetAllPaginatedAsync(specification, cancellationToken);
+
+        if (items.Count == 0)
+        {
+            throw new NotFoundException("No orders found");
+        }
 
         var responseCollection = items.Adapt<List<OrderListResponse>>();
 
