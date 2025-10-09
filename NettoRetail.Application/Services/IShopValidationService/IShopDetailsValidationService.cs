@@ -1,11 +1,10 @@
 ﻿
 using NettoRetail.Application.Models.Shop;
 
-namespace NettoRetail.Application.Services.IShopValidationService
+namespace NettoRetail.Application.Services.IShopValidationService;
+
+public interface IShopDetailsValidationService
 {
-    public interface IShopDetailsValidationService
-    {
-        Task ValidateShopOnCreate(ShopValidationModel model, CancellationToken cancellationToken);
-        Task ValidateShopOnUpdate(ShopValidationModel model, int shopId, CancellationToken cancellationToken);
-    }
+    Task ValidateShopOnCreate(ShopValidationModel model, CancellationToken cancellationToken);
+    Task ValidateShopOnUpdate(ShopValidationModel model, int shopId, CancellationToken cancellationToken);
 }
