@@ -31,6 +31,6 @@ public class ReorderOnboardingSlidesCommandHandler(
             slide.Order = item.Order;
         }
 
-        await slideRepository.UpdateBulkAsync(slides, cancellationToken);
+        await slideRepository.UpdateManyAsync(slides, cancellationToken);
     }
 }
