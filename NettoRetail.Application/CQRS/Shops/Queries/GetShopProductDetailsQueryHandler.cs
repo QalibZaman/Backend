@@ -46,9 +46,9 @@ public class GetShopProductDetailsQueryHandler(
             PromotionPrice = item.PromotionPrice,
             AvailableAmount = item.AvailableAmount,
             LastUpdatedDate = item.LastUpdatedDate,
-            IsOnSale = item.PromotionPrice.HasValue,
-            IsOutOfStock = item.AvailableAmount <= 0,
-            IsNew = item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-7)
+            IsOnSale = item.IsOnSale(),
+            IsOutOfStock = item.IsOutOfStock(),
+            IsNew = item.IsNew()
         };
 
         return response;

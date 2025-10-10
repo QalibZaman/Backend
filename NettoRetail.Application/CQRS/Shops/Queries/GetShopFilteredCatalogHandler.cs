@@ -38,9 +38,9 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
                 Price = i.Price,
                 PromotionPrice = i.PromotionPrice,
                 AvailableAmount = i.AvailableAmount,
-                IsOnSale = i.PromotionPrice.HasValue,
-                IsNew = i.LastUpdatedDate >= DateTime.UtcNow.AddDays(-7),
-                IsOutOfStock = i.AvailableAmount <= 0,
+                IsOnSale = i.IsOnSale(),
+                IsNew = i.IsNew(),
+                IsOutOfStock = i.IsOutOfStock(),
                 LastUpdatedDate = i.LastUpdatedDate
             };
         }).ToList();
