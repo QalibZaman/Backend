@@ -236,6 +236,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ItemsDeletionJobId")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -256,8 +259,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DeletionJobId")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");

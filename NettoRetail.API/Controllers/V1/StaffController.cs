@@ -357,7 +357,7 @@ public class StaffController(
         return Ok(result);
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpPatch("toggle-onboarding-status")]
     public async Task<IActionResult> ToggleOnboardingStatus([FromQuery] ToggleOnboardingStatusRequest request, CancellationToken cancellationToken)
     {

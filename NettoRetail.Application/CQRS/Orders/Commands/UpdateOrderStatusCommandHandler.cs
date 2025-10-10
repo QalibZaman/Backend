@@ -63,7 +63,7 @@ public class UpdateOrderStatusCommandHandler(IOrderRepository orderRepository, I
 
                 UpdateInventoryItemsAmount(inventoryItems!, order.OrderItems, request.Model.Status);
 
-                await inventoryItemRepository.UpdateBulkAsync(inventoryItems, cancellationToken);
+                await inventoryItemRepository.UpdateManyAsync(inventoryItems, cancellationToken);
             }
 
             order.OrderStatus = request.Model.Status;
