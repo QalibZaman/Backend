@@ -5,6 +5,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using NSubstitute.ReturnsExtensions;
 
 namespace NettoRetail.Tests.UnitTests.RecentlyViewedServiceTests;
 
@@ -28,7 +29,8 @@ public class RecentlyViewedServiceTests
         var inventoryItemId = Guid.NewGuid();
 
         _repository.GetAsync(Arg.Any<Specification<RecentlyViewedProductEntity>>(), _ct)
-            .Returns((RecentlyViewedProductEntity?)null);
+            .ReturnsNull();
+
 
         // Act
         await _service.AddOrUpdateAsync(accountId, inventoryItemId, _ct);
