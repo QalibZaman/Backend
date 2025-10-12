@@ -13,4 +13,5 @@ public class CustomerEntity
     public string? PhoneNumber { get; set; }
     public CartEntity Cart { get; set; } = null!;
     public ICollection<OrderEntity>? Order { get; set; }
+    public ICollection<ComparisonListEntity> ComparisonLists { get; set; } = new List<ComparisonListEntity>();
 }

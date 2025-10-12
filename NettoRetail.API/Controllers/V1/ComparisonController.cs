@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Comparison.Commands;
 using NettoRetail.Application.CQRS.Comparison.Queries;
@@ -25,11 +26,12 @@ public class ComparisonController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<ComparisonItemResponse>>> Get(
-        [FromQuery] string userId,
         [FromQuery] int categoryId,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(userId) || categoryId == 0 || categoryId < 0)
+        var userId = HttpContext.GetUserId();
+
+        if (userId == Guid.Empty || categoryId == 0 || categoryId < 0)
             return BadRequest("userId and categoryId are required.");
 
         var data = await mediator.Send(new GetComparisonListQuery(userId, categoryId), ct);
@@ -45,15 +47,17 @@ public class ComparisonController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ComparisonItemResponse>> AddItem(
-    [FromBody] AddComparisonItemRequest request,
+    [FromQuery] AddComparisonItemRequest request,
     CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId) || request.InventoryItemId == Guid.Empty)
+        var userId = HttpContext.GetUserId();
+
+        if (userId == Guid.Empty || request.InventoryItemId == Guid.Empty)
             return BadRequest("Invalid userId or inventoryItemId");
 
         var result = await mediator.Send(
             new AddItemToComparisonCommand(
-            request.UserId,
+            userId,
             request.InventoryItemId),
             ct);
 
@@ -67,9 +71,16 @@ public class ComparisonController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RemoveFromComparison([FromBody] RemoveComparisonItemRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveFromComparison(
+        [FromQuery] RemoveComparisonItemRequest request,
+        CancellationToken cancellationToken)
     {
-        var command = new RemoveItemFromComparisonCommand(request.UserId, request.InventoryItemId);
+        var userId = HttpContext.GetUserId();
+
+        if (userId == Guid.Empty || request.InventoryItemId == Guid.Empty)
+            return BadRequest("Invalid userId or inventoryItemId");
+
+        var command = new RemoveItemFromComparisonCommand(userId, request.InventoryItemId);
         await mediator.Send(command, cancellationToken);
         return NoContent();
     }

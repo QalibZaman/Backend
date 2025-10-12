@@ -2,18 +2,18 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response.Comparison;
-using NettoRetail.DataAccess.Specifications.Comparison;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Comparison.Commands;
 
-public record AddItemToComparisonCommand(string UserId, Guid InventoryItemId) : IRequest<ComparisonItemResponse>;
+public record AddItemToComparisonCommand(Guid CustomerId, Guid InventoryItemId) : IRequest<ComparisonItemResponse>;
 
 public class AddItemToComparisonHandler(
     IComparisonRepository comparisonRepository,
-    IInventoryItemRepository inventoryItemRepository)
+    IInventoryItemRepository inventoryItemRepository,
+    ICustomerRepository customerRepository)
     : IRequestHandler<AddItemToComparisonCommand, ComparisonItemResponse>
 {
     public async Task<ComparisonItemResponse> Handle(AddItemToComparisonCommand request, CancellationToken cancellationToken)
@@ -26,9 +26,9 @@ public class AddItemToComparisonHandler(
         var inventoryItem = await inventoryItemRepository.GetAsync(itemSpec, cancellationToken)
             ?? throw new NotFoundException("Inventory item not found");
 
-        // 2. Get or create comparison list for user/category
+        // 2. Get or create comparison list for customer/category
         var listSpec = new SpecificationBuilder<ComparisonListEntity>()
-            .AddCriteria(x => x.UserId == request.UserId && x.CategoryId == inventoryItem.CategoryId)
+            .AddCriteria(x => x.CustomerId == request.CustomerId && x.CategoryId == inventoryItem.CategoryId)
             .AddInclude(x => x.ComparisonListItems)
             .Build();
 
@@ -36,14 +36,20 @@ public class AddItemToComparisonHandler(
 
         if (comparisonList == null)
         {
+            var customer = await customerRepository.GetAsync(
+                new SpecificationBuilder<CustomerEntity>()
+                .AddCriteria(c => c.AccountId == request.CustomerId)
+                .Build(),
+                cancellationToken) ?? throw new NotFoundException("Customer not found");
+
             comparisonList = new ComparisonListEntity
             {
-                UserId = request.UserId,
+                CustomerId = request.CustomerId,
+                Customer = customer, // <-- Set the required navigation property
                 CategoryId = inventoryItem.CategoryId,
                 CreatedAtUtc = DateTime.UtcNow,
                 ComparisonListItems = new List<ComparisonListItemEntity>()
             };
-            await comparisonRepository.AddAsync(comparisonList, cancellationToken);
         }
 
         // 3. Business rules
@@ -64,15 +70,6 @@ public class AddItemToComparisonHandler(
             ComparisonList = comparisonList,
             InventoryItemId = inventoryItem.Id,
             InventoryItem = inventoryItem,
-            ProductName = inventoryItem.ProductName,
-            Price = inventoryItem.Price,
-            PromotionPrice = inventoryItem.PromotionPrice,
-            Brand = inventoryItem.Brand?.Name,
-            IsPromoted = inventoryItem.IsPromoted,
-            AvailableAmount = inventoryItem.AvailableAmount,
-            ReservedAmount = inventoryItem.ReservedAmount,
-            OnHandAmount = inventoryItem.OnHandAmount,
-            ProductLocation = inventoryItem.ProductLocation,
             CreatedAtUtc = DateTime.UtcNow
         };
 

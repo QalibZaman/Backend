@@ -2,34 +2,33 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
 
-namespace NettoRetail.DataAccess.Configurations
+namespace NettoRetail.DataAccess.Configurations;
+
+public class ComparisonListEntityConfiguration : IEntityTypeConfiguration<ComparisonListEntity>
 {
-    public class ComparisonListEntityConfiguration : IEntityTypeConfiguration<ComparisonListEntity>
+    public void Configure(EntityTypeBuilder<ComparisonListEntity> builder)
     {
-        public void Configure(EntityTypeBuilder<ComparisonListEntity> builder)
-        {
-            builder.ToTable("comparison_lists");
+        builder.ToTable("ComparisonLists");
 
-            builder.HasKey(x => x.Id);
+        builder.HasKey(cl => cl.Id);
 
-            builder.Property(x => x.UserId)
-                   .IsRequired()
-                   .HasMaxLength(64);
+        builder.Property(cl => cl.CategoryId)
+            .IsRequired();
 
-            builder.Property(x => x.CategoryId)
-                   .IsRequired();
+        builder.Property(cl => cl.CustomerId)
+            .IsRequired();
 
-            builder.Property(x => x.CreatedAtUtc)
-                   .HasColumnType("timestamp with time zone")
-                   .HasDefaultValueSql("NOW()");
+        builder.Property(cl => cl.CreatedAtUtc)
+            .IsRequired();
 
-            builder.HasIndex(x => new { x.UserId, x.CategoryId })
-                   .IsUnique();
+        builder.HasOne(cl => cl.Customer)
+            .WithMany()
+            .HasForeignKey(cl => cl.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(x => x.ComparisonListItems)
-                   .WithOne(x => x.ComparisonList)
-                   .HasForeignKey(x => x.ComparisonListId)
-                   .OnDelete(DeleteBehavior.Cascade);
-        }
+        builder.HasMany(cl => cl.ComparisonListItems)
+            .WithOne(cli => cli.ComparisonList)
+            .HasForeignKey(cli => cli.ComparisonListId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,14 +1,14 @@
-﻿namespace NettoRetail.Domain.Entities
+﻿namespace NettoRetail.Domain.Entities;
+
+public class ComparisonListEntity
 {
-    public class ComparisonListEntity
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public required string UserId { get; set; }
-        public int CategoryId { get; set; }
+    public int CategoryId { get; set; }
 
-        public DateTime CreatedAtUtc { get; set; }
+    public required Guid CustomerId { get; set; }
+    public required CustomerEntity Customer { get; set; }
 
-        public ICollection<ComparisonListItemEntity> ComparisonListItems { get; set; } = new List<ComparisonListItemEntity>();
-    }
+    public DateTime CreatedAtUtc { get; set; }
+    public ICollection<ComparisonListItemEntity> ComparisonListItems { get; set; } = new List<ComparisonListItemEntity>();
 }

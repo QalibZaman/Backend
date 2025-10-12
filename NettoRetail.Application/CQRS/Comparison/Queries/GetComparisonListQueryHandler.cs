@@ -6,7 +6,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Comparison.Queries;
 
-public record GetComparisonListQuery(string UserId, int CategoryId)
+public record GetComparisonListQuery(Guid CustomerId, int CategoryId)
     : IRequest<IReadOnlyList<ComparisonItemResponse>>;
 
 public class GetComparisonListQueryHandler(IComparisonRepository comparisonRepository)
@@ -14,7 +14,7 @@ public class GetComparisonListQueryHandler(IComparisonRepository comparisonRepos
 {
     public async Task<IReadOnlyList<ComparisonItemResponse>> Handle(GetComparisonListQuery request, CancellationToken cancellationToken)
     {
-        var spec = new ComparisonListByUserAndCategorySpec(request.UserId, request.CategoryId, includeItems: true);
+        var spec = new ComparisonListByUserAndCategorySpec(request.CustomerId, request.CategoryId, includeItems: true);
         var comparisonList = await comparisonRepository.GetAsync(spec, cancellationToken);
 
         if (comparisonList?.ComparisonListItems is null || comparisonList.ComparisonListItems.Count == 0)

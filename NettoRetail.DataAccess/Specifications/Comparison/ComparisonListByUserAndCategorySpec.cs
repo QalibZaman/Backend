@@ -1,17 +1,16 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Comparison
+namespace NettoRetail.DataAccess.Specifications.Comparison;
+
+public class ComparisonListByUserAndCategorySpec : Specification<ComparisonListEntity>
 {
-    public class ComparisonListByUserAndCategorySpec : Specification<ComparisonListEntity>
+    public ComparisonListByUserAndCategorySpec(Guid customerId, int categoryId, bool includeItems = true)
+        : base(comparisonListEntity => comparisonListEntity.CustomerId == customerId && comparisonListEntity.CategoryId == categoryId)
     {
-        public ComparisonListByUserAndCategorySpec(string userId, int categoryId, bool includeItems = true)
-            : base(comparisonListEntity => comparisonListEntity.UserId == userId && comparisonListEntity.CategoryId == categoryId)
+        if (includeItems)
         {
-            if (includeItems)
-            {
-                AddInclude(comparisonListEntity => comparisonListEntity.ComparisonListItems);
-            }
+            AddInclude(comparisonListEntity => comparisonListEntity.ComparisonListItems);
         }
     }
 }

@@ -347,21 +347,16 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "CategoryId")
-                        .IsUnique();
+                    b.HasIndex("CustomerId");
 
-                    b.ToTable("comparison_lists", (string)null);
+                    b.ToTable("ComparisonLists", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListItemEntity", b =>
@@ -372,57 +367,22 @@ namespace NettoRetail.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AvailableAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Brand")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.Property<int>("ComparisonListId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsPromoted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("OnHandAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<string>("ProductLocation")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<decimal?>("PromotionPrice")
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<int>("ReservedAmount")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ComparisonListId");
 
                     b.HasIndex("InventoryItemId");
 
-                    b.HasIndex("ComparisonListId", "InventoryItemId")
-                        .IsUnique();
-
-                    b.ToTable("comparison_list_items", (string)null);
+                    b.ToTable("ComparisonListItems", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ContentEntity", b =>
@@ -1993,6 +1953,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
+                        .WithMany("ComparisonLists")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListItemEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ComparisonListEntity", "ComparisonList")
@@ -2326,6 +2297,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("Cart")
                         .IsRequired();
+
+                    b.Navigation("ComparisonLists");
 
                     b.Navigation("Order");
                 });
