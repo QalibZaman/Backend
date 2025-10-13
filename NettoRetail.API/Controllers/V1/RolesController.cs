@@ -42,11 +42,7 @@ public class RolesController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
-    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -62,11 +58,6 @@ public class RolesController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
-    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
@@ -83,11 +74,7 @@ public class RolesController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
-    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

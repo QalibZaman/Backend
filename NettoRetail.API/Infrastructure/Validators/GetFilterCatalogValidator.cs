@@ -20,7 +20,8 @@ public class GetFilteredCatalogValidator : AbstractValidator<GetFilteredCatalogM
             .PrecisionScale(18, 2, false).WithMessage("Min price must not have more than 2 decimal places.");
 
         RuleFor(x => x.MaxPrice)
-            .GreaterThanOrEqualTo(x => x.MinPrice).WithMessage("Max price must be greater than or equal to min price.")
+            .GreaterThan(0).WithMessage("Max price must be greater than 0.")
+            .GreaterThanOrEqualTo(x => x.MinPrice).When(x => x.MinPrice.HasValue, ApplyConditionTo.CurrentValidator).WithMessage("Max price must be greater than or equal to min price.")
             .PrecisionScale(18, 2, false).WithMessage("Max price must not have more than 2 decimal places.");
 
         RuleFor(x => x.ProductName)
@@ -30,6 +31,5 @@ public class GetFilteredCatalogValidator : AbstractValidator<GetFilteredCatalogM
 
         RuleFor(x => x.ItemStatus)
             .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
-
     }
 }

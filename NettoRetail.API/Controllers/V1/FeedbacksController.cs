@@ -40,12 +40,18 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<FeedbackResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     public async Task<IActionResult> GetFeedbacks([FromQuery] GetFilteredFeedbacksModel filterModel, [FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
     {
         var query = new GetFilteredFeedbacksQuery(filterModel, pageModel);
@@ -53,7 +59,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return Ok(new ApiResponse<PaginatedResponse<FeedbackResponse>>(data));
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpDelete("{id:Guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +67,12 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     public async Task<IActionResult> DeleteFeedback(Guid id, CancellationToken cancellationToken)
     {
         await mediator.Send(new DeleteFeedbackCommand(id), cancellationToken);
@@ -68,7 +80,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpDelete("bulk-delete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -76,6 +88,12 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
+    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     public async Task<IActionResult> BulkDeleteFeedbacks([FromBody] BulkDeleteFeedbacksRequest request, CancellationToken cancellationToken)
     {
         var command = new BulkDeleteFeedbacksCommand(request.feedbacksIds);
@@ -90,13 +108,12 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpGet("feedback/{feedbackId}")]
-    public async Task<IActionResult> GetFeedbackDetail(Guid feedbackId, CancellationToken cancellationToken)
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetFeedbackDetail(Guid id, CancellationToken cancellationToken)
     {
-        var query = new GetFeedbackDetailQuery(feedbackId);
+        var query = new GetFeedbackDetailQuery(id);
 
         var response = await mediator.Send(query, cancellationToken);
-
         var result = new ApiResponse<FeedbackDetailResponse>(response);
         return Ok(result);
     }

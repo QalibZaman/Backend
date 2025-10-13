@@ -4,10 +4,15 @@ using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
 
-public class GetFilteredInventoryItemsValidator : AbstractValidator<GetFilteredInventoryItemsModel>
+public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryItemsSearchModel>
 {
     public GetFilteredInventoryItemsValidator()
     {
+        RuleFor(x => x.UpcOrName)
+            .MustBeAValidPartOfProductUpcOrName()
+            .WithMessage("Input must be either a valid UPC (up to 12 digits) or a valid product name (up to 50 characters, only letters, digits, '-' and '_').")
+            .When(x => !string.IsNullOrWhiteSpace(x.UpcOrName));
+
         RuleFor(x => x.ProductName)
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")

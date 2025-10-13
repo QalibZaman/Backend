@@ -3,7 +3,6 @@ using NettoRetail.DataAccess.Context;
 using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 

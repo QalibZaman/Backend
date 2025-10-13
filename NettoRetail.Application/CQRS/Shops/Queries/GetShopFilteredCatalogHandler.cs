@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -7,24 +6,46 @@ using NettoRetail.Application.Models.Shop;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Shops.Queries;
 
-public record GetShopFilteredCatalogQuery(GetFilteredCatalogModel FilteredCatalogModel, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
+public record GetShopFilteredCatalogQuery(GetFilteredCatalogModel FilteredCatalogModel, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<InventoryItemCardResponse>>;
 
-public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemListResponse>>
+public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemCardResponse>>
 {
-    public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(GetShopFilteredCatalogQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<InventoryItemCardResponse>> Handle(GetShopFilteredCatalogQuery request, CancellationToken cancellationToken)
     {
         var specification = BuildInventoryItemSpecification(request);
 
         var (items, totalAmount) = await itemsRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var responseItems = items.Adapt<List<InventoryItemListResponse>>();
+        var responseItems = items.Select(i =>
+        {
+            var imgs = i.Images.OrderBy(im => im.Order).ToList();
 
-        var response = new PaginatedResponse<InventoryItemListResponse>
+            return new InventoryItemCardResponse
+            {
+                Id = i.Id,
+                ProductName = i.ProductName,
+                CategoryName = i.Category.Name,
+                BrandName = i.Brand?.Name ?? string.Empty,
+                Status = i.Status.ToString(),
+                MediaUrls = imgs.Select(im => im.BlobUrl),
+                ThumbnailUrl = imgs.FirstOrDefault()?.BlobUrl ?? ImagePlaceholdersConstants.InventoryItem,
+                Price = i.Price,
+                PromotionPrice = i.PromotionPrice,
+                AvailableAmount = i.AvailableAmount,
+                IsOnSale = i.PromotionPrice.HasValue,
+                IsNew = i.LastUpdatedDate >= DateTime.UtcNow.AddDays(-7),
+                IsOutOfStock = i.AvailableAmount <= 0,
+                LastUpdatedDate = i.LastUpdatedDate
+            };
+        }).ToList();
+
+        var response = new PaginatedResponse<InventoryItemCardResponse>
         {
             Items = responseItems,
             TotalAmount = totalAmount
@@ -71,8 +92,27 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
             }
         }
 
+        if (request.FilteredCatalogModel.SortingBy != null)
+        {
+            switch (request.FilteredCatalogModel.SortingBy)
+            {
+                case ShopCatalogSortingEnum.PriceLowToHigh:
+                    specBuilder.AddOrderBy(x => x.IsPromoted ? x.PromotionPrice! : x.Price);
+                    break;
+
+                case ShopCatalogSortingEnum.PriceHighToLow:
+                    specBuilder.AddOrderBy(x => x.IsPromoted ? x.PromotionPrice! : x.Price, true);
+                    break;
+
+                case ShopCatalogSortingEnum.Newest:
+                    specBuilder.AddOrderBy(x => x.LastUpdatedDate, true);
+                    break;
+            }
+        }
+
         specBuilder.AddInclude(x => x.Brand!)
-            .AddInclude(x => x.Category);
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Images);
 
         var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
 

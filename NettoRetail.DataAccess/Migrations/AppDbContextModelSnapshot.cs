@@ -236,6 +236,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ItemsDeletionJobId")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -256,8 +259,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DeletionJobId")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -324,6 +333,59 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("CommunicationPreferenceEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CommunicationPreferencePush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CommunicationPreferenceSms")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("OrderUpdateEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("OrderUpdatePush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("OrderUpdateSms")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PromotionEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PromotionPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PromotionSms")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShipmentUpdateEmail")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShipmentUpdatePush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShipmentUpdateSms")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("CommunicationPreferences");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ContentEntity", b =>
@@ -1894,6 +1956,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
+                        .WithOne("CommunicationPreference")
+                        .HasForeignKey("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2159,6 +2232,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
+                    b.Navigation("CommunicationPreference");
+
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 

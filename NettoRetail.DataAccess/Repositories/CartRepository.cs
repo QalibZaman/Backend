@@ -1,7 +1,7 @@
-﻿using NettoRetail.DataAccess.Context;
-using NettoRetail.Shared.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.DataAccess.Repositories
 {
@@ -9,7 +9,7 @@ namespace NettoRetail.DataAccess.Repositories
     {
         public async Task<CartEntity?> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken)
         {
-             return await _dbSet.Include(c => c.Items).FirstOrDefaultAsync(c => c.CustomerId == customerId, cancellationToken);
+             return await _dbSet.Include(c => c.Items.Where(i => i.IsDeleted == false)).FirstOrDefaultAsync(c => c.CustomerId == customerId, cancellationToken);
         }
     }
 }

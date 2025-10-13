@@ -56,7 +56,7 @@ public class LogoutCommandHandler(
 
             transaction.Commit();
 
-            permissionCacheService.RemovePermissions(request.UserId);
+            permissionCacheService.RemovePermissions(session.Id);
         }
         catch
         {

@@ -2,8 +2,8 @@
 
 public interface IPermissionCacheService
 {
-    IEnumerable<string>? GetPermissions(Guid userId);
-    void SetPermissions(IEnumerable<string> permissions, Guid userId);
-    void RemovePermissions(Guid userId);
-    bool IsPermissionsExists(Guid userId);
+    IEnumerable<string>? GetPermissions(Guid sessionId);
+    void SetPermissions(IEnumerable<string> permissions, Guid sessionId);
+    void RemovePermissions(Guid sessionId);
+    bool IsPermissionsExists(Guid sessionId);
 }
