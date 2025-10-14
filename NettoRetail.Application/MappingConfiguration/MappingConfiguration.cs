@@ -9,6 +9,7 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
@@ -123,8 +124,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.ShopEmail, src => src.Email)
-            .Map(dest => dest.Country, src => src.Country.Name)
-            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+            .Map(dest => dest.Country, src => src.Country.Name);
 
         config.NewConfig<AccountEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
@@ -137,8 +137,11 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
-            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
+
+        config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
+            .Map(dest => dest.Motto, src => src.Moto)
+            .Map(dest => dest.Name, src => src.Name);
 
         config.NewConfig<StaffCsvModel, AccountEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)

@@ -8,8 +8,11 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IShopValidationService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Specifications;
+using System.Text;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
 
@@ -25,6 +28,7 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
         await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
 
         var shop = request.Model.Adapt<ShopEntity>();
+        shop.SubscriptionPlanId = SubscriptionConstants.Free;
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -40,8 +44,35 @@ public class CreateShopCommandHandler(IShopRepository shopRepository, IAccountRe
 
             ShopEntity returnedShop;
 
-            var shopValidationModel = request.Model.Adapt<ShopValidationModel>();
-            await shopDetailsValidator.ValidateShopOnCreate(shopValidationModel, cancellationToken);
+            var specificationBuilder = new SpecificationBuilder<ShopEntity>();
+            specificationBuilder.Add<GetShopByEmailSpecification>(shop.Email)
+                .AddOr<GetShopByNameSpecification>(shop.Name)
+                .AddOr<GetShopByPhoneNumberSpecification>(shop.PhoneNumber);
+
+            var shopsWithRepeatingProps = await shopRepository.GetManyBySpecAsync(specificationBuilder.Build(), cancellationToken);
+
+            if (!shopsWithRepeatingProps.IsNullOrEmpty())
+            {
+                StringBuilder exceptionMessageBuilder = new StringBuilder();
+                foreach (var violatedShop in shopsWithRepeatingProps)
+                {
+                    if (shop.Name == violatedShop.Name)
+                    {
+                        exceptionMessageBuilder.AppendLine($"Shop name must be unique");
+                    }
+                    if (shop.PhoneNumber == violatedShop.PhoneNumber)
+                    {
+                        exceptionMessageBuilder.AppendLine($"Shop phone number must be unique");
+                    }
+                    if (shop.Email == violatedShop.Email)
+                    {
+                        exceptionMessageBuilder.AppendLine($"Shop email must be unique");
+                    }
+                }
+
+                throw new ConflictException(exceptionMessageBuilder.ToString());
+            }
+            }
 
             returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
 
