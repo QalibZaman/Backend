@@ -29,9 +29,4 @@ public class InventoryItemEntity
     public required BrandEntity? Brand { get; set; }
     public ICollection<InventoryItemImageEntity> Images { get; set; } = [];
     public ICollection<FavouriteListItemEntity>? FavouriteListItems { get; set; }
-
-    private const int NewItemDaysThreshold = 7;
-    public bool IsNew() => LastUpdatedDate >= DateTime.UtcNow.AddDays(-NewItemDaysThreshold);
-    public bool IsOutOfStock() => AvailableAmount <= 0;
-    public bool IsOnSale() => PromotionPrice.HasValue;
 }

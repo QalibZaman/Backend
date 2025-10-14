@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -14,7 +15,8 @@ public record GetShopProductDetailsQuery(int ShopId, Guid ProductId) : IRequest<
 public class GetShopProductDetailsQueryHandler(
     IShopRepository shopRepository,
     IInventoryItemRepository itemsRepository,
-    ICategoryRepository categoryRepository)
+    ICategoryRepository categoryRepository,
+    IInventoryService inventoryService)
     : IRequestHandler<GetShopProductDetailsQuery, InventoryItemDetailsResponse>
 {
     public async Task<InventoryItemDetailsResponse> Handle(GetShopProductDetailsQuery request, CancellationToken cancellationToken)
@@ -46,9 +48,9 @@ public class GetShopProductDetailsQueryHandler(
             PromotionPrice = item.PromotionPrice,
             AvailableAmount = item.AvailableAmount,
             LastUpdatedDate = item.LastUpdatedDate,
-            IsOnSale = item.IsOnSale(),
-            IsOutOfStock = item.IsOutOfStock(),
-            IsNew = item.IsNew()
+            IsOnSale = inventoryService.IsItemOnSale(item),
+            IsOutOfStock = inventoryService.IsItemOutOfStock(item),
+            IsNew = inventoryService.IsItemNew(item)
         };
 
         return response;

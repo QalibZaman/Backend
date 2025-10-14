@@ -12,8 +12,8 @@ using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
-using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
@@ -84,6 +84,7 @@ public static class ServiceExtensions
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IImageUploadService, ImageUploadService>();
+        services.AddScoped<IInventoryService, InventoryService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
 
