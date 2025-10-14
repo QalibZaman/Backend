@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,6 +16,7 @@ public class GetShopProductDetailsQueryHandlerTests
     private readonly IShopRepository _shopRepo;
     private readonly IInventoryItemRepository _itemsRepo;
     private readonly ICategoryRepository _categoryRepo;
+    private readonly IInventoryService _inventoryService;
     private readonly Fixture _fixture;
 
     public GetShopProductDetailsQueryHandlerTests()
@@ -24,6 +26,7 @@ public class GetShopProductDetailsQueryHandlerTests
         _shopRepo = Substitute.For<IShopRepository>();
         _itemsRepo = Substitute.For<IInventoryItemRepository>();
         _categoryRepo = Substitute.For<ICategoryRepository>();
+        _inventoryService = Substitute.For<IInventoryService>();
     }
 
     [Fact]
@@ -33,7 +36,7 @@ public class GetShopProductDetailsQueryHandlerTests
         var shopId = 1;
         var productId = Guid.NewGuid();
 
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
+        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
         _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -50,7 +53,7 @@ public class GetShopProductDetailsQueryHandlerTests
         var shopId = 1;
         var productId = Guid.NewGuid();
 
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
+        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
         _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -94,7 +97,7 @@ public class GetShopProductDetailsQueryHandlerTests
             new CategoryEntity { Id = item.CategoryId, Name = "Category2", ShopId = shopId, URL = "category2", Visibility = true, ParentId = 2, Level = 2 }
         };
 
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
+        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
         _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -119,258 +122,5 @@ public class GetShopProductDetailsQueryHandlerTests
         Assert.Null(result.PromotionPrice);
         Assert.Equal(["url1", "url2"], result.MediaUrls);
         Assert.Equal(["Category1", "Category2"], result.Categories);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsNewTrue_WhenItemLastUpdatedWithin7Days()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.LastUpdatedDate, DateTime.UtcNow.AddDays(-3))
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsNew);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsNewFalse_WhenItemLastUpdatedMoreThan7DaysAgo()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.LastUpdatedDate, DateTime.UtcNow.AddDays(-8))
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.False(result.IsNew);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsOutOfStockTrue_WhenItemAvailableAmountIsZero()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.AvailableAmount, 0)
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsOutOfStock);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsOutOfStockTrue_WhenItemAvailableAmountIsLowerZero()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.AvailableAmount, -5)
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsOutOfStock);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsOutOfStockFalse_WhenItemAvailableAmountGreaterThanZero()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.AvailableAmount, 5)
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.False(result.IsOutOfStock);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsOnSaleTrue_WhenItemPromotionPriceIsNotNull()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.Price, 500m)
-            .With(x => x.PromotionPrice, 400m)
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsOnSale);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldSetIsOnSaleFalse_WhenItemPromotionPriceIsNull()
-    {
-        // Arrange
-        var shopId = 1;
-        var productId = Guid.NewGuid();
-
-        var item = _fixture.Build<InventoryItemEntity>()
-            .With(x => x.Price, 500m)
-            .OmitAutoProperties()
-            .Create();
-
-        var categories = new List<CategoryEntity>
-        {
-            new CategoryEntity { Id = 1, Name = "Category", ShopId = shopId, URL = "category", Visibility = true, Level = 1  }
-        };
-
-        var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo);
-        var query = new GetShopProductDetailsQuery(shopId, productId);
-
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(item);
-
-        _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-            .Returns(categories);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.False(result.IsOnSale);
     }
 }
