@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NettoRetail.Application.CQRS.Sessions.Commands
+namespace NettoRetail.Application.Models.Session;
+
+public class SessionTerminateModel
 {
-    internal class TerminateSessionCommand
-    {
-    }
+    public Guid Id { get; set; }
 }
