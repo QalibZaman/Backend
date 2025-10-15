@@ -10,6 +10,7 @@ using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
+using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
@@ -73,6 +74,7 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<ICartCalculatorService, CartCalculatorService>();
+        services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<ITotpService, TotpService>();
