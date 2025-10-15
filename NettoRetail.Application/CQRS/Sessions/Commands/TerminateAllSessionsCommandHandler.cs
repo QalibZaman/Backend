@@ -15,10 +15,10 @@ public class TerminateAllSessionsCommandHandler(ISessionRepository sessionReposi
     public async Task Handle(TerminateAllSessionsCommand request, CancellationToken cancellationToken)
     {
 
-        var token = request.AuthHeader.ToString().Split(" ")[1]
+        var currentSessionToken = request.AuthHeader.ToString().Split(" ")[1]
             ?? throw new NotFoundException("Session unavailable or not found");
 
-        var specification = new GetSessionsByAccountIdExceptCurrentSpecification(request.Id, token);
+        var specification = new GetSessionsByAccountIdExceptCurrentSpecification(request.Id, currentSessionToken);
 
         var sessions = await sessionRepository.GetAllBySpecAsync(specification, cancellationToken);
 
