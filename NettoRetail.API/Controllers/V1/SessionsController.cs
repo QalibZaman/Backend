@@ -34,7 +34,7 @@ public class SessionsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize]
-    [HttpPost]
+    [HttpPost("terminate-session")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -43,6 +43,24 @@ public class SessionsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> TerminateSession(SessionTerminateModel model, CancellationToken cancellationToken)
     {
         var command = new TerminateSessionCommand(model);
+
+        await mediator.Send(command, cancellationToken);
+
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("terminate-all-sessions")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> TerminateAllSessions([FromHeader(Name = "Authorization")] string authHeader, CancellationToken cancellationToken)
+    {
+        var id = HttpContext.GetUserId();
+
+        var command = new TerminateAllSessionsCommand(id, authHeader);
 
         await mediator.Send(command, cancellationToken);
 

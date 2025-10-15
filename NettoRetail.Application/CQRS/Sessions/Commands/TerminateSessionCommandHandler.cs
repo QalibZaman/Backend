@@ -11,7 +11,7 @@ public class TerminateSessionCommandHandler(ISessionRepository sessionRepository
 {
     public async Task Handle(TerminateSessionCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetSessionsByIdSpecification(request.Model.Id.ToString());
+        var specification = new GetSessionByIdSpecification(request.Model.Id);
 
         var session = await sessionRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Session not found");
