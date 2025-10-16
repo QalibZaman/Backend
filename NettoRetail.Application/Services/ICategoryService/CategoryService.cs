@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.ICategoryService;
@@ -10,12 +11,19 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
     public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
     {
         var specification = new GetCategoryByIdSpecification(id);
+        specification.AddInclude(c => c.InventoryItems);
 
         var category = await categoryRepository.GetAsync(specification, cancellationToken);
 
         if (category == null)
         {
             throw new NotFoundException($"There is no category with Id: {id}");
+        }
+
+        if (category.InventoryItems.Any(i => i.Status != InventoryItemStatusEnum.Unavailable))
+        {
+            logger.LogWarning("Attempt to delete category with Id {CategoryId} that contains products.", id);
+            throw new BadRequestException($"Cannot delete category with Id {id} as it contains products.");
         }
 
         await categoryRepository.DeleteAsync(specification, cancellationToken);
