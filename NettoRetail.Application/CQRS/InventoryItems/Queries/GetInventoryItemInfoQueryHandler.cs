@@ -16,14 +16,14 @@ public class GetInventoryItemInfoQueryHandler(
     public async Task<InventoryItemInfoResponse> Handle(GetInventoryItemInfoQuery request, CancellationToken cancellationToken)
     {
         var specification = new GetItemByIdSpecification(request.Id);
+        specification.AddInclude(x => x.Brand!);
 
         var item = await inventoryItemRepository
            .GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("There is no inventory item with such id.");
 
         var categories = await categoryRepository
-            .GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken)
-            ?? throw new NotFoundException("Category not found.");
+            .GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
 
         var response = item.Adapt<InventoryItemInfoResponse>();
 

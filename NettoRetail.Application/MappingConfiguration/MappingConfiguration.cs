@@ -129,7 +129,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Status, src => src.Status.ToString());
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
-            .Map(dest => dest.Status, src => src.Status.ToString());
+            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.BrandName, src => src.Brand!.Name);
 
         config.NewConfig<OrderEntity, OrderHistoryResponse>()
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())

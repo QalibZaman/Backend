@@ -1,11 +1,10 @@
-﻿using NettoRetail.Domain.Enums;
-
-namespace NettoRetail.Application.Models.Response;
+﻿namespace NettoRetail.Application.Models.Response;
 
 public class InventoryItemInfoResponse
 {
     public required string ProductName { get; set; }
     public required long ProductUpc { get; set; }
+    public required string BrandName { get; set; }
     public required IEnumerable<string> ProductCategories { get; set; }
     public required decimal Price { get; set; }
     public decimal? PromotionPrice { get; set; }
