@@ -17,10 +17,7 @@ public class TerminateSessionCommandHandler(ISessionRepository sessionRepository
         var specification = new GetSessionByIdSpecification(request.Model.Id);
 
         var session = await sessionRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("Session not found");
-
-        if (!session.IsActive)
-            throw new NotFoundException("Session is unavailable");
+            ?? throw new NotFoundException("Session is unavailable or not found");
 
         var currentSessionToken = request.AuthHeader.ToString().Split(" ")[1]
             ?? throw new NotFoundException("Current session is unavailable or not found");
