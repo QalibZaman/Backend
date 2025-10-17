@@ -155,12 +155,17 @@ public class GetInventoryItemsQueryHandler(
     {
         return fieldName.ToLower() switch
         {
+            "productupc" => item => item.ProductUpc,
+            "productlocation" => item => item.ProductLocation,
             "productname" => item => item.ProductName,
             "brandname" => item => item.Brand!.Name,
-            "price" => item => item.Price,
+            "category" => item => item.Category!.Name,
             "availableamount" => item => item.AvailableAmount,
             "reservedamount" => item => item.ReservedAmount,
             "onhandamount" => item => item.OnHandAmount,
+            "price" => item => item.Price,
+            "lastupdateddate" => item => item.LastUpdatedDate,
+            "status" => item => item.Status,
             _ => item => item.ProductName
         };
     }
