@@ -32,7 +32,13 @@ public class GetSearchSuggestionsQueryHandler(
             };
         }
 
-        var brandSpec = new GetBrandsByPartialNameSpecification(query);
+        var brandSpecBuilder = new SpecificationBuilder<BrandEntity>();
+        brandSpecBuilder
+            .Add<GetBrandsByPartialNameSpecification>(query)
+            .Add<GetBrandsByShopIdSpecification>(request.Request.ShopId);
+
+        var brandSpec = brandSpecBuilder.Build();
+
         var brands = await brandRepository.GetAllBySpecAsync(brandSpec, cancellationToken);
         var brandResponses = brands
             .Select(b => new BrandResponse
@@ -47,7 +53,13 @@ public class GetSearchSuggestionsQueryHandler(
             .ToList();
         var brandTotal = brands.Count();
 
-        var categorySpec = new GetCategoriesByPartialNameSpecification(query);
+        var categorySpecBuilder = new SpecificationBuilder<CategoryEntity>();
+        categorySpecBuilder
+            .Add<GetCategoriesByPartialNameSpecification>(query)
+            .Add<GetCategoriesByShopIdSpecification>(request.Request.ShopId);
+
+        var categorySpec = categorySpecBuilder.Build();
+
         var categories = await categoryRepository.GetAllBySpecAsync(categorySpec, cancellationToken);
         var categoryResponses = categories
             .Select(c => new CategoryResponse
@@ -61,13 +73,14 @@ public class GetSearchSuggestionsQueryHandler(
             .ToList();
         var categoryTotal = categories.Count();
 
-        var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
-        specificationBuilder
+        var InventoryItemSpecBuilder = new SpecificationBuilder<InventoryItemEntity>();
+        InventoryItemSpecBuilder
             .Add<GetInventoryItemsByPartialNameSpecification>(query)
+            .Add<GetInventoryItemsByShopIdSpecification>(request.Request.ShopId)
             .AddInclude(x => x.Brand)
             .AddInclude(x => x.Category);
 
-        var specification = specificationBuilder.Build(); 
+        var specification = InventoryItemSpecBuilder.Build();
         var products = await inventoryItemRepository.GetAllBySpecAsync(specification, cancellationToken);
         var productResponses = products
             .Select(p => new InventoryItemListResponse
