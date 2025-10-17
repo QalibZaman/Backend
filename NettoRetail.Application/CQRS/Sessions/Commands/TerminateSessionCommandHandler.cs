@@ -6,23 +6,21 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;
 
-public record TerminateSessionCommand(SessionTerminateModel Model, StringValues AuthHeader) : IRequest;
+public record TerminateSessionCommand(Guid Id, Guid UserId, string CurrentSessionToken) : IRequest;
 public class TerminateSessionCommandHandler(ISessionRepository sessionRepository) : IRequestHandler<TerminateSessionCommand>
 {
     public async Task Handle(TerminateSessionCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetSessionByIdSpecification(request.Model.Id);
+        var specification = new GetSessionByIdAndAccountIdSpecification(request.Id, request.UserId);
 
         var session = await sessionRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Session is unavailable or not found");
 
-        var currentSessionToken = request.AuthHeader.ToString().Split(" ")[1]
-            ?? throw new NotFoundException("Current session is unavailable or not found");
-
-        if (session.Jwt.ToString() == currentSessionToken)
+        if (session.Jwt.ToString() == request.CurrentSessionToken)
         {
             throw new ConflictException("Can't terminate current session");
         }
