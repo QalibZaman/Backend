@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Bogus.DataSets;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Session;
@@ -17,8 +19,11 @@ public class TerminateSessionCommandHandler(ISessionRepository sessionRepository
         var session = await sessionRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Session not found");
 
+        if (!session.IsActive)
+            throw new NotFoundException("Session is unavailable");
+
         var currentSessionToken = request.AuthHeader.ToString().Split(" ")[1]
-            ?? throw new NotFoundException("Session unavailable or not found");
+            ?? throw new NotFoundException("Current session is unavailable or not found");
 
         if (session.Jwt.ToString() == currentSessionToken)
         {
