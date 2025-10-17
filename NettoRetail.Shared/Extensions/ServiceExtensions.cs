@@ -21,6 +21,7 @@ public static class ServiceExtensions
         services.Configure<SessionTrackingOptions>(configuration.GetSection(nameof(SessionTrackingOptions)));
         services.Configure<FeatureToggleOptions>(configuration.GetSection(nameof(FeatureToggleOptions)));
         services.Configure<SubscriptionOptions>(configuration.GetSection(nameof(SubscriptionOptions)));
+        services.Configure<InventoryItemOptions>(configuration.GetSection(nameof(InventoryItemOptions)));
         return services;
     }
 }

@@ -369,4 +369,32 @@ public class StaffController(
 
         return NoContent();
     }
+
+    [Authorize]
+    [HttpGet("communication-preference")]
+    public async Task<IActionResult> GetCommunicationPreferences(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new GetCommunicationPreferencesByAccountIdQuery(userId);
+
+        var data = await mediator.Send(command, cancellationToken);
+        if (data is null)
+            return NotFound();
+
+        var response = new ApiResponse<CommunicationPreferencesResponse>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpPut("update-communication-preference")]
+    public async Task ChangeCommunicationPreference([FromQuery] UpdateCommunicationPreferencesRequest request, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new UpdateCommunicationPreferencesCommand(userId, request);
+
+        await mediator.Send(command, cancellationToken);
+    }
 }
