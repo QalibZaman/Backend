@@ -2,6 +2,7 @@
 using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Shop;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -12,6 +13,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
     public class ShopCatalogFilterTests
     {
         private readonly IInventoryItemRepository _itemsRepo;
+        private readonly IInventoryService _inventoryService;
         private readonly Fixture _fixture;
         private readonly int _shopId = 1;
 
@@ -21,20 +23,23 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
             _fixture.Customize<DateOnly>(c => c.FromFactory(() => DateOnly.FromDateTime(DateTime.Now)));
 
             _itemsRepo = Substitute.For<IInventoryItemRepository>();
+            _inventoryService = Substitute.For<IInventoryService>();
         }
 
         [Fact]
         public async Task ShopCatalogFilter_ShouldReturnPaginatedResponse_WhenRequestIsValid()
         {
             // Arrange
+            var category = new CategoryEntity { Id = 1, Name = "Cat1", ShopId = _shopId, URL = "cat", Visibility = true };
+
             var itemsList = new List<InventoryItemEntity>
             {
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create(),
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create(),
-                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).OmitAutoProperties().Create()
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create(),
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create(),
+                _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create()
             };
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -65,7 +70,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
             // Arrange
             var itemsList = new List<InventoryItemEntity>();
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -95,7 +100,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
             // Arrange
             var itemsList = new List<InventoryItemEntity>();
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel(),
