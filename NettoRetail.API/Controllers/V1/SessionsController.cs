@@ -58,13 +58,13 @@ public class SessionsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> TerminateAllSessions(CancellationToken cancellationToken)
+    public async Task<IActionResult> TerminateOtherSessions(CancellationToken cancellationToken)
     {
         var id = HttpContext.GetUserId();
 
         var authHeader = Request.Headers.Authorization.ToString();
 
-        var command = new TerminateAllSessionsCommand(id, authHeader);
+        var command = new TerminateOtherSessionsCommand(id, authHeader);
 
         await mediator.Send(command, cancellationToken);
 
