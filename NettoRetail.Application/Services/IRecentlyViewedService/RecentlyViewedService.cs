@@ -64,8 +64,6 @@ public class RecentlyViewedService : IRecentlyViewedService
 
         await _repository.MergeAsync(accountId, entities, ct);
     }
-
-
     private async Task<RecentlyViewedProductEntity?> FindExistingAsync(Guid accountId, Guid inventoryItemId, CancellationToken cancellationToken)
     {
         var spec = new Specification<RecentlyViewedProductEntity>(
