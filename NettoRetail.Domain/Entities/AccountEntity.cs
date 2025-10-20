@@ -39,10 +39,7 @@ public class AccountEntity
     public ICollection<ReviewEntity> Reviews { get; set; } = [];
     public ICollection<FeedbackEntity>? Feedbacks { get; set; }
     public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
-<<<<<<< HEAD
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
-=======
->>>>>>> 3b17e3e (Add entity, configuration, repository and migration)
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedProducts { get; set; } = [];
 
     public string FullName => FirstName + " " + LastName;

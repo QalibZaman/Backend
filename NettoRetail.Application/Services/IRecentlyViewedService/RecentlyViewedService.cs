@@ -51,17 +51,11 @@ public class RecentlyViewedService : IRecentlyViewedService
          .ToList();
     }
 
-<<<<<<< HEAD
     public async Task MergeGuestItemsAsync(Guid accountId, IEnumerable<MergeRecentlyViewedItem>? items, CancellationToken ct)
     {
         var safeItems = items ?? Enumerable.Empty<MergeRecentlyViewedItem>();
 
         var entities = safeItems.Select(i => new RecentlyViewedProductEntity
-=======
-    public async Task MergeGuestItemsAsync(Guid accountId, IEnumerable<MergeRecentlyViewedItem> items, CancellationToken ct)
-    {
-        var entities = items.Select(i => new RecentlyViewedProductEntity
->>>>>>> b1f8ccc (Implement service, handlers and controller)
         {
             AccountId = accountId,
             InventoryItemId = i.InventoryItemId,
@@ -70,11 +64,6 @@ public class RecentlyViewedService : IRecentlyViewedService
 
         await _repository.MergeAsync(accountId, entities, ct);
     }
-
-<<<<<<< HEAD
-
-=======
->>>>>>> b1f8ccc (Implement service, handlers and controller)
     private async Task<RecentlyViewedProductEntity?> FindExistingAsync(Guid accountId, Guid inventoryItemId, CancellationToken cancellationToken)
     {
         var spec = new Specification<RecentlyViewedProductEntity>(
