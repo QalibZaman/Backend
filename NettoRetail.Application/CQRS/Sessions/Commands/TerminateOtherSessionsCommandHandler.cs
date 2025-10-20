@@ -17,12 +17,7 @@ public class TerminateOtherSessionsCommandHandler(ISessionRepository sessionRepo
 
         if (sessions.Any())
         {
-            foreach (var session in sessions)
-            {
-                session.IsActive = false;
-            }
-
-            await sessionRepository.UpdateManyAsync(sessions, cancellationToken);
+            await sessionRepository.TerminateSessionsAsync(specification, cancellationToken);
         }
     }
 }
