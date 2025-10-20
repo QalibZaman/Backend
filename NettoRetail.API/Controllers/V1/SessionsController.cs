@@ -66,9 +66,10 @@ public class SessionsController(IMediator mediator) : ControllerBase
     {
         var id = HttpContext.GetUserId();
 
-        var authHeader = Request.Headers.Authorization.ToString();
+        var currentSessionToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext)
+            ?? throw new NotFoundException("Current session unavailable");
 
-        var command = new TerminateOtherSessionsCommand(id, authHeader);
+        var command = new TerminateOtherSessionsCommand(id, currentSessionToken);
 
         await mediator.Send(command, cancellationToken);
 
