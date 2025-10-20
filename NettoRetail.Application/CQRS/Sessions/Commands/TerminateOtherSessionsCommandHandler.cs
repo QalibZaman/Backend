@@ -13,14 +13,16 @@ public class TerminateOtherSessionsCommandHandler(ISessionRepository sessionRepo
     {
         var specification = new GetSessionsByAccountIdExceptCurrentSpecification(request.Id, request.CurrentSessionToken);
 
-        var sessions = await sessionRepository.GetAllBySpecAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("Sessions are unavailable or not found");
+        var sessions = await sessionRepository.GetAllBySpecAsync(specification, cancellationToken);
 
-        foreach (var session in sessions)
+        if (sessions.Any())
         {
-            session.IsActive = false;
-        }
+            foreach (var session in sessions)
+            {
+                session.IsActive = false;
+            }
 
-        await sessionRepository.UpdateManyAsync(sessions, cancellationToken);
+            await sessionRepository.UpdateManyAsync(sessions, cancellationToken);
+        }
     }
 }
