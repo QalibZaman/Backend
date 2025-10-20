@@ -17,6 +17,8 @@ using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
@@ -74,6 +76,7 @@ public static class ServiceExtensions
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<ICartCalculatorService, CartCalculatorService>();
+        services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();

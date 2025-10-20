@@ -1473,6 +1473,24 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ViewedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("AccountId", "InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("RecentlyViewedProducts");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2177,6 +2195,25 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                        .WithMany("RecentlyViewedProducts")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("RecentlyViewedByUsers")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2245,6 +2282,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Navigation("PaymentMethods");
 
+                    b.Navigation("RecentlyViewedProducts");
+
                     b.Navigation("Reviews");
 
                     b.Navigation("Sessions");
@@ -2287,6 +2326,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("RecentlyViewedByUsers");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.NewProductsSectionEntity", b =>

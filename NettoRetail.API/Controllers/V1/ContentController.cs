@@ -41,10 +41,10 @@ public class ContentController(IMediator mediator) : Controller
     [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status500InternalServerError)]
     [MapToApiVersion("1.0")]
 
-    public async Task<IActionResult> GetContentBlockById(int id, [FromQuery] int shopId)
+    public async Task<IActionResult> GetContentBlockById(int id, [FromQuery] int shopId, CancellationToken cancellationToken)
     {
         var query = new GetContentBlockByIdQuery(id, shopId);
-        var result = await mediator.Send(query);
+        var result = await mediator.Send(query, cancellationToken);
 
         var response = new ApiResponse<ContentBlockResponse>(result);
         return Ok(response);
