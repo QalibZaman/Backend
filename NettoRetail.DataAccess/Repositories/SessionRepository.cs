@@ -38,4 +38,12 @@ public class SessionRepository(AppDbContext dbContext) : BaseRepository<SessionE
     {
         return await _dbSet.FirstOrDefaultAsync(x => x.Jwt == jwt);
     }
+
+    public async Task TerminateSessionsAsync(Specification<SessionEntity> specification, CancellationToken cancellationToken)
+    {
+        await _dbSet.Where(specification.Criteria)
+            .ExecuteUpdateAsync(
+            s => s.SetProperty(x => x.IsActive, false),
+            cancellationToken);
+    }
 }
