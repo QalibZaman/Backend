@@ -13,11 +13,6 @@ public class TerminateOtherSessionsCommandHandler(ISessionRepository sessionRepo
     {
         var specification = new GetSessionsByAccountIdExceptCurrentSpecification(request.Id, request.CurrentSessionToken);
 
-        var sessions = await sessionRepository.GetAllBySpecAsync(specification, cancellationToken);
-
-        if (sessions.Any())
-        {
-            await sessionRepository.TerminateSessionsAsync(specification, cancellationToken);
-        }
+        await sessionRepository.TerminateSessionsAsync(specification, cancellationToken);
     }
 }
