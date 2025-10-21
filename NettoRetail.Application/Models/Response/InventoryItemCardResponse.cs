@@ -14,6 +14,7 @@ public class InventoryItemCardResponse
     public bool IsOnSale { get; set; }
     public bool IsNew { get; set; }
     public bool IsOutOfStock { get; set; }
+    public bool? IsPromoted { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime LastUpdatedDate { get; set; }
 }

@@ -132,4 +132,19 @@ public class ShopsController(IMediator mediator) : ControllerBase
 
         return Ok(response);
     }
+
+    [ProducesResponseType(typeof(ApiResponse<InventoryItemDetailsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{shopId:int}/catalog/{productId:guid}")]
+    public async Task<IActionResult> GetProductDetails(int shopId, Guid productId, CancellationToken cancellationToken)
+    {
+        var query = new GetShopProductDetailsQuery(shopId, productId);
+
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<InventoryItemDetailsResponse>(data);
+
+        return Ok(response);
+    }
 }

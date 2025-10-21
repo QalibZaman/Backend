@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Domain.Entities;
@@ -35,15 +36,7 @@ public class AddItemToCartCommandHandler
             Success = true,
             Message = "Added to bag",
             TotalQuantity = cart.Items.Sum(i => i.Quantity),
-            AddedItem = new CartItemResponse
-            {
-                ProductUpc = addedItem.ProductUpc,
-                ProductName = addedItem.ProductName,
-                Price = addedItem.Price,
-                Quantity = addedItem.Quantity,
-                Size = addedItem.Size,
-                PromotionPrice = addedItem.PromotionPrice
-            }
+            AddedItem = addedItem.Adapt<CartItemResponse>()
         };
     }
 }

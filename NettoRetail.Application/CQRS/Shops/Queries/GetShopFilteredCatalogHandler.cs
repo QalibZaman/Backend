@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -14,7 +15,7 @@ namespace NettoRetail.Application.CQRS.Shops.Queries;
 
 public record GetShopFilteredCatalogQuery(GetFilteredCatalogModel FilteredCatalogModel, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<InventoryItemCardResponse>>;
 
-public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemCardResponse>>
+public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository, IInventoryService inventoryService) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemCardResponse>>
 {
     public async Task<PaginatedResponse<InventoryItemCardResponse>> Handle(GetShopFilteredCatalogQuery request, CancellationToken cancellationToken)
     {
@@ -38,9 +39,9 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
                 Price = i.Price,
                 PromotionPrice = i.PromotionPrice,
                 AvailableAmount = i.AvailableAmount,
-                IsOnSale = i.PromotionPrice.HasValue,
-                IsNew = i.LastUpdatedDate >= DateTime.UtcNow.AddDays(-7),
-                IsOutOfStock = i.AvailableAmount <= 0,
+                IsOnSale = inventoryService.IsItemOnSale(i),
+                IsOutOfStock = inventoryService.IsItemOutOfStock(i),
+                IsNew = inventoryService.IsItemNew(i),
                 LastUpdatedDate = i.LastUpdatedDate
             };
         }).ToList();

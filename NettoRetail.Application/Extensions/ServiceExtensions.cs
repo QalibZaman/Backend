@@ -8,13 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopValidationService;
@@ -72,6 +75,8 @@ public static class ServiceExtensions
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
         services.AddScoped<ICartService, CartService>();
+        services.AddScoped<ICartCalculatorService, CartCalculatorService>();
+        services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<ITotpService, TotpService>();
@@ -86,6 +91,7 @@ public static class ServiceExtensions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
+        services.AddScoped<IInventoryService, InventoryService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
 

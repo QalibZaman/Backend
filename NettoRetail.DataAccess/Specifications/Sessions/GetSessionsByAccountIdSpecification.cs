@@ -2,9 +2,8 @@
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Sessions;
-
 public class GetSessionsByAccountIdSpecification : Specification<SessionEntity>
 {
-    public GetSessionsByAccountIdSpecification(Guid accountId)
-    : base(s => s.AccountId == accountId) { }
+    public GetSessionsByAccountIdSpecification(string id)
+    : base(x => x.AccountId.ToString() == id && x.IsActive) { }
 }

@@ -12,7 +12,7 @@ public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository)
 {
     public async Task<IEnumerable<SessionResponse>> Handle(GetActiveSessionsQuery request, CancellationToken cancellationToken)
     {
-        var specification = new GetSessionsByIdSpecification(request.AccountId.ToString());
+        var specification = new GetSessionsByAccountIdSpecification(request.AccountId.ToString());
 
         var activeSessions = await sessionRepository.GetManyBySpecAsync(specification, cancellationToken);
         var sessionResponses = activeSessions.Adapt<IEnumerable<SessionResponse>>();
