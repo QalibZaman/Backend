@@ -20,6 +20,7 @@ using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Services.IShopValidationService;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
@@ -89,6 +90,7 @@ public static class ServiceExtensions
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IImageUploadService, ImageUploadService>();
+        services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
         services.AddScoped<IInventoryService, InventoryService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
