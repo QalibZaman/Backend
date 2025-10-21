@@ -335,57 +335,54 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
 
-                    b.Property<bool>("CommunicationPreferenceEmail")
-                        .HasColumnType("boolean");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("CommunicationPreferencePush")
-                        .HasColumnType("boolean");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
-                    b.Property<bool>("CommunicationPreferenceSms")
-                        .HasColumnType("boolean");
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("OrderUpdateEmail")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("OrderUpdatePush")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("OrderUpdateSms")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("PromotionEmail")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("PromotionPush")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("PromotionSms")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("ShipmentUpdateEmail")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("ShipmentUpdatePush")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("ShipmentUpdateSms")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("CustomerId");
 
-                    b.ToTable("CommunicationPreferences");
+                    b.ToTable("ComparisonLists", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListItemEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ComparisonListId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComparisonListId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("ComparisonListItems", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ContentEntity", b =>
@@ -1974,15 +1971,34 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
-                        .WithOne("CommunicationPreference")
-                        .HasForeignKey("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", "UserId")
+                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
+                        .WithMany("ComparisonLists")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ComparisonListEntity", "ComparisonList")
+                        .WithMany("ComparisonListItems")
+                        .HasForeignKey("ComparisonListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany()
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ComparisonList");
+
+                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
@@ -2304,6 +2320,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("InventoryItems");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ComparisonListEntity", b =>
+                {
+                    b.Navigation("ComparisonListItems");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
                 {
                     b.Navigation("Accounts");
@@ -2315,6 +2336,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("Cart")
                         .IsRequired();
+
+                    b.Navigation("ComparisonLists");
 
                     b.Navigation("Order");
                 });

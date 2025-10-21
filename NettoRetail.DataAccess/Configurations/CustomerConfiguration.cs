@@ -19,6 +19,11 @@ public class CustomerConfiguration : IEntityTypeConfiguration<CustomerEntity>
             .WithOne(x => x.Customer)
             .HasForeignKey(x => x.CustomerId);
 
+        builder.HasMany(x => x.ComparisonLists)
+            .WithOne(x => x.Customer)
+            .HasForeignKey(x => x.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(x => x.PhoneNumber).HasMaxLength(20);
     }
 }
