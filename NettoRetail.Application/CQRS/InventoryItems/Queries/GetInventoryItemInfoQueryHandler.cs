@@ -2,6 +2,7 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -27,7 +28,7 @@ public class GetInventoryItemInfoQueryHandler(
 
         var response = item.Adapt<InventoryItemInfoResponse>();
 
-        response.ProductCategories = categories.Select(x => x.Name);
+        response.ProductCategories = categories.Select(x => new CategorySummaryResponse { Id = x.Id, Name = x.Name });
 
         return response;
     }

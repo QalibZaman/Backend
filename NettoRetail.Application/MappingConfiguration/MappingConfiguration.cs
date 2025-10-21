@@ -9,6 +9,7 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -129,8 +130,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Status, src => src.Status.ToString());
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
-            .Map(dest => dest.Status, src => src.Status.ToString())
-            .Map(dest => dest.BrandName, src => src.Brand!.Name);
+            .Map(dest => dest.Status, src => src.Status.ToString());
 
         config.NewConfig<OrderEntity, OrderHistoryResponse>()
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
