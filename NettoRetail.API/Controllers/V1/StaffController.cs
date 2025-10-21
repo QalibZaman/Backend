@@ -197,7 +197,6 @@ public class StaffController(
         [FromBody] VerifyTotpRequest request)
     {
         var userId = HttpContext.GetUserId();
-        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
 
         var command = new DisableTwoFactorAuthCommand(userId, request.TotpCode);
         await mediator.Send(command);
