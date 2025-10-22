@@ -17,18 +17,12 @@ public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository)
 
         var activeSessions = await sessionRepository.GetManyBySpecAsync(specification, cancellationToken);
 
-        var sessionResponses = activeSessions.Adapt<List<SessionResponse>>();
-
-        var currentSessionId = activeSessions.Where(x => x.Jwt == request.CurrentSessionToken).
-            Select(s => s.Id).
-            Single();
-
-        var currentSessionResponse = sessionResponses.FirstOrDefault(s => s.Id == currentSessionId.ToString())
-            ?? throw new NotFoundException("Current session unavailable");
-
-        currentSessionResponse.isCurrent = true;
-
-
+        var sessionResponses = activeSessions.Select(s =>
+        {
+            var session = s.Adapt<SessionResponse>();
+            session.isCurrent = s.Jwt == request.CurrentSessionToken;
+            return session;
+        });
 
         return sessionResponses;
     }
