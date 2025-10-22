@@ -24,7 +24,11 @@ public class SessionsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetActiveSessions(CancellationToken cancellationToken)
     {
         var id = HttpContext.GetUserId();
-        var getActiveSessionsQuery = new GetActiveSessionsQuery(id);
+
+        var currentSessionToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext)
+            ?? throw new NotFoundException("Current session unavailable");
+
+        var getActiveSessionsQuery = new GetActiveSessionsQuery(id, currentSessionToken);
         var result = await mediator.Send(getActiveSessionsQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<SessionResponse>>(result);
 
