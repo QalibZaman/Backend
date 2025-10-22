@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Queries;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
 
