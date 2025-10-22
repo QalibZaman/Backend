@@ -14,6 +14,9 @@ public class InventoryItemCsvModel
     [Name("Product Location")]
     public required string ProductLocation { get; set; }
 
+    [Name("Brand")]
+    public required string Brand { get; set; }
+
     [Name("Product Category")]
     public required string ProductCategory { get; set; }
 
