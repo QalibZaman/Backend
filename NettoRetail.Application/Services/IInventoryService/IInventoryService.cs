@@ -7,4 +7,5 @@ public interface IInventoryService
     bool IsItemNew(InventoryItemEntity item);
     bool IsItemOutOfStock(InventoryItemEntity item);
     bool IsItemOnSale(InventoryItemEntity item);
+    Task<byte[]> DownloadInventoryItemsListAsync(int userShopId, CancellationToken cancellationToken = default);
 }

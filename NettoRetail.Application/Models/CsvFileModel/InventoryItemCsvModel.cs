@@ -11,11 +11,14 @@ public class InventoryItemCsvModel
     [Name("Product Name")]
     public required string ProductName { get; set; }
 
+    [Name("Product Category")]
+    public required string ProductCategory { get; set; }
+
     [Name("Product Location")]
     public required string ProductLocation { get; set; }
 
-    [Name("Product Category")]
-    public required string ProductCategory { get; set; }
+    [Name("Brand")]
+    public required string? Brand { get; set; }
 
     [Name("Available Amount")]
     public required int AvailableAmount { get; set; }
