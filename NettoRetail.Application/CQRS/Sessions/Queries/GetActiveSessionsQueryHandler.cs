@@ -20,7 +20,7 @@ public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository)
         var sessionResponses = activeSessions.Select(s =>
         {
             var session = s.Adapt<SessionResponse>();
-            session.isCurrent = s.Jwt == request.CurrentSessionToken;
+            session.IsCurrent = s.Jwt == request.CurrentSessionToken;
             return session;
         });
 

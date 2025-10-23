@@ -9,5 +9,5 @@ public class SessionResponse
     public string Location { get; set; } = "Unknown, Unknown";
     public DateTime StartTime { get; set; }
     public DateTime LastActivityTime { get; set; }
-    public bool isCurrent { get; set; } = false;
+    public bool IsCurrent { get; set; } = false;
 }
