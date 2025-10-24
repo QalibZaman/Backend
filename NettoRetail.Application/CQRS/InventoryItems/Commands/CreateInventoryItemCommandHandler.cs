@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
@@ -12,26 +13,27 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
 public record CreateInventoryItemCommand(AddInventoryItemModel Model, int ShopId) : IRequest<InventoryItemResponse>;
 
-public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository)
+public class CreateInventoryItemCommandHandler(
+    IInventoryItemRepository inventoryItemRepository,
+    ICategoryRepository categoryRepository,
+    IBrandRepository brandRepository)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
 {
     public async Task<InventoryItemResponse> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
-        var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
-        var product = await inventoryItemRepository.GetAsync(productByNameSpecification, cancellationToken);
+        var productByUpcSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
+        var productExists = await inventoryItemRepository.Exists(productByUpcSpecification, cancellationToken);
 
-        if (product != null)
-        {
+        if (productExists)
             throw new ConflictException("This product UPC is already registered.");
-        }
 
-        var categoryByIdSpecification = new GetCategoryByIdSpecification(request.Model.CategoryId);
-        var category = await categoryRepository.GetAsync(categoryByIdSpecification, cancellationToken);
+        var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(request.Model.CategoryId, request.ShopId);
+        var category = await categoryRepository.GetAsync(categoryByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}");
 
-        if (category == null)
-        {
-            throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}");
-        }
+        var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(request.Model.BrandId, request.ShopId);
+        var brand = await brandRepository.GetAsync(brandByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException($"There is no brand with Id: {request.Model.BrandId}");
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
@@ -40,6 +42,7 @@ public class CreateInventoryItemCommandHandler(IInventoryItemRepository inventor
 
         var response = responseModel.Adapt<InventoryItemResponse>();
         response.ProductCategory = category.Name;
+        response.ProductBrand = brand.Name;
 
         return response;
     }
