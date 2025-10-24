@@ -10,6 +10,7 @@ using NettoRetail.Application.CQRS.Categories.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 
 namespace NettoRetail.API.Controllers.V1
 {

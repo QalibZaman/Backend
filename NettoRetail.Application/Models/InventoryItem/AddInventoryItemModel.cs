@@ -3,6 +3,7 @@
 public class AddInventoryItemModel
 {
     public required string ProductName { get; set; }
+    public required int BrandId { get; set; }
     public required int CategoryId { get; set; }
     public long ProductUpc { get; set; }
     public decimal Price { get; set; }

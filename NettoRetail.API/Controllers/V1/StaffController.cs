@@ -127,6 +127,11 @@ public class StaffController(
 
     [Authorize]
     [HttpPost("enable-2fa")]
+    [ProducesResponseType(typeof(ApiResponse<EnableTwoFactorAuthResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> EnableTwoFactorAuth(
         [FromBody] EnableTwoFactorAuthRequest request)
     {
@@ -136,11 +141,16 @@ public class StaffController(
         var command = new EnableTwoFactorAuthCommand(userId, request, accessToken!);
         var response = await mediator.Send(command);
 
-        return Ok(response);
+        return Ok(new ApiResponse<EnableTwoFactorAuthResponse>(response));
     }
 
     [Authorize]
     [HttpPost("confirm-2fa")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ConfirmTwoFactor(
         [FromBody] VerifyTotpRequest request)
     {
@@ -156,6 +166,11 @@ public class StaffController(
         AuthenticationSchemes = AuthSchemes.TempToken,
         Policy = PolicyNames.TwoFactorAuthPolicy)]
     [HttpPost("verify-2fa")]
+    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> VerifyTwoFactor(
         [FromBody] VerifyTotpRequest request)
     {
@@ -169,6 +184,24 @@ public class StaffController(
         await mediator.Send(sessionCreateCommand);
 
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
+    }
+
+    [Authorize]
+    [HttpPost("disable-2fa")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DisableTwoFactorAuth(
+        [FromBody] VerifyTotpRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new DisableTwoFactorAuthCommand(userId, request.TotpCode);
+        await mediator.Send(command);
+
+        return NoContent();
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
