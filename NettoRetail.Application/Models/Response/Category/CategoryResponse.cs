@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Application.Models.Response;
+﻿namespace NettoRetail.Application.Models.Response.Category;
 
 public class CategoryResponse
 {

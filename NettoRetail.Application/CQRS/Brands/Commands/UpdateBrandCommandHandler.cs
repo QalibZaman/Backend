@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Brand;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
