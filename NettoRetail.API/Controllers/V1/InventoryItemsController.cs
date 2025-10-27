@@ -7,9 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -20,7 +18,13 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<InventoryItemInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetInventoryItemInfo(Guid id, CancellationToken cancellationToken)
     {
         var inventoryItemQuery = new GetInventoryItemInfoQuery(id);
@@ -57,6 +61,12 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<InventoryItemResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost]
     public async Task<IActionResult> AddInventoryItem(AddInventoryItemModel model)
     {
