@@ -31,6 +31,7 @@ public class GetCategoriesSectionForEditQueryHandler(
                 "Your shop does not have any categories yet. Please, add categories to continue");
         }
 
+        var orderedCategories = categories.OrderBy(c => c.Name).ToList();
         const int maxVisibleCategories = 6;
 
         var dto = new EditCategoriesSectionRequest
@@ -38,8 +39,8 @@ public class GetCategoriesSectionForEditQueryHandler(
             ShopId = shop.Id,
             Visibility = shop.CategoriesSectionVisibility,
             Preview = shop.CategoriesSectionPreview ?? string.Empty,
-            Name = shop.CategoriesSectionName ?? string.Empty,
-            NumberOfCategories = categories.Count >= maxVisibleCategories ? maxVisibleCategories : categories.Count
+            Name = shop.CategoriesSectionName ?? string.Empty,  
+            NumberOfCategories = orderedCategories.Count >= maxVisibleCategories ? maxVisibleCategories : orderedCategories.Count
         };
 
         return dto;
