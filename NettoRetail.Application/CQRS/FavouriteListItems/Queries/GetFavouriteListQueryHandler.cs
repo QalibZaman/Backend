@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.Domain.Entities;
@@ -15,38 +16,19 @@ public sealed class GetFavouriteListQueryHandler(
 {
     public async Task<GetFavouriteResponse> Handle(GetFavouriteListQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<FavouriteListItemEntity>();
-        specificationBuilder
+        var spec = new SpecificationBuilder<FavouriteListItemEntity>()
             .Add<GetFavouriteListByAccountAndShop>(request.AccountId, request.ShopId)
             .AddInclude(x => x.InventoryItem!)
             .AddInclude(x => x.InventoryItem!.Category)
-            .AddInclude(x => x.InventoryItem!.Images);
+            .AddInclude(x => x.InventoryItem!.Images)
+            .Build();
 
-        var favourites = await favouriteRepository.GetManyBySpecAsync(
-            specificationBuilder.Build(),
-            cancellationToken);
+        var favourites = await favouriteRepository.GetManyBySpecAsync(spec, cancellationToken);
 
         var items = favourites
             .Select(x => x.InventoryItem!)
             .DistinctBy(ii => ii.Id)
-            .Select(ii =>
-            {
-                var isOutOfStock = ii.AvailableAmount <= 0;
-                var thumb = ii.Images?.OrderBy(img => img.Order).FirstOrDefault()?.BlobUrl ?? string.Empty;
-
-                return new InventoryItemCardResponse
-                {
-                    Id = ii.Id,
-                    ProductName = ii.ProductName,
-                    CategoryName = ii.Category?.Name ?? string.Empty,
-                    ThumbnailUrl = thumb,
-                    Price = ii.Price,
-                    PromotionPrice = ii.PromotionPrice,
-                    AvailableAmount = ii.AvailableAmount,
-                    IsOutOfStock = isOutOfStock
-                };
-            })
-            .ToList();
+            .Adapt<List<InventoryItemCardResponse>>();
 
         var total = items
             .Where(i => !i.IsOutOfStock)

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
@@ -28,36 +29,17 @@ public sealed class ResolveGuestFavouritesQueryHandler(
             };
         }
 
-        var specificationBuilder = new SpecificationBuilder<InventoryItemEntity>();
-        specificationBuilder
+        var spec = new SpecificationBuilder<InventoryItemEntity>()
             .Add<GetInventoryItemsByIdsAndShop>(request.ProductIds, request.ShopId)
             .AddInclude(x => x.Category)
-            .AddInclude(x => x.Images);
+            .AddInclude(x => x.Images)
+            .Build();
 
-        var itemsDb = await inventoryRepository.GetManyBySpecAsync(
-            specificationBuilder.Build(),
-            cancellationToken);
+        var itemsDb = await inventoryRepository.GetManyBySpecAsync(spec, cancellationToken);
 
         var items = itemsDb
             .DistinctBy(ii => ii.Id)
-            .Select(ii =>
-            {
-                var isOutOfStock = ii.AvailableAmount <= 0;
-                var thumb = ii.Images?.OrderBy(img => img.Order).FirstOrDefault()?.BlobUrl ?? string.Empty;
-
-                return new InventoryItemCardResponse
-                {
-                    Id = ii.Id,
-                    ProductName = ii.ProductName,
-                    CategoryName = ii.Category?.Name ?? string.Empty,
-                    ThumbnailUrl = thumb,
-                    Price = ii.Price,
-                    PromotionPrice = ii.PromotionPrice,
-                    AvailableAmount = ii.AvailableAmount,
-                    IsOutOfStock = isOutOfStock
-                };
-            })
-            .ToList();
+            .Adapt<List<InventoryItemCardResponse>>();
 
         var total = items
             .Where(i => !i.IsOutOfStock)
