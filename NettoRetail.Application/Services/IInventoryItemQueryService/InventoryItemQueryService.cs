@@ -8,18 +8,12 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.IInventoryItemQueryService;
-public class InventoryItemQueryService : IInventoryItemQueryService
+public class InventoryItemQueryService(
+    IInventoryItemRepository inventoryRepo,
+    ICategoryRepository categoryRepo) : IInventoryItemQueryService
 {
-    private readonly IInventoryItemRepository _inventoryRepo;
-    private readonly ICategoryRepository _categoryRepo;
-
-    public InventoryItemQueryService(
-        IInventoryItemRepository inventoryRepo,
-        ICategoryRepository categoryRepo)
-    {
-        _inventoryRepo = inventoryRepo;
-        _categoryRepo = categoryRepo;
-    }
+    private readonly IInventoryItemRepository _inventoryRepo = inventoryRepo;
+    private readonly ICategoryRepository _categoryRepo = categoryRepo;
 
     public async Task<PaginatedResponse<InventoryItemListResponse>> GetInventoryItemsAsync(
         int shopId,
