@@ -57,10 +57,7 @@ namespace NettoRetail.API.Controllers.V1
         [Produces("application/json")]
         public async Task<ActionResult<ApiResponse<GetFavouriteResponse>>> GetFavorites(CancellationToken cancellationToken)
         {
-            var userId = HttpContext.GetUserId();     // Guid
-            var shopId = HttpContext.GetUserShopId(); // int
-
-            var query = new GetFavouriteListQuery(userId, shopId);
+            var query = new GetFavouriteListQuery(HttpContext.GetUserId(), HttpContext.GetUserShopId());
             var vm = await mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<GetFavouriteResponse>(vm));
@@ -77,12 +74,9 @@ namespace NettoRetail.API.Controllers.V1
         [FromQuery(Name = "ids")] List<Guid>? ids,
         CancellationToken cancellationToken)
         {
-            var shopId = HttpContext.GetUserShopId(); 
-
             var vm = await mediator.Send(
-                new ResolveGuestFavouritesQuery(ids ?? new List<Guid>(), shopId),
-                cancellationToken
-            );
+                new ResolveGuestFavouritesQuery(ids ?? new List<Guid>(), HttpContext.GetUserShopId()),
+                cancellationToken);
 
             return Ok(new ApiResponse<GetFavouriteResponse>(vm));
         }
