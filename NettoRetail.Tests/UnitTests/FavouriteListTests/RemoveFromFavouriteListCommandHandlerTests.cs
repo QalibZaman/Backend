@@ -5,65 +5,66 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
 
-namespace NettoRetail.Tests.UnitTests.FavouriteListTests;
-
-public class RemoveFromFavouriteListCommandHandlerTests
+namespace NettoRetail.Tests.UnitTests.FavouriteListTests
 {
-    private readonly IFavouriteListItemRepository _favouriteListItemRepository;
-
-    public RemoveFromFavouriteListCommandHandlerTests()
+    public class RemoveFromFavouriteListCommandHandlerTests
     {
-        _favouriteListItemRepository = Substitute.For<IFavouriteListItemRepository>();
-    }
+        private readonly IFavouriteListItemRepository _favouriteListItemRepository;
 
-    [Fact]
-    public async Task Handle_ShouldDeleteBySpec_Idempotent()
-    {
-        // Arrange
-        var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
-        var userId = Guid.NewGuid();
-        var itemId = Guid.NewGuid();
-        var command = new RemoveFromFavouriteListCommand(userId, itemId);
+        public RemoveFromFavouriteListCommandHandlerTests()
+        {
+            _favouriteListItemRepository = Substitute.For<IFavouriteListItemRepository>();
+        }
 
-        // Act
-        await handler.Handle(command, CancellationToken.None);
+        [Fact(DisplayName = "Removing a product from Favorites succeeds (idempotent)")]
+        public async Task RemoveProduct_RemovesIfPresent_Idempotent()
+        {
+            // Arrange
+            var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
+            var userId = Guid.NewGuid();
+            var itemId = Guid.NewGuid();
+            var command = new RemoveFromFavouriteListCommand(userId, itemId);
 
-        // Assert: we delete using the spec; idempotent (no exception expected)
-        await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
-            Arg.Is<Specification<FavouriteListItemEntity>>(s =>
-                s is GetFavouriteListItemByAccountAndItemId),
-            Arg.Any<CancellationToken>());
-    }
+            // Act
+            await handler.Handle(command, CancellationToken.None);
 
-    [Fact]
-    public async Task Handle_ShouldPassCancellationToken_ToRepository()
-    {
-        // Arrange
-        var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
-        var cts = new CancellationTokenSource();
-        var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
+            // Assert
+            await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
+                Arg.Is<Specification<FavouriteListItemEntity>>(s => s is GetFavouriteListItemByAccountAndItemId),
+                Arg.Any<CancellationToken>());
+        }
 
-        // Act
-        await handler.Handle(command, cts.Token);
+        [Fact(DisplayName = "Second remove is safe when item already removed")]
+        public async Task RemoveProduct_IsSafeWhenAlreadyRemoved()
+        {
+            // Arrange
+            var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
+            var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-        // Assert
-        await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
-            Arg.Any<Specification<FavouriteListItemEntity>>(),
-            cts.Token);
-    }
+            // Act
+            await handler.Handle(command, CancellationToken.None);
 
-    [Fact]
-    public async Task Handle_ShouldNotThrow_WhenItemDoesNotExist()
-    {
-        // Arrange
-        var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
-        var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
+            // Assert
+            await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
+                Arg.Any<Specification<FavouriteListItemEntity>>(),
+                Arg.Any<CancellationToken>());
+        }
 
-        // Act + Assert: no exception (idempotent delete)
-        await handler.Handle(command, CancellationToken.None);
+        [Fact(DisplayName = "Operational – Cancellation flows through to repository")]
+        public async Task RemoveProduct_RespectsOperationCancellation()
+        {
+            // Arrange
+            var handler = new RemoveFromFavouriteListCommandHandler(_favouriteListItemRepository);
+            var cts = new CancellationTokenSource();
+            var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-        await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
-            Arg.Any<Specification<FavouriteListItemEntity>>(),
-            Arg.Any<CancellationToken>());
+            // Act
+            await handler.Handle(command, cts.Token);
+
+            // Assert
+            await _favouriteListItemRepository.Received(1).DeleteManyBySpecAsync(
+                Arg.Any<Specification<FavouriteListItemEntity>>(),
+                cts.Token);
+        }
     }
 }
