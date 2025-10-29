@@ -43,6 +43,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<NewProductsProductEntity> NewProductsProducts { get; set; }
     public DbSet<FavouriteListItemEntity> FavouriteListItems { get; set; }
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
+    public DbSet<ProductDetailEntity> ProductDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

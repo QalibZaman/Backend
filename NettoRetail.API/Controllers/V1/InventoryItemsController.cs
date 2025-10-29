@@ -35,14 +35,19 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{id}/details")]
+    [ProducesResponseType(typeof(ApiResponse<ProductDetailsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{id:guid}/details")]
     public async Task<IActionResult> GetInventoryItemDetails(Guid id, CancellationToken cancellationToken)
     {
         var inventoryDetailsQuery = new GetInventoryItemDetailsQuery(id);
 
         var data = await mediator.Send(inventoryDetailsQuery, cancellationToken);
 
-        var response = new ApiResponse<IEnumerable<ProductDetailsResponse>>(data);
+        var response = new ApiResponse<ProductDetailsResponse>(data);
 
         return Ok(response);
     }
