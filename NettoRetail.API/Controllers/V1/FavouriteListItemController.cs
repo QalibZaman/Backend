@@ -41,8 +41,7 @@ namespace NettoRetail.API.Controllers.V1
         public async Task<IActionResult> RemoveFromFavourites(Guid itemId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
-            var command = new RemoveFromFavouriteListCommand(userId, itemId);
-            await mediator.Send(command, cancellationToken);
+            await mediator.Send(new RemoveFromFavouriteListCommand(userId, itemId), cancellationToken);
             return NoContent();
         }
     }
