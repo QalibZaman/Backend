@@ -9,8 +9,5 @@ public class GetCategoriesByIdsSpecification : Specification<CategoryEntity>
             : base(x => ids.Contains(x.Id)) { }
 
     public GetCategoriesByIdsSpecification(int shopId)
-        : base(x => x.ShopId == shopId)
-    {
-        AddOrderBy(x => x.Name);
-    }
+        : base(x => x.ShopId == shopId) { }
 }

@@ -22,8 +22,10 @@ public class GetCategoriesSectionForEditQueryHandler(
             throw new NotFoundException($"Shop with id {request.ShopId} not found");
         }
 
-        var categories = await categoryRepository.GetAllNestedAsync(new GetCategoriesByIdsSpecification(request.ShopId),
-            cancellationToken);
+        var specification = new GetCategoriesByIdsSpecification(request.ShopId);
+        specification.AddOrderBy(c => c.Name);
+
+        var categories = await categoryRepository.GetAllNestedAsync(specification, cancellationToken);
 
         if (categories.Count == 0)
         {
@@ -38,7 +40,7 @@ public class GetCategoriesSectionForEditQueryHandler(
             ShopId = shop.Id,
             Visibility = shop.CategoriesSectionVisibility,
             Preview = shop.CategoriesSectionPreview ?? string.Empty,
-            Name = shop.CategoriesSectionName ?? string.Empty,  
+            Name = shop.CategoriesSectionName ?? string.Empty,
             NumberOfCategories = categories.Count >= maxVisibleCategories ? maxVisibleCategories : categories.Count
         };
 
