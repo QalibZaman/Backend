@@ -11,5 +11,6 @@ public class GetCategoriesByIdsSpecification : Specification<CategoryEntity>
     public GetCategoriesByIdsSpecification(int shopId)
         : base(x => x.ShopId == shopId)
     {
+        AddOrderBy(x => x.Name);
     }
 }
