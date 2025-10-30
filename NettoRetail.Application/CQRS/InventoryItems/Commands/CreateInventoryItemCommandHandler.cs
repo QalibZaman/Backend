@@ -37,6 +37,7 @@ public class CreateInventoryItemCommandHandler(
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
+        inventoryItem.ProductDetails = SetProductDetails(inventoryItem.Id);
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
 
@@ -45,5 +46,17 @@ public class CreateInventoryItemCommandHandler(
         response.ProductBrand = brand.Name;
 
         return response;
+    }
+
+    private ProductDetailEntity SetProductDetails(Guid id)
+    {
+        var details = new ProductDetailEntity()
+        {
+            InventoryItemId = id,
+            Value = "value",
+            Name = "name",
+            Unit = Domain.Enums.ProductDetailUnitEnum.kg
+        };
+        return details;
     }
 }
