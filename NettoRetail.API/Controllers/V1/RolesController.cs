@@ -26,11 +26,17 @@ public class RolesController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CreateRoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole([FromBody] CreateRoleRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var command = model.Adapt<CreateRoleCommand>() with { ShopId = shopId };
+        var command = new CreateRoleCommand(
+            Name: model.Name,
+            Description: model.Description,
+            ShopId: shopId,
+            PermissionIds: model.PermissionIds);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateRoleResponse>(result);
         return Ok(response);
