@@ -9,27 +9,26 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
 public record GetInventoryItemInfoQuery(Guid Id) : IRequest<InventoryItemInfoResponse>;
+
 public class GetInventoryItemInfoQueryHandler(
-    IInventoryItemRepository inventoryItemRepository,
-    ICategoryRepository categoryRepository)
-    : IRequestHandler<GetInventoryItemInfoQuery, InventoryItemInfoResponse>
+    IInventoryItemRepository inventoryRepo,
+    ICategoryRepository categoryRepo
+) : IRequestHandler<GetInventoryItemInfoQuery, InventoryItemInfoResponse>
 {
-    public async Task<InventoryItemInfoResponse> Handle(GetInventoryItemInfoQuery request, CancellationToken cancellationToken)
+    public async Task<InventoryItemInfoResponse> Handle(GetInventoryItemInfoQuery request, CancellationToken ct)
     {
-        var specification = new GetItemByIdSpecification(request.Id);
-        specification.AddInclude(x => x.Brand!);
+        var spec = new GetItemByIdSpecification(request.Id);
+        spec.AddInclude(i => i.Brand!);
+        spec.AddInclude(i => i.Category!);
 
-        var item = await inventoryItemRepository
-           .GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("There is no inventory item with such id.");
+        var item = await inventoryRepo.GetAsync(spec, ct)
+                   ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        var categories = await categoryRepository
-            .GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
+        var vm = item.Adapt<InventoryItemInfoResponse>();
 
-        var response = item.Adapt<InventoryItemInfoResponse>();
+        var chain = await categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, ct);
+        vm.ProductCategories = chain.Select(c => new CategorySummaryResponse { Id = c.Id, Name = c.Name });
 
-        response.ProductCategories = categories.Select(x => new CategorySummaryResponse { Id = x.Id, Name = x.Name });
-
-        return response;
+        return vm;
     }
 }
