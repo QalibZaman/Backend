@@ -17,15 +17,10 @@ public record GetInventoryItemsQuery(
     int ShopId,
     InventoryItemsSearchModel Model) : IRequest<PaginatedResponse<InventoryItemListResponse>>;
 
-public class GetInventoryItemsQueryHandler
-    : IRequestHandler<GetInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
+public class GetInventoryItemsQueryHandler(IInventoryItemQueryService listingService)
+        : IRequestHandler<GetInventoryItemsQuery, PaginatedResponse<InventoryItemListResponse>>
 {
-    private readonly IInventoryItemQueryService _queryService;
-
-    public GetInventoryItemsQueryHandler(IInventoryItemQueryService listingService)
-    {
-        _queryService = listingService;
-    }
+    private readonly IInventoryItemQueryService _queryService = listingService;
 
     public async Task<PaginatedResponse<InventoryItemListResponse>> Handle(
         GetInventoryItemsQuery request,
