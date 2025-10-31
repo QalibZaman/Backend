@@ -17,6 +17,7 @@ using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IPasswordService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
@@ -85,6 +86,7 @@ public static class ServiceExtensions
         services.AddScoped<ICsvFileService, CsvFileService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
+        services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<INewsletterService, NewsletterService>();
