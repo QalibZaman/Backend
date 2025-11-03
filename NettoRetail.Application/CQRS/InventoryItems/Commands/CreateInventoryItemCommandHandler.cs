@@ -41,7 +41,6 @@ public class CreateInventoryItemCommandHandler(
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
-        //var productDetails = SetProductDetails(request.Model, inventoryItem.Id);
         var productDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
 
         foreach (var detail in productDetails)
@@ -70,22 +69,4 @@ public class CreateInventoryItemCommandHandler(
             throw;
         }
     }
-
-    //private List<ProductDetailEntity> SetProductDetails(AddInventoryItemModel model, Guid itemId)
-    //{
-    //    List<ProductDetailEntity> details = new List<ProductDetailEntity>();
-    //    foreach (var detail in model.ProductDetails)
-    //    {
-    //        details.Add(new ProductDetailEntity
-    //        {
-    //            InventoryItemId = itemId,
-    //            Value = "value",
-    //            Name = detail.Name,
-    //            Unit = Domain.Enums.ProductDetailUnitEnum.kg,
-    //            OrderIndex = 0
-    //        });
-    //    }
-
-    //    return details;
-    //}
 }
