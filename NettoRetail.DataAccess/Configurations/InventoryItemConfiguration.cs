@@ -53,8 +53,9 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
          .HasForeignKey(i => i.InventoryItemId)
          .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(i => i.ProductDetails)
+        builder.HasMany(i => i.ProductDetails)
             .WithOne(p => p.InventoryItem)
-            .HasForeignKey<ProductDetailEntity>(p => p.InventoryItemId);
+            .HasForeignKey(p => p.InventoryItemId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
