@@ -1,6 +1,4 @@
-﻿using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Http;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Permissions;
@@ -11,38 +9,60 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Roles.Commands;
 
-public record CreateRoleCommand(string Name, string Description, int ShopId, int[] PermissionIds) : IRequest<CreateRoleResponse>;
+public record CreateRoleCommand(
+    string Name,
+    string? Description,
+    int ShopId,
+    int[] PermissionIds) : IRequest<CreateRoleResponse>;
 
-public class CreateRoleCommandHandler(IPermissionRepository permissionRepository,
+public class CreateRoleCommandHandler(
     IRoleRepository roleRepository,
-    IShopRepository shopRepository)
-    : IRequestHandler<CreateRoleCommand, CreateRoleResponse>
+    IPermissionRepository permissionRepository,
+    IShopRepository shopRepository) : IRequestHandler<CreateRoleCommand, CreateRoleResponse>
 {
     public async Task<CreateRoleResponse> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        var shopExists = await shopRepository.Exists(
+            new GetShopByIdSpecification(request.ShopId),
+            cancellationToken);
+
         if (!shopExists)
-        {
             throw new NotFoundException($"No shop with Id: {request.ShopId}");
-        }
 
-        var role = request.Adapt<RoleEntity>();
+        if (request.PermissionIds is null || request.PermissionIds.Length == 0)
+            throw new BadRequestException("At least one permission must be enabled.");
 
-        var validPermissionsSpecification = new GetValidPermissionsSpecification(request.PermissionIds);
+        var distinctPermissionIds = request.PermissionIds.Distinct().ToArray();
+        var validSpec = new GetValidPermissionsSpecification(distinctPermissionIds);
+        var validPermissions = await permissionRepository.GetIdsBySpecAsync(validSpec, cancellationToken);
 
-        var validPermissions = await permissionRepository.GetIdsBySpecAsync(validPermissionsSpecification, cancellationToken);
+        if (validPermissions.Count() != distinctPermissionIds.Length)
+            throw new BadRequestException("Some of the permissions don't exist. Please provide valid permissions.");
 
-        if (request.PermissionIds.Count() > validPermissions.Count() || validPermissions.Count() == 0)
+        var role = new RoleEntity
         {
-            throw new BadRequestException("Some of the permissions doesn't exist, please provide right permissions");
-        }
+            Name = request.Name.Trim(),
+            Description = !string.IsNullOrWhiteSpace(request.Description) ? request.Description?.Trim() : null,
+            ShopId = request.ShopId
+        };
 
-        var permissionRoles = request.PermissionIds.Select(value => new PermissionRoleEntity() { PermissionId = value, RoleId = role.Id }).ToList();
+        role.PermissionRoles = distinctPermissionIds
+            .Select(pid => new PermissionRoleEntity
+            {
+                PermissionId = pid,
+                Role = role
+            })
+            .ToList();
 
-        role.PermissionRoles = permissionRoles;
+        var created = await roleRepository.AddAsync(role, cancellationToken);
 
-        var result = await roleRepository.AddAsync(role, cancellationToken);
-
-        return result.Adapt<CreateRoleResponse>();
+        return new CreateRoleResponse
+        {
+            Id = created.Id,
+            Name = created.Name,
+            Description = created.Description,
+            ShopId = created.ShopId,
+            PermissionIds = role.PermissionRoles.Select(x => x.PermissionId).ToList()
+        };
     }
 }

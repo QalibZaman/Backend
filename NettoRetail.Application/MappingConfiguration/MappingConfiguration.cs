@@ -174,5 +174,15 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
+
+        config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
+            .Map(d => d.Id, s => s.Id)
+            .Map(d => d.ProductName, s => s.ProductName)
+            .Map(d => d.CategoryName, s => s.Category != null ? s.Category.Name : string.Empty)
+            .Map(d => d.ThumbnailUrl, s => s.Images != null ? s.Images.OrderBy(i => i.Order).Select(i => i.BlobUrl).FirstOrDefault() ?? string.Empty : string.Empty)
+            .Map(d => d.Price, s => s.Price)
+            .Map(d => d.PromotionPrice, s => s.PromotionPrice)
+            .Map(d => d.AvailableAmount, s => s.AvailableAmount)
+            .Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
     }
 }

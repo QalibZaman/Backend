@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
+using NettoRetail.Application.CQRS.FavouriteListItems.Queries;
 using NettoRetail.Application.Models.Request.FavouriteListItem;
 using NettoRetail.Application.Models.Response;
 
@@ -41,9 +42,42 @@ namespace NettoRetail.API.Controllers.V1
         public async Task<IActionResult> RemoveFromFavourites(Guid itemId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
-            var command = new RemoveFromFavouriteListCommand(userId, itemId);
-            await mediator.Send(command, cancellationToken);
+            await mediator.Send(new RemoveFromFavouriteListCommand(userId, itemId), cancellationToken);
             return NoContent();
+        }
+
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        public async Task<ActionResult<ApiResponse<GetFavouriteResponse>>> GetFavorites(CancellationToken cancellationToken)
+        {
+            var query = new GetFavouriteListQuery(HttpContext.GetUserId(), HttpContext.GetUserShopId());
+            var vm = await mediator.Send(query, cancellationToken);
+
+            return Ok(new ApiResponse<GetFavouriteResponse>(vm));
+        }
+
+        [HttpGet("resolve")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ApiResponse<GetFavouriteResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ApiResponse<GetFavouriteResponse>>> ResolveFavourites(
+        [FromQuery(Name = "ids")] List<Guid>? ids,
+        CancellationToken cancellationToken)
+        {
+            var vm = await mediator.Send(
+                new ResolveGuestFavouritesQuery(ids ?? new List<Guid>(), HttpContext.GetUserShopId()),
+                cancellationToken);
+
+            return Ok(new ApiResponse<GetFavouriteResponse>(vm));
         }
     }
 }
