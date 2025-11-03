@@ -31,7 +31,6 @@ public class UploadInventoryItemsListCommandHandler(
     public async Task Handle(UploadInventoryItemsListCommand request, CancellationToken cancellationToken)
     {
         var itemsList = await csvFileService.ReadCsvItemsAsync(request.CsvItemsFile, cancellationToken);
-
         await csvFileService.ValidateRowsFromCsvFileAsync(itemsList, validator, cancellationToken);
 
         var existingUpcHash = await inventoryItemRepository.GetAllUpcHashAsync(cancellationToken);
@@ -39,7 +38,7 @@ public class UploadInventoryItemsListCommandHandler(
         var categoryCache = new Dictionary<string, CategoryEntity>(StringComparer.OrdinalIgnoreCase);
         var brandCache = new Dictionary<string, BrandEntity>(StringComparer.OrdinalIgnoreCase);
 
-        var currentBatch = new List<InventoryItemEntity>(_batchDefaults.BatchSize);
+        var entitiesToAdd = new List<InventoryItemEntity>(itemsList.Count);
 
         foreach (var item in itemsList)
         {
@@ -53,21 +52,15 @@ public class UploadInventoryItemsListCommandHandler(
                 brandRepository, brandCache, item.Brand, request.UserShopId, cancellationToken);
 
             var entity = item.Adapt<InventoryItemEntity>();
-
             entity.Category = category;
             entity.Brand = brand;
             entity.BrandId = brand?.Id;
             entity.ShopId = request.UserShopId;
-            currentBatch.Add(entity);
 
-            if (currentBatch.Count >= _batchDefaults.BatchSize)
-            {
-                await inventoryItemRepository.AddRangeAsync(currentBatch, cancellationToken);
-                currentBatch.Clear();
-            }
+            entitiesToAdd.Add(entity);
         }
 
-        if (currentBatch.Count > 0)
-            await inventoryItemRepository.AddRangeAsync(currentBatch, cancellationToken);
+        if (entitiesToAdd.Count > 0)
+            await inventoryItemRepository.AddRangeAsync(entitiesToAdd, cancellationToken);
     }
 }
