@@ -6,8 +6,10 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
@@ -16,7 +18,9 @@ public record CreateInventoryItemCommand(AddInventoryItemModel Model, int ShopId
 public class CreateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     ICategoryRepository categoryRepository,
-    IBrandRepository brandRepository)
+    IBrandRepository brandRepository,
+    IProductDetailRepository productDetailRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
 {
     public async Task<InventoryItemResponse> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -37,26 +41,51 @@ public class CreateInventoryItemCommandHandler(
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
-        inventoryItem.ProductDetails = SetProductDetails(inventoryItem.Id);
+        //var productDetails = SetProductDetails(request.Model, inventoryItem.Id);
+        var productDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
 
-        var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
-
-        var response = responseModel.Adapt<InventoryItemResponse>();
-        response.ProductCategory = category.Name;
-        response.ProductBrand = brand.Name;
-
-        return response;
-    }
-
-    private ProductDetailEntity SetProductDetails(Guid id)
-    {
-        var details = new ProductDetailEntity()
+        foreach (var detail in productDetails)
         {
-            InventoryItemId = id,
-            Value = "value",
-            Name = "name",
-            Unit = Domain.Enums.ProductDetailUnitEnum.kg
-        };
-        return details;
+            detail.InventoryItemId = inventoryItem.Id;
+        }
+
+        var transaction = unitOfWork.BeginTransaction();
+
+        try
+        {
+            var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+            await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
+
+            var response = responseModel.Adapt<InventoryItemResponse>();
+            response.ProductCategory = category.Name;
+            response.ProductBrand = brand.Name;
+
+            transaction.Commit();
+
+            return response;
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
+
+    //private List<ProductDetailEntity> SetProductDetails(AddInventoryItemModel model, Guid itemId)
+    //{
+    //    List<ProductDetailEntity> details = new List<ProductDetailEntity>();
+    //    foreach (var detail in model.ProductDetails)
+    //    {
+    //        details.Add(new ProductDetailEntity
+    //        {
+    //            InventoryItemId = itemId,
+    //            Value = "value",
+    //            Name = detail.Name,
+    //            Unit = Domain.Enums.ProductDetailUnitEnum.kg,
+    //            OrderIndex = 0
+    //        });
+    //    }
+
+    //    return details;
+    //}
 }

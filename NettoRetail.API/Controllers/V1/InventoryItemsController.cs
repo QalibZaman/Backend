@@ -47,7 +47,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var data = await mediator.Send(inventoryDetailsQuery, cancellationToken);
 
-        var response = new ApiResponse<ProductDetailsResponse>(data);
+        var response = new ApiResponse<List<ProductDetailsResponse>>(data);
 
         return Ok(response);
     }
