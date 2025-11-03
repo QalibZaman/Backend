@@ -99,7 +99,7 @@ namespace NettoRetail.Application.Services.IPdfGenerator
                                   HeaderCell("Date");
                                   HeaderCell("Status");
                                   HeaderCell("Author");
-                                  HeaderCell("Author");
+                                  HeaderCell("Comment");
                               });
 
                               col.Item().PaddingTop(30);
@@ -146,7 +146,7 @@ namespace NettoRetail.Application.Services.IPdfGenerator
                             .Column(productsCol =>
                             {
                                 int index = 1;
-                                foreach (var item in model.InventoryItems)
+                                foreach (var item in model?.InventoryItems)
                                 {
                                     productsCol.Item().Text($"{index}. {item.ProductName}")
                                         .FontSize(11)
