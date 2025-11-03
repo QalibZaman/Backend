@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.IBranService;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICountryCacheService;
@@ -65,7 +66,7 @@ public static class ServiceExtensions
         });
         services.AddHangfireServer();
 
-         //Services
+        //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
@@ -87,6 +88,7 @@ public static class ServiceExtensions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IBrandService, BrandService>();
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
 

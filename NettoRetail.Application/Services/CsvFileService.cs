@@ -1,9 +1,14 @@
-﻿using System.Globalization;
-using System.Text;
-using CsvHelper;
+﻿using CsvHelper;
+using FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Interfaces.Repositories;
+using System.Globalization;
+using System.Text;
 
 namespace NettoRetail.Application.Services;
 
@@ -37,4 +42,51 @@ public class CsvFileService : ICsvFileService
             yield return entityData;
         }
     }
+
+    public async Task<List<InventoryItemCsvModel>> ReadCsvItemsAsync(
+        IFormFile csvFile, CancellationToken cancellationToken)
+    {
+        if (csvFile == null)
+            throw new BadRequestException("CSV file cannot be null.");
+
+        if (csvFile.ContentType != "text/csv")
+            throw new BadRequestException("The uploaded file must be a CSV file type.");
+
+        var csvService = new CsvFileService();
+        var inventoryItemsData = csvService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(csvFile);
+
+        var list = new List<InventoryItemCsvModel>();
+        await foreach (var item in inventoryItemsData.WithCancellation(cancellationToken))
+        {
+            list.Add(item);
+        }
+
+        if (list.Count == 0)
+            throw new BadRequestException("The CSV file is empty. Please provide at least one row of data.");
+
+        return list;
+    }
+
+
+    public async Task ValidateRowsFromCsvFileAsync(
+         List<InventoryItemCsvModel> items,
+         IValidator<InventoryItemCsvModel> validator,
+         CancellationToken cancellationToken)
+    {
+        var validationErrors = new List<string>();
+
+        foreach (var (item, index) in items.Select((x, i) => (x, i + 1)))
+        {
+            var result = await validator.ValidateAsync(item, cancellationToken);
+            if (!result.IsValid)
+            {
+                var messages = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
+                validationErrors.Add($"Row {index}: {messages}");
+            }
+        }
+
+        if (validationErrors.Any())
+            throw new BadRequestException($"Validation failed:\n{string.Join("\n", validationErrors)}");
+    }
+
 }

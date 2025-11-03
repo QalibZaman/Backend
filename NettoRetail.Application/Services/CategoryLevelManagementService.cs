@@ -51,5 +51,23 @@ namespace NettoRetail.Application.Services
                await UpdateCategoryLevel(child, cancellationToken);
            }
         }
+
+        public async Task<CategoryEntity> GetOrAddCategoryAsync(
+        ICategoryRepository repository,
+        Dictionary<string, CategoryEntity> cache,
+        string categoryName,
+        int shopId,
+        CancellationToken cancellationToken)
+        {
+            if (cache.TryGetValue(categoryName, out var cached))
+                return cached;
+
+            var spec = new GetCategoriesByNameOrUrlSpecification(categoryName, null, shopId);
+            var category = await repository.GetAsync(spec, cancellationToken)
+                ?? throw new NotFoundException($"Category '{categoryName}' not found.");
+
+            cache[categoryName] = category;
+            return category;
+        }
     }
 }
