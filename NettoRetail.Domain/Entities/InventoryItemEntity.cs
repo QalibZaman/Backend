@@ -30,5 +30,5 @@ public class InventoryItemEntity
     public ICollection<InventoryItemImageEntity> Images { get; set; } = [];
     public ICollection<FavouriteListItemEntity>? FavouriteListItems { get; set; }
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
-    public ProductDetailEntity? ProductDetails { get; set; }
+    public ICollection<ProductDetailEntity> ProductDetails { get; set; } = [];
 }

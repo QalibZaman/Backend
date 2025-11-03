@@ -5,11 +5,11 @@ namespace NettoRetail.Domain.Entities;
 public class ProductDetailEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public required string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
     public ProductDetailTypeEnum TypeEnum { get; set; }
     public ProductDetailUnitEnum? Unit { get; set; }
-    public required string Value { get; set; } = string.Empty;
+    public required string Value { get; set; }
     public required Guid InventoryItemId { get; set; }
-
+    public required int OrderIndex { get; set; } = 0;
     public InventoryItemEntity? InventoryItem { get; set; }
 }
