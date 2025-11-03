@@ -79,5 +79,22 @@ namespace NettoRetail.API.Controllers.V1
 
             return Ok(new ApiResponse<GetFavouriteResponse>(vm));
         }
+
+        [HttpPost("add-to-cart")]
+        [Authorize]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ApiResponse<AddToCartResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<AddToCartResponse>>> AddToCartFromFavourites(
+        [FromQuery] Guid? inventoryItemId,
+        [FromQuery] bool all = false,
+        CancellationToken cancellationToken = default)
+        {
+            var command = new AddToCartFromFavouritesCommand(HttpContext.GetUserId(), HttpContext.GetUserShopId(), inventoryItemId, all);
+            var data = await mediator.Send(command, cancellationToken);
+            return Ok(new ApiResponse<AddToCartResponse>(data));
+        }
     }
 }
