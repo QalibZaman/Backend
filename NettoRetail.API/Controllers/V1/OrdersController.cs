@@ -11,6 +11,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
+using Stripe.Climate;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -126,15 +127,19 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("print/{orderId}")]
-    [ProducesResponseType(typeof(ApiResponse<OrderPrintingResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrderPrintingDetails(int orderId, CancellationToken cancellationToken)
     {
-        var command = new GetOrderDetailsForPrintingQuery(orderId);
-        var data = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<OrderPrintingResponse>(data);
-        return Ok(response);
+        var result = await mediator.Send(new GetOrderDetailsForPrintingQuery(orderId), cancellationToken);
+
+        result.Stream.Position = 0;
+
+        return new FileStreamResult(result.Stream, result.ContentType)
+        {
+            FileDownloadName = result.FileName
+        };
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]

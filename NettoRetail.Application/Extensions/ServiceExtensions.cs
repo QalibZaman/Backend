@@ -18,6 +18,7 @@ using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IPdfGenerator;
 using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
@@ -87,6 +88,7 @@ public static class ServiceExtensions
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<IPdfGenerator,PdfGenerator>();
         services.AddScoped<INewsletterService, NewsletterService>();
         services.AddScoped<IPriceHistoryService, PriceHistoryService>();
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
