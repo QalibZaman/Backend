@@ -11,5 +11,5 @@ public class ProductDetailEntity
     public required string Value { get; set; }
     public required Guid InventoryItemId { get; set; }
     public required int OrderIndex { get; set; } = 0;
-    public InventoryItemEntity? InventoryItem { get; set; }
+    public InventoryItemEntity InventoryItem { get; set; }
 }
