@@ -7,13 +7,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
-public record GetInventoryItemDetailsQuery(Guid Id) : IRequest<List<ProductDetailsResponse>>;
+public record GetInventoryItemDetailsQuery(Guid Id) : IRequest<IEnumerable<ProductDetailsResponse>>;
 public class GetInventoryItemDetailsQueryHandler(
     IInventoryItemRepository inventoryItemRepository,
     IProductDetailRepository productDetailRepository)
-    : IRequestHandler<GetInventoryItemDetailsQuery, List<ProductDetailsResponse>>
+    : IRequestHandler<GetInventoryItemDetailsQuery, IEnumerable<ProductDetailsResponse>>
 {
-    public async Task<List<ProductDetailsResponse>> Handle(GetInventoryItemDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ProductDetailsResponse>> Handle(GetInventoryItemDetailsQuery request, CancellationToken cancellationToken)
     {
         var itemSpecification = new GetItemByIdSpecification(request.Id);
 
@@ -28,7 +28,7 @@ public class GetInventoryItemDetailsQueryHandler(
 
         var productDetails = await productDetailRepository.GetAllBySpecAsync(detailsSpecification, cancellationToken);
 
-        var response = productDetails.Adapt<List<ProductDetailsResponse>>();
+        var response = productDetails.Adapt<IEnumerable<ProductDetailsResponse>>();
 
         return response;
     }
