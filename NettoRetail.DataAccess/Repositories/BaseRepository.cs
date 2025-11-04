@@ -93,11 +93,28 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public async Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
-        var query = _dbSet.Where(specification.Criteria);
+        IQueryable<TEntity> query = _dbSet.Where(specification.Criteria);
 
         foreach (var include in specification.Includes)
         {
             query = query.Include(include);
+        }
+
+        if (specification.Orderings.Any())
+        {
+            var first = specification.Orderings.First();
+            IOrderedQueryable<TEntity> ordered = first.IsDesc
+                ? query.OrderByDescending(first.Expr)
+                : query.OrderBy(first.Expr);
+
+            foreach (var (expression, descending) in specification.Orderings.Skip(1))
+            {
+                ordered = descending
+                    ? ordered.ThenByDescending(expression)
+                    : ordered.ThenBy(expression);
+            }
+
+            query = ordered;
         }
 
         return await query.ToListAsync(cancellationToken);

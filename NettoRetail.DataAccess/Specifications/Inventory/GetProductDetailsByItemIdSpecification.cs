@@ -6,5 +6,8 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 public class GetProductDetailsByItemIdSpecification : Specification<ProductDetailEntity>
 {
     public GetProductDetailsByItemIdSpecification(Guid inventoryItemId)
-        : base(d => d.InventoryItemId == inventoryItemId) { }
+        : base(d => d.InventoryItemId == inventoryItemId)
+    {
+        AddOrderBy(d => d.OrderIndex);
+    }
 }
