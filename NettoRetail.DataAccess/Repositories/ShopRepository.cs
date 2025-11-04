@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NettoRetail.DataAccess.Context;
+﻿using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
