@@ -1,9 +1,7 @@
-﻿using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Application.Services.IPdfGenerator;
 using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
@@ -16,6 +14,7 @@ public record GetOrderDetailsForPrintingQuery(int OrderId) : IRequest<OrderPrint
 
 public class GetOrderDetailsForPrintingQueryHandler(
     IOrderRepository orderRepository,
+    IOrderService orderService,
     IPdfGenerator pdfGenerator)
     : IRequestHandler<GetOrderDetailsForPrintingQuery, OrderPrintingResponse>
 {
@@ -33,22 +32,13 @@ public class GetOrderDetailsForPrintingQueryHandler(
         if (order is null)
             throw new NotFoundException("Order can't be found");
 
-        var model = order.Adapt<PrintOrderDetailsModel>();
+        var model = await orderService.BuildPrintOrderDetailsModel(order);
 
-        model.TotalProducts = order.OrderItems.Count();
-        model.Subtotal = order.OrderItems.Sum(x => x.Quantity * x.InventoryItem.Price);
-        model.TotalSale = order.OrderItems.Sum(x =>
-            x.InventoryItem.PromotionPrice != null
-                ? (x.InventoryItem.Price - x.InventoryItem.PromotionPrice.Value) * x.Quantity
-                : 0
-        );
-        model.TotalAmount = model.Subtotal - model.TotalSale;
-
-        Stream pdf = await pdfGenerator.PrintOrderDetails(model);
+        var pdfStream = await pdfGenerator.PrintOrderDetails(model);
 
         return new OrderPrintingResponse
         {
-            Stream = pdf,
+            Stream = pdfStream,
             FileName = $"order_{order.Id}.pdf"
         };
     }
