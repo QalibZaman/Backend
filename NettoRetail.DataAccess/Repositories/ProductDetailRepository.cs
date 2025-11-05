@@ -10,10 +10,11 @@ public class ProductDetailRepository(AppDbContext dbContext)
     : BaseRepository<ProductDetailEntity>(dbContext), IProductDetailRepository
 {
     public async Task UpdateDetailsAsync(
-        Specification<ProductDetailEntity> upsertSpecification,
+        List<Guid> updatedDetailIds,
+        ICollection<ProductDetailEntity> newDetails,
         Specification<ProductDetailEntity> deleteSpecification,
         CancellationToken cancellationToken)
     {
-        await _dbSet.Where(upsertSpecification.Criteria).ExecuteUpdate();
+        
     }
 }

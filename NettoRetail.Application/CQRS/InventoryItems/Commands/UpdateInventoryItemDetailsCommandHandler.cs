@@ -17,15 +17,13 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
     {
         var detailsToUpsert = new List<ProductDetailEntity>();
 
-        var itemSpecification = new GetInventoryItemByIdSpecification(request.InventoryItemId);
+        var itemSpecification = new GetInventoryItemByIdAndShopIdSpecification(request.InventoryItemId, request.ShopId);
         var inventoryItemToUpdate = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
-
-        if (inventoryItemToUpdate.ShopId != request.ShopId)
-            throw new MyUnauthorizedException("This item is inaccessible");
 
         var specification = new GetProductDetailsByItemIdSpecification(request.InventoryItemId);
 
         var inventoryItemDetailsToUpdate = await productDetailRepository.GetAllBySpecAsync(specification, cancellationToken);
+
 
         foreach (var detail in request.Model.Details)
         {
