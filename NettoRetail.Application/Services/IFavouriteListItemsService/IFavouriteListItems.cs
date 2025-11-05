@@ -12,5 +12,5 @@ public interface IFavouriteListItems
 {
     Task<List<Guid>> ResolveTargetIdsAsync(AddToCartFromFavouritesCommand request, object? favouriteItemsSpecification,CancellationToken cancellationToken = default);
 
-    Task<FavouriteListBulkAddResult> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, int maxDegreeOfParallelism, CancellationToken cancellationToken = default);
+    Task<CartEntity> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, CancellationToken cancellationToken = default);
 }

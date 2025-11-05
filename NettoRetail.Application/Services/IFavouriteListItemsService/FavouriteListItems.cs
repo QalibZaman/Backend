@@ -35,49 +35,8 @@ public class FavouriteListItems(
         throw new BadRequestException("inventoryItemId is required when all=false.");
     }
 
-    public async Task<FavouriteListBulkAddResult> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, int maxDegreeOfParallelism,CancellationToken cancellationToken = default)
+    public Task<CartEntity> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, CancellationToken cancellationToken = default)
     {
-        var ids = inventoryItemIds.Where(id => id != Guid.Empty).ToList();
-        if (ids.Count == 0) return new FavouriteListBulkAddResult(0, null, null);
-
-        var degreeOfParallelism = Math.Max(1, maxDegreeOfParallelism);
-        using var gate = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
-
-        int added = 0;
-        CartEntity? lastCart = null;
-        CartItemEntity? lastLine = null;
-        var locker = new object();
-        var tasks = new List<Task>(ids.Count);
-
-        foreach (var itemId in ids)
-        {
-            await gate.WaitAsync(cancellationToken);
-            tasks.Add(Task.Run(
-                async () =>
-                {
-                    try
-                    {
-                        var cart = await _cartService.AddItemForUserAsync(accountId, itemId, cancellationToken);
-                        Interlocked.Increment(ref added);
-                        lock (locker)
-                        {
-                            lastCart = cart;
-                            lastLine = cart.Items.FirstOrDefault(i => i.InventoryItemId == itemId) ?? lastLine;
-                        }
-                    }
-                    catch
-                    {
-                        // Bulk mode: skip the failing item and continue
-                    }
-                    finally
-                    {
-                        gate.Release();
-                    }
-                },
-                cancellationToken));
-        }
-
-        await Task.WhenAll(tasks);
-        return new FavouriteListBulkAddResult(added, lastCart, lastLine);
+        return _cartService.AddManyItemsForUserAsync(accountId, inventoryItemIds, cancellationToken);
     }
 }
