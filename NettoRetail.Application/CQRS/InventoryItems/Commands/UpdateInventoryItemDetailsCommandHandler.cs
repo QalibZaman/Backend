@@ -10,12 +10,12 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
 public record UpdateInventoryItemDetailsCommand(Guid InventoryItemId, int ShopId, UpdateInventoryItemDetailsModel Model) : IRequest;
 
-public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository inventoryItemRepository, IProductDetailsRepository productDetailsRepository)
+public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository inventoryItemRepository, IProductDetailRepository productDetailRepository)
     : IRequestHandler<UpdateInventoryItemDetailsCommand>
 {
     public async Task Handle(UpdateInventoryItemDetailsCommand request, CancellationToken cancellationToken)
     {
-        var detailsToUpsert = new List<ProductDetailsEntity>();
+        var detailsToUpsert = new List<ProductDetailEntity>();
 
         var itemSpecification = new GetInventoryItemByIdSpecification(request.InventoryItemId);
         var inventoryItemToUpdate = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
@@ -23,16 +23,18 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
         if (inventoryItemToUpdate.ShopId != request.ShopId)
             throw new MyUnauthorizedException("This item is inaccessible");
 
-        var inventoryItemDetailsToUpdate = await productDetailsRepository.GetAllByPartitionKeyAsync(request.InventoryItemId.ToString(), cancellationToken);
+        var specification = new GetProductDetailsByItemIdSpecification(request.InventoryItemId);
+
+        var inventoryItemDetailsToUpdate = await productDetailRepository.GetAllBySpecAsync(specification, cancellationToken);
 
         foreach (var detail in request.Model.Details)
         {
-            var detailToUpsert = inventoryItemDetailsToUpdate.FirstOrDefault(d => d.Id == detail.Id.ToString());
+            var detailToUpsert = inventoryItemDetailsToUpdate.FirstOrDefault(d => d.Id.ToString() == detail.Id.ToString());
 
             if (detailToUpsert == null)
             {
-                detailToUpsert = detail.Adapt<ProductDetailsEntity>();
-                detailToUpsert.Id = Guid.NewGuid().ToString();
+                detailToUpsert = detail.Adapt<ProductDetailEntity>();
+                detailToUpsert.Id = Guid.NewGuid();
             }
             else
             {
@@ -43,6 +45,6 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
             detailsToUpsert.Add(detailToUpsert);
         }
 
-        await productDetailsRepository.ExecuteUpdatingTransactionalBatchAsync(request.InventoryItemId.ToString(), detailsToUpsert, request.Model.DetailsToDelete, cancellationToken);
+        await productDetailRepository.ExecuteUpdatingTransactionalBatchAsync(request.InventoryItemId.ToString(), detailsToUpsert, request.Model.DetailsToDelete, cancellationToken);
     }
 }

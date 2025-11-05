@@ -6,7 +6,7 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsModel>
+public class ProductDetailsModelValidator : AbstractValidator<ProductDetailModel>
 {
     public ProductDetailsModelValidator()
     {

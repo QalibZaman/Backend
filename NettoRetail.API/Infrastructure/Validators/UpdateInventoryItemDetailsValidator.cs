@@ -14,7 +14,7 @@ public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpdateInven
         RuleForEach(x => x.Details).SetValidator(new ProductDetailsModelValidator());
     }
 
-    private bool HaveContinuousOrderIndexes(ICollection<ProductDetailsModel> details)
+    private bool HaveContinuousOrderIndexes(ICollection<ProductDetailModel> details)
     {
         if (details.Count == 0)
             return true;
