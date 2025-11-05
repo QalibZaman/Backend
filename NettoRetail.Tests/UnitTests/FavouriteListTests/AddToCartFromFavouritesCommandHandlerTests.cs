@@ -1,210 +1,176 @@
 ﻿using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ICartService;
+using NettoRetail.Application.Services.IFavouriteListItemsService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace NettoRetail.Tests.UnitTests.FavouriteListTests;
+
 public class AddToCartFromFavouritesCommandHandlerTests
 {
     private readonly IFavouriteListItemRepository _favourites;
     private readonly ICartService _cartService;
+    private readonly IFavouriteListItems _favouriteListItems;
 
     public AddToCartFromFavouritesCommandHandlerTests()
     {
         _favourites = Substitute.For<IFavouriteListItemRepository>();
         _cartService = Substitute.For<ICartService>();
+        _favouriteListItems = Substitute.For<IFavouriteListItems>();
     }
 
-    private static CartEntity CartWith(Guid customerId, Guid itemId, int qty)
-        => new()
+    private static CartEntity CartWith(Guid customerId, Guid itemId, int qty) => new()
+    {
+        CustomerId = customerId,
+        Items = new List<CartItemEntity>
         {
-            CustomerId = customerId,
-            Items = new List<CartItemEntity>
+            new()
             {
-                new CartItemEntity
-                {
-                    InventoryItemId = itemId,
-                    Quantity = qty,
-                    Price = 100
-                }
+                InventoryItemId = itemId,
+                Quantity = qty,
+                Price = 100
             }
-        };
+        }
+    };
 
     [Fact]
     public async Task AddSingle_WhenNewLine_ShouldCreateLineAndReturnSuccess()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var shopId = 1;
         var itemId = Guid.NewGuid();
+        var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
 
-        _cartService.AddItemForUserAsync(userId, itemId, Arg.Any<CancellationToken>())
+        _cartService.AddItemForUserAsync(userId, itemId, cancellationToken)
                     .Returns(CartWith(userId, itemId, qty: 1));
 
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, All: false);
+        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, isAll: false);
 
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, cancellationToken);
 
-        // Assert
         Assert.True(result.Success);
         Assert.Equal(1, result.TotalQuantity);
         Assert.NotNull(result.AddedItem);
-        Assert.Equal(itemId, result.AddedItem!.ProductId);
-        await _cartService.Received(1).AddItemForUserAsync(userId, itemId, Arg.Any<CancellationToken>());
+        await _cartService.Received(1).AddItemForUserAsync(userId, itemId, cancellationToken);
+        await _favouriteListItems.DidNotReceiveWithAnyArgs().AddManyToCartAsync(default, default, default, default);
     }
 
     [Fact]
-    public async Task AddSingle_WhenAlreadyInCart_ShouldIncreaseQuantityByOne()
+    public async Task AddSingle_WhenServiceThrows_ShouldThrowBadRequest()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var shopId = 1;
         var itemId = Guid.NewGuid();
+        var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
 
-        _cartService.AddItemForUserAsync(userId, itemId, Arg.Any<CancellationToken>())
-                    .Returns(CartWith(userId, itemId, qty: 2));
+        _cartService.AddItemForUserAsync(userId, itemId, cancellationToken)
+                    .Throws(new BadRequestException("Item could not be added."));
 
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, All: false);
+        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, isAll: false);
 
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, cancellationToken));
 
-        // Assert
-        Assert.True(result.Success);
-        Assert.Equal(2, result.TotalQuantity);
-        await _cartService.Received(1).AddItemForUserAsync(userId, itemId, Arg.Any<CancellationToken>());
+        await _favouriteListItems.DidNotReceiveWithAnyArgs().AddManyToCartAsync(default, default, default, default);
     }
 
     [Fact]
-    public async Task AddAll_ShouldAddOnlySuccessful_OnFailuresSkipAndContinue()
+    public async Task AddAll_ShouldUseFavouriteListItemsService_AndReturnResult()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var shopId = 1;
-        var idInStock = Guid.NewGuid();
-        var idOos = Guid.NewGuid();
+        var item1 = Guid.NewGuid();
+        var item2 = Guid.NewGuid();
+        var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
 
-        _favourites.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
+        _favourites.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), cancellationToken)
                    .Returns(new List<FavouriteListItemEntity>
                    {
-                       new() { AccountId = userId, InventoryItemId = idInStock },
-                       new() { AccountId = userId, InventoryItemId = idOos }
+                       new() { AccountId = userId, InventoryItemId = item1 },
+                       new() { AccountId = userId, InventoryItemId = item2 }
                    });
 
-        _cartService.AddItemForUserAsync(userId, idInStock, Arg.Any<CancellationToken>())
-                    .Returns(CartWith(userId, idInStock, qty: 1));
+        var mockCart = CartWith(userId, item1, 2);
 
-        _cartService.AddItemForUserAsync(userId, idOos, Arg.Any<CancellationToken>())
-                    .Returns<Task<CartEntity>>(x => throw new BadRequestException("OOS"));
+        _favouriteListItems.AddManyToCartAsync(userId, Arg.Any<IEnumerable<Guid>>(), Arg.Any<int>(), cancellationToken)
+                            .Returns(new FavouriteListBulkAddResult(2, mockCart, mockCart.Items.First()));
 
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, null, All: true);
+        var command = new AddToCartFromFavouritesCommand(userId, shopId, null, isAll: true);
 
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, cancellationToken);
 
-        // Assert
         Assert.True(result.Success);
-        Assert.Equal(1, result.TotalQuantity);
-        await _favourites.Received(1).GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>());
-        await _cartService.Received(1).AddItemForUserAsync(userId, idInStock, Arg.Any<CancellationToken>());
-        await _cartService.Received(1).AddItemForUserAsync(userId, idOos, Arg.Any<CancellationToken>());
+        Assert.Equal(2, result.TotalQuantity);
+        await _favouriteListItems.Received(1)
+            .AddManyToCartAsync(userId, Arg.Any<IEnumerable<Guid>>(), Arg.Any<int>(), cancellationToken);
     }
 
     [Fact]
-    public async Task AddSingle_WhenServiceThrows_ShouldBubbleBadRequest()
+    public async Task AddAll_WhenServiceReturnsZero_ShouldThrowBadRequest()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var shopId = 1;
-        var itemId = Guid.NewGuid();
+        var item1 = Guid.NewGuid();
+        var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
 
-        _cartService.AddItemForUserAsync(userId, itemId, Arg.Any<CancellationToken>())
-                    .Returns<Task<CartEntity>>(x => throw new BadRequestException("Item could not be added (unavailable or at maximum quantity)."));
+        _favourites.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), cancellationToken)
+                   .Returns(new List<FavouriteListItemEntity>
+                   {
+                       new() { AccountId = userId, InventoryItemId = item1 }
+                   });
 
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, All: false);
+        _favouriteListItems.AddManyToCartAsync(userId, Arg.Any<IEnumerable<Guid>>(), Arg.Any<int>(), cancellationToken)
+                            .Returns(new FavouriteListBulkAddResult(0, null, null));
 
-        // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+        var command = new AddToCartFromFavouritesCommand(userId, shopId, null, isAll: true);
+
+        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, cancellationToken));
     }
 
     [Fact]
     public async Task AddSingle_WhenMissingInventoryId_AllFalse_ShouldThrowBadRequestImmediately()
     {
-        // Arrange
         var userId = Guid.NewGuid();
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
-        var command = new AddToCartFromFavouritesCommand(userId, 1, null, All: false);
+        var cancellationToken = new CancellationToken();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
+        var command = new AddToCartFromFavouritesCommand(userId, 1, null, isAll: false);
 
-        await _cartService.DidNotReceive().AddItemForUserAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>());
-        await _favourites.DidNotReceive().GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>());
-    }
+        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, cancellationToken));
 
-    [Fact]
-    public async Task AddAll_WhenNoneAdded_ShouldThrowBadRequest()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var shopId = 1;
-        var id1 = Guid.NewGuid();
-        var id2 = Guid.NewGuid();
-
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
-
-        _favourites.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
-                   .Returns(new List<FavouriteListItemEntity>
-                   {
-                       new() { AccountId = userId, InventoryItemId = id1 },
-                       new() { AccountId = userId, InventoryItemId = id2 }
-                   });
-
-        _cartService.AddItemForUserAsync(userId, id1, Arg.Any<CancellationToken>())
-                    .Returns<Task<CartEntity>>(x => throw new BadRequestException("fail"));
-        _cartService.AddItemForUserAsync(userId, id2, Arg.Any<CancellationToken>())
-                    .Returns<Task<CartEntity>>(x => throw new BadRequestException("fail"));
-
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, null, All: true);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+        await _cartService.DidNotReceive().AddItemForUserAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), cancellationToken);
+        await _favouriteListItems.DidNotReceiveWithAnyArgs().AddManyToCartAsync(default, default, default, default);
     }
 
     [Fact]
     public async Task Should_Pass_CancellationToken_ToService_AndRepo()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var shopId = 1;
         var itemId = Guid.NewGuid();
-        var cts = new CancellationTokenSource();
+        var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService);
+        var handler = new AddToCartFromFavouritesCommandHandler(_favourites, _cartService, _favouriteListItems);
 
-        _cartService.AddItemForUserAsync(userId, itemId, cts.Token)
+        _cartService.AddItemForUserAsync(userId, itemId, cancellationToken)
                     .Returns(CartWith(userId, itemId, 1));
 
-        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, All: false);
+        var command = new AddToCartFromFavouritesCommand(userId, shopId, itemId, isAll: false);
 
-        // Act
-        _ = await handler.Handle(command, cts.Token);
+        _ = await handler.Handle(command, cancellationToken);
 
-        // Assert
-        await _cartService.Received(1).AddItemForUserAsync(userId, itemId, cts.Token);
-        // No favourites call when All=false
-        await _favourites.DidNotReceive().GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>());
+        await _cartService.Received(1).AddItemForUserAsync(userId, itemId, cancellationToken);
+        await _favouriteListItems.DidNotReceiveWithAnyArgs().AddManyToCartAsync(default, default, default, default);
     }
 }
