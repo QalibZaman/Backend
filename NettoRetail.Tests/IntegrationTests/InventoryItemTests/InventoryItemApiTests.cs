@@ -52,6 +52,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             ProductName = "Newproduct",
             Description = "NewProduct",
             CategoryId = 1,
+            BrandId = 1,
             Price = 123,
             ProductUpc = 123456789123
         };
@@ -80,6 +81,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             ProductName = "New  product",
             Description = "NewProduct",
             CategoryId = 1,
+            BrandId = 1,
             Price = 123,
             ProductUpc = 123456789123
         };
@@ -129,6 +131,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             ProductName = "Newproduct",
             Description = "NewProduct",
             CategoryId = 1,
+            BrandId = 1,
             Price = 123,
             ProductUpc = 123456789123
         };
