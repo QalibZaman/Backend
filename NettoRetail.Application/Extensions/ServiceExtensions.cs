@@ -7,17 +7,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.Application.Services.IFavouriteListItemsService;
 using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
-using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IPasswordService;
 using NettoRetail.Application.Services.IRecentlyViewedService;
@@ -97,7 +96,7 @@ public static class ServiceExtensions
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
         services.AddScoped<IInventoryService, InventoryService>();
-        services.AddScoped<IFavouriteListItems, FavouriteListItems>();
+        services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
 
 
         var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();

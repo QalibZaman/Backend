@@ -5,23 +5,26 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.Application.Services.IFavouriteListItemsService;
+namespace NettoRetail.Application.Services.FavouriteListItems;
 
-public class FavouriteListItems(
+public class FavouriteListItemsService(
     IFavouriteListItemRepository favouriteListRepo,
-    CartService cartService) : IFavouriteListItems
+    CartService cartService) : IFavouriteListItemsService
 {
     private readonly IFavouriteListItemRepository _favouriteListRepo = favouriteListRepo;
     private readonly CartService _cartService = cartService;
 
-    public async Task<List<Guid>> ResolveTargetIdsAsync(AddToCartFromFavouritesCommand request, object? favouriteItemsSpecification, CancellationToken cancellationToken = default)
+    public async Task<List<Guid>> ResolveTargetIdsAsync(
+        AddToCartFromFavouritesCommand request,
+        Specification<FavouriteListItemEntity> favouriteItemsSpecification,
+        CancellationToken cancellationToken = default)
     {
         if (request.isAll)
         {
-            if (favouriteItemsSpecification is not Specification<FavouriteListItemEntity> spec)
+            if (favouriteItemsSpecification is null)
                 throw new BadRequestException("Favourite items specification is required when all=true.");
 
-            var ids = (await _favouriteListRepo.GetManyBySpecAsync(spec, cancellationToken))
+            var ids = (await _favouriteListRepo.GetManyBySpecAsync(favouriteItemsSpecification, cancellationToken))
                 .Select(x => x.InventoryItemId)
                 .Distinct()
                 .ToList();
@@ -36,7 +39,5 @@ public class FavouriteListItems(
     }
 
     public Task<CartEntity> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, CancellationToken cancellationToken = default)
-    {
-        return _cartService.AddManyItemsForUserAsync(accountId, inventoryItemIds, cancellationToken);
-    }
+        => _cartService.AddManyItemsForUserAsync(accountId, inventoryItemIds, cancellationToken);
 }

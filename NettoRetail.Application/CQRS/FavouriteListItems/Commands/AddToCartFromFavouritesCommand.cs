@@ -2,8 +2,8 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.ICartService;
-using NettoRetail.Application.Services.IFavouriteListItemsService;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.Domain.Entities;
 
@@ -17,7 +17,7 @@ public record AddToCartFromFavouritesCommand(
 
 public class AddToCartFromFavouritesCommandHandler(
     ICartService cartService,
-    IFavouriteListItems favouriteListItems)
+    IFavouriteListItemsService favouriteListItems)
     : IRequestHandler<AddToCartFromFavouritesCommand, AddToCartResponse>
 {
     public async Task<AddToCartResponse> Handle(AddToCartFromFavouritesCommand request, CancellationToken cancellationToken)

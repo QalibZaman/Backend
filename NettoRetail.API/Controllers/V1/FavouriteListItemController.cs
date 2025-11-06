@@ -89,12 +89,16 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ApiResponse<AddToCartResponse>>> AddToCartFromFavourites(
-        [FromQuery] Guid? inventoryItemId,
-        [FromQuery] bool isAll = false,
+        [FromBody] AddToFavouriteRequest body,
         CancellationToken cancellationToken = default)
         {
-            var command = new AddToCartFromFavouritesCommand(HttpContext.GetUserId(), HttpContext.GetUserShopId(), inventoryItemId, isAll);
-            var data = await mediator.Send(command, cancellationToken);
+            var cmd = new AddToCartFromFavouritesCommand(
+                HttpContext.GetUserId(),
+                HttpContext.GetUserShopId(),
+                body.InventoryItemId,
+                body.IsAll);
+
+            var data = await mediator.Send(cmd, cancellationToken);
             return Ok(new ApiResponse<AddToCartResponse>(data));
         }
     }
