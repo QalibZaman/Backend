@@ -6,10 +6,9 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.IBranService;
 
-public class BrandService : IBrandService
+public class BrandService(IBrandRepository repository) : IBrandService
 {
-    public async Task<BrandEntity> GetOrAddBrandAsync(
-        IBrandRepository repository,
+    public async Task<BrandEntity> GetBrandByNameWithCacheAsync(
         Dictionary<string, BrandEntity> cache,
         string brandName,
         int shopId,

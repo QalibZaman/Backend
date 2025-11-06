@@ -45,11 +45,11 @@ public class UploadInventoryItemsListCommandHandler(
             if (existingUpcHash.Contains(item.ProductUpc))
                 throw new ConflictException($"Item with UPC {item.ProductUpc} is already registered.");
 
-            var category = await categoryService.GetOrAddCategoryAsync(
-                categoryRepository, categoryCache, item.ProductCategory, request.UserShopId, cancellationToken);
+            var category = await categoryService.GetCategoryByNameWithCacheAsync(
+                 categoryCache, item.ProductCategory, request.UserShopId, cancellationToken);
 
-            var brand = await brandService.GetOrAddBrandAsync(
-                brandRepository, brandCache, item.Brand, request.UserShopId, cancellationToken);
+            var brand = await brandService.GetBrandByNameWithCacheAsync(
+                 brandCache, item.Brand, request.UserShopId, cancellationToken);
 
             var entity = item.Adapt<InventoryItemEntity>();
             entity.Category = category;

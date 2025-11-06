@@ -23,7 +23,7 @@ namespace NettoRetail.Application.Services
 
             var specification = new GetCategoryByIdSpecification(category.ParentId);
 
-            var parentCategory = await _categoryRepository.GetAsync(specification, cancellationToken);
+            var parentCategory = await categoryRepository.GetAsync(specification, cancellationToken);
 
             if (parentCategory != null)
             {
@@ -52,8 +52,7 @@ namespace NettoRetail.Application.Services
            }
         }
 
-        public async Task<CategoryEntity> GetOrAddCategoryAsync(
-        ICategoryRepository repository,
+        public async Task<CategoryEntity> GetCategoryByNameWithCacheAsync(
         Dictionary<string, CategoryEntity> cache,
         string categoryName,
         int shopId,
@@ -63,7 +62,7 @@ namespace NettoRetail.Application.Services
                 return cached;
 
             var spec = new GetCategoriesByNameOrUrlSpecification(categoryName, null, shopId);
-            var category = await repository.GetAsync(spec, cancellationToken)
+            var category = await categoryRepository.GetAsync(spec, cancellationToken)
                 ?? throw new NotFoundException($"Category '{categoryName}' not found.");
 
             cache[categoryName] = category;

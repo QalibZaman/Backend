@@ -5,8 +5,7 @@ namespace NettoRetail.Application.Services.IBranService;
 
 public interface IBrandService
 {
-    Task<BrandEntity> GetOrAddBrandAsync(
-        IBrandRepository repository,
+    Task<BrandEntity> GetBrandByNameWithCacheAsync(
         Dictionary<string, BrandEntity> cache,
         string brandName,
         int shopId,
