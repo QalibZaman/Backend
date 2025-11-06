@@ -5,5 +5,5 @@ namespace NettoRetail.Application.Services.IPdfGenerator;
 
 public interface IPdfGenerator
 {
-    Task<Stream> PrintOrderDetails(PrintOrderDetailsModel model);
+    Task<Stream> PrintOrderDetailsAsync(PrintOrderDetailsModel model);
 }

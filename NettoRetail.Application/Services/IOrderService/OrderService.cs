@@ -6,7 +6,7 @@ namespace NettoRetail.Application.Services.IOrderService;
 
 public class OrderService : IOrderService
 {
-    public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModel(OrderEntity order)
+    public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order)
     {
         var model = order.Adapt<PrintOrderDetailsModel>();
 

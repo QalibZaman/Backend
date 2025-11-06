@@ -7,7 +7,7 @@ namespace NettoRetail.Application.Services.IPdfGenerator
 {
     public class PdfGenerator : IPdfGenerator
     {
-        public async Task<Stream> PrintOrderDetails(PrintOrderDetailsModel model)
+        public async Task<Stream> PrintOrderDetailsAsync(PrintOrderDetailsModel model)
         {
             QuestPDF.Settings.License = LicenseType.Community;
             var stream = new MemoryStream();
