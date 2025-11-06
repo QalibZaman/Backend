@@ -26,22 +26,6 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
 
         switch (field)
         {
-            //case "creator":
-            //    builder.AddCriteria(x => EF.Functions.ILike(x.Creator, $"%{term}%"));
-            //    break;
-
-            //case "customerfirstname":
-            //    builder
-            //        .AddInclude(x => x.Customer.Account)
-            //        .AddCriteria(x => EF.Functions.ILike(x.Customer.Account.FirstName, $"%{term}%"));
-            //    break;
-
-            //case "customerlastname":
-            //    builder
-            //        .AddInclude(x => x.Customer.Account)
-            //        .AddCriteria(x => EF.Functions.ILike(x.Customer.Account.LastName, $"%{term}%"));
-            //    break;
-
             case "customeremail":
                 builder
                     .AddInclude(x => x.Customer.Account)
@@ -50,13 +34,8 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
 
             case "orderid":
                 builder
-                    .AddInclude(x => x.Customer.Account)
                     .AddCriteria(x => EF.Functions.ILike(x.Id.ToString(), $"%{term}%"));
                 break;
-
-            //case "customerid":
-            //    builder.AddCriteria(x => EF.Functions.ILike(x.CustomerId.ToString(), $"%{term}%"));
-            //    break;
 
             default:
                 return [];
@@ -84,25 +63,7 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
             return responseList;
         }
 
-        //Func<OrderEntity, string?> selector = field switch
-        //{
-        //    "creator" => x => x.Creator,
-        //    "customerfirstname" => x => x.Customer.Account.FirstName,
-        //    "customerlastname" => x => x.Customer.Account.LastName,
-        //    "customeremail" => x => x.Customer.Account.Email,
-        //    "orderid" => x => x.Id.ToString(),
-        //    "customerid" => x => x.CustomerId.ToString(),
-        //    _ => _ => null!
-        //};
-        //results.First<OrderEntity>().Customer.
         var response = AdaptSearchOrderResponse(results);
         return response;
-        //return results
-        //    .Select(selector)
-        //    .Where(x => !string.IsNullOrWhiteSpace(x))
-        //    .Distinct()
-        //    .OrderBy(x => x)
-        //    .Select(x => $"{x}")
-        //    .ToList();
     }
 }
