@@ -194,11 +194,12 @@ public class StaffController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DisableTwoFactorAuth(
-        [FromBody] VerifyTotpRequest request)
+        [FromBody] DisableTwoFactorAuthRequest request)
     {
         var userId = HttpContext.GetUserId();
+        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
 
-        var command = new DisableTwoFactorAuthCommand(userId, request.TotpCode);
+        var command = new DisableTwoFactorAuthCommand(userId, request, accessToken!);
         await mediator.Send(command);
 
         return NoContent();
