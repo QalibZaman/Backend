@@ -32,9 +32,9 @@ public class GetOrderDetailsForPrintingQueryHandler(
         if (order is null)
             throw new NotFoundException("Order can't be found");
 
-        var model = await orderService.BuildPrintOrderDetailsModel(order);
+        var model = await orderService.BuildPrintOrderDetailsModelAsync(order);
 
-        var pdfStream = await pdfGenerator.PrintOrderDetails(model);
+        var pdfStream = await pdfGenerator.PrintOrderDetailsAsync(model);
 
         return new OrderPrintingResponse
         {

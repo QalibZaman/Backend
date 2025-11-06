@@ -32,5 +32,10 @@ namespace NettoRetail.Application.Services.ICartService
         Task<IEnumerable<CartItemEntity>> RestoreAllCartItemsAsync(
             Guid customerId,
             CancellationToken cancellationToken = default);
+
+        Task<CartEntity> AddManyItemsForUserAsync(
+            Guid customerId,
+            IEnumerable<Guid> inventoryItemIds,
+            CancellationToken cancellationToken = default);
     }
 }
