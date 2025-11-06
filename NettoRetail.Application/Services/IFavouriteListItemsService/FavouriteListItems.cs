@@ -1,6 +1,5 @@
 ﻿using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -9,11 +8,8 @@ namespace NettoRetail.Application.Services.FavouriteListItems;
 
 public class FavouriteListItemsService(
     IFavouriteListItemRepository favouriteListRepo,
-    CartService cartService) : IFavouriteListItemsService
+    ICartService.ICartService cartService) : IFavouriteListItemsService
 {
-    private readonly IFavouriteListItemRepository _favouriteListRepo = favouriteListRepo;
-    private readonly CartService _cartService = cartService;
-
     public async Task<List<Guid>> ResolveTargetIdsAsync(
         AddToCartFromFavouritesCommand request,
         Specification<FavouriteListItemEntity> favouriteItemsSpecification,
@@ -24,7 +20,7 @@ public class FavouriteListItemsService(
             if (favouriteItemsSpecification is null)
                 throw new BadRequestException("Favourite items specification is required when all=true.");
 
-            var ids = (await _favouriteListRepo.GetManyBySpecAsync(favouriteItemsSpecification, cancellationToken))
+            var ids = (await favouriteListRepo.GetManyBySpecAsync(favouriteItemsSpecification, cancellationToken))
                 .Select(x => x.InventoryItemId)
                 .Distinct()
                 .ToList();
@@ -39,5 +35,5 @@ public class FavouriteListItemsService(
     }
 
     public Task<CartEntity> AddManyToCartAsync(Guid accountId, IEnumerable<Guid> inventoryItemIds, CancellationToken cancellationToken = default)
-        => _cartService.AddManyItemsForUserAsync(accountId, inventoryItemIds, cancellationToken);
+        => cartService.AddManyItemsForUserAsync(accountId, inventoryItemIds, cancellationToken);
 }
