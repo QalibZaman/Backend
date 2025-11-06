@@ -10,24 +10,25 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 public record GetInventoryItemDetailsQuery(Guid Id) : IRequest<IEnumerable<ProductDetailsResponse>>;
 public class GetInventoryItemDetailsQueryHandler(
     IInventoryItemRepository inventoryItemRepository,
-    IProductDetailsRepository productDetailsRepository)
+    IProductDetailRepository productDetailRepository)
     : IRequestHandler<GetInventoryItemDetailsQuery, IEnumerable<ProductDetailsResponse>>
 {
     public async Task<IEnumerable<ProductDetailsResponse>> Handle(GetInventoryItemDetailsQuery request, CancellationToken cancellationToken)
     {
-        var specification = new GetItemByIdSpecification(request.Id);
+        var itemSpecification = new GetItemByIdSpecification(request.Id);
 
-        var item = await inventoryItemRepository
-           .GetAsync(specification, cancellationToken);
+        var itemExists = await inventoryItemRepository.Exists(itemSpecification, cancellationToken);
 
-        if (item == null)
+        if (!itemExists)
         {
-           throw new NotFoundException("There is no inventory item with such id.");
+            throw new NotFoundException("There are no items with such id");
         }
 
-        var details = await productDetailsRepository.GetAllByPartitionKeyAsync(request.Id.ToString(), cancellationToken);
+        var detailsSpecification = new GetProductDetailsByItemIdSpecification(request.Id);
 
-        var response = details.Adapt<IEnumerable<ProductDetailsResponse>>();
+        var productDetails = await productDetailRepository.GetAllBySpecAsync(detailsSpecification, cancellationToken);
+
+        var response = productDetails.Adapt<IEnumerable<ProductDetailsResponse>>();
 
         return response;
     }

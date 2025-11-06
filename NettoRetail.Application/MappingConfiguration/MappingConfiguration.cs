@@ -172,6 +172,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<CartItemEntity, CartItemResponse>()
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
 
+        config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
+            .Ignore(nameof(InventoryItemEntity.ProductDetails));
+
         config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
             .Map(d => d.Id, s => s.Id)
             .Map(d => d.ProductName, s => s.ProductName)

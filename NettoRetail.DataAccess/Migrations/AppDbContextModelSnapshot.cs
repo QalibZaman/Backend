@@ -1473,6 +1473,39 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductDetailEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TypeEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Unit")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("ProductDetails");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
                 {
                     b.Property<Guid>("AccountId")
@@ -2195,6 +2228,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductDetailEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("ProductDetails")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2326,6 +2370,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductDetails");
 
                     b.Navigation("RecentlyViewedByUsers");
                 });
