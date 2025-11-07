@@ -15,6 +15,7 @@ using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
@@ -87,6 +88,7 @@ public static class ServiceExtensions
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<ICsvFileService, CsvFileService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<IInventoryItemQueryService, InventoryItemQueryService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<PaymentMethodService>();
