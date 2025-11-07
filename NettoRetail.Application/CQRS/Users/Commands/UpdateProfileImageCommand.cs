@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -25,12 +26,9 @@ public class UpdateProfileImageCommandHandler(IAccountRepository accountReposito
 
         var azureConnectionString = connectionStrings.Value.AzureConnection;
         var accountLogoContainerName = azureBlobStorageOptions.Value.ContainerName;
-
-        string? fileName = null;
-
         if (request.Image == null) throw new BadRequestException("No image provided");
 
-        fileName = $"profile-images/{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
+        var fileName = $"profile-images/{Guid.NewGuid()}-{account.ShopId}-{(int)BlobAccess.Private}{Path.GetExtension(request.Image.FileName)}";
 
         var transaction = unitOfWork.BeginTransaction();
 
