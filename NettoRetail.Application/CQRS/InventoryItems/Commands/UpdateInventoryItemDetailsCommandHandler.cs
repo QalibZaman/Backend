@@ -18,6 +18,7 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
         var detailsToUpsert = new List<ProductDetailEntity>();
 
         var itemSpecification = new GetInventoryItemByIdAndShopIdSpecification(request.InventoryItemId, request.ShopId);
+
         var inventoryItemToUpdate = await inventoryItemRepository.GetAsync(itemSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
 
         var specification = new GetProductDetailsByItemIdSpecification(request.InventoryItemId);
@@ -27,22 +28,18 @@ public class UpdateInventoryItemDetailsCommandHandler(IInventoryItemRepository i
 
         foreach (var detail in request.Model.Details)
         {
-            var detailToUpsert = inventoryItemDetailsToUpdate.FirstOrDefault(d => d.Id.ToString() == detail.Id.ToString());
+            var detailToUpsert = detail.Adapt<ProductDetailEntity>();
 
             if (detailToUpsert == null)
             {
                 detailToUpsert = detail.Adapt<ProductDetailEntity>();
                 detailToUpsert.Id = Guid.NewGuid();
             }
-            else
-            {
-                detail.Adapt(detailToUpsert);
-            }
 
             detailToUpsert.InventoryItemId = request.InventoryItemId;
             detailsToUpsert.Add(detailToUpsert);
         }
 
-        await productDetailRepository.ExecuteUpdatingTransactionalBatchAsync(request.InventoryItemId.ToString(), detailsToUpsert, request.Model.DetailsToDelete, cancellationToken);
+        await productDetailRepository.UpdateDetailsAsync(detailsToUpsert, request.Model.DetailsToDelete, cancellationToken);
     }
 }
