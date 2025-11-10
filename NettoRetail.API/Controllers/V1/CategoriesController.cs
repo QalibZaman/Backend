@@ -19,6 +19,7 @@ namespace NettoRetail.API.Controllers.V1
     [Route("api/v{v:ApiVersion}/[controller]")]
     public class CategoriesController(IMediator mediator) : ControllerBase
     {
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<GetCategoriesResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -26,9 +27,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel,
-            [FromQuery] GetCategoriesRequest model, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel, [FromQuery] GetCategoriesRequest model, CancellationToken cancellationToken)
         {
             var query = new GetCategoriesQuery(pageModel, model.ShopId);
 
@@ -77,8 +76,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
             var command = model.Adapt<UpdateCategoryCommand>();
             var shopId = HttpContext.GetUserShopId();
