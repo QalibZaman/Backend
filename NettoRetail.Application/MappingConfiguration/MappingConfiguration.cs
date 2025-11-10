@@ -178,6 +178,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<ProductDetailModel, ProductDetailEntity>()
             .Map(dest => dest.TypeEnum, src => src.Type);
 
+        config.NewConfig<UpdateProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
         config.NewConfig<ProductDetailEntity, ProductDetailModel>()
             .Map(dest => dest.Type, src => src.TypeEnum);
 
