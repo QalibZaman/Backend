@@ -36,7 +36,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.UserCount, src => src.Accounts.Count());
 
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
-            .Map(dest => dest.ProductCategory, src => src.Category.Name);
+            .Map(dest => dest.ProductCategory, src => src.Category.Name)
+            .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
 
         config.NewConfig<AccountEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
