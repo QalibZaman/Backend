@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Domain.Enums;
+﻿namespace NettoRetail.Application.Enums;
 public enum BlobAccess
 {
     Public = 0,

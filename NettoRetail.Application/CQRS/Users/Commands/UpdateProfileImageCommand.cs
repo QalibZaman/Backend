@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.Enums;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
