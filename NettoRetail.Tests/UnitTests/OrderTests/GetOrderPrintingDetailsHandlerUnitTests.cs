@@ -201,20 +201,20 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 OrderStatus = order.OrderStatus.ToString(),
                 DeliveryType = order.DeliveryType.ToString(),
                 TotalProducts = order.OrderItems.Count,
-                InventoryItems = order.OrderItems.Select(oi => new InventoryItemDto
+                InventoryItems = order.OrderItems.Select(orderItemEntity => new InventoryItemDto
                 {
-                    ProductName = oi.InventoryItem.ProductName,
-                    ProductUpc = oi.InventoryItem.ProductUpc,
-                    Price = oi.InventoryItem.Price,
-                    PromotionPrice = oi.InventoryItem.PromotionPrice,
-                    IsPromoted = oi.InventoryItem.IsPromoted,
-                    AvailableAmount = oi.InventoryItem.AvailableAmount,
-                    ReservedAmount = oi.InventoryItem.ReservedAmount,
-                    OnHandAmount = oi.InventoryItem.OnHandAmount
+                    ProductName = orderItemEntity.InventoryItem.ProductName,
+                    ProductUpc = orderItemEntity.InventoryItem.ProductUpc,
+                    Price = orderItemEntity.InventoryItem.Price,
+                    PromotionPrice = orderItemEntity.InventoryItem.PromotionPrice,
+                    IsPromoted = orderItemEntity.InventoryItem.IsPromoted,
+                    AvailableAmount = orderItemEntity.InventoryItem.AvailableAmount,
+                    ReservedAmount = orderItemEntity.InventoryItem.ReservedAmount,
+                    OnHandAmount = orderItemEntity.InventoryItem.OnHandAmount
                 }).ToList(),
-                Subtotal = order.OrderItems.Sum(oi => oi.InventoryItem.Price * oi.Quantity),
+                Subtotal = order.OrderItems.Sum(orderItemEntity => orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity),
                 TotalSale = 0m,
-                TotalAmount = order.OrderItems.Sum(oi => oi.InventoryItem.Price * oi.Quantity)
+                TotalAmount = order.OrderItems.Sum(orderItemEntity => orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity)
             };
         }
     }
