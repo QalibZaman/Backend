@@ -9,7 +9,7 @@ public class DownloadInventoryItemsListQueryHandler(IInventoryService inventoryS
 {
     public async Task<byte[]> Handle(DownloadInventoryItemsListQuery request, CancellationToken cancellationToken)
     {
-        var response = await inventoryService.DownloadInventoryItemsListAsync(request.UserShopId, cancellationToken);
+        var response = await inventoryService.DownloadInventoryItemsCsvAsync(request.UserShopId, cancellationToken);
         return response;
     }
 }

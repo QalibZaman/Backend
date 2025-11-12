@@ -21,7 +21,7 @@ public class InventoryService(
     public bool IsItemNew(InventoryItemEntity item) => item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-_options.NewItemDaysThreshold);
     public bool IsItemOutOfStock(InventoryItemEntity item) => item.AvailableAmount <= 0;
     public bool IsItemOnSale(InventoryItemEntity item) => item.PromotionPrice.HasValue;
-    public async Task<byte[]> DownloadInventoryItemsListAsync(int userShopId, CancellationToken cancellationToken = default)
+    public async Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Starting inventory items CSV download for ShopId: {ShopId}", userShopId);
 
@@ -29,12 +29,6 @@ public class InventoryService(
         itemByRelatedCategorySpecification.AddInclude(i => i.Brand!);
 
         var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken);
-
-        if (inventoryItems == null)
-        {
-            logger.LogError("Failed to retrieve inventory items for ShopId: {ShopId}", userShopId);
-            throw new NotFoundException("There are no items in the list.");
-        }
 
         if (!inventoryItems.Any())
         {
