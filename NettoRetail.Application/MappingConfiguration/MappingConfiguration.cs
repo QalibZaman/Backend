@@ -170,5 +170,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CartItemEntity, CartItemResponse>()
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
+
+        config.NewConfig<BrandEntity, BrandResponse>();
     }
 }
