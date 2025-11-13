@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Brands;
 public class GetBrandsByNameSpecification : Specification<BrandEntity>
 {
     public GetBrandsByNameSpecification(string name)
-    : base(b => b.Name.Trim() == name.Trim()) { }
+    : base(b => b.Name.Trim().ToLower() == name.Trim().ToLower()) { }
 }

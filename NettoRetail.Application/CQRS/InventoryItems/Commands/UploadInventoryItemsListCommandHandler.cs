@@ -22,16 +22,18 @@ public class UploadInventoryItemsListCommandHandler(
     IBrandRepository brandRepository,
     IOptions<BatchOptions> batchOptions,
     IValidator<InventoryItemCsvModel> validator,
+    IValidator<List<InventoryItemCsvModel>> listValidator,
     ICategoryLevelManagementService categoryService,
     IBrandService brandService
 ) : IRequestHandler<UploadInventoryItemsListCommand>
 {
-    private readonly BatchOptions _batchDefaults = batchOptions.Value;
 
     public async Task Handle(UploadInventoryItemsListCommand request, CancellationToken cancellationToken)
     {
+
         var itemsList = await csvFileService.ReadCsvItemsAsync(request.CsvItemsFile, cancellationToken);
-        await csvFileService.ValidateRowsFromCsvFileAsync(itemsList, validator, cancellationToken);
+
+        await listValidator.ValidateAsync(itemsList, cancellationToken);
 
         var existingUpcHash = await inventoryItemRepository.GetAllUpcHashAsync(cancellationToken);
 
@@ -54,7 +56,7 @@ public class UploadInventoryItemsListCommandHandler(
             var entity = item.Adapt<InventoryItemEntity>();
             entity.Category = category;
             entity.Brand = brand;
-            entity.BrandId = brand?.Id;
+            entity.BrandId = brand.Id;
             entity.ShopId = request.UserShopId;
 
             entitiesToAdd.Add(entity);

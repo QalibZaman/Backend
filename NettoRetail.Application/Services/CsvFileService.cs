@@ -67,26 +67,4 @@ public class CsvFileService : ICsvFileService
         return list;
     }
 
-
-    public async Task ValidateRowsFromCsvFileAsync(
-         List<InventoryItemCsvModel> items,
-         IValidator<InventoryItemCsvModel> validator,
-         CancellationToken cancellationToken)
-    {
-        var validationErrors = new List<string>();
-
-        foreach (var (item, index) in items.Select((x, i) => (x, i + 1)))
-        {
-            var result = await validator.ValidateAsync(item, cancellationToken);
-            if (!result.IsValid)
-            {
-                var messages = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-                validationErrors.Add($"Row {index}: {messages}");
-            }
-        }
-
-        if (validationErrors.Any())
-            throw new BadRequestException($"Validation failed:\n{string.Join("\n", validationErrors)}");
-    }
-
 }
