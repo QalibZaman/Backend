@@ -7,9 +7,9 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class BaseProductDetailsModelValidator : AbstractValidator<IBaseDetailModelInterface>
+public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDetailModel>
 {
-    public BaseProductDetailsModelValidator()
+    public ProductDetailsModelValidator()
     {
         RuleFor(x => x.Name)
             .MaximumLength(50).WithMessage("Product detail name length must be less than 50 characters long.")

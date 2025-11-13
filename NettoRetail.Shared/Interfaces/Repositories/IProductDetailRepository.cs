@@ -5,5 +5,5 @@ namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface IProductDetailRepository : IBaseRepository<ProductDetailEntity>
 {
-    Task UpdateDetailsAsync(ICollection<ProductDetailEntity> upsertedDetails, ICollection<Guid>? deleteIds, CancellationToken cancellationToken = default);
+    Task UpdateDetailsAsync(ICollection<ProductDetailEntity> upsertedDetails, ICollection<Guid> deleteIds, CancellationToken cancellationToken = default);
 }

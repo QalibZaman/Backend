@@ -10,7 +10,7 @@ public class ProductDetailRepository(AppDbContext dbContext)
 {
     public async Task UpdateDetailsAsync(
         ICollection<ProductDetailEntity> upsertedDetails,
-        ICollection<Guid>? deleteIds,
+        ICollection<Guid> deleteIds,
         CancellationToken cancellationToken)
     {
         _dbSet.UpdateRange(upsertedDetails);

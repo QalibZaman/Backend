@@ -7,6 +7,6 @@ public class AddProductDetailModelValidator : AbstractValidator<ProductDetailMod
 {
     public AddProductDetailModelValidator()
     {
-        Include(new BaseProductDetailsModelValidator());
+        Include(new ProductDetailsModelValidator());
     }
 }

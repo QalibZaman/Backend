@@ -3,7 +3,7 @@ using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpdateInventoryItemDetailsModel>
+public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpsertInventoryItemDetailsModel>
 {
     public UpdateInventoryItemDetailsValidator()
     {
@@ -11,10 +11,10 @@ public class UpdateInventoryItemDetailsValidator : AbstractValidator<UpdateInven
             .NotNull().WithMessage("Details list can't be null")
             .Must(HaveContinuousOrderIndexes).WithMessage("Order indexes must be continuous without missing numbers.");
 
-        RuleForEach(x => x.Details).SetValidator(new BaseProductDetailsModelValidator());
+        RuleForEach(x => x.Details).SetValidator(new ProductDetailsModelValidator());
     }
 
-    private bool HaveContinuousOrderIndexes(ICollection<UpdateProductDetailModel> details)
+    private bool HaveContinuousOrderIndexes(ICollection<UpsertProductDetailModel> details)
     {
         if (details.Count == 0)
             return true;

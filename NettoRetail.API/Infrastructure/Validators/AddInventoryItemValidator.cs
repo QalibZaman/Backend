@@ -33,6 +33,6 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
             .WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
             .Matches("^(|[^ ].*[^ ]$)").WithMessage("Description must not have leading or trailing spaces.");
 
-        RuleForEach(x => x.ProductDetails).SetValidator(new BaseProductDetailsModelValidator());
+        RuleForEach(x => x.ProductDetails).SetValidator(new ProductDetailsModelValidator());
     }
 }

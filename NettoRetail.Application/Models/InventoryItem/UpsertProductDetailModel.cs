@@ -5,7 +5,7 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Models.InventoryItem;
 
-public class UpdateProductDetailModel : IBaseDetailModelInterface
+public class UpsertProductDetailModel : IInventoryItemDetailModel
 {
     public Guid? Id { get; set; }
     public required string Name { get; set; }

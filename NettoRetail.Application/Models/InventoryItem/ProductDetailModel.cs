@@ -3,7 +3,7 @@ using NettoRetail.Domain.Enums;
 using System.Text.Json.Serialization;
 
 namespace NettoRetail.Application.Models.InventoryItem;
-public class ProductDetailModel : IBaseDetailModelInterface
+public class ProductDetailModel : IInventoryItemDetailModel
 {
     public required string Name { get; set; }
     [JsonConverter(typeof(JsonStringEnumConverter))]
