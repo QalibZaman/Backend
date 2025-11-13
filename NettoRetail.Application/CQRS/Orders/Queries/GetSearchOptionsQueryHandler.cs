@@ -46,28 +46,8 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
 
         var spec = builder.Build();
         var results = await orderRepository.GetAllBySpecAsync(spec, cancellationToken);
-        var response = AdaptSearchOrderResponse(results);
+        var response = SearchFieldModel.AdaptSearchOrderResponse(results);
         return response;
-    }
-
-    private ICollection<SearchOrderResponse> AdaptSearchOrderResponse(IEnumerable<OrderEntity> entities)
-    {
-        List<SearchOrderResponse> responseList = new List<SearchOrderResponse>(capacity: entities.Count());
-        foreach (var entity in entities)
-        {
-            var response = new SearchOrderResponse
-            {
-                Id = entity.Id,
-                CreationDate = entity.CreationDate,
-                FullName = entity.Customer.Account.FullName,
-                Email = entity.Customer.Account.Email,
-                OrderStatus = entity.OrderStatus,
-                Creator = entity.Creator
-            };
-            responseList.Add(response);
-        }
-
-        return responseList;
     }
 
     private enum SearchCriteria
