@@ -58,11 +58,6 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
-    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [Authorize]
     [HttpGet("plans")]
     [ProducesResponseType(typeof(ApiResponse<List<SubscriptionPlanResponse>>), StatusCodes.Status200OK)]
