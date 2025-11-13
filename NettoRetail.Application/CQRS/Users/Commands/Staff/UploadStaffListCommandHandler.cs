@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -22,57 +23,38 @@ public class UploadStaffListCommandHandler
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
     IUnitOfWork unitOfWork,
-    IShopRepository shopRepository)
+    IShopRepository shopRepository,
+    ICsvFileService csvFileService)
     : IRequestHandler<UploadStaffListCommand, UploadStaffResult>
 {
     public async Task<UploadStaffResult> Handle(UploadStaffListCommand request, CancellationToken cancellationToken)
     {
         var result = new UploadStaffResult();
         var errors = new List<UploadStaffError>();
+        List<StaffCsvModel> records;
 
         if (request.File == null || request.File.Length == 0)
         {
-            errors.Add(new UploadStaffError { RowNumber = 0, ErrorMessage = "Unable to upload Staff list. Please correct the errors in the CSV file." });
-            result.Success = false;
-            result.Errors = errors;
-            return result;
+            throw new BadHttpRequestException("CSV file cannot be null. Please Upload CSV file.");
         }
 
         if (!string.Equals(Path.GetExtension(request.File.FileName), ".csv", StringComparison.OrdinalIgnoreCase))
         {
-            errors.Add(new UploadStaffError { RowNumber = 0, ErrorMessage = "Invalid file format. Only CSV files are allowed." });
-            result.Success = false;
-            result.Errors = errors;
-            return result;
+            throw new BadHttpRequestException("Invalid file Format. Please Upload CSV file.");
         }
-
-        using var reader = new StreamReader(request.File.OpenReadStream());
-        using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HeaderValidated = null,
-            MissingFieldFound = null
-        });
-
-        List<StaffCsvModel> records;
 
         try
         {
-            records = csv.GetRecords<StaffCsvModel>().ToList();
+            records = (List<StaffCsvModel>)csvFileService.ConvertEntitiesCsvFileToEntityData<StaffCsvModel>(request.File);
         }
         catch (Exception ex)
         {
-            errors.Add(new UploadStaffError { RowNumber = 0, ErrorMessage = $"Error reading CSV file: {ex.Message}" });
-            result.Success = false;
-            result.Errors = errors;
-            return result;
+            throw new Exception($"Error reading CSV file: {ex.Message}");
         }
 
         if (records.Count == 0)
         {
-            errors.Add(new UploadStaffError { RowNumber = 0, ErrorMessage = "The CSV file is empty." });
-            result.Success = false;
-            result.Errors = errors;
-            return result;
+            throw new Exception("The CSV file is empty.");
         }
 
         for (int i = 0; i < records.Count; i++)
