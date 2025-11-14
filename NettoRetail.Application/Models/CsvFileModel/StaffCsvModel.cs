@@ -1,5 +1,7 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using NettoRetail.Domain.Enums;
+using Mapster;
+using Microsoft.AspNetCore.Mvc;
+using NettoRetail.Application.Models.Request.Staff;
 
 namespace NettoRetail.Application.Models.CsvFileModel;
 
@@ -14,7 +16,16 @@ public class StaffCsvModel
     [Name("Role")]
     public required string Role { get; set; }
     [Name("Status")]
-    public required string Status { get; set; }
-    [Name("Password")]
-    public required string Password { get; set; }
+    public string? Status { get; set; }
+    public static List<CreateStaffRequest> AdaptCsvModelToCreateStaffRequest(ICollection<StaffCsvModel> csvModels)
+    {
+        List<CreateStaffRequest> result = new(capacity: csvModels.Count);
+        foreach (var csvModel in csvModels)
+        {
+                var staffRequest = TypeAdapter.ValidateAndAdapt<StaffCsvModel, CreateStaffRequest>(csvModel);
+                result.Add(staffRequest);
+        }
+
+        return result;
+    }
 }
