@@ -24,23 +24,23 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
 
         builder.AddCriteria(x => x.ShopId == request.ShopId);
 
-        var criteria = SearchCriteria.None;
-        if (field == "customeremail") criteria = SearchCriteria.CustomerEmail;
-        if (field == "orderid") criteria = SearchCriteria.OrderId;
+        var criteria = SearchFieldModel.SearchCriteria.None;
+        if (field == "customeremail") criteria = SearchFieldModel.SearchCriteria.CustomerEmail;
+        if (field == "orderid") criteria = SearchFieldModel.SearchCriteria.OrderId;
         switch (criteria)
         {
-            case SearchCriteria.CustomerEmail:
+            case SearchFieldModel.SearchCriteria.CustomerEmail:
                 builder
                     .AddInclude(x => x.Customer.Account)
                     .AddCriteria(x => EF.Functions.ILike(x.Customer.Account.Email, $"%{term}%"));
                 break;
 
-            case SearchCriteria.OrderId:
+            case SearchFieldModel.SearchCriteria.OrderId:
                 builder
                     .AddCriteria(x => EF.Functions.ILike(x.Id.ToString(), $"%{term}%"));
                 break;
 
-            case SearchCriteria.None:
+            case SearchFieldModel.SearchCriteria.None:
                 return [];
         }
 
@@ -48,12 +48,5 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
         var results = await orderRepository.GetAllBySpecAsync(spec, cancellationToken);
         var response = SearchFieldModel.AdaptSearchOrderResponse(results);
         return response;
-    }
-
-    private enum SearchCriteria
-    {
-        None,
-        CustomerEmail,
-        OrderId
     }
 }

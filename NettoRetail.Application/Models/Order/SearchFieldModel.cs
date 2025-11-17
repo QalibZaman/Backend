@@ -27,4 +27,11 @@ public class SearchFieldModel
 
         return responseList;
     }
+
+    public enum SearchCriteria
+    {
+        None,
+        CustomerEmail,
+        OrderId
+    }
 }
