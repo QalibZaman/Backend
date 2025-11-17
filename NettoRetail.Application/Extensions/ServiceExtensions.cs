@@ -26,6 +26,7 @@ using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopValidationService;
+using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
@@ -103,6 +104,7 @@ public static class ServiceExtensions
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
+        services.AddScoped<IStaffServise, StaffService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
