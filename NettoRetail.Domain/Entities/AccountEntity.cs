@@ -41,6 +41,7 @@ public class AccountEntity
     public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedProducts { get; set; } = [];
+    public ItemComparisonEntity? ComparedItems { get; set; }
 
     public string FullName => FirstName + " " + LastName;
 }

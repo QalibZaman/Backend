@@ -44,6 +44,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<FavouriteListItemEntity> FavouriteListItems { get; set; }
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
     public DbSet<ProductDetailEntity> ProductDetails { get; set; }
+    public DbSet<ItemComparisonEntity> ItemComparison { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
