@@ -1,6 +1,4 @@
-﻿using NettoRetail.Application.Models.Response.OnboardingSlides;
-
-namespace NettoRetail.Application.Models.Response;
+﻿namespace NettoRetail.Application.Models.Response;
 
 public class ItemComparisonResponse
 {
