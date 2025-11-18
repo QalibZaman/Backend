@@ -1,3 +1,4 @@
+using System.Reflection;
 using EntityFramework.Exceptions.PostgreSQL;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -34,7 +35,6 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
 using Stripe;
-using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 
