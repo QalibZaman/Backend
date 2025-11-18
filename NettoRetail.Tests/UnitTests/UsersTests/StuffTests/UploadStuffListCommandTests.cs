@@ -8,11 +8,11 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StuffTests;
 
 public class UploadStuffListCommandHandlerTests
 {
-    private readonly IStaffServiсe _staffServise;
+    private readonly IStaffService _staffServise;
     private readonly ICsvFileService _csvFileService;
     public UploadStuffListCommandHandlerTests()
     {
-        _staffServise = Substitute.For<IStaffServiсe>();
+        _staffServise = Substitute.For<IStaffService>();
         _csvFileService = Substitute.For<ICsvFileService>();
     }
 

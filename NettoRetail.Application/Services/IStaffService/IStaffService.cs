@@ -2,7 +2,7 @@
 
 namespace NettoRetail.Application.Services.IStaffService;
 
-public interface IStaffServiсe
+public interface IStaffService
 {
     Task CreateStaffAsync(
         StaffCsvModel staffCsvModel,
