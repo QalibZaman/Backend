@@ -8,6 +8,7 @@ using NettoRetail.Application.CQRS.Cart.Commands;
 using NettoRetail.Application.CQRS.Cart.Queries;
 using NettoRetail.Application.Models.Request.Cart;
 using NettoRetail.Application.Models.Response;
+using Z.BulkOperations;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -15,13 +16,24 @@ namespace NettoRetail.API.Controllers.V1
     [ApiVersion(1)]
     [Route("api/v{v:ApiVersion}/[controller]")]
     [Authorize]
-    public class CartController : ControllerBase
+    public class CartController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IMediator _mediator = mediator;
 
-        public CartController(IMediator mediator)
+        [HttpGet("items")]
+        [ProducesResponseType(typeof(ApiResponse<GetCartItemsResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> GetCartItems(CancellationToken cancellationToken)
         {
-            _mediator = mediator;
+            var customerId = HttpContext.User.GetUserId();
+            var query = new GetCartItemsQuery(customerId);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(new ApiResponse<GetCartItemsResponse>(result));
         }
 
         [HttpPost("items")]
@@ -145,7 +157,6 @@ namespace NettoRetail.API.Controllers.V1
             var summary = await _mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<CartSummaryResponse>(summary));
-
         }
     }
 }
