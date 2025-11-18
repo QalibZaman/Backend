@@ -57,6 +57,11 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
             .WithOne(p => p.User)
             .HasForeignKey<CommunicationPreferenceEntity>(p => p.UserId);
 
+        builder.HasOne(u => u.ComparedItems)
+            .WithOne(c => c.User)
+            .HasForeignKey<ItemComparisonEntity>(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Property(f => f.DateCreated)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
