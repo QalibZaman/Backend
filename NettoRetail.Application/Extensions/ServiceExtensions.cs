@@ -104,7 +104,7 @@ public static class ServiceExtensions
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
-        services.AddScoped<IStaffServise, StaffService>();
+        services.AddScoped<IStaffServiñe, StaffService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))

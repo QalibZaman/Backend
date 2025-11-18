@@ -9,7 +9,7 @@ public record UploadStaffListCommand(IFormFile File, int ShopId) : IRequest;
 
 public class UploadStaffListCommandHandler
     (ICsvFileService csvFileService,
-    IStaffServise staffServise)
+    IStaffServiсe staffServise)
     : IRequestHandler<UploadStaffListCommand>
 {
     public async Task Handle(UploadStaffListCommand request, CancellationToken cancellationToken)

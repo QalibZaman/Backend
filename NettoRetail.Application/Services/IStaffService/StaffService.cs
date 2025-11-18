@@ -12,7 +12,7 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services.IStaffService;
 
-public class StaffService : IStaffServise
+public class StaffService : IStaffServiсe
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IRoleRepository _roleRepository;

@@ -379,6 +379,9 @@ public class StaffController(
     }
 
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost("upload")]
     public async Task<IActionResult> UploadStaffList(IFormFile file, int id, CancellationToken cancellationToken)
     {
