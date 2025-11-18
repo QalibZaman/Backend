@@ -1,18 +1,27 @@
 using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Subscriptions;
-using NettoRetail.DataAccess.Repositories;
-using NettoRetail.Domain.Enums;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Subscription.Queries;
-public record GetSubscriptionsPlansQuery() : IRequest<List<SubscriptionPlanResponse>>;
-public class GetSubscriptionsPlansQueryHandler(ISubscriptionPlanRepository subscriptionPlanRepository) : IRequestHandler<GetSubscriptionsPlansQuery, List<SubscriptionPlanResponse>>
+public record GetSubscriptionsPlansQuery(int ShopId) : IRequest<List<SubscriptionPlanResponse>>;
+public class GetSubscriptionsPlansQueryHandler(ISubscriptionPlanRepository subscriptionPlanRepository, IShopRepository shopRepository) : IRequestHandler<GetSubscriptionsPlansQuery, List<SubscriptionPlanResponse>>
 {
     public async Task<List<SubscriptionPlanResponse>> Handle(GetSubscriptionsPlansQuery request, CancellationToken cancellationToken)
     {
-        var plans = await subscriptionPlanRepository.ListAllAsync(cancellationToken);
+        var subscriptions = await subscriptionPlanRepository.GetAllAsync(cancellationToken);
 
-        return plans.Adapt<List<SubscriptionPlanResponse>>();
+        var shopSpec = new GetShopByIdSpecification(request.ShopId);
+        var shop = await shopRepository.GetAsync(shopSpec, cancellationToken);
+
+        var subscriptionsResponse = subscriptions.Select(s =>
+        {
+            var response = s.Adapt<SubscriptionPlanResponse>();
+            response.IsActive = s.Id == shop?.SubscriptionPlanId;
+            return response;
+        }).ToList();
+
+        return subscriptionsResponse;
     }
 }

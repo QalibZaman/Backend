@@ -1,6 +1,4 @@
-﻿using NettoRetail.Domain.Enums;
-
-namespace NettoRetail.Domain.Entities;
+﻿namespace NettoRetail.Domain.Entities;
 
 public class ShopEntity
 {
@@ -20,12 +18,13 @@ public class ShopEntity
     public required bool IsActive { get; set; }
     public string? DeactivationReason { get; set; }
     public DateTime? DeactivationDate { get; set; }
-    public SubscriptionTypeEnum Subscription { get; set; } = SubscriptionTypeEnum.Free;
+    public required int SubscriptionPlanId { get; set; }
 
     public bool CategoriesSectionVisibility { get; set; }
     public string? CategoriesSectionPreview { get; set; }
     public string? CategoriesSectionName { get; set; }
 
+    public SubscriptionPlanEntity? SubscriptionPlan { get; set; }
     public ICollection<RoleEntity>? Roles { get; set; }
     public ICollection<CategoryEntity>? Categories { get; set; }
     public required CountryEntity Country { get; set; }

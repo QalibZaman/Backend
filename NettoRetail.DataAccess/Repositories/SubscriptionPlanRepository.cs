@@ -13,9 +13,4 @@ public class SubscriptionPlanRepository(AppDbContext context)
     {
         return await _dbSet.FirstOrDefaultAsync(p => p.Type == type, cancellationToken);
     }
-
-    public async Task<List<SubscriptionPlanEntity>> ListAllAsync(CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.ToListAsync(cancellationToken);
-    }
 }

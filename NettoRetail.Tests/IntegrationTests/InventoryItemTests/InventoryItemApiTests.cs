@@ -394,7 +394,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     Country = countries[0],
                     IsActive = true,
                     StripeCustomerId = "cus_test_1",
-                    StripeSubscriptionId = "sub_test_1"
+                    StripeSubscriptionId = "sub_test_1",
+                    SubscriptionPlanId = 1
                 },
                 new ShopEntity
                 {
@@ -412,7 +413,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     Country = countries[1],
                     IsActive = true,
                     StripeCustomerId = "cus_test_2",
-                    StripeSubscriptionId = "sub_test_2"
+                    StripeSubscriptionId = "sub_test_2",
+                    SubscriptionPlanId = 1
                 }
             };
 
@@ -428,7 +430,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     Level = 1,
                     ParentId = null,
                     ShopId = 1,
-                    Shop = shops[0]
+                    Shop = shops[0],
                 },
                 new CategoryEntity
                 {
