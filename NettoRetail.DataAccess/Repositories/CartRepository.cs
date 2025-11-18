@@ -11,5 +11,15 @@ namespace NettoRetail.DataAccess.Repositories
         {
              return await _dbSet.Include(c => c.Items.Where(i => i.IsDeleted == false)).FirstOrDefaultAsync(c => c.CustomerId == customerId, cancellationToken);
         }
+
+        public async Task<CartEntity?> GetCartWithItemsAsync(Guid customerId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Carts
+                .AsNoTracking()
+                .Include(c => c.Items.Where(i => !i.IsDeleted))
+                    .ThenInclude(i => i.InventoryItem)
+                        .ThenInclude(inv => inv.Images)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId, cancellationToken);
+        }
     }
 }
