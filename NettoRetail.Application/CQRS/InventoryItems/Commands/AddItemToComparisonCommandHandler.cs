@@ -37,8 +37,8 @@
                 return result.Adapt<ItemComparisonResponse>();
             }
 
-            if (comparison.ComparisonItems.Any(x => x.InventoryItemId == request.ItemId))
-                throw new BadRequestException("Item already added");
+            if (comparison.GetItem(request.ItemId) != null)
+                throw new BadRequestException("Item already added to comparison");
 
             if (comparison.ComparisonItems.Count == 4)
                 throw new BadRequestException("You can compare up to 4 products only");

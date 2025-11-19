@@ -26,8 +26,6 @@ public class DeleteItemFromComparisonCommandHandler(
             cancellationToken)
             ?? throw new NotFoundException("Comparison not found");
 
-        var itemSpecification = new GetInventoryItemByIdSpecification(request.ItemId);
-
         var link = comparison.GetItem(request.ItemId)
             ?? throw new NotFoundException("Item is not in comparison");
 
