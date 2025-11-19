@@ -18,7 +18,7 @@ public class InventoryItemCsvModel
     public required string ProductLocation { get; set; }
 
     [Name("Brand")]
-    public required string? Brand { get; set; }
+    public required string Brand { get; set; }
 
     [Name("Available Amount")]
     public required int AvailableAmount { get; set; }
