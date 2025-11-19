@@ -8,7 +8,7 @@ namespace NettoRetail.Infrastructure.Services
     {
         public async Task NotifyPriceChangedAsync(SubscriptionPlanEntity plan, int oldPrice, int newPrice, DateTime effectiveDate, CancellationToken cancellationToken = default)
         {
-            var emails = plan.Accounts?
+            var emails = plan.Shops
                 .Select(a => a.Email)
                 .Where(email => !string.IsNullOrWhiteSpace(email))
                 .Distinct()

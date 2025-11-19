@@ -1,4 +1,7 @@
-﻿namespace NettoRetail.Application.Models.Response;
+﻿using NettoRetail.Application.Models.Response.Brand;
+using NettoRetail.Application.Models.Response.Category;
+
+namespace NettoRetail.Application.Models.Response;
 
 public class SearchSuggestionsResponse
 {

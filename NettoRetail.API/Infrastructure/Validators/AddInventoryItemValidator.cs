@@ -16,6 +16,8 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
 
         RuleFor(x => x.CategoryId).GreaterThan(0);
 
+        RuleFor(x => x.BrandId).GreaterThan(0);
+
         RuleFor(x => x.ProductUpc.ToString())
             .NotEmpty().WithMessage("Product UPC is required.")
             .Matches("^[0-9]+$").WithMessage("Product UPC must contain only numeric characters.")

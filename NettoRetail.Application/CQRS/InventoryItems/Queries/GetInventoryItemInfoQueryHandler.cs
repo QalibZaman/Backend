@@ -2,32 +2,30 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Shared.Interfaces.Repositories;
-
-namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
+using System.Threading;
 
 public record GetInventoryItemInfoQuery(Guid Id) : IRequest<InventoryItemInfoResponse>;
+
 public class GetInventoryItemInfoQueryHandler(
-    IInventoryItemRepository inventoryItemRepository,
-    ICategoryRepository categoryRepository)
-    : IRequestHandler<GetInventoryItemInfoQuery, InventoryItemInfoResponse>
+    IInventoryItemRepository inventoryRepo,
+    ICategoryRepository categoryRepo) : IRequestHandler<GetInventoryItemInfoQuery, InventoryItemInfoResponse>
 {
     public async Task<InventoryItemInfoResponse> Handle(GetInventoryItemInfoQuery request, CancellationToken cancellationToken)
     {
-        var specification = new GetItemByIdSpecification(request.Id);
+        var spec = new GetItemByIdSpecification(request.Id)
+            .AddInclude(i => i.Brand!)
+            .AddInclude(i => i.Category!);
 
-        var item = await inventoryItemRepository
-           .GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("There is no inventory item with such id.");
-
-        var categories = await categoryRepository
-            .GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken)
-            ?? throw new NotFoundException("Category not found.");
-
+        var item = await inventoryRepo.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
         var response = item.Adapt<InventoryItemInfoResponse>();
 
-        response.ProductCategories = categories.Select(x => x.Name);
+        var chain = await categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
+        response.ProductCategories = chain
+            .Select(c => new CategorySummaryResponse { Id = c.Id, Name = c.Name })
+            .ToList();
 
         return response;
     }

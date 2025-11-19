@@ -39,8 +39,13 @@ public class GetBlobSasTokenQueryHandler(
             throw new UnauthorizedAccessException("You are not authorized to access this private file.");
         }
 
-        // Remove domain to get blob path relative to container
-        string blobPath = new Uri(blobUrl).AbsolutePath.TrimStart('/'); // dot-net/images/brand-logos/brands/...
+        var uri = new Uri(blobUrl);
+        var blobPath = uri.AbsolutePath.TrimStart('/');
+
+        if (blobPath.StartsWith($"{containerName}/", StringComparison.OrdinalIgnoreCase))
+        {
+            blobPath = blobPath.Substring(containerName.Length + 1);
+        }
 
         var sas = azureBlobService.GenerateBlobSasToken(containerName, blobPath, BlobSasPermissions.Read);
 

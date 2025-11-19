@@ -24,10 +24,8 @@ public class AccountEntity
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }
-    public int? SubscriptionPlanId { get; set; }
     public bool IsOnboardingCompleted { get; set; } = false;
 
-    public SubscriptionPlanEntity? SubscriptionPlan { get; set; }
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }
@@ -40,6 +38,7 @@ public class AccountEntity
     public ICollection<FeedbackEntity>? Feedbacks { get; set; }
     public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
+    public ICollection<RecentlyViewedProductEntity> RecentlyViewedProducts { get; set; } = [];
 
     public string FullName => FirstName + " " + LastName;
 }

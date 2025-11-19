@@ -82,6 +82,7 @@ public static class ServiceExtensions
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
         services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<IFeatureRepository, FeatureRepository>();
+        services.AddScoped<IRecentlyViewedRepository, RecentlyViewedRepository>();
         services.AddScoped<IPaymentHistoryRepository, PaymentHistoryRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
         services.AddScoped<IOnboardingSlideRepository, OnboardingSlideRepository>();
@@ -91,6 +92,7 @@ public static class ServiceExtensions
         services.AddScoped<INewProductsProductRepository, NewProductsProductRepository>();
         services.AddScoped<IFavouriteListItemRepository, FavouriteListItemRepository>();
         services.AddScoped<ICommunicationPreferencesRepository, CommunicationPreferencesRepository>();
+        services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -27,7 +28,7 @@ namespace NettoRetail.Application.Services
 
             var specification = new GetCategoryByIdSpecification(category.ParentId);
 
-            var parentCategory = await _categoryRepository.GetAsync(specification, cancellationToken);
+            var parentCategory = await categoryRepository.GetAsync(specification, cancellationToken);
 
             if (parentCategory != null)
             {
@@ -80,6 +81,23 @@ namespace NettoRetail.Application.Services
                 TotalAmount = categories.Count(),
             };
             return response;
+        }
+
+        public async Task<CategoryEntity> GetCategoryByNameWithCacheAsync(
+        Dictionary<string, CategoryEntity> cache,
+        string categoryName,
+        int shopId,
+        CancellationToken cancellationToken)
+        {
+            if (cache.TryGetValue(categoryName, out var cached))
+                return cached;
+
+            var spec = new GetCategoriesByNameOrUrlSpecification(categoryName, null, shopId);
+            var category = await categoryRepository.GetAsync(spec, cancellationToken)
+                ?? throw new NotFoundException($"Category '{categoryName}' not found.");
+
+            cache[categoryName] = category;
+            return category;
         }
     }
 }

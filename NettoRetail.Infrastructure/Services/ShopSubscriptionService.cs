@@ -7,6 +7,7 @@ namespace NettoRetail.Infrastructure.Services;
 
 public class ShopSubscriptionService(
     ISubscriptionPlanRepository subscriptionPlanRepository,
+    IShopRepository shopRepository,
     IStripeService stripeService
 ) : IShopSubscriptionService
 {
@@ -33,7 +34,9 @@ public class ShopSubscriptionService(
             plan.SubscriptionId,
             cancellationToken);
 
-        shop.Subscription = newPlan;
+        shop.SubscriptionPlanId = plan.Id;
         shop.StripeSubscriptionId = subscriptionId;
+
+        shop = await shopRepository.UpdateAsync(shop, cancellationToken);
     }
 }

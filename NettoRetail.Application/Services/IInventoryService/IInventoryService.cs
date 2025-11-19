@@ -11,4 +11,5 @@ public interface IInventoryService
     bool IsItemOnSale(InventoryItemEntity item);
     Task<PaginatedResponse<InventoryItemListResponse>> GetShopItemsBySearchAsync(string query, int shopId,
         PaginationRequest pageModel, CancellationToken cancellationToken);
+    Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default);
 }

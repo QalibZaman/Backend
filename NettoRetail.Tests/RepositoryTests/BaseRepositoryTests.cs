@@ -47,7 +47,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country!,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         // Act
@@ -88,7 +89,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country!,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);
@@ -130,7 +132,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country!,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
         await _repository.AddAsync(shop, CancellationToken.None);
 
@@ -176,7 +179,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country!,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         var shop2 = new ShopEntity
@@ -195,7 +199,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country2!,
             IsActive = true,
              StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         await _repository.AddAsync(shop1, CancellationToken.None);
@@ -237,7 +242,8 @@ public class BaseRepositoryTests : IClassFixture<CustomWebApplicationFactory>, I
             Country = country!,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         await _repository.AddAsync(shop, CancellationToken.None);

@@ -1,6 +1,6 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Shared.Interfaces.Repositories;
 
