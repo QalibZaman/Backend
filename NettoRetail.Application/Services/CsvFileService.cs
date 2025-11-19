@@ -1,12 +1,9 @@
 ﻿using CsvHelper;
-using FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Interfaces.Repositories;
 using System.Globalization;
 using System.Text;
 
