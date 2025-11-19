@@ -1,24 +1,15 @@
 ﻿using MediatR;
-using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Models.CsvFileModel;
-using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Application.Services.IInventoryService;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
 public record DownloadInventoryItemsListQuery(int UserShopId) : IRequest<byte[]>;
 
-public class DownloadInventoryItemsListQueryHandler(IInventoryItemRepository inventoryItemRepository, ICsvFileService csvFileService) : IRequestHandler<DownloadInventoryItemsListQuery, byte[]>
+public class DownloadInventoryItemsListQueryHandler(IInventoryService inventoryService) : IRequestHandler<DownloadInventoryItemsListQuery, byte[]>
 {
     public async Task<byte[]> Handle(DownloadInventoryItemsListQuery request, CancellationToken cancellationToken)
     {
-        var itemByRelatedCategorySpecification = new GetInventoryItemsRelatedCategories(request.UserShopId);
-        var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken) ?? throw new NotFoundException("There are no items in the list.");
-
-        var inventoryItemsData = await csvFileService.GetEntitiesCsvData<InventoryItemCsvModel, InventoryItemEntity>(inventoryItems, cancellationToken);
-
-        return inventoryItemsData;
+        var response = await inventoryService.DownloadInventoryItemsCsvAsync(request.UserShopId, cancellationToken);
+        return response;
     }
 }

@@ -7,6 +7,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.ICartService;
 
@@ -236,6 +237,52 @@ public class CartService : ICartService
             transaction.Rollback();
             throw;
         }
+    }
+
+    public async Task<CartEntity> AddManyItemsForUserAsync(Guid customerId, IEnumerable<Guid> inventoryItemIds, CancellationToken cancellationToken = default)
+    {
+        var ids = inventoryItemIds
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        if (ids.Count == 0)
+            throw new BadRequestException("No valid items to add.");
+
+        var cart = await LoadCartAsync(customerId, cancellationToken);
+
+        var inventorySpec = new Specification<InventoryItemEntity>(i => ids.Contains(i.Id));
+        var products = await _inventoryRepository.GetManyBySpecAsync(inventorySpec, cancellationToken);
+
+        var existingSpec = new Specification<CartItemEntity>(ci =>
+            ci.CartId == cart.Id && ids.Contains(ci.InventoryItemId));
+        var existing = await _cartItemRepository.GetManyBySpecAsync(existingSpec, cancellationToken);
+        var existingIds = existing.Select(e => e.InventoryItemId).ToHashSet();
+
+        var newItems = products
+            .Where(p => !existingIds.Contains(p.Id))
+            .Select(p => new CartItemEntity
+            {
+                CartId = cart.Id,
+                InventoryItemId = p.Id,
+                ProductUpc = p.ProductUpc,
+                ProductName = p.ProductName,
+                Price = p.Price,
+                PromotionPrice = p.IsPromoted ? p.PromotionPrice : null,
+                Quantity = 1
+            })
+            .ToList();
+
+        if (newItems.Count == 0)
+            throw new BadRequestException("No items were added (all unavailable or at maximum quantity).");
+
+        await _cartItemRepository.AddRangeAsync(newItems, cancellationToken);
+
+        cart.Items.AddRange(newItems);
+        cart.LastUpdatedAt = DateTime.UtcNow;
+        await _cartRepository.UpdateAsync(cart, cancellationToken);
+
+        return cart;
     }
 
     private async Task<InventoryItemEntity> ValidateProductAsync(

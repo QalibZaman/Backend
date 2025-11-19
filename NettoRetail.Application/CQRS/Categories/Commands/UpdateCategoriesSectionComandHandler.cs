@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands;
 
@@ -22,9 +20,6 @@ public class UpdateCategoriesSectionCommandHandler(
 
         if (shop == null)
             throw new NotFoundException($"Shop with id {request.ShopId} not found");
-
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("Name is required");
 
         shop.CategoriesSectionName = request.Name.Trim();
         shop.CategoriesSectionPreview = request.Preview.Trim();

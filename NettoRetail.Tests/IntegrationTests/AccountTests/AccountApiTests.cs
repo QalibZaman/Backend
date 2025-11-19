@@ -73,7 +73,7 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         try
         {
             await RegisterUserAsync(email, password);
-
+            
             var loginModel = new LoginModel(email, password);
 
             // Act

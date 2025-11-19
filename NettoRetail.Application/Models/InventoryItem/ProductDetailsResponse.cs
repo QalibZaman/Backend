@@ -9,7 +9,7 @@ public class ProductDetailsResponse
     public required string Type { get; set; }
     public string? Unit { get; set; }
 
-    [JsonConverter(typeof(ProductDetailsValueConverter))]
+    //[JsonConverter(typeof(ProductDetailsValueConverter))]
     public required object Value { get; set; }
     public required int OrderIndex { get; set; }
 }

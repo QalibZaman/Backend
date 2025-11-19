@@ -19,9 +19,12 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
 
         RuleFor(x => x.ProductLocation)
-            .MinimumLength(2).WithMessage("Product location length must be greater than 2 characters long.")
-            .MaximumLength(100).WithMessage("Product location length must be less than 100 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductLocation));
+            .NotEmpty().WithMessage("Product location is required.")
+            .MinimumLength(2).WithMessage("Product location must be at least 2 characters long.")
+            .MaximumLength(100).WithMessage("Product location must be at most 100 characters long.")
+            .Matches(@"^(?! )[a-zA-Z0-9,\- ]*(?<! )$")
+                .WithMessage("Product location may only contain letters, digits, spaces, hyphens (-), and commas (,), and cannot start or end with a space.")
+            .When(x => !string.IsNullOrWhiteSpace(x.ProductLocation));
 
         RuleFor(x => x.CategoryId)
             .GreaterThanOrEqualTo(0).WithMessage("Category ID must be 0 or greater.");

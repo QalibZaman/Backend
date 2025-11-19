@@ -19,8 +19,10 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
         builder.Property(model => model.Description)
             .HasMaxLength(500);
 
-        builder.HasMany(model => model.Accounts)
+        builder.HasMany(model => model.Shops)
             .WithOne(model => model.SubscriptionPlan)
-            .HasForeignKey(model => model.SubscriptionPlanId);
+            .HasForeignKey(model => model.SubscriptionPlanId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
     }
 }

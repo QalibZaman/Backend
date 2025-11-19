@@ -12,7 +12,7 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
-                .Length(10, 14).WithMessage("Incorrect phone number length");
+                .Length(7, 14).WithMessage("Incorrect phone number length");
 
             RuleFor(x => x.ZipCode)
                 .NotEmpty().WithMessage("Zipcode is required.")

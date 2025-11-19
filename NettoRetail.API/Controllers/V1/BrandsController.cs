@@ -8,7 +8,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Brands.Queries;
 using NettoRetail.Application.Models.Request.Brand;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
