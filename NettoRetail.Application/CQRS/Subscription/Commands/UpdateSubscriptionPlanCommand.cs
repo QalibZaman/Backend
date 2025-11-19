@@ -40,7 +40,7 @@ public class UpdateSubscriptionPlanCommandHandler(
 
         var specification = new SpecificationBuilder<SubscriptionPlanEntity>()
             .AddCriteria(plan => plan.Id == request.PlanId)
-            .AddInclude(p => p.Accounts)
+            .AddInclude(p => p.Shops)
             .AddInclude(p => p.Features)
             .Build();
 

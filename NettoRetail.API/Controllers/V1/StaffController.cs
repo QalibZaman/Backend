@@ -379,16 +379,16 @@ public class StaffController(
     }
 
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadStaffList(IFormFile file, int id)
+    public async Task<IActionResult> UploadStaffList(IFormFile file, int id, CancellationToken cancellationToken)
     {
         var command = new UploadStaffListCommand(file, id);
-        var result = await mediator.Send(command);
+        await mediator.Send(command, cancellationToken);
 
-        if (!result.Success)
-            return BadRequest(result.Errors);
-
-        return Ok(result);
+        return NoContent();
     }
 
     [Authorize]

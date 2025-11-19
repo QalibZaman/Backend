@@ -1,5 +1,4 @@
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -9,12 +8,11 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Utilities;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -123,8 +121,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ShopEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.ShopEmail, src => src.Email)
-            .Map(dest => dest.Country, src => src.Country.Name)
-            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+            .Map(dest => dest.Country, src => src.Country.Name);
 
         config.NewConfig<AccountEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
@@ -137,8 +134,11 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
-            .Map(dest => dest.Subscription, src => src.Subscription.ToString());
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
+
+        config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
+            .Map(dest => dest.Motto, src => src.Moto)
+            .Map(dest => dest.Name, src => src.Name);
 
         config.NewConfig<StaffCsvModel, AccountEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)
@@ -172,6 +172,24 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CartItemEntity, CartItemResponse>()
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
+
+        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
+                 .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+                 .Map(dest => dest.ProductName, src => src.ProductName)
+                 .Map(dest => dest.ProductLocation, src => src.ProductLocation)
+                 .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
+                 .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
+                 .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
+                 .Map(dest => dest.Price, src => src.Price)
+                 .Map(dest => dest.Status, src => src.Status)
+                 .Map(dest => dest.Description, src => src.Description)
+                 .Ignore(dest => dest.CategoryId)
+                 .Ignore(dest => dest.ShopId)
+                 .Ignore(dest => dest.Brand);
+
+        config.NewConfig<InventoryItemCsvModel, InventoryItemEntity>()
+                .Ignore(dest => dest.Brand)
+                .Ignore(dest => dest.Category);
 
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));

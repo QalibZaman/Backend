@@ -1,9 +1,11 @@
-﻿using System.Globalization;
-using System.Text;
-using CsvHelper;
+﻿using CsvHelper;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.CsvFileModel;
+using System.Globalization;
+using System.Text;
 
 namespace NettoRetail.Application.Services;
 
@@ -37,4 +39,29 @@ public class CsvFileService : ICsvFileService
             yield return entityData;
         }
     }
+
+    public async Task<List<InventoryItemCsvModel>> ReadCsvItemsAsync(
+        IFormFile csvFile, CancellationToken cancellationToken)
+    {
+        if (csvFile == null)
+            throw new BadRequestException("CSV file cannot be null.");
+
+        if (csvFile.ContentType != "text/csv")
+            throw new BadRequestException("The uploaded file must be a CSV file type.");
+
+        var csvService = new CsvFileService();
+        var inventoryItemsData = csvService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(csvFile);
+
+        var list = new List<InventoryItemCsvModel>();
+        await foreach (var item in inventoryItemsData.WithCancellation(cancellationToken))
+        {
+            list.Add(item);
+        }
+
+        if (list.Count == 0)
+            throw new BadRequestException("The CSV file is empty. Please provide at least one row of data.");
+
+        return list;
+    }
+
 }
