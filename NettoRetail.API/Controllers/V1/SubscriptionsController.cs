@@ -2,12 +2,14 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Subscription.Queries;
 using NettoRetail.Application.CQRS.Subscriptions.Commands;
 using NettoRetail.Application.Models.Request.Subscription;
 using NettoRetail.Application.Models.Subscriptions;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -63,10 +65,10 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-
     public async Task<IActionResult> GetPlans()
     {
-        var result = await mediator.Send(new GetSubscriptionsPlansQuery());
+        var shopId = HttpContext.GetUserShopId();
+        var result = await mediator.Send(new GetSubscriptionsPlansQuery(shopId));
         var response = new ApiResponse<List<SubscriptionPlanResponse>>(result);
         return Ok(response);
     }

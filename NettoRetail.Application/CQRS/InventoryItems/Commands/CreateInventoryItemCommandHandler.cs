@@ -6,8 +6,10 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
@@ -16,7 +18,9 @@ public record CreateInventoryItemCommand(AddInventoryItemModel Model, int ShopId
 public class CreateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     ICategoryRepository categoryRepository,
-    IBrandRepository brandRepository)
+    IBrandRepository brandRepository,
+    IProductDetailRepository productDetailRepository,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
 {
     public async Task<InventoryItemResponse> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -37,13 +41,32 @@ public class CreateInventoryItemCommandHandler(
 
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
+        var productDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
 
-        var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+        foreach (var detail in productDetails)
+        {
+            detail.InventoryItemId = inventoryItem.Id;
+        }
 
-        var response = responseModel.Adapt<InventoryItemResponse>();
-        response.ProductCategory = category.Name;
-        response.ProductBrand = brand.Name;
+        var transaction = unitOfWork.BeginTransaction();
 
-        return response;
+        try
+        {
+            var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+            await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
+
+            var response = responseModel.Adapt<InventoryItemResponse>();
+            response.ProductCategory = category.Name;
+            response.ProductBrand = brand.Name;
+
+            transaction.Commit();
+
+            return response;
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 }

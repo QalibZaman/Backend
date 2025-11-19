@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Bogus.DataSets;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -35,7 +37,12 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{id}/details")]
+    [ProducesResponseType(typeof(ApiResponse<ProductDetailsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{id:guid}/details")]
     public async Task<IActionResult> GetInventoryItemDetails(Guid id, CancellationToken cancellationToken)
     {
         var inventoryDetailsQuery = new GetInventoryItemDetailsQuery(id);
@@ -126,6 +133,51 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(new GetInventoryItemsQuery(shopId, model), cancellationToken);
         return Ok(new ApiResponse<PaginatedResponse<InventoryItemListResponse>>(result));
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<ProductDescriptionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{id}/description")]
+    public async Task<IActionResult> GetInventoryItemDescription(Guid id, CancellationToken cancellationToken)
+    {
+        var descriptionText = await mediator.Send(new GetInventoryItemDescriptionQuery(id), cancellationToken);
+        var response = new ApiResponse<ProductDescriptionResponse>(new ProductDescriptionResponse { Description = descriptionText });
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("{id}/description")]
+    public async Task<IActionResult> UpdateInventoryItemDescription(Guid id, [FromBody] UpdateProductsDescriptionRequest request, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new UpdateInventoryItemDescriptionCommand(id, request.Description), cancellationToken);
+        return Ok();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<UploadedImageResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("{id}/description/image")]
+    public async Task<IActionResult> UploadDescriptionImage(Guid id, IFormFile file, CancellationToken cancellationToken)
+    {
+        var imageUrl = await mediator.Send(new UploadDescriptionImageCommand(file), cancellationToken);
+        var response = new ApiResponse<UploadedImageResponse>(
+            new UploadedImageResponse { FileUrl = imageUrl });
+        return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]

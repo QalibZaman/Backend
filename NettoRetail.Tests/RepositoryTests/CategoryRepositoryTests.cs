@@ -93,7 +93,8 @@ public class CategoryRepositoryTests : IClassFixture<CustomWebApplicationFactory
             Country = country,
             IsActive = true,
             StripeCustomerId = "cus_test_1",
-            StripeSubscriptionId = "sub_test_1"
+            StripeSubscriptionId = "sub_test_1",
+            SubscriptionPlanId = 1
         };
 
         var categories = new List<CategoryEntity>

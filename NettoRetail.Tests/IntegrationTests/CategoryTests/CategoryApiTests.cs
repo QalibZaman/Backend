@@ -226,7 +226,8 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                         Country = countries[0],
                         IsActive = true,
                         StripeCustomerId = "cus_test_1",
-                        StripeSubscriptionId = "sub_test_1"
+                        StripeSubscriptionId = "sub_test_1",
+                        SubscriptionPlanId = 1
                     },
                     new ShopEntity
                     {
@@ -244,7 +245,8 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                         IsActive = true,
                         Country = countries[1],
                         StripeCustomerId = "cus_test_2",
-                        StripeSubscriptionId = "sub_test_2"
+                        StripeSubscriptionId = "sub_test_2",
+                        SubscriptionPlanId = 1
                     }
                 };
                 var categories = new List<CategoryEntity>
@@ -411,8 +413,6 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                 dbContext.Shops.RemoveRange(dbContext.Shops);
 
                 dbContext.SaveChanges();
-
-                dbContext.Database.EnsureDeleted();
             }
         }
     }
