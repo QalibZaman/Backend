@@ -10,7 +10,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
-using NettoRetail.Application.Services.IBranService;
+using NettoRetail.Application.Services.IBrandService;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
