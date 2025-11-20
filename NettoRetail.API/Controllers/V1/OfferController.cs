@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.Application.CQRS.OfferSections.Command;
+using NettoRetail.Application.CQRS.OfferSections.Queries;
 using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -36,5 +37,18 @@ public class OfferController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpGet("promotions/{shopId:int})")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetPromotionOffers(int shopId, CancellationToken cancellationToken)
+    {
+        var promotionOffersQuery = new GetPromotionOffersQuery(shopId);
+        var response = await mediator.Send(promotionOffersQuery, cancellationToken);
+        return Ok(response);
     }
 }
