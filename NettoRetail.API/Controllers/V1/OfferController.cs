@@ -2,7 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.OfferSections.Command;
+using NettoRetail.Application.CQRS.OfferSections.Query;
+using NettoRetail.Application.Models.Request.Offer;
 using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -36,5 +39,18 @@ public class OfferController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpGet("suggestions")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ApiResponse<SearchSuggestionsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSearchSuggestions([FromQuery] SearchSuggestionsRequest request,
+       CancellationToken cancellationToken = default)
+    {
+        var suggestions = await mediator.Send(new GetSearchSuggestionsQuery(request), cancellationToken);
+        var response = new ApiResponse<SearchSuggestionsResponse>(suggestions);
+        return Ok(response);
     }
 }
