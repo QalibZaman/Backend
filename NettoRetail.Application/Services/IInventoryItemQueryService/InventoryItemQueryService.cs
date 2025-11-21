@@ -75,7 +75,7 @@ public class InventoryItemQueryService(
         CancellationToken ct)
     {
         var filter = model.Adapt<GetFilteredInventoryItemsModel>();
-        var skip = (model.PageNumber - 1) * model.PageSize;
+        var skip = Math.Max(0, (model.PageNumber - 1) * model.PageSize);
 
         var categoryIds = Enumerable.Empty<int>();
         if (filter.CategoryId != 0)
