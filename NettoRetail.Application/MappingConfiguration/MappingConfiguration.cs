@@ -1,4 +1,6 @@
 using Mapster;
+using Microsoft.EntityFrameworkCore;
+using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -193,6 +195,9 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
+
+        config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
+            .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
             .Map(d => d.Id, s => s.Id)

@@ -15,7 +15,6 @@ namespace NettoRetail.API.Controllers.V1;
 public class CountriesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<CountryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
