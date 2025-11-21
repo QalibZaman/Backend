@@ -34,7 +34,7 @@ namespace NettoRetail.API.Controllers.V1
 
         [Authorize]
         [HttpDelete("{itemId:guid}")]
-        [ProducesResponseType(typeof(ApiResponse<DeleteItemFromFavouritesResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,8 +42,8 @@ namespace NettoRetail.API.Controllers.V1
         public async Task<IActionResult> RemoveFromFavourites(Guid itemId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
-            var response = await mediator.Send(new RemoveFromFavouriteListCommand(userId, itemId), cancellationToken);
-            return Ok(response);
+            await mediator.Send(new RemoveFromFavouriteListCommand(userId, itemId), cancellationToken);
+            return NoContent();
         }
 
         [HttpGet]
