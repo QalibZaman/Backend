@@ -188,5 +188,8 @@ public class MappingConfiguration : IRegister
             .Map(d => d.PromotionPrice, s => s.PromotionPrice)
             .Map(d => d.AvailableAmount, s => s.AvailableAmount)
             .Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
+
+        config.NewConfig<PaymentHistoryEntity, PaymentHistoryResponse>()
+            .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
     }
 }
