@@ -938,6 +938,38 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItems");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ItemComparison");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
+                {
+                    b.Property<Guid>("ComparisonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ComparisonId", "InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("ItemComparison_Item", (string)null);
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -2091,6 +2123,36 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
+                        .WithOne("ComparedItems")
+                        .HasForeignKey("NettoRetail.Domain.Entities.ItemComparisonEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ItemComparisonEntity", "Comparison")
+                        .WithMany("ComparisonItems")
+                        .HasForeignKey("ComparisonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("ComparisonItems")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Comparison");
+
+                    b.Navigation("InventoryItem");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
@@ -2315,6 +2377,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("CommunicationPreference");
 
+                    b.Navigation("ComparedItems");
+
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
 
@@ -2365,6 +2429,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("ComparisonItems");
+
                     b.Navigation("FavouriteListItems");
 
                     b.Navigation("Images");
@@ -2374,6 +2440,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("ProductDetails");
 
                     b.Navigation("RecentlyViewedByUsers");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.Navigation("ComparisonItems");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.NewProductsSectionEntity", b =>
