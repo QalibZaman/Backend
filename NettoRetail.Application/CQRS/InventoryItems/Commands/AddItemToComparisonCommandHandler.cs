@@ -1,17 +1,20 @@
 ﻿    using Mapster;
     using MediatR;
-    using NettoRetail.Application.Exceptions;
+using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
     using NettoRetail.Application.Models.Response;
     using NettoRetail.DataAccess.Specifications.Inventory;
     using NettoRetail.Domain.Entities;
     using NettoRetail.Shared.Interfaces.Repositories;
-    using NettoRetail.Shared.Specifications;
+using NettoRetail.Shared.Options;
+using NettoRetail.Shared.Specifications;
 
     namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
     public record AddItemToComparisonCommand(Guid ItemId, Guid UserId) : IRequest<ItemComparisonResponse>;
 
     public class AddItemToComparisonCommandHandler(IItemComparisonRepository itemComparisonRepository,
-        IInventoryItemRepository inventoryItemRepository)
+        IInventoryItemRepository inventoryItemRepository,
+        IOptions<ComparisonOptions> comparisonOptions)
         : IRequestHandler<AddItemToComparisonCommand, ItemComparisonResponse>
     {
         public async Task<ItemComparisonResponse> Handle(AddItemToComparisonCommand request, CancellationToken cancellationToken)
@@ -40,7 +43,7 @@
             if (comparison.GetItem(request.ItemId) != null)
                 throw new BadRequestException("Item already added to comparison");
 
-            if (comparison.ComparisonItems.Count == 4)
+            if (comparison.ComparisonItems.Count == comparisonOptions.Value.MaxCount)
                 throw new BadRequestException("You can compare up to 4 products only");
 
             comparison.AddItem(request.ItemId);
