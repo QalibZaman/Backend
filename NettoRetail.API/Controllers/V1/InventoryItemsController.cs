@@ -3,6 +3,7 @@ using Bogus.DataSets;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
@@ -67,6 +68,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return File(response, "text/csv", "Inventory items.csv");
     }
 
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(typeof(ApiResponse<InventoryItemResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -101,11 +103,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Ok();
     }
 
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPatch("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPatch("{id:guid}")]
     public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
-        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, model);
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, userShopId, model);
 
         await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
 
