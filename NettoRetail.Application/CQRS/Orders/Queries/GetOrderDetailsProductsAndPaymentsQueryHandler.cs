@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Order;
@@ -8,13 +7,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
-public record GetOrderDetailsQuery(int OrderId) : IRequest<OrderResponse>;
-public class GetOrderDetailsQueryHandler(
+public record GetOrderDetailsProductsAndPaymentsQuery(int OrderId) : IRequest<OrderProductsAndPaymentsResponse>;
+public class GetOrderDetailsProductsAndPaymentsQueryHandler(
     IOrderRepository orderRepository,
     IOrderItemRepository orderItemRepository)
-    : IRequestHandler<GetOrderDetailsQuery, OrderResponse>
+    : IRequestHandler<GetOrderDetailsProductsAndPaymentsQuery, OrderProductsAndPaymentsResponse>
 {
-    public async Task<OrderResponse> Handle(GetOrderDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<OrderProductsAndPaymentsResponse> Handle(GetOrderDetailsProductsAndPaymentsQuery request, CancellationToken cancellationToken)
     {
         var ordersByIdSpecification = new GetOrdersByIdSpecification(request.OrderId);
         var order = await orderRepository.GetAsync(ordersByIdSpecification, cancellationToken)
@@ -23,14 +22,13 @@ public class GetOrderDetailsQueryHandler(
         var orderItemSpecification = new GetOrderItemsByOrderIdSpecification(request.OrderId);
         var orderItems = await orderItemRepository.GetAllBySpecAsync(orderItemSpecification, cancellationToken);
 
-        var items = orderItems.Adapt<List<OrderItemResponse>>();
+        var items = OrderItemResponse.GetListOfResponses((List<Domain.Entities.JunctionEntities.OrderItemEntity>)orderItems);
 
-        var response = order.Adapt<OrderResponse>();
-
+        OrderProductsAndPaymentsResponse response = new();
+        response.DeliveryType = order.DeliveryType.ToString();
+        response.OrderStatus = order.OrderStatus;
         response.OrderItems = items;
-        response.TotalSale = orderItems
-            .Where(x => x.InventoryItem.IsPromoted && x.InventoryItem.PromotionPrice.HasValue)
-            .Sum(x => x.InventoryItem.PromotionPrice!.Value);
+        response.SetPrices();
 
         return response;
     }
