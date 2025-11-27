@@ -37,7 +37,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(typeof(ApiResponse<ProductDetailsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
