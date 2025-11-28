@@ -27,16 +27,10 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
             .GreaterThanOrEqualTo(0).WithMessage("Price must be greater or equal to 0.")
             .PrecisionScale(18, 2, false).WithMessage("Price must not have more than 2 decimal places.");
 
-        RuleFor(x => x)
-            .Custom((model, context) =>
-            {
-                if (!string.IsNullOrWhiteSpace(model.Description))
-                    model.Description = model.Description.Trim();
-            });
-
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description must be less than 500 characters long.")
             .Matches(@"^[A-Za-z0-9 ,.\-_'()]*$")
-            .WithMessage("Description must only contain letters, digits, spaces, and common punctuation.");
+            .WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
+            .Matches("^(|[^ ].*[^ ]$)").WithMessage("Description must not have leading or trailing spaces.");
     }
 }
