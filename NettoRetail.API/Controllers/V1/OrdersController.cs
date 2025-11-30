@@ -11,7 +11,6 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
-using Stripe.Climate;
 
 namespace NettoRetail.API.Controllers.V1;
 
