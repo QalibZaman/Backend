@@ -101,7 +101,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 _orderEntity
             };
             var repo = Substitute.For<IOrderRepository>();
-            repo.GetManyBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
+            repo.GetAllBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(data);
             GetSearchOptionsQueryHandler handler = new(repo);
             //Act 
