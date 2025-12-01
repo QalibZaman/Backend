@@ -39,15 +39,15 @@ public class OfferController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("promotions/{shopId:int})")]
+    [HttpGet("promotions")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetPromotionOffers(int shopId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPromotionOffers(CancellationToken cancellationToken)
     {
-        var promotionOffersQuery = new GetPromotionOffersQuery(shopId);
+        var promotionOffersQuery = new GetPromotionOffersQuery();
         var response = await mediator.Send(promotionOffersQuery, cancellationToken);
         return Ok(response);
     }

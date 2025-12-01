@@ -6,10 +6,9 @@ namespace NettoRetail.DataAccess.Specifications.OfferSection
     public class GetVisiblePromotionOffersSectionSpecification
         : Specification<OfferEntity>
     {
-        public GetVisiblePromotionOffersSectionSpecification(int shopId)
-            : base(s => s.ShopId == shopId)
+        public GetVisiblePromotionOffersSectionSpecification()
+            : base(s => s.IsVisible == true)
         {
-            AddCriteria(s => s.IsVisible == true);
             AddInclude(s => s.Products);                      // join table links
             AddOrderBy(s => s.LastUpdated, descending: true); // latest definition
         }
