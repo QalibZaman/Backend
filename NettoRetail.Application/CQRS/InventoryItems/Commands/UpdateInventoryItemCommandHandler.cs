@@ -65,5 +65,20 @@ public class UpdateInventoryItemCommandHandler(
             if (!brandExists)
                 throw new NotFoundException("There is no brand with such id.");
         }
+
+        if (request.Model.IsPromoted == true && request.Model.PromotionPrice == null)
+        {
+            throw new BadRequestException("Promotion price must be provided for promoted products.");
+        }
+
+        if (request.Model.IsPromoted == false && request.Model.PromotionPrice != null)
+        {
+            throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
+        }
+
+        if (request.Model.PromotionPrice != null && request.Model.PromotionPrice >= request.Model.Price)
+        {
+            throw new BadRequestException("Promotion price must be less than the regular price.");
+        }
     }
 }
