@@ -1,26 +1,30 @@
 ﻿using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
+using Stripe.Climate;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests;
 
-public class GetOrderDetailsProductsAndPaymentsQueryHandlerTest
+public class GetOrderProductsQueryHandlerTest
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderItemRepository _itemRepository;
-    private readonly GetOrderDetailsProductsAndPaymentsQueryHandler _handler;
+    private readonly IOrderService _orderService;
+    private readonly GetOrderProductsQueryHandler _handler;
 
-    public GetOrderDetailsProductsAndPaymentsQueryHandlerTest()
+    public GetOrderProductsQueryHandlerTest()
     {
         _orderRepository = Substitute.For<IOrderRepository>();
         _itemRepository = Substitute.For<IOrderItemRepository>();
-        _handler = new GetOrderDetailsProductsAndPaymentsQueryHandler(_orderRepository, _itemRepository);
+        _orderService = new Application.Services.IOrderService.OrderService(_itemRepository);
+        _handler = new GetOrderProductsQueryHandler(_orderRepository, _orderService);
     }
 
     [Fact]
@@ -33,7 +37,7 @@ public class GetOrderDetailsProductsAndPaymentsQueryHandlerTest
             .GetOrderForPrinting(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
-        var query = new GetOrderDetailsProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
         // Act & Assert
         var ex = await Record.ExceptionAsync(() => _handler.Handle(query, CancellationToken.None));
 
@@ -58,14 +62,14 @@ public class GetOrderDetailsProductsAndPaymentsQueryHandlerTest
             .GetAllBySpecAsync(Arg.Any<Specification<OrderItemEntity>>(), Arg.Any<CancellationToken>())
             .Returns(orderItem);
 
-        var query = new GetOrderDetailsProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<OrderProductsAndPaymentsResponse>(result);
+        Assert.IsType<OrderProductsResponse>(result);
         Assert.Equal(orderItem.First().Quantity, result.OrderItems.First().Quantity);
         Assert.Equal(40.0m, result.Subtotal);
         Assert.Equal(20.0m, result.Sale);

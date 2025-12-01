@@ -8,7 +8,7 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Models.Response;
 
-public class OrderProductsAndPaymentsResponse
+public class OrderProductsResponse
 {
     public decimal Sale { get; private set; } = 0.0m;
     public decimal Subtotal { get; private set; }
@@ -21,7 +21,6 @@ public class OrderProductsAndPaymentsResponse
     {
         foreach (var item in OrderItems)
         {
-            item.SetTotal();
             Subtotal += item.Price * item.Quantity;
             if (item.IsPromoted) Sale += item.PromotionPrice * item.Quantity;
             if (!item.IsPromoted) Sale += 0.0m;
