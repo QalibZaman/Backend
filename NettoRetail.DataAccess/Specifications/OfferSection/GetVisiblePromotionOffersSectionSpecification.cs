@@ -10,6 +10,7 @@ namespace NettoRetail.DataAccess.Specifications.OfferSection
             : base(s => s.IsVisible == true)
         {
             AddInclude(s => s.Products);                      // join table links
+            AddInclude(s => s.Products.Select(s => s.InventoryItem));
             AddOrderBy(s => s.LastUpdated, descending: true); // latest definition
         }
     }
