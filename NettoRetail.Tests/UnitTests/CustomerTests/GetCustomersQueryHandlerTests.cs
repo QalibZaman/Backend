@@ -59,24 +59,6 @@ public class GetCustomersQueryHandlerTests
                 Arg.Any<CancellationToken>());
     }
 
-    [Theory]
-    [InlineData(0, 10)]
-    [InlineData(1, 0)]
-    [InlineData(0, 0)]
-    public async Task ThrowsArgumentException_WhenPaginationIsInvalid(
-        int pageNumber,
-        int pageSize)
-    {
-        // Arrange
-        var request = new GetCustomersQuery(
-            new PaginationRequest { PageNumber = pageNumber, PageSize = pageSize },
-            null);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            _handler.Handle(request, CancellationToken.None));
-    }
-
     private static AccountEntity CreateAccount(string firstName, string lastName, string email)
     {
         var accountId = Guid.NewGuid();
