@@ -6,10 +6,10 @@ using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.UOW;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-using System.Security.Principal;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
@@ -30,53 +30,16 @@ public class UpdateStaffCommandHandler(
         if (staff.ShopId != request.ShopId)
             throw new BadRequestException("You are not allowed to access this staff member.");
 
-        if (request.Model.RoleId != null)
-        {
-            var roleSpec = new GetRoleByShopIdOrAdminIdSpecification(request.Model.RoleId, request.ShopId);
-            var role = await roleRepository.GetAsync(roleSpec, cancellationToken);
+        await CheckRoleExistenceAsync(request.Model, staff, request.ShopId, cancellationToken);
 
-            if (role is null)
-                throw new NotFoundException("Role not found.");
-        }
-
-        // begin transaction to ensure atomicity between status update, session termination, and staff data changes.
-        // this prevents partial updates in case of failure — for example, if sessions are terminated but the staff update fails.
         var transaction = unitOfWork.BeginTransaction();
         try
         {
-            if (staff.Status == StaffStatusEnum.Deactivated &&
-                (!request.Model.IsActive.HasValue || request.Model.IsActive.Value == false))
-            {
-                throw new BadRequestException("You cannot edit a deactivated staff member unless you are reactivating them.");
-            }
+            CheckIfDeactivated(request.Model, staff);
 
-            if (request.Model.Email != null && staff.Email != request.Model.Email && staff.PasswordUpdatedAt != null)
-            {
-                var emailConflictSpec = new GetAccountByEmailSpecification(request.Model.Email);
-                var existingWithEmail = await accountRepository.GetAsync(emailConflictSpec, cancellationToken);
-                if (existingWithEmail != null)
-                    throw new ConflictException("Another account with this email already exists.");
+            await UpdateEmailAsync(request.Model, staff, cancellationToken);
 
-                // Terminate sessions when email is changed
-                await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
-
-                staff.Status = StaffStatusEnum.Offline;
-            }
-
-            if (request.Model.IsActive.HasValue)
-            {
-                if (request.Model.IsActive.Value && staff.Status == StaffStatusEnum.Deactivated)
-                {
-                    staff.Status = staff.PasswordUpdatedAt == null
-                        ? StaffStatusEnum.CreatePassword
-                        : StaffStatusEnum.Offline;
-                }
-                else if (!request.Model.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
-                {
-                    staff.Status = StaffStatusEnum.Deactivated;
-                    await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
-                }
-            }
+            await UpdateActiveStatusAsync(request.Model, staff, cancellationToken);
 
             request.Model.Adapt(staff);
             await accountRepository.UpdateAsync(staff, cancellationToken);
@@ -88,5 +51,78 @@ public class UpdateStaffCommandHandler(
             transaction.Rollback();
             throw;
         }
+    }
+
+    private void CheckIfDeactivated(
+        UpdateStaffRequest request,
+        AccountEntity staff)
+    {
+        if (staff.Status == StaffStatusEnum.Deactivated &&
+                (!request.IsActive.HasValue || request.IsActive.Value == false))
+        {
+            throw new BadRequestException("You cannot edit a deactivated staff member unless you are reactivating them.");
+        }
+    }
+
+    private async Task CheckRoleExistenceAsync(
+        UpdateStaffRequest request,
+        AccountEntity staff,
+        int shopId,
+        CancellationToken cancellationToken)
+    {
+        if (request.RoleId != null)
+        {
+            var roleSpec = new GetRoleByShopIdOrAdminIdSpecification(request.RoleId, shopId);
+            var roleExists = await roleRepository.Exists(roleSpec, cancellationToken);
+
+            if (!roleExists)
+                throw new NotFoundException("Role not found.");
+        }
+    }
+
+    private async Task UpdateEmailAsync(
+        UpdateStaffRequest request,
+        AccountEntity staff,
+        CancellationToken cancellationToken)
+    {
+        if (request.Email == null || staff.Email == request.Email || staff.PasswordUpdatedAt == null)
+            return;
+
+        var emailConflictSpec = new GetAccountByEmailSpecification(request.Email);
+        var existingWithEmail = await accountRepository.Exists(emailConflictSpec, cancellationToken);
+        if (existingWithEmail)
+            throw new ConflictException("Another account with this email already exists.");
+
+        await TerminateSessionAsync(staff.Id, cancellationToken);
+
+        staff.Status = StaffStatusEnum.Offline;
+    }
+
+    private async Task UpdateActiveStatusAsync(
+        UpdateStaffRequest request,
+        AccountEntity staff,
+        CancellationToken cancellationToken)
+    {
+        if (!request.IsActive.HasValue)
+        {
+            return;
+        }
+
+        if (request.IsActive.Value && staff.Status == StaffStatusEnum.Deactivated)
+        {
+            staff.Status = staff.PasswordUpdatedAt == null
+                ? StaffStatusEnum.CreatePassword
+                : StaffStatusEnum.Offline;
+        }
+        else if (!request.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
+        {
+            staff.Status = StaffStatusEnum.Deactivated;
+            await TerminateSessionAsync(staff.Id, cancellationToken);
+        }
+    }
+
+    private async Task TerminateSessionAsync(Guid id, CancellationToken cancellationToken)
+    {
+        await sessionTerminationService.TerminateSessionsAsync(id, cancellationToken);
     }
 }
