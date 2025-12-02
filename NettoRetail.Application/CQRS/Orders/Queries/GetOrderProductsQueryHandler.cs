@@ -2,30 +2,34 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.DataAccess.Specifications.Order;
-using NettoRetail.DataAccess.Specifications.OrderItems;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
 public record GetOrderProductsQuery(int OrderId) : IRequest<OrderProductsResponse>;
 public class GetOrderProductsQueryHandler(
-    IOrderRepository orderRepository,
-    IOrderService orderService)
+    IOrderRepository orderRepository)
     : IRequestHandler<GetOrderProductsQuery, OrderProductsResponse>
 {
     public async Task<OrderProductsResponse> Handle(GetOrderProductsQuery request, CancellationToken cancellationToken)
     {
-        var ordersByIdSpecification = new GetOrdersByIdSpecification(request.OrderId);
-        var order = await orderRepository.GetAsync(ordersByIdSpecification, cancellationToken)
+        var spec = new SpecificationBuilder<OrderEntity>()
+            .Add<GetOrderByIdSpecification>(request.OrderId)
+            .AddInclude(x => x.OrderItems)
+            .AddInclude(x => x.OrderItems.Select(v => v.InventoryItem))
+            .Build();
+
+        var order = await orderRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("There is no such order.");
 
-        var inventoryItems = await orderService.GetOrderItemsAsync(order, cancellationToken);
+        var response = order.Adapt<OrderProductsResponse>();
 
-        OrderProductsResponse response = order.Adapt<OrderProductsResponse>();
-        response.OrderItems = inventoryItems;
-        response.SetPrices();
+        response.Subtotal = response.OrderItems.Sum(i => i.Price * i.Quantity);
+        response.Sale = response.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+        response.Total = response.OrderItems.Sum(i => i.Total);
 
         return response;
     }

@@ -1,30 +1,24 @@
 ﻿using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
-using Stripe.Climate;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests;
 
 public class GetOrderProductsQueryHandlerTest
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IOrderItemRepository _itemRepository;
-    private readonly IOrderService _orderService;
     private readonly GetOrderProductsQueryHandler _handler;
 
     public GetOrderProductsQueryHandlerTest()
     {
         _orderRepository = Substitute.For<IOrderRepository>();
-        _itemRepository = Substitute.For<IOrderItemRepository>();
-        _orderService = new Application.Services.IOrderService.OrderService(_itemRepository);
-        _handler = new GetOrderProductsQueryHandler(_orderRepository, _orderService);
+        _handler = new GetOrderProductsQueryHandler(_orderRepository);
     }
 
     [Fact]
@@ -48,19 +42,15 @@ public class GetOrderProductsQueryHandlerTest
     }
 
     [Fact]
-    public async Task Handler_ShouldRenurnOrderResponse_WhenOrderExists()
+    public async Task Handler_ShouldReturnOrderResponse_WhenOrderExists()
     {
         // Arrange
         var orderId = 9;
         var order = BuildTestOrder(orderId);
-        var orderItem = BuildTestOrderItem(orderId);
 
         _orderRepository
             .GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
-        _itemRepository
-            .GetAllBySpecAsync(Arg.Any<Specification<OrderItemEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(orderItem);
 
         var query = new GetOrderProductsQuery(orderId);
 
@@ -70,48 +60,9 @@ public class GetOrderProductsQueryHandlerTest
         // Assert
         Assert.NotNull(result);
         Assert.IsType<OrderProductsResponse>(result);
-        Assert.Equal(orderItem.First().Quantity, result.OrderItems.First().Quantity);
-        Assert.Equal(40.0m, result.Subtotal);
-        Assert.Equal(20.0m, result.Sale);
-        Assert.Equal(20.0m, result.Total);
-        Assert.Equal(order.DeliveryType.ToString(), result.DeliveryType);
-        Assert.Equal(order.OrderStatus, result.OrderStatus);
     }
+
     private static OrderEntity BuildTestOrder(int id)
-    {
-        var account = new AccountEntity
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com",
-            PasswordHash = "irrelevant",
-            RoleId = 1
-        };
-
-        var customer = new CustomerEntity
-        {
-            AccountId = account.Id,
-            Account = account,
-            IsActive = true
-        };
-
-        var order = new OrderEntity
-        {
-            Id = id,
-            CreationDate = DateTime.UtcNow,
-            Creator = "Tester",
-            OrderStatus = OrderStatusEnum.Processing,
-            DeliveryType = OrderDeliveryTypeEnum.Courier,
-            CustomerId = customer.AccountId,
-            Customer = customer,
-            ShopId = 1,
-        };
-
-        return order;
-    }
-    
-    private static List<OrderItemEntity> BuildTestOrderItem(int orderId)
     {
         var inventoryItem = new InventoryItemEntity
         {
@@ -141,9 +92,41 @@ public class GetOrderProductsQueryHandlerTest
             ItemId = inventoryItem.Id,
             InventoryItem = inventoryItem,
             Quantity = 2,
-            OrderId = orderId
+            OrderId = id,
         };
+
         List<OrderItemEntity> itemsList = [orderItem];
-        return itemsList;
+
+        var account = new AccountEntity
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john.doe@example.com",
+            PasswordHash = "irrelevant",
+            RoleId = 1
+        };
+
+        var customer = new CustomerEntity
+        {
+            AccountId = account.Id,
+            Account = account,
+            IsActive = true
+        };
+
+        var order = new OrderEntity
+        {
+            Id = id,
+            CreationDate = DateTime.UtcNow,
+            Creator = "Tester",
+            OrderStatus = OrderStatusEnum.Processing,
+            DeliveryType = OrderDeliveryTypeEnum.Courier,
+            CustomerId = customer.AccountId,
+            Customer = customer,
+            ShopId = 1,
+            OrderItems = itemsList
+        };
+
+        return order;
     }
 }

@@ -1,5 +1,4 @@
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
@@ -10,8 +9,8 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -100,10 +99,16 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Quantity, src => src.Quantity)
             .Map(dest => dest.Price, src => src.InventoryItem.Price)
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
-            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
+            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc.ToString())
             .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
             .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
-            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m);
+            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
+            .AfterMapping((src, dest) =>
+            {
+                dest.Total = dest.IsPromoted
+                    ? dest.PromotionPrice * dest.Quantity
+                    : dest.Price * dest.Quantity;
+            });
 
         config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerId, src => src.CustomerId)
@@ -210,5 +215,11 @@ public class MappingConfiguration : IRegister
             .Map(d => d.PromotionPrice, s => s.PromotionPrice)
             .Map(d => d.AvailableAmount, s => s.AvailableAmount)
             .Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
+
+        config.NewConfig<OrderEntity, OrderProductsResponse>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.OrderItems, src => src.OrderItems)
+            .IgnoreNonMapped(true);
     }
 }
