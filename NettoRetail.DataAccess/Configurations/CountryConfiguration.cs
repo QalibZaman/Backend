@@ -27,7 +27,7 @@ public class CountryConfiguration : IEntityTypeConfiguration<CountryEntity>
             .HasMaxLength(30);
 
         builder.HasData(
-            new CountryEntity { Id = 1, Name = "Austria", PhoneCode = "+43", PhoneMask = "^\\d{3} \\d{6}$", ZipCodeMask = "^\\d{4}$" },
+            new CountryEntity { Id = 1, Name = "Austria", PhoneCode = "+43", PhoneMask = "^\\d{3} \\d{7}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 2, Name = "Belgium", PhoneCode = "+32", PhoneMask = "^\\d \\d{3} \\d{2} \\d{2}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 3, Name = "Bulgaria", PhoneCode = "+359", PhoneMask = "^\\d{2} \\d{3} \\d{3}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 4, Name = "Croatia", PhoneCode = "+385", PhoneMask = "^\\d{2} \\d{3} \\d{4}$", ZipCodeMask = "^\\d{5}$" },
