@@ -464,7 +464,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 1,
                             Name = "Austria",
                             PhoneCode = "+43",
-                            PhoneMask = "^\\d{3} \\d{7}$",
+                            PhoneMask = "^\\d{3} \\d{6}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
