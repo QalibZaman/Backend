@@ -13,7 +13,7 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
-            .Length(7, 13).WithMessage("Incorrect phone number length");
+            .Length(10, 14).WithMessage("Incorrect phone number length");
 
         RuleFor(x => x.ZipCode)
             .NotEmpty().WithMessage("Zipcode is required.")
