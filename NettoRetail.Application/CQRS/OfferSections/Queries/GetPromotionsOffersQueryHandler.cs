@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -17,10 +16,6 @@ public class GetPromotionOffersQueryHandler(
     {
         var specification = new GetVisiblePromotionOffersSectionSpecification();
         var offers = await offerRepository.GetManyBySpecAsync(specification, cancellationToken);
-        if (offers is null || !offers.Any())
-        {
-            throw new NotFoundException("There are no offers.");
-        }
 
         var inventoryItems = offers.SelectMany(x => x.Products.Select(n => n.InventoryItem)).ToList();
         var response = inventoryItems.Adapt<List<InventoryItemCardResponse>>();
