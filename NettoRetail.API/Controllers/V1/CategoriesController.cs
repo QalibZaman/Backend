@@ -87,6 +87,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<CategoryResponse>(response));
         }
 
+        [Authorize]
         [HttpGet("section")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
