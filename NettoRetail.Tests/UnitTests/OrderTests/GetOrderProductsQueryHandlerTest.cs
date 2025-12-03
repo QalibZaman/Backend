@@ -28,7 +28,7 @@ public class GetOrderProductsQueryHandlerTest
         var orderId = 12;
 
         _orderRepository
-            .GetOrderForPrinting(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
+            .GetOrderForProducts(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
         var query = new GetOrderProductsQuery(orderId);
@@ -49,7 +49,7 @@ public class GetOrderProductsQueryHandlerTest
         var order = BuildTestOrder(orderId);
 
         _orderRepository
-            .GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
+            .GetOrderForProducts(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
 
         var query = new GetOrderProductsQuery(orderId);

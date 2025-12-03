@@ -20,7 +20,7 @@ public class GetOrderProductsQueryHandler(
             .Add<GetOrderByIdSpecification>(request.OrderId)
             .Build();
 
-        var order = await orderRepository.GetOrderForPrinting(spec, cancellationToken)
+        var order = await orderRepository.GetOrderForProducts(spec, cancellationToken)
             ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<OrderProductsResponse>();
