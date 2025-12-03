@@ -208,5 +208,15 @@ public class MappingConfiguration : IRegister
             .Map(d => d.PromotionPrice, s => s.PromotionPrice)
             .Map(d => d.AvailableAmount, s => s.AvailableAmount)
             .Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
+
+        config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
+            .Map(dest => dest.Creator, src => src.Creator)
+            .Map(dest => dest.OrderId, src => src.Id)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.DateCreated, src => src.CreationDate)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
     }
 }
