@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.UOW;
@@ -17,7 +18,7 @@ public record UpdateStaffCommand(Guid Id, UpdateStaffRequest Model, int ShopId) 
 public class UpdateStaffCommandHandler(
     IAccountRepository accountRepository,
     IRoleRepository roleRepository,
-    ISessionTerminationService sessionTerminationService,
+    IStaffService staffService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateStaffCommand>
 {
@@ -35,13 +36,8 @@ public class UpdateStaffCommandHandler(
         var transaction = unitOfWork.BeginTransaction();
         try
         {
-            CheckIfDeactivated(request.Model, staff);
+            await staffService.UpdateStaffAsync(request.Model, staff, request.Id, cancellationToken);
 
-            await UpdateEmailAsync(request.Model, staff, cancellationToken);
-
-            await UpdateActiveStatusAsync(request.Model, staff, cancellationToken);
-
-            request.Model.Adapt(staff);
             await accountRepository.UpdateAsync(staff, cancellationToken);
 
             transaction.Commit();
@@ -50,17 +46,6 @@ public class UpdateStaffCommandHandler(
         {
             transaction.Rollback();
             throw;
-        }
-    }
-
-    private void CheckIfDeactivated(
-        UpdateStaffRequest request,
-        AccountEntity staff)
-    {
-        if (staff.Status == StaffStatusEnum.Deactivated &&
-                (!request.IsActive.HasValue || request.IsActive.Value == false))
-        {
-            throw new BadRequestException("You cannot edit a deactivated staff member unless you are reactivating them.");
         }
     }
 
@@ -78,51 +63,5 @@ public class UpdateStaffCommandHandler(
             if (!roleExists)
                 throw new NotFoundException("Role not found.");
         }
-    }
-
-    private async Task UpdateEmailAsync(
-        UpdateStaffRequest request,
-        AccountEntity staff,
-        CancellationToken cancellationToken)
-    {
-        if (request.Email == null || staff.Email == request.Email || staff.PasswordUpdatedAt == null)
-            return;
-
-        var emailConflictSpec = new GetAccountByEmailSpecification(request.Email);
-        var existingWithEmail = await accountRepository.Exists(emailConflictSpec, cancellationToken);
-        if (existingWithEmail)
-            throw new ConflictException("Another account with this email already exists.");
-
-        await TerminateSessionAsync(staff.Id, cancellationToken);
-
-        staff.Status = StaffStatusEnum.Offline;
-    }
-
-    private async Task UpdateActiveStatusAsync(
-        UpdateStaffRequest request,
-        AccountEntity staff,
-        CancellationToken cancellationToken)
-    {
-        if (!request.IsActive.HasValue)
-        {
-            return;
-        }
-
-        if (request.IsActive.Value && staff.Status == StaffStatusEnum.Deactivated)
-        {
-            staff.Status = staff.PasswordUpdatedAt == null
-                ? StaffStatusEnum.CreatePassword
-                : StaffStatusEnum.Offline;
-        }
-        else if (!request.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
-        {
-            staff.Status = StaffStatusEnum.Deactivated;
-            await TerminateSessionAsync(staff.Id, cancellationToken);
-        }
-    }
-
-    private async Task TerminateSessionAsync(Guid id, CancellationToken cancellationToken)
-    {
-        await sessionTerminationService.TerminateSessionsAsync(id, cancellationToken);
     }
 }
