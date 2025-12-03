@@ -3,6 +3,7 @@
 public class UpdateInventoryItemModel
 {
     public string? ProductName { get; set; }
+    public int? BrandId { get; set; }
     public int? CategoryId { get; set; }
     public long? ProductUpc { get; set; }
 

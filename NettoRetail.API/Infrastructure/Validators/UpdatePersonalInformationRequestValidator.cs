@@ -54,10 +54,13 @@ namespace NettoRetail.API.Infrastructure.Validators
                 .Matches(@"^[A-Za-z\s-]+$").WithMessage("City can only contain Latin characters, spaces, and hyphens.")
                 .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
 
-            RuleFor(x => x.State)
-                .Length(2, 50).WithMessage("State must be between 2 and 50 characters.")
+            When(x => !string.IsNullOrWhiteSpace(x.State), () =>
+            {
+                RuleFor(x => x.State)
+                .Length(2, 90).WithMessage("State must be between 2 and 90 characters")
                 .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("State can only contain Latin characters, numbers, spaces, and special characters.")
-                .Must(x => x == null || x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+                .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+            });
         }
     }
 }

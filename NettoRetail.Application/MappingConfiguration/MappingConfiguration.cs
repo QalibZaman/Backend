@@ -1,5 +1,6 @@
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -14,8 +15,6 @@ using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Utilities;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -176,8 +175,29 @@ public class MappingConfiguration : IRegister
         config.NewConfig<CartItemEntity, CartItemResponse>()
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
 
+        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
+                 .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+                 .Map(dest => dest.ProductName, src => src.ProductName)
+                 .Map(dest => dest.ProductLocation, src => src.ProductLocation)
+                 .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
+                 .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
+                 .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
+                 .Map(dest => dest.Price, src => src.Price)
+                 .Map(dest => dest.Status, src => src.Status)
+                 .Map(dest => dest.Description, src => src.Description)
+                 .Ignore(dest => dest.CategoryId)
+                 .Ignore(dest => dest.ShopId)
+                 .Ignore(dest => dest.Brand);
+
+        config.NewConfig<InventoryItemCsvModel, InventoryItemEntity>()
+                .Ignore(dest => dest.Brand)
+                .Ignore(dest => dest.Category);
+
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
+
+        config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
+            .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
             .Map(d => d.Id, s => s.Id)
