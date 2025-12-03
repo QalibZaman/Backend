@@ -49,32 +49,6 @@ public class CreateShopCommandHandler(
                 throw new BadRequestException($"Account already has a shop");
             }
 
-            var specificationBuilder = new SpecificationBuilder<ShopEntity>();
-            specificationBuilder.Add<GetShopByEmailSpecification>(shop.Email)
-                                .AddOr<GetShopByNameSpecification>(shop.Name)
-                                .AddOr<GetShopByPhoneNumberSpecification>(shop.PhoneNumber);
-
-            var shopsWithRepeatingProps = await shopRepository.GetManyBySpecAsync(specificationBuilder.Build(), cancellationToken);
-
-            if (!shopsWithRepeatingProps.IsNullOrEmpty())
-            {
-                var exceptionMessageBuilder = new StringBuilder();
-
-                foreach (var violatedShop in shopsWithRepeatingProps)
-                {
-                    if (shop.Name == violatedShop.Name)
-                        exceptionMessageBuilder.AppendLine("Shop name must be unique");
-
-                    if (shop.PhoneNumber == violatedShop.PhoneNumber)
-                        exceptionMessageBuilder.AppendLine("Shop phone number must be unique");
-
-                    if (shop.Email == violatedShop.Email)
-                        exceptionMessageBuilder.AppendLine("Shop email must be unique");
-                }
-
-                throw new ConflictException(exceptionMessageBuilder.ToString());
-            }
-
             var shopValidationModel = request.Model.Adapt<ShopValidationModel>();
             await shopDetailsValidator.ValidateShopOnCreate(shopValidationModel, cancellationToken);
 
