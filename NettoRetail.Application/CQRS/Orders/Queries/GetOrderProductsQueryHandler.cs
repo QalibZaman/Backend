@@ -18,11 +18,9 @@ public class GetOrderProductsQueryHandler(
     {
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
-            .AddInclude(x => x.OrderItems)
-            .AddInclude(x => x.OrderItems.Select(v => v.InventoryItem))
             .Build();
 
-        var order = await orderRepository.GetAsync(spec, cancellationToken)
+        var order = await orderRepository.GetOrderForPrinting(spec, cancellationToken)
             ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<OrderProductsResponse>();
