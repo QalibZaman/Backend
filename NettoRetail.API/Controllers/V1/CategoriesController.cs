@@ -28,6 +28,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
         public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
         {
             var shopId = HttpContext.GetUserShopId();
