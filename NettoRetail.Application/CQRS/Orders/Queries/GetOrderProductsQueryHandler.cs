@@ -3,9 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Order;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
