@@ -16,18 +16,12 @@ public class GetOrderProductsQueryHandler(
 {
     public async Task<OrderProductsResponse> Handle(GetOrderProductsQuery request, CancellationToken cancellationToken)
     {
-        var spec = new SpecificationBuilder<OrderEntity>()
-            .Add<GetOrderByIdSpecification>(request.OrderId)
-            .Build();
+        var spec = new GetOrderByIdSpecification(request.OrderId);
 
         var order = await orderRepository.GetOrderForProducts(spec, cancellationToken)
             ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<OrderProductsResponse>();
-
-        response.Subtotal = response.OrderItems.Sum(i => i.Price * i.Quantity);
-        response.Sale = response.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
-        response.Total = response.OrderItems.Sum(i => i.Total);
 
         return response;
     }

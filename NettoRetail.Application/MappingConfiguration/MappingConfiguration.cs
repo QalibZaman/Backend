@@ -220,6 +220,12 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
             .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.OrderItems, src => src.OrderItems)
-            .IgnoreNonMapped(true);
+            .IgnoreNonMapped(true)
+            .AfterMapping((src, dest) =>
+            {
+                dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
+                dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+                dest.Total = dest.OrderItems.Sum(i => i.Total);
+            });
     }
 }
