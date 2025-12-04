@@ -95,9 +95,11 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCategoriesSectionForEdit([FromQuery] int shopId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCategoriesSectionForEdit(
+        [FromQuery] GetCategoriesSectionForEditRequest request,
+        CancellationToken cancellationToken)
         {
-            var query = new GetCategoriesSectionForEditQuery(shopId);
+            var query = new GetCategoriesSectionForEditQuery(request.ShopId);
 
             var response = await mediator.Send(query, cancellationToken);
 
