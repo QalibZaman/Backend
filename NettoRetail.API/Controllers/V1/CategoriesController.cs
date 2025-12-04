@@ -11,6 +11,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -87,6 +88,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<CategoryResponse>(response));
         }
 
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpGet("section")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
