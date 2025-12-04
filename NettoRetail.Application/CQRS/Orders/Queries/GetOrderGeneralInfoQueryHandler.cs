@@ -17,6 +17,8 @@ public class GetOrderGeneralInfoQueryHandler(
 {
     public async Task<OrderGeneralInfoResponse> Handle(GetOrderGeneralInfoQuery request, CancellationToken cancellationToken)
     {
+        if (request.OrderId <= 0) throw new BadRequestException("Order Id must be greater than zero.");
+
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
             .AddInclude(x => x.Customer)
