@@ -17,7 +17,8 @@ public class GetOrderGeneralInfoQueryHandler(
 {
     public async Task<OrderGeneralInfoResponse> Handle(GetOrderGeneralInfoQuery request, CancellationToken cancellationToken)
     {
-        if (request.OrderId <= 0) throw new BadRequestException("Order Id must be greater than zero.");
+        if (request.OrderId <= 0)
+            throw new BadRequestException("Order Id must be greater than zero.");
 
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
@@ -25,7 +26,8 @@ public class GetOrderGeneralInfoQueryHandler(
             .AddInclude(x => x.Customer.Account)
             .Build();
 
-        var order = await orderRepository.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("Order can't be found");
+        var order = await orderRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException("Order can't be found");
 
         var response = order.Adapt<OrderGeneralInfoResponse>();
 
