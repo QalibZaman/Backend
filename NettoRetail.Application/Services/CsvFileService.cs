@@ -1,11 +1,12 @@
-﻿using CsvHelper;
+﻿using System.Globalization;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
-using System.Globalization;
-using System.Text;
 
 namespace NettoRetail.Application.Services;
 
@@ -29,8 +30,13 @@ public class CsvFileService : ICsvFileService
 
     public async IAsyncEnumerable<T> ConvertEntitiesCsvFileToEntityData<T>(IFormFile csvItemsFile)
     {
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            Delimiter = ";"
+        };
+
         using var streamReader = new StreamReader(csvItemsFile.OpenReadStream(), Encoding.UTF8);
-        using var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture);
+        using var csvReader = new CsvReader(streamReader, config);
 
         var entitiesData = csvReader.GetRecordsAsync<T>();
 
@@ -46,11 +52,10 @@ public class CsvFileService : ICsvFileService
         if (csvFile == null)
             throw new BadRequestException("CSV file cannot be null.");
 
-        if (csvFile.ContentType != "text/csv")
+        if (!csvFile.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
             throw new BadRequestException("The uploaded file must be a CSV file type.");
 
-        var csvService = new CsvFileService();
-        var inventoryItemsData = csvService.ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(csvFile);
+        var inventoryItemsData = ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(csvFile);
 
         var list = new List<InventoryItemCsvModel>();
         await foreach (var item in inventoryItemsData.WithCancellation(cancellationToken))
