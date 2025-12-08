@@ -27,7 +27,7 @@ public class OrderRepository(AppDbContext dbContext)
         var order = await _dbSet.Where(specification.Criteria)
             .Include(o => o.OrderItems)
                 .ThenInclude(o => o.InventoryItem)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         return order;
     }
