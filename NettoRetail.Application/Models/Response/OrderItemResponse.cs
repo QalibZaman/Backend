@@ -6,5 +6,7 @@ public class OrderItemResponse
     public required int AvailableAmount { get; set; }
     public required decimal Price { get; set; }
     public required int Quantity { get; set; }
-    public decimal Total => Math.Round(Price * Quantity, 2);
+    public required bool IsPromoted { get; set; }
+    public decimal PromotionPrice { get; set; } = 0.0m;
+    public decimal Total { get;  set; }
 }

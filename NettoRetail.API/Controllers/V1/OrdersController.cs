@@ -21,18 +21,18 @@ namespace NettoRetail.API.Controllers.V1;
 public class OrdersController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{orderId:int}")]
-    [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status200OK)]
+    [HttpGet("{orderId:int}/products")]
+    [ProducesResponseType(typeof(ApiResponse<OrderProductsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrderDetails(int orderId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrderProducts(int orderId, CancellationToken cancellationToken)
     {
-        var orderCreationCommand = new GetOrderDetailsQuery(orderId);
+        var orderCreationCommand = new GetOrderProductsQuery(orderId);
 
         var data = await mediator.Send(orderCreationCommand, cancellationToken);
-        var response = new ApiResponse<OrderResponse>(data);
+        var response = new ApiResponse<OrderProductsResponse>(data);
 
         return Ok(response);
     }
