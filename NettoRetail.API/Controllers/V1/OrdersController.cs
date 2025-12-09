@@ -157,4 +157,20 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
         return Ok(response);
     }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{orderId:int}/information")]
+    [ProducesResponseType(typeof(ApiResponse<OrderGeneralInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrderGeneralInfo(int orderId, CancellationToken cancellationToken)
+    {
+        var getOrderInfoQuery = new GetOrderGeneralInfoQuery(orderId);
+        var data = await mediator.Send(getOrderInfoQuery, cancellationToken);
+        var response = new ApiResponse<OrderGeneralInfoResponse>(data);
+
+        return Ok(response);
+    }
 }
