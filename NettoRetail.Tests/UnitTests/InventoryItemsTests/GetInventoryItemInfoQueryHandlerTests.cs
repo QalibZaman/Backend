@@ -81,7 +81,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
-        var result = await handler.Handle(new GetInventoryItemInfoQuery(id), CancellationToken.None);
+        var result = await handler.Handle(new GetInventoryItemFullInfoQuery(id), CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(item.ProductName, result.ProductName);
@@ -104,7 +104,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
-        var act = () => handler.Handle(new GetInventoryItemInfoQuery(Guid.NewGuid()), CancellationToken.None);
+        var act = () => handler.Handle(new GetInventoryItemFullInfoQuery(Guid.NewGuid()), CancellationToken.None);
 
         // Assert
         await Assert.ThrowsAsync<NotFoundException>(act);
@@ -128,7 +128,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
-        _ = await handler.Handle(new GetInventoryItemInfoQuery(id), token);
+        _ = await handler.Handle(new GetInventoryItemFullInfoQuery(id), token);
 
         // Assert
         await _inventoryRepo.Received(1).GetAsync(Arg.Any<GetItemByIdSpecification>(), token);
