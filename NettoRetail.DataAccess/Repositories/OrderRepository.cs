@@ -21,4 +21,14 @@ public class OrderRepository(AppDbContext dbContext)
 
         return order;
     }
+
+    public async Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken)
+    {
+        var order = await _dbSet.Where(specification.Criteria)
+            .Include(o => o.OrderItems)
+                .ThenInclude(o => o.InventoryItem)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return order;
+    }
 }

@@ -4,7 +4,7 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Application.Services.IOrderService;
 
-public class OrderService : IOrderService
+public class OrderService() : IOrderService
 {
     public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order)
     {
