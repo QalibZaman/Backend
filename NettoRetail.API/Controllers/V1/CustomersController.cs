@@ -18,6 +18,7 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
+    [Authorize]
     [HttpPost("sign-up")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
