@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
 public record GetInventoryItemFullInfoQuery(Guid Id) : IRequest<InventoryItemInfoFullResponse>;
 
-public class GetInventoryItemInfoQueryHandler(
+public class GetInventoryItemFullInfoQueryHandler(
     IInventoryItemRepository inventoryRepo,
     ICategoryRepository categoryRepo) : IRequestHandler<GetInventoryItemFullInfoQuery, InventoryItemInfoFullResponse>
 {

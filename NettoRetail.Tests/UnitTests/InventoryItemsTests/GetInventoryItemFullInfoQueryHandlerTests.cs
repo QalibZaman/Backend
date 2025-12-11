@@ -6,9 +6,9 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NSubstitute;
 
-namespace NettoRetail.Tests.UnitTests.InventoryItems;
+namespace NettoRetail.Tests.UnitTests.InventoryItemsTests;
 
-public class GetInventoryItemInfoQueryHandlerTests
+public class GetInventoryItemFullInfoQueryHandlerTests
 {
     private readonly IInventoryItemRepository _inventoryRepo = Substitute.For<IInventoryItemRepository>();
     private readonly ICategoryRepository _categoryRepo = Substitute.For<ICategoryRepository>();
@@ -78,7 +78,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
                      .Returns(Task.FromResult(Breadcrumbs()));
 
-        var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
         var result = await handler.Handle(new GetInventoryItemFullInfoQuery(id), CancellationToken.None);
@@ -101,7 +101,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         _inventoryRepo.GetAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
                       .Returns((InventoryItemEntity?)null);
 
-        var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
         var act = () => handler.Handle(new GetInventoryItemFullInfoQuery(Guid.NewGuid()), CancellationToken.None);
@@ -125,7 +125,7 @@ public class GetInventoryItemInfoQueryHandlerTests
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, token)
                      .Returns(Task.FromResult(Breadcrumbs()));
 
-        var handler = new GetInventoryItemInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
 
         // Act
         _ = await handler.Handle(new GetInventoryItemFullInfoQuery(id), token);
