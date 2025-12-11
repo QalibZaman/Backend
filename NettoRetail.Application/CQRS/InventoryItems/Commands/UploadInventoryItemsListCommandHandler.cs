@@ -30,7 +30,6 @@ public class UploadInventoryItemsListCommandHandler(
 
     public async Task Handle(UploadInventoryItemsListCommand request, CancellationToken cancellationToken)
     {
-
         var itemsList = await csvFileService.ReadCsvItemsAsync(request.CsvItemsFile, cancellationToken);
 
         await listValidator.ValidateAsync(itemsList, cancellationToken);
