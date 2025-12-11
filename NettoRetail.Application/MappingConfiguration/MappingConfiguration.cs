@@ -1,5 +1,5 @@
 using Mapster;
-using Microsoft.EntityFrameworkCore;
+using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
@@ -9,13 +9,11 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Utilities;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -98,11 +96,19 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
 
         config.NewConfig<OrderItemEntity, OrderItemResponse>()
-            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
-            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
-            .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
+            .Map(dest => dest.Quantity, src => src.Quantity)
             .Map(dest => dest.Price, src => src.InventoryItem.Price)
-            .Map(dest => dest.Quantity, src => src.Quantity);
+            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
+            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc.ToString())
+            .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
+            .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
+            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
+            .AfterMapping((src, dest) =>
+            {
+                dest.Total = dest.IsPromoted
+                    ? dest.PromotionPrice * dest.Quantity
+                    : dest.Price * dest.Quantity;
+            });
 
         config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerId, src => src.CustomerId)
@@ -176,8 +182,29 @@ public class MappingConfiguration : IRegister
         config.NewConfig<CartItemEntity, CartItemResponse>()
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
 
+        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
+                 .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+                 .Map(dest => dest.ProductName, src => src.ProductName)
+                 .Map(dest => dest.ProductLocation, src => src.ProductLocation)
+                 .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
+                 .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
+                 .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
+                 .Map(dest => dest.Price, src => src.Price)
+                 .Map(dest => dest.Status, src => src.Status)
+                 .Map(dest => dest.Description, src => src.Description)
+                 .Ignore(dest => dest.CategoryId)
+                 .Ignore(dest => dest.ShopId)
+                 .Ignore(dest => dest.Brand);
+
+        config.NewConfig<InventoryItemCsvModel, InventoryItemEntity>()
+                .Ignore(dest => dest.Brand)
+                .Ignore(dest => dest.Category);
+
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
+
+        config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
+            .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
             .Map(d => d.Id, s => s.Id)
@@ -191,5 +218,27 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<PaymentHistoryEntity, PaymentHistoryResponse>()
             .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
+
+        config.NewConfig<OrderEntity, OrderProductsResponse>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.OrderItems, src => src.OrderItems)
+            .IgnoreNonMapped(true)
+            .AfterMapping((src, dest) =>
+            {
+                dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
+                dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+                dest.Total = dest.OrderItems.Sum(i => i.Total);
+            });
+
+        config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
+            .Map(dest => dest.Creator, src => src.Creator)
+            .Map(dest => dest.OrderId, src => src.Id)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.DateCreated, src => src.CreationDate)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
     }
 }

@@ -51,9 +51,9 @@ public class EmailBuilderService(
         };
     }
 
-    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string firstName, string unsubscribeUrl)
+    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, string unsubscribeUrl)
     {
-        var model = new { user_name = firstName, unsubscribe_url = unsubscribeUrl };
+        var model = new { full_name = fullName, unsubscribe_url = unsubscribeUrl };
 
         var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.SubscriptionConfirmation, model);
 

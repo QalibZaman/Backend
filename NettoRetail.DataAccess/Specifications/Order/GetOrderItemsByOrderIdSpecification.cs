@@ -6,8 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.OrderItems;
 public class GetOrderItemsByOrderIdSpecification : Specification<OrderItemEntity>
 {
     public GetOrderItemsByOrderIdSpecification(int orderId)
-        : base(x => x.OrderId == orderId)
-    {
-         AddInclude(x => x.InventoryItem);
-    }
+        : base(x => x.OrderId == orderId) { }
 }

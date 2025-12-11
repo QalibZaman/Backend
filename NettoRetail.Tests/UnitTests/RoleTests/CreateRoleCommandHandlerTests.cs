@@ -23,7 +23,7 @@ public class CreateRoleCommandHandlerTests
         var cmd = new CreateRoleCommand("Account Officer", "Handles financial responsibilities", 10, new[] { 1, 1, 2 });
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
-                       .Returns((IEnumerable<int>)TaskList(1, 2));
+                       .Returns(await TaskList(1, 2));
         RoleEntity persisted = null!;
         _roleRepo.AddAsync(Arg.Any<RoleEntity>(), Arg.Any<CancellationToken>()).Returns(ci =>
         {
@@ -61,7 +61,7 @@ public class CreateRoleCommandHandlerTests
         var cmd = new CreateRoleCommand("Name", "   ", 1, new[] { 5 });
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
-                       .Returns((IEnumerable<int>)TaskList(5));
+                       .Returns(await TaskList(5));
         RoleEntity persisted = null!;
         _roleRepo.AddAsync(Arg.Any<RoleEntity>(), Arg.Any<CancellationToken>()).Returns(ci =>
         {
@@ -111,7 +111,7 @@ public class CreateRoleCommandHandlerTests
         var cmd = new CreateRoleCommand("Name", "Desc", 1, new[] { 1, 2, 3 });
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
-                       .Returns((IEnumerable<int>)TaskList(1, 2));
+                       .Returns(await TaskList(1, 2));
         var handler = new CreateRoleCommandHandler(_roleRepo, _permissionRepo, _shopRepo);
 
         // Act & Assert

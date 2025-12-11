@@ -59,13 +59,17 @@ public class InventoryItemQueryService(
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
-        var spec = new GetInventoryItemPriceSortingSpecification(shopId, model.SortOption!.Value);
-        var sortedItems = await _inventoryRepo.GetAllBySortedAsync(spec, ct);
+        var builder = new SpecificationBuilder<InventoryItemEntity>()
+           .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value);
+        var skip = model.PageNumber > 0 ? (model.PageNumber - 1) * model.PageSize : 0;
+        var spec = builder.Skip(skip).Take(model.PageSize).Build();
+
+        var (sortedItems, total) = await _inventoryRepo.GetAllPaginatedAsync(spec, ct);
 
         return new PaginatedResponse<InventoryItemListResponse>
         {
             Items = sortedItems.Adapt<List<InventoryItemListResponse>>(),
-            TotalAmount = sortedItems.Count
+            TotalAmount = total
         };
     }
 

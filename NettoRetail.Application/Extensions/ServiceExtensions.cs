@@ -10,6 +10,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.IBrandService;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
@@ -74,7 +75,7 @@ public static class ServiceExtensions
         });
         services.AddHangfireServer();
 
-         //Services
+        //Services
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
@@ -94,7 +95,7 @@ public static class ServiceExtensions
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
-        services.AddScoped<IPdfGenerator,PdfGenerator>();
+        services.AddScoped<IPdfGenerator, PdfGenerator>();
         services.AddScoped<INewsletterService, NewsletterService>();
         services.AddScoped<IPriceHistoryService, PriceHistoryService>();
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
@@ -102,9 +103,11 @@ public static class ServiceExtensions
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
+        services.AddScoped<IFilteredOrderService, FilteredOrderService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))

@@ -16,7 +16,8 @@ public class ShopDetailsValidationService(IShopRepository shopRepository) : ISho
         var specificationBuilder = new SpecificationBuilder<ShopEntity>();
         specificationBuilder.Add<GetShopByEmailSpecification>(model.Email)
             .AddOr<GetShopByNameSpecification>(model.Name)
-            .AddOr<GetShopByPhoneNumberSpecification>(model.PhoneNumber);
+            .AddOr<GetShopByPhoneNumberSpecification>(model.PhoneNumber)
+            .AddOr<GetShopByUrlSpecification>(model.Url);
 
         await ValidateAsync(model, specificationBuilder, cancellationToken);
     }
@@ -27,6 +28,7 @@ public class ShopDetailsValidationService(IShopRepository shopRepository) : ISho
         specificationBuilder.Add<GetShopByEmailSpecification>(model.Email)
             .AddOr<GetShopByNameSpecification>(model.Name)
             .AddOr<GetShopByPhoneNumberSpecification>(model.PhoneNumber)
+            .AddOr<GetShopByUrlSpecification>(model.Url)
             .Add<ExceptShopByIdSpecification>(shopId);
 
         await ValidateAsync(model, specificationBuilder, cancellationToken);
@@ -54,6 +56,11 @@ public class ShopDetailsValidationService(IShopRepository shopRepository) : ISho
                 if (model.Email == violatedShop.Email)
                 {
                     exceptionMessageBuilder.AppendLine($"Shop email must be unique");
+                }
+
+                if (model.Url == violatedShop.Url)
+                {
+                    exceptionMessageBuilder.AppendLine($"Shop URL must be unique");
                 }
             }
 

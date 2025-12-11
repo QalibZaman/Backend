@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Models.CsvFileModel;
@@ -6,6 +7,7 @@ namespace NettoRetail.Application.Models.CsvFileModel;
 public class InventoryItemCsvModel
 {
     [Name("Product UPC")]
+    [TypeConverter(typeof(ExactScientificLongConverter))]
     public required long ProductUpc { get; set; }
 
     [Name("Product Name")]
@@ -18,7 +20,7 @@ public class InventoryItemCsvModel
     public required string ProductLocation { get; set; }
 
     [Name("Brand")]
-    public required string? Brand { get; set; }
+    public required string Brand { get; set; }
 
     [Name("Available Amount")]
     public required int AvailableAmount { get; set; }

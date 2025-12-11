@@ -28,6 +28,8 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         });
 
         _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
+
+        
     }
 
     [Fact]
@@ -73,7 +75,9 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
         try
         {
             await RegisterUserAsync(email, password);
-            
+
+            await Task.Delay(1000); // Ensure the user is fully registered before logging in
+
             var loginModel = new LoginModel(email, password);
 
             // Act
@@ -331,6 +335,8 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
             }
         }
     }
+
+
 
     public void Dispose()
     {
