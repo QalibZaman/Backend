@@ -17,9 +17,9 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
     {
         var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL, request.ShopId);
 
-        var conflictModelExists = await categoryRepository.Exists(getCategoriesByNameOrUrlSpecification, cancellationToken);
+        var conflictingCategoryExists = await categoryRepository.Exists(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
-        if (conflictModelExists)
+        if (conflictingCategoryExists)
         {
             throw new ConflictException("Category with such name or url already exists");
         }
@@ -31,7 +31,9 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
                 cancellationToken);
 
             if (!parentCategoryExists)
+            {
                 throw new NotFoundException("Parent category not found");
+            }
         }
 
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);
