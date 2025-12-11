@@ -9,4 +9,5 @@ public class PaymentHistoryResponse
     public required string BillingPeriod { get; set; }
     public required string Status { get; set; }
     public required string TransactionId { get; set; }
+    public required string? ShopName { get; set; }
 }

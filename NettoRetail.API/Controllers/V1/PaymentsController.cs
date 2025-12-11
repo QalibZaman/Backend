@@ -9,6 +9,7 @@ using NettoRetail.Application.CQRS.Payments.Queries;
 using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1
 {
@@ -21,11 +22,21 @@ namespace NettoRetail.API.Controllers.V1
         [HttpGet("history")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<PaymentHistoryResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetPaymentHistory([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetPaymentHistory(
+            [FromQuery] PaginationRequest pageModel,
+            [FromQuery] Guid accountId,
+            [FromQuery] bool? sortDescending,
+            CancellationToken cancellationToken)
         {
-            var userId = HttpContext.GetUserId();
+            var roleId = HttpContext.GetRoleId().ToString();
 
-            var query = new GetPaymentHistoryQuery(pageModel, userId);
+            if (roleId != SuperAdminConstants.SuperAdminRoleId)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            var query = new GetPaymentHistoryQuery(pageModel, accountId, sortDescending);
 
             var result = await mediator.Send(query, cancellationToken);
 
