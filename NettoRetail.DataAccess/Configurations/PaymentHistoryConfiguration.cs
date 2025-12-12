@@ -8,7 +8,7 @@ internal class PaymentHistoryConfiguration : IEntityTypeConfiguration<PaymentHis
 {
     public void Configure(EntityTypeBuilder<PaymentHistoryEntity> builder)
     {
-        builder.HasKey(e => e.AccountId);
+        builder.HasKey(e => e.Id);
 
         builder.Property(e => e.CustomerName).IsRequired().HasMaxLength(100);
         builder.Property(e => e.AmountCharged).HasColumnType("decimal(18,2)");

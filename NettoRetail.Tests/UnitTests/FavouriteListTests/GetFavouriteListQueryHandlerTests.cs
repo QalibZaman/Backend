@@ -1,4 +1,6 @@
-﻿using NettoRetail.Application.CQRS.FavouriteListItems.Queries;
+﻿using Mapster;
+using NettoRetail.Application.CQRS.FavouriteListItems.Queries;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -9,6 +11,13 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
 {
     public class GetFavouriteListQueryHandlerTests
     {
+        public GetFavouriteListQueryHandlerTests()
+        {
+            // Ensure Mapster config is registered
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(InventoryItemCardResponse).Assembly);
+        }
+
+
         private static InventoryItemEntity Item(
             Guid id, int shopId, string name, string categoryName, decimal price, decimal? promo, int available) =>
             new InventoryItemEntity
