@@ -31,7 +31,7 @@ public class CountryConfiguration : IEntityTypeConfiguration<CountryEntity>
             new CountryEntity { Id = 2, Name = "Belgium", PhoneCode = "+32", PhoneMask = "^\\d \\d{3} \\d{2} \\d{2}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 3, Name = "Bulgaria", PhoneCode = "+359", PhoneMask = "^\\d{2} \\d{3} \\d{3}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 4, Name = "Croatia", PhoneCode = "+385", PhoneMask = "^\\d{2} \\d{3} \\d{4}$", ZipCodeMask = "^\\d{5}$" },
-            new CountryEntity { Id = 5, Name = "Cyprus", PhoneCode = "+357", PhoneMask = "^2\\d \\d{6}$", ZipCodeMask = "^\\d{4}$" },
+            new CountryEntity { Id = 5, Name = "Cyprus", PhoneCode = "+357", PhoneMask = "^\\d{2} \\d{6}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 6, Name = "Czech Republic", PhoneCode = "+420", PhoneMask = "^\\d{3} \\d{3} \\d{3}$", ZipCodeMask = "^\\d{5}$" },
             new CountryEntity { Id = 7, Name = "Denmark", PhoneCode = "+45", PhoneMask = "^\\d{2} \\d{2} \\d{2} \\d{2}$", ZipCodeMask = "^\\d{4}$" },
             new CountryEntity { Id = 8, Name = "Estonia", PhoneCode = "+372", PhoneMask = "^\\d{4} \\d{4}$", ZipCodeMask = "^\\d{5}$" },

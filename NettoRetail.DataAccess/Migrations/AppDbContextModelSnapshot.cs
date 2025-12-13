@@ -496,7 +496,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 5,
                             Name = "Cyprus",
                             PhoneCode = "+357",
-                            PhoneMask = "^2\\d \\d{6}$",
+                            PhoneMask = "^\\d{2} \\d{6}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
