@@ -15,10 +15,10 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
 {
     public async Task Handle(DeleteBrandCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetBrandsByIdAndShopIdSpecification(request.Id, request.ShopId);
+        var brandSpecification = new GetBrandsByIdAndShopIdSpecification(request.Id, request.ShopId);
 
-        var brand = await brandRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException($"Your shop has no brand with id: {request.Id}");
+        var brand = await brandRepository.GetAsync(brandSpecification, cancellationToken)
+            ?? throw new NotFoundException($"Your shop has no brands with id: {request.Id}");
 
         var itemsSpecification = new GetInventoryItemByBrandIdSpecification(request.Id);
 
