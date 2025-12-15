@@ -1,4 +1,6 @@
-﻿using NettoRetail.Application.Models.Request;
+﻿using Microsoft.Azure.Cosmos.Serialization.HybridRow;
+using NettoRetail.Application.CQRS.InventoryItems.Commands;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 
@@ -12,4 +14,8 @@ public interface IInventoryService
     Task<PaginatedResponse<InventoryItemListResponse>> GetShopItemsBySearchAsync(string query, int shopId,
         PaginationRequest pageModel, CancellationToken cancellationToken);
     Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default);
+
+     Task ValidateRequestModel(UpdateInventoryItemCommand request, InventoryItemEntity inventoryItem,
+        CancellationToken cancellationToken);
+
 }

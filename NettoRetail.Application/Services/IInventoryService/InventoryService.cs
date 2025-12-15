@@ -1,11 +1,14 @@
 using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Brands;
+using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -18,6 +21,8 @@ public class InventoryService(
     IOptions<InventoryItemOptions> options,
     IInventoryItemRepository inventoryItemRepository,
     ICsvFileService csvFileService,
+    ICategoryRepository categoryRepository,
+    IBrandRepository brandRepository,
     ILogger<InventoryService> logger) : IInventoryService
 {
     private readonly InventoryItemOptions _options = options.Value;
@@ -86,5 +91,50 @@ public class InventoryService(
         _logger.LogInformation("Successfully generated CSV for {Count} items (ShopId: {ShopId})", inventoryItems.Count(), userShopId);
 
         return inventoryItemsData;
+    }
+    
+    public  async Task ValidateRequestModel(UpdateInventoryItemCommand request, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    {
+        if (request.Model.ProductUpc.HasValue && inventoryItem.ProductUpc != request.Model.ProductUpc)
+        {
+            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc.Value);
+            var productExists = await inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
+
+            if (productExists)
+                throw new ConflictException("This product UPC is already registered.");
+        }
+
+        if (request.Model.CategoryId != null)
+        {
+            var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(request.Model.CategoryId.Value, request.ShopId);
+            var categoryExists = await categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
+
+            if (!categoryExists)
+                throw new NotFoundException("There is no category with such id.");
+        }
+
+        if (request.Model.BrandId != null)
+        {
+            var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(request.Model.BrandId.Value, request.ShopId);
+            var brandExists = await brandRepository.Exists(brandByIdSpecification, cancellationToken);
+
+            if (!brandExists)
+                throw new NotFoundException("There is no brand with such id.");
+        }
+
+        if (request.Model.IsPromoted == true && request.Model.PromotionPrice == null)
+        {
+            throw new BadRequestException("Promotion price must be provided for promoted products.");
+        }
+
+        if (request.Model.IsPromoted == false && request.Model.PromotionPrice != null)
+        {
+            throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
+        }
+
+        if (request.Model.PromotionPrice != null && request.Model.PromotionPrice >= request.Model.Price)
+        {
+            throw new BadRequestException("Promotion price must be less than the regular price.");
+        }
     }
 }
