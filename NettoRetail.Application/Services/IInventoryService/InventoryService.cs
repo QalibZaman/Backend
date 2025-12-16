@@ -28,6 +28,9 @@ public class InventoryService(
 {
     private readonly InventoryItemOptions _options = options.Value;
     private readonly IInventoryItemRepository _inventoryItemRepository = inventoryItemRepository;
+    private readonly ICategoryRepository _categoryRepository = categoryRepository;
+    private readonly IBrandRepository _brandRepository = brandRepository;
+
     public bool IsItemNew(InventoryItemEntity item) =>
         item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-_options.NewItemDaysThreshold);
 
@@ -96,7 +99,7 @@ public class InventoryService(
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
         {
             var productByNameSpecification = new GetProductByUpcSpecification(model.ProductUpc.Value);
-            var productExists = await inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
+            var productExists = await _inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
 
             if (productExists)
                 throw new ConflictException("This product UPC is already registered.");
@@ -105,7 +108,7 @@ public class InventoryService(
         if (model.CategoryId != null)
         {
             var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
-            var categoryExists = await categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
+            var categoryExists = await _categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
 
             if (!categoryExists)
                 throw new NotFoundException("There is no category with such id.");
@@ -114,7 +117,7 @@ public class InventoryService(
         if (model.BrandId != null)
         {
             var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
-            var brandExists = await brandRepository.Exists(brandByIdSpecification, cancellationToken);
+            var brandExists = await _brandRepository.Exists(brandByIdSpecification, cancellationToken);
 
             if (!brandExists)
                 throw new NotFoundException("There is no brand with such id.");
@@ -135,4 +138,6 @@ public class InventoryService(
             throw new BadRequestException("Promotion price must be less than the regular price.");
         }
     }
+    
+    private Task Validate
 }

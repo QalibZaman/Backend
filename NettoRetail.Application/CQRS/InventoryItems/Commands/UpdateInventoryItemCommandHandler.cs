@@ -3,10 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Services.IInventoryService;
-using NettoRetail.DataAccess.Specifications.Brands;
-using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -16,9 +13,7 @@ public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryIte
 
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
-    ICategoryRepository categoryRepository,
-    IInventoryService inventoryService,
-    IBrandRepository brandRepository)
+    IInventoryService inventoryService)
     : IRequestHandler<UpdateInventoryItemCommand>
 {
     public async Task Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -27,7 +22,7 @@ public class UpdateInventoryItemCommandHandler(
         var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken)
             ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        await inventoryService.ValidateRequestModel(request, inventoryItem, cancellationToken);
+        await inventoryService.ValidateUpdateAsync(request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
 
         request.Model.Adapt(inventoryItem);
 
@@ -38,6 +33,4 @@ public class UpdateInventoryItemCommandHandler(
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
     }
-
-    
 }
