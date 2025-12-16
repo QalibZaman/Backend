@@ -3,42 +3,55 @@ using NettoRetail.Application.Models.Request.Customer;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class UpdateCustomerRequestValidator : AbstractValidator<CreateCustomerRequest>
+public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRequest>
 {
     public UpdateCustomerRequestValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")
-            .NotNull().WithMessage("First name is required.")
-            .MinimumLength(2).WithMessage("First name length must be greater than 2 characters long.")
-            .MaximumLength(30).WithMessage("First name length must be less than 30 characters long.")
-            .Matches("^[A-Za-z]+$").WithMessage("First name must contain only Latin characters.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("First name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("First name must not start or end with spaces.");
+            .Length(2, 30).WithMessage("First name length must be between 2 and 30 characters long.")
+            .Matches(@"^[A-Za-z]+(?: [A-Za-z]+)*$").WithMessage(
+                "First name must contain only Latin letters and single spaces between words.")
+            .Must(x => x == x.Trim()).WithMessage("First name must not start or end with spaces.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.")
-            .NotNull().WithMessage("Last name is required.")
-            .MinimumLength(2).WithMessage("Last name length must be greater than 2 characters long.")
-            .MaximumLength(30).WithMessage("Last name length must be less than 30 characters long.")
-            .Matches("^[A-Za-z]+$").WithMessage("Last name must contain only Latin characters.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Last name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("Last name must not start or end with spaces.");
+            .Length(2, 30).WithMessage("Last name length must be between 2 and 30 characters long.")
+            .Matches(@"^[A-Za-z]+(?: [A-Za-z]+)*$").WithMessage(
+                "Last name must contain only Latin letters and single spaces between words.")
+            .Must(x => x == x.Trim()).WithMessage("Last name must not start or end with spaces.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
             .NotNull().WithMessage("Email is required.")
             .MaximumLength(256).WithMessage("Email length must be less than 256 characters long.")
-            .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$").WithMessage("Email must be in a valid format.");
+            .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$")
+            .WithMessage("Email must be in a valid format.");
 
         RuleFor(x => x.PhoneNumber)
-            .Must(x => !string.IsNullOrWhiteSpace(x))
-            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
-            .WithMessage("Phone number can't be empty if country id is being provided");
+            .NotEmpty()
+                .When(x => x.CountryId > 0)
+                .WithMessage("Phone number can't be empty when CountryId is provided.")
+            .Matches(@"^[0-9]+$")
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                .WithMessage("Phone number must contain digits only.")
+            .Length(4, 14)
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                .WithMessage("Phone number length must be between 4 and 14 digits.")
+            .Must(x => x == x.Trim())
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                .WithMessage("Phone number must not start or end with spaces.");
 
         RuleFor(x => x.CountryId)
             .GreaterThan(0)
             .When(x => !string.IsNullOrEmpty(x.PhoneNumber))
             .WithMessage("CountryId is required when PhoneNumber is provided.");
+
+        RuleFor(x => x.Remarks)
+            .NotEmpty().WithMessage("Remarks cannot be empty.")
+            .Length(2, 100).WithMessage("Remarks length must be between 2 and 100 characters.")
+            .Matches(@"^[\x20-\x7E]+$").WithMessage("Remarks must contain only Latin letters, digits, and allowed special characters.");
+
+
     }
 }
