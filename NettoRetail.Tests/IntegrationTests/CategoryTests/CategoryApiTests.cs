@@ -98,7 +98,26 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
         }
 
         [Fact]
-        public async Task DeleteCategory_ShouldReturnNoContent_HasValidData()
+        public async Task DeleteCategory_ShouldReturnNoContent_HasNoChild()
+        {
+            // Arrange
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            // Act
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var itemsResponse = await _client.DeleteAsync("api/v1/categories/6");
+
+            // Asserts
+            Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryHasChildren()
         {
             // Arrange
             var email = "stringa@gmail.com";
@@ -113,7 +132,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             var itemsResponse = await _client.DeleteAsync("api/v1/categories/5");
 
             // Asserts
-            Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, itemsResponse.StatusCode);
         }
 
         [Fact]

@@ -16,13 +16,13 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record CreateCustomerCommand(CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
+public record CreateCustomerCommand(int ShopId, CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
 
 public class CreateCustomerCommandHandler(
     IAccountRepository accountRepository,
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
-    ICountryRepository countryRepository,
+    ICountryRepository countryRepository, 
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
@@ -57,6 +57,7 @@ public class CreateCustomerCommandHandler(
         var customerEntity = request.Model.Adapt<CustomerEntity>();
 
         accountEntity.RoleId = role!.Id;
+        accountEntity.ShopId = request.ShopId;
 
         // Every customer is registered with a random password - in future, they'll be able to reset and set theirs when they'll be registered
         // Right now, customers shouldn't be able to log in - and in the future, when they get the activation link, they'll be able to reset their password

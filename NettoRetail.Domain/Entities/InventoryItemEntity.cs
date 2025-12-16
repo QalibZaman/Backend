@@ -32,4 +32,9 @@ public class InventoryItemEntity
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
     public ICollection<ProductDetailEntity> ProductDetails { get; set; } = [];
     public ICollection<ItemComparisonItemEntity> ComparisonItems { get; set; } = null!;
+	public void UpdateStatus()
+	{
+		Status = IsActive ? InventoryItemStatusEnum.Available : InventoryItemStatusEnum.Unavailable;
+		LastUpdatedDate = DateTime.UtcNow;
+	}
 }

@@ -18,14 +18,15 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("sign-up")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
-        var command = new CreateCustomerCommand(customer);
+        var shopId = HttpContext.GetUserShopId();
+        var command = new CreateCustomerCommand(shopId, customer);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(result);
 

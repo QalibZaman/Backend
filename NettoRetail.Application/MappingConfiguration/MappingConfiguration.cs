@@ -136,7 +136,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Role, src => src.Role.Name)
             .Map(dest => dest.Status, src => src.Status.ToString());
 
-        config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
+        config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
 
         config.NewConfig<OrderEntity, OrderHistoryResponse>()
@@ -215,6 +215,9 @@ public class MappingConfiguration : IRegister
             .Map(d => d.PromotionPrice, s => s.PromotionPrice)
             .Map(d => d.AvailableAmount, s => s.AvailableAmount)
             .Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
+
+        config.NewConfig<PaymentHistoryEntity, PaymentHistoryResponse>()
+            .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
 
         config.NewConfig<OrderEntity, OrderProductsResponse>()
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
