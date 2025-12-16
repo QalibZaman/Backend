@@ -340,7 +340,8 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Country = countries[0],
                         IsActive = true,
                         StripeCustomerId = "cus_test_1",
-                        StripeSubscriptionId = "sub_test_1"
+                        StripeSubscriptionId = "sub_test_1",
+                        SubscriptionPlanId = 1
                     },
                     new ShopEntity
                     {
@@ -358,7 +359,8 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Country = countries[1],
                         IsActive = true,
                         StripeCustomerId = "cus_test_2",
-                        StripeSubscriptionId = "sub_test_2"
+                        StripeSubscriptionId = "sub_test_2",
+                        SubscriptionPlanId = 2
                     }
                 };
 
