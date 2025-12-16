@@ -28,7 +28,7 @@ public class UpdateStaffServiceTests
         _emailBuilderService = Substitute.For<IEmailBuilderService>();
         _emailSender = Substitute.For<IEmailSender>();
         _sessionTerminationService = Substitute.For<ISessionTerminationService>();
-        _staffService = new StaffService(_accountRepository, _roleRepository, _emailSender, _emailBuilderService, _sessionTerminationService); ;
+        _staffService = new StaffService(_accountRepository, _roleRepository, _emailSender, _emailBuilderService, _sessionTerminationService);
 
     }
 
@@ -39,7 +39,7 @@ public class UpdateStaffServiceTests
         var request = CreateStub.CreateUpdateRequest(false);
         var staff = CreateStub.CreateStaffEntity(StaffStatusEnum.Deactivated);
 
-        var userId = new Guid();
+        var userId = Guid.NewGuid();
 
         //Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => 
@@ -53,7 +53,7 @@ public class UpdateStaffServiceTests
         var request = CreateStub.CreateUpdateRequest(true);
         var staff = CreateStub.CreateStaffEntity(StaffStatusEnum.Active);
 
-        var userId = new Guid();
+        var userId = Guid.NewGuid();
 
         _accountRepository.Exists(Arg.Any<GetAccountByEmailSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
@@ -69,7 +69,7 @@ public class UpdateStaffServiceTests
         var request = CreateStub.CreateUpdateRequest(true);
         var staff = CreateStub.CreateStaffEntity(StaffStatusEnum.Active);
 
-        var userId = new Guid();
+        var userId = Guid.NewGuid();
 
         _accountRepository.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staff);

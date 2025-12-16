@@ -46,7 +46,7 @@ public class UpdateStaffCommandHandlerTests
             ShopId = 1
         };
 
-        var id = new Guid();
+        var id = Guid.NewGuid();
         var shopId = 1;
 
         var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
@@ -66,7 +66,7 @@ public class UpdateStaffCommandHandlerTests
     {
         var request = new UpdateStaffRequest();
 
-        var id = new Guid();
+        var id = Guid.NewGuid();
         var shopId = 1;
         var user = new AccountEntity()
         {
@@ -91,7 +91,7 @@ public class UpdateStaffCommandHandlerTests
     {
         var request = new UpdateStaffRequest();
 
-        var id = new Guid();
+        var id = Guid.NewGuid();
         var shopId = 1;
 
         var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
