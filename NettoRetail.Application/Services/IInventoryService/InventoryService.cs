@@ -96,48 +96,48 @@ public class InventoryService(
     }
     public async Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
-        if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
-        {
-            var productByNameSpecification = new GetProductByUpcSpecification(model.ProductUpc.Value);
-            var productExists = await _inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
+        await ValidateUpc(model, shopId, id, inventoryItem, cancellationToken);
+        await ValidateCategory(model, shopId, id, inventoryItem, cancellationToken);
+        await ValidateBrand(model, shopId, id, inventoryItem, cancellationToken);
+        ValidatePromotionPrice(model, shopId, id, inventoryItem, cancellationToken);
 
-            if (productExists)
-                throw new ConflictException("This product UPC is already registered.");
-        }
-
-        if (model.CategoryId != null)
-        {
-            var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
-            var categoryExists = await _categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
-
-            if (!categoryExists)
-                throw new NotFoundException("There is no category with such id.");
-        }
-
-        if (model.BrandId != null)
-        {
-            var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
-            var brandExists = await _brandRepository.Exists(brandByIdSpecification, cancellationToken);
-
-            if (!brandExists)
-                throw new NotFoundException("There is no brand with such id.");
-        }
-
-        if (model.IsPromoted == true && model.PromotionPrice == null)
-        {
-            throw new BadRequestException("Promotion price must be provided for promoted products.");
-        }
-
-        if (model.IsPromoted == false && model.PromotionPrice != null)
-        {
-            throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
-        }
-
-        if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
-        {
-            throw new BadRequestException("Promotion price must be less than the regular price.");
-        }
     }
     
-    private Task Validate
+    private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    {
+        if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
+        {
+            var spec = new GetProductByUpcSpecification(model.ProductUpc.Value);
+            if (await inventoryItemRepository.Exists(spec, cancellationToken))
+                throw new ConflictException("This product UPC is already registered.");
+        }
+    }
+    private async Task ValidateCategory(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    {
+        if (model.CategoryId is null) return;
+
+        var spec = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
+        if (!await categoryRepository.Exists(spec, cancellationToken))
+            throw new NotFoundException("There is no category with such id.");
+    }
+    private async Task ValidateBrand(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    {
+        if (model.BrandId is null) return;
+
+        var spec = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
+        if (!await brandRepository.Exists(spec, cancellationToken))
+            throw new NotFoundException("There is no brand with such id.");
+    }
+    private void ValidatePromotionPrice(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    {
+        if (model.IsPromoted == true && model.PromotionPrice == null)
+            throw new BadRequestException("Promotion price must be provided for promoted products.");
+
+        if (model.IsPromoted == false && model.PromotionPrice != null)
+            throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
+
+        if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
+            throw new BadRequestException("Promotion price must be less than the regular price.");
+    }
+
 }

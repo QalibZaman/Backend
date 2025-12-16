@@ -26,10 +26,7 @@ public class UpdateInventoryItemCommandHandler(
 
         request.Model.Adapt(inventoryItem);
 
-        inventoryItem.LastUpdatedDate = DateTime.UtcNow;
-        inventoryItem.Status = inventoryItem.IsActive
-            ? InventoryItemStatusEnum.Available
-            : InventoryItemStatusEnum.Unavailable;
+        inventoryItem.UpdateStatus();
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
     }
