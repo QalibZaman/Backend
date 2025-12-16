@@ -5,6 +5,7 @@ using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Brands;
@@ -27,9 +28,6 @@ public class InventoryService(
 {
     private readonly InventoryItemOptions _options = options.Value;
     private readonly IInventoryItemRepository _inventoryItemRepository = inventoryItemRepository;
-    private readonly ICsvFileService _csvFileService = csvFileService;
-    private readonly ILogger<InventoryService> _logger = logger;
-
     public bool IsItemNew(InventoryItemEntity item) =>
         item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-_options.NewItemDaysThreshold);
 
@@ -54,9 +52,10 @@ public class InventoryService(
         var specification = inventoryItemSpecBuilder.Build();
         var products = await _inventoryItemRepository.GetAllBySpecAsync(specification, cancellationToken);
 
-        var total = products.Count();
+        IEnumerable<InventoryItemEntity> inventoryItemEntities = products.ToList();
+        var total = inventoryItemEntities.Count();
 
-        var pagedProduct = products
+        var pagedProduct = inventoryItemEntities
             .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
             .Take(pageModel.PageSize)
             .ToList();
@@ -72,7 +71,7 @@ public class InventoryService(
 
     public async Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Starting inventory items CSV download for ShopId: {ShopId}", userShopId);
+        logger.LogInformation("Starting inventory items CSV download for ShopId: {ShopId}", userShopId);
 
         var itemByRelatedCategorySpecification = new GetInventoryItemsRelatedCategories(userShopId);
         itemByRelatedCategorySpecification.AddInclude(i => i.Brand!);
@@ -81,58 +80,57 @@ public class InventoryService(
 
         if (!inventoryItems.Any())
         {
-            _logger.LogWarning("No inventory items found for ShopId: {ShopId}", userShopId);
+            logger.LogWarning("No inventory items found for ShopId: {ShopId}", userShopId);
             throw new NotFoundException("There are no items in the list.");
         }
 
-        var inventoryItemsData = await _csvFileService.GetEntitiesCsvData<InventoryItemCsvModel, InventoryItemEntity>(
+        var inventoryItemsData = await csvFileService.GetEntitiesCsvData<InventoryItemCsvModel, InventoryItemEntity>(
             inventoryItems, cancellationToken);
 
-        _logger.LogInformation("Successfully generated CSV for {Count} items (ShopId: {ShopId})", inventoryItems.Count(), userShopId);
+        logger.LogInformation("Successfully generated CSV for {Count} items (ShopId: {ShopId})", inventoryItems.Count(), userShopId);
 
         return inventoryItemsData;
     }
-    
-    public  async Task ValidateRequestModel(UpdateInventoryItemCommand request, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
+    public async Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
-        if (request.Model.ProductUpc.HasValue && inventoryItem.ProductUpc != request.Model.ProductUpc)
+        if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
         {
-            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc.Value);
+            var productByNameSpecification = new GetProductByUpcSpecification(model.ProductUpc.Value);
             var productExists = await inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
 
             if (productExists)
                 throw new ConflictException("This product UPC is already registered.");
         }
 
-        if (request.Model.CategoryId != null)
+        if (model.CategoryId != null)
         {
-            var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(request.Model.CategoryId.Value, request.ShopId);
+            var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
             var categoryExists = await categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
 
             if (!categoryExists)
                 throw new NotFoundException("There is no category with such id.");
         }
 
-        if (request.Model.BrandId != null)
+        if (model.BrandId != null)
         {
-            var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(request.Model.BrandId.Value, request.ShopId);
+            var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
             var brandExists = await brandRepository.Exists(brandByIdSpecification, cancellationToken);
 
             if (!brandExists)
                 throw new NotFoundException("There is no brand with such id.");
         }
 
-        if (request.Model.IsPromoted == true && request.Model.PromotionPrice == null)
+        if (model.IsPromoted == true && model.PromotionPrice == null)
         {
             throw new BadRequestException("Promotion price must be provided for promoted products.");
         }
 
-        if (request.Model.IsPromoted == false && request.Model.PromotionPrice != null)
+        if (model.IsPromoted == false && model.PromotionPrice != null)
         {
             throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
         }
 
-        if (request.Model.PromotionPrice != null && request.Model.PromotionPrice >= request.Model.Price)
+        if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
         {
             throw new BadRequestException("Promotion price must be less than the regular price.");
         }

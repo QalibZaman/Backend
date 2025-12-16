@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.Cosmos.Serialization.HybridRow;
-using NettoRetail.Application.CQRS.InventoryItems.Commands;
+﻿using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
@@ -11,11 +10,8 @@ public interface IInventoryService
     bool IsItemNew(InventoryItemEntity item);
     bool IsItemOutOfStock(InventoryItemEntity item);
     bool IsItemOnSale(InventoryItemEntity item);
-    Task<PaginatedResponse<InventoryItemListResponse>> GetShopItemsBySearchAsync(string query, int shopId,
-        PaginationRequest pageModel, CancellationToken cancellationToken);
+    Task<PaginatedResponse<InventoryItemListResponse>> GetShopItemsBySearchAsync(string query, int shopId, PaginationRequest pageModel, CancellationToken cancellationToken);
     Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default);
 
-     Task ValidateRequestModel(UpdateInventoryItemCommand request, InventoryItemEntity inventoryItem,
-        CancellationToken cancellationToken);
-
+    Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken);
 }
