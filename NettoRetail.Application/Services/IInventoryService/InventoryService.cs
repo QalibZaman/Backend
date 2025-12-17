@@ -26,13 +26,10 @@ public class InventoryService(
     IBrandRepository brandRepository,
     ILogger<InventoryService> logger) : IInventoryService
 {
-    private readonly InventoryItemOptions _options = options.Value;
-    private readonly IInventoryItemRepository _inventoryItemRepository = inventoryItemRepository;
-    private readonly ICategoryRepository _categoryRepository = categoryRepository;
-    private readonly IBrandRepository _brandRepository = brandRepository;
+    
 
     public bool IsItemNew(InventoryItemEntity item) =>
-        item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-_options.NewItemDaysThreshold);
+        item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-options.Value.NewItemDaysThreshold);
 
     public bool IsItemOutOfStock(InventoryItemEntity item) =>
         item.AvailableAmount <= 0;
@@ -53,7 +50,7 @@ public class InventoryService(
             .AddInclude(x => x.Category);
 
         var specification = inventoryItemSpecBuilder.Build();
-        var products = await _inventoryItemRepository.GetAllBySpecAsync(specification, cancellationToken);
+        var products = await inventoryItemRepository.GetAllBySpecAsync(specification, cancellationToken);
 
         IEnumerable<InventoryItemEntity> inventoryItemEntities = products.ToList();
         var total = inventoryItemEntities.Count();
@@ -79,7 +76,7 @@ public class InventoryService(
         var itemByRelatedCategorySpecification = new GetInventoryItemsRelatedCategories(userShopId);
         itemByRelatedCategorySpecification.AddInclude(i => i.Brand!);
 
-        var inventoryItems = await _inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken);
+        var inventoryItems = await inventoryItemRepository.GetAllBySpecAsync(itemByRelatedCategorySpecification, cancellationToken);
 
         if (!inventoryItems.Any())
         {
