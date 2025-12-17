@@ -2,6 +2,7 @@
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -19,7 +20,7 @@ public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
         specBuilder.AddInclude(a => a.Sessions!);
         specBuilder.AddInclude(a => a.Role);
         specBuilder.AddInclude(a => a.Role.PermissionRoles);
-        specBuilder.AddCriteria(a => a.Role.Name.StartsWith("PlatformAdmin") || a.Role.Id == 99);
+        specBuilder.AddCriteria(a => a.Role.Name.StartsWith(PlatformAdminConstants.RoleName) || a.Role.Id == PlatformAdminConstants.RoleId);
 
         var specification = specBuilder
             .AddOrderBy(a => a.DateCreated, isDesc: true)
