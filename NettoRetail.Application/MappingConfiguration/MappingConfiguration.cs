@@ -136,7 +136,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Role, src => src.Role.Name)
             .Map(dest => dest.Status, src => src.Status.ToString());
 
-        config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
+        config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
 
         config.NewConfig<OrderEntity, OrderHistoryResponse>()

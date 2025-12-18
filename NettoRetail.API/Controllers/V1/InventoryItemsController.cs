@@ -21,18 +21,18 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [ProducesResponseType(typeof(ApiResponse<InventoryItemInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<InventoryItemInfoFullResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetInventoryItemInfo(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}/full-info")]
+    public async Task<IActionResult> GetInventoryItemFullInfo(Guid id, CancellationToken cancellationToken)
     {
-        var inventoryItemQuery = new GetInventoryItemInfoQuery(id);
+        var inventoryItemQuery = new GetInventoryItemFullInfoQuery(id);
         var data = await mediator.Send(inventoryItemQuery, cancellationToken);
-        var response = new ApiResponse<InventoryItemInfoResponse>(data);
+        var response = new ApiResponse<InventoryItemInfoFullResponse>(data);
 
         return Ok(response);
     }

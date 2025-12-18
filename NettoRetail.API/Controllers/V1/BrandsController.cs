@@ -7,7 +7,9 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Brands.Commands;
 using NettoRetail.Application.CQRS.Brands.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Brand;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Shared.Constants;
 
@@ -26,13 +28,14 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> GetShopBrands(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetShopBrands([FromQuery] PaginationRequest pagination ,CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var getShopBrandsQuery = new GetShopBrandsQuery(shopId);
-        var data = await mediator.Send(getShopBrandsQuery, cancellationToken);
 
-        var response = new ApiResponse<IEnumerable<BrandResponse>>(data);
+        var query = new GetShopBrandsQuery(shopId, pagination);
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<PaginatedResponse<BrandResponse>>(data);
 
         return Ok(response);
     }
