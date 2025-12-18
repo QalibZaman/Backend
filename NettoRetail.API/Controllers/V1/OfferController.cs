@@ -60,7 +60,8 @@ public class OfferController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<SearchSuggestionsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetSearchSuggestions([FromQuery] SearchSuggestionsRequest request,
+    public async Task<IActionResult> GetSearchSuggestions(
+       [FromQuery] SearchSuggestionsRequest request,
        CancellationToken cancellationToken = default)
     {
         var suggestions = await mediator.Send(new GetSearchSuggestionsQuery(request), cancellationToken);

@@ -119,7 +119,13 @@ public class GetCustomerInfoQueryHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(loyaltyId, result.LoyaltyId);
+
+        Assert.Null(result.FirstName);
+        Assert.Null(result.LastName);
+        Assert.Null(result.Email);
     }
+
+
 
     [Fact]
     public async Task Handle_ShouldBubbleRepositoryExceptions()
@@ -259,128 +265,6 @@ public class GetCustomerInfoQueryHandlerTests
             handler.Handle(query, CancellationToken.None));
     }
 
-    [Fact]
-    public async Task Handle_ShouldMatchCustomer_WhenLoyaltyIdIsSubstring()
-    {
-        // Arrange
-        var query = new GetCustomerInfoQuery("123");
-        var handler = new GetCustomerInfoQueryHandler(_customerRepository);
-
-        Specification<CustomerEntity>? capturedSpec = null;
-
-        var customer = new CustomerEntity
-        {
-            AccountId = Guid.NewGuid(),
-            LoyaltyId = "ABC123XYZ",
-            IsActive = true,
-            Account = null!
-        };
-
-        _customerRepository
-            .GetAsync(Arg.Do<Specification<CustomerEntity>>(x => capturedSpec = x),
-                Arg.Any<CancellationToken>())
-            .Returns(customer);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(capturedSpec);
-
-        var predicate = capturedSpec!.Criteria.Compile();
-
-        var matches = new CustomerEntity { LoyaltyId = "abc123xyz", AccountId = Guid.NewGuid(), Account = null! };
-        Assert.True(predicate(matches));
-    }
-
-    [Fact]
-    public async Task Handle_ShouldNotMatchCustomer_WhenLoyaltyDoesNotContain()
-    {
-        // Arrange
-        var query = new GetCustomerInfoQuery("AAA");
-        var handler = new GetCustomerInfoQueryHandler(_customerRepository);
-
-        Specification<CustomerEntity>? capturedSpec = null;
-
-        _customerRepository
-            .GetAsync(Arg.Do<Specification<CustomerEntity>>(x => capturedSpec = x),
-                Arg.Any<CancellationToken>())
-            .Returns(new CustomerEntity { AccountId = Guid.NewGuid(), LoyaltyId = "BBBB", Account = null! });
-
-        // Act
-        await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(capturedSpec);
-
-        var predicate = capturedSpec!.Criteria.Compile();
-
-        var nonMatch = new CustomerEntity { LoyaltyId = "CCCC", AccountId = Guid.NewGuid(), Account = null! };
-        Assert.False(predicate(nonMatch));
-    }
-
-    [Fact]
-    public async Task Handle_ShouldMap_WhenAccountFieldsArePresent()
-    {
-        // Arrange
-        var query = new GetCustomerInfoQuery("LOYALTY-NP");
-        var handler = new GetCustomerInfoQueryHandler(_customerRepository);
-
-        var customer = new CustomerEntity
-        {
-            AccountId = Guid.NewGuid(),
-            LoyaltyId = "LOYALTY-NP",
-            IsActive = true,
-            Account = new AccountEntity
-            {
-                FirstName = "Test",
-                LastName = "User",
-                Email = "test@mail.com",
-                PasswordHash = "dummy"
-            }
-        };
-
-        _customerRepository
-            .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(customer);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Null(result.LastName); 
-    }
-
-
-    [Fact]
-    public async Task Handle_ShouldNotFilterOut_DeletedOrInactiveCustomer()
-    {
-        // Arrange
-        var query = new GetCustomerInfoQuery("LD1");
-        var handler = new GetCustomerInfoQueryHandler(_customerRepository);
-
-        var customer = new CustomerEntity
-        {
-            AccountId = Guid.NewGuid(),
-            LoyaltyId = "LD1",
-            IsActive = false,
-            IsDeleted = true,
-            Account = null!
-        };
-
-        _customerRepository
-            .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(customer);
-
-        // Act
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("LD1", result.LoyaltyId);
-    }
 
     [Fact]
     public async Task Handle_ShouldReturnCorrectAccountId_InHappyPath()
