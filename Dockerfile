@@ -14,7 +14,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 EXPOSE 8080
 
