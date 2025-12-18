@@ -35,7 +35,7 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
 		var (normalizedEmail, firstName, lastName) = Normalize(request);
 		List<string> permissionTitles;
 
-		var emailSpec = new GetAccountsByPartialEmailSpecification(normalizedEmail);
+		var emailSpec = new GetAccountByEmailSpecification(normalizedEmail);
 		var existingEmail = await accountRepo.Exists(emailSpec, cancellationToken);
 
 		if (existingEmail)
