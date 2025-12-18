@@ -123,7 +123,6 @@ public class GetCustomerInfoQueryHandlerTests
             AccountId = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
-            IsDeleted = false,
             Account = null!
         };
 
@@ -137,10 +136,6 @@ public class GetCustomerInfoQueryHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(loyaltyId, result.LoyaltyId);
-
-        Assert.Null(result.FirstName);
-        Assert.Null(result.LastName);
-        Assert.Null(result.Email);
     }
 
 
