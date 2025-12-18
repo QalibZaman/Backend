@@ -49,6 +49,14 @@ public class GetCustomerInfoQueryHandlerTests
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
+            Account = new AccountEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
+
+            }
         };
 
         _customerRepository
@@ -83,6 +91,15 @@ public class GetCustomerInfoQueryHandlerTests
                 AccountId = Guid.NewGuid(),
                 LoyaltyId = loyaltyId,
                 IsActive = true,
+                IsDeleted = false,
+                Account = new AccountEntity
+                {
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john@doe.com",
+                    PasswordHash = "hash"
+
+                }
             });
 
         // Act
@@ -106,6 +123,7 @@ public class GetCustomerInfoQueryHandlerTests
             AccountId = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
+            IsDeleted = false,
             Account = null!
         };
 
@@ -158,7 +176,14 @@ public class GetCustomerInfoQueryHandlerTests
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = null!
+            Account = new AccountEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
+
+            }
         };
 
         _customerRepository
@@ -211,7 +236,14 @@ public class GetCustomerInfoQueryHandlerTests
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = null!
+            Account = new AccountEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
+
+            }
         };
 
         _customerRepository
@@ -304,6 +336,7 @@ public class GetCustomerInfoQueryHandlerTests
     public async Task Handle_ShouldNotDuplicateIncludes_WhenBuilderChainsMultipleTimes()
     {
         // Arrange
+        var loyaltyId = "LOYALTY-INCLUDE";
         var query = new GetCustomerInfoQuery("ABC");
         var handler = new GetCustomerInfoQueryHandler(_customerRepository);
 
@@ -312,9 +345,17 @@ public class GetCustomerInfoQueryHandlerTests
         var customer = new CustomerEntity
         {
             AccountId = Guid.NewGuid(),
-            LoyaltyId = "ABC",
+            LoyaltyId = loyaltyId,
             IsActive = true,
-            Account = null!
+            IsDeleted = false,
+            Account = new AccountEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
+
+            }
         };
 
         _customerRepository
@@ -346,9 +387,16 @@ public class GetCustomerInfoQueryHandlerTests
         var customer = new CustomerEntity
         {
             AccountId = Guid.NewGuid(),
-            LoyaltyId = null,  
+            LoyaltyId = null,
             IsActive = true,
-            Account = null!
+            IsDeleted = false,
+            Account = new AccountEntity
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
+            }
         };
 
         Specification<CustomerEntity>? capturedSpec = null;
@@ -359,19 +407,27 @@ public class GetCustomerInfoQueryHandlerTests
             .Returns(customer);
 
         // Act
-        var result = await handler.Handle(query, CancellationToken.None);
+        _ = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
+        // Assert 
         Assert.NotNull(capturedSpec);
 
         var predicate = capturedSpec!.Criteria.Compile();
 
         var exception = Record.Exception(() =>
-            predicate(new CustomerEntity { LoyaltyId = null, AccountId = Guid.NewGuid(), Account = null! })
+            predicate(new CustomerEntity
+            {
+                LoyaltyId = null,
+                AccountId = Guid.NewGuid(),
+                IsActive = true,
+                IsDeleted = false,
+                Account = null!
+            })
         );
 
         Assert.Null(exception);
     }
+
 
     [Fact]
     public async Task Handle_ShouldThrowNotFound_WhenRepositoryReturnsNullForValidLoyalty()
