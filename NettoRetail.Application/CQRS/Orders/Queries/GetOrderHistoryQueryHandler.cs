@@ -16,8 +16,7 @@ public class GetOrderHistoryQueryHandler(IOrderRepository orderRepository)
     public async Task<IEnumerable<OrderHistoryResponse>> Handle(GetOrderHistoryQuery request, CancellationToken cancellationToken)
     {
         var ordersByIdSpecification = new GetOrdersByCustomerIdSpecification(request.CustomerId);
-        var order = await orderRepository.GetManyBySpecAsync(ordersByIdSpecification, cancellationToken)
-                    ?? throw new NotFoundException("There is no such order.");
+        var order = await orderRepository.GetManyBySpecAsync(ordersByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<IEnumerable<OrderHistoryResponse>>();
 
