@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Extensions;
+using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Permissions;
+using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -31,11 +34,10 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
 		CreatePlatformAdminCommand request,
 		CancellationToken cancellationToken)
 	{
-		var model = request.Model;
-		var (normalizedEmail, firstName, lastName) = Normalize(request);
+		var model = new CreatePlatformAdminModel(request.Model);
+		model.Normalize();
 		List<string> permissionTitles;
-
-		var emailSpec = new GetAccountByEmailSpecification(normalizedEmail);
+		var emailSpec = new GetAccountByEmailSpecification(model.Email);
 		var existingEmail = await accountRepo.Exists(emailSpec, cancellationToken);
 
 		if (existingEmail)
@@ -66,16 +68,8 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
 				.ToList()
 		};
 
-		var account = new AccountEntity
-		{
-			FirstName = firstName,
-			LastName = lastName,
-			Email = normalizedEmail,
-			PhoneNumber = model.PhoneNumber?.Trim(),
-			Status = StaffStatusEnum.CreatePassword,
-			Role = role,
-			PasswordHash = string.Empty
-		};
+		var account = model.Adapt<AccountEntity>();
+		account.Role = role;
 
 		using var tx = unitOfWork.BeginTransaction();
 		await roleRepo.AddAsync(role, cancellationToken);
@@ -90,13 +84,5 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
 			Permissions = model.Permissions
 		};
 	}
-	private static (string Email, string FirstName, string LastName) Normalize(CreatePlatformAdminCommand request)
-	{
 
-		return (
-			request.Model.Email.Trim().ToLowerInvariant(),
-			request.Model.FirstName.Trim(),
-			request.Model.LastName.Trim()
-		);
-	}
 }
