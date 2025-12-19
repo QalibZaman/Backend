@@ -239,16 +239,19 @@ public class UploadInventoryItemsListTests
     }
 
     [Fact]
-    public void Validator_Should_Allow_Description_WithLeadingOrTrailingSpaces()
+    public void Validator_Should_Not_Allow_Description_WithLeadingOrTrailingSpaces()
     {
         var validator = new UpdateInventoryItemValidator();
         var model = new UpdateInventoryItemModel { Description = " leading space" };
 
         var result = validator.Validate(model);
 
-        Assert.True(result.IsValid);
-        Assert.DoesNotContain(result.Errors, e => e.PropertyName == "Description" && e.ErrorMessage.Contains("Description must not have leading or trailing spaces."));
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e =>
+            e.PropertyName == "Description" &&
+            e.ErrorMessage.Contains("leading or trailing spaces"));
     }
+
 
 
     [Fact]

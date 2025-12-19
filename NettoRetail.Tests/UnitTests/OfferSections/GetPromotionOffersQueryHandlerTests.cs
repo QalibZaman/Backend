@@ -51,7 +51,7 @@ public class GetPromotionOffersQueryHandlerTests
             .Returns(offers);
 
         var handler = new GetPromotionOffersQueryHandler(_offerRepo);
-        var request = new GetPromotionOffersQuery(5);
+        var request = new GetPromotionOffersQuery();
 
         // Act
         var result = await handler.Handle(request, CancellationToken.None);
@@ -61,7 +61,7 @@ public class GetPromotionOffersQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Throws_NotFound_When_No_Offers()
+    public async Task Handle_Returns_Empty_When_No_Offers()
     {
         // Arrange
         _offerRepo
@@ -69,10 +69,13 @@ public class GetPromotionOffersQueryHandlerTests
             .Returns(Array.Empty<OfferEntity>());
 
         var handler = new GetPromotionOffersQueryHandler(_offerRepo);
-        var request = new GetPromotionOffersQuery(5);
+        var request = new GetPromotionOffersQuery();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() =>
-            handler.Handle(request, CancellationToken.None));
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 }
