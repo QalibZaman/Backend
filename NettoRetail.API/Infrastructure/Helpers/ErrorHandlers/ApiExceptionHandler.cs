@@ -27,7 +27,6 @@ public static class ApiExceptionHandler
 
     private static ApiExceptionHandlerResponse HandleDefault(Exception ex)
     {
-        Console.WriteLine(ex);
         return new ApiExceptionHandlerResponse(
             (int)HttpStatusCode.InternalServerError,
             GenerateResponse("Unexpected error happened on the server while trying to process the request"));
