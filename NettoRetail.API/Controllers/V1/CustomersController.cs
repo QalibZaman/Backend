@@ -18,19 +18,29 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [AllowAnonymous]
     [HttpPost("sign-up")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId();
-        var command = new CreateCustomerCommand(shopId, customer);
+        var command = new CreateCustomerCommand(customer);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(result);
 
         return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("verify-customer-activation")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> VerifyCustomer([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        var command = new VerifyCustomerEmailCommand(token);
+        await mediator.Send(command, cancellationToken);
+
+        return Ok(new ApiResponse("Your email was successfully verified!"));
     }
 
     [HttpGet]

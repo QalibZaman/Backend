@@ -27,14 +27,20 @@ public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRe
             .MaximumLength(256).WithMessage("Email length must be less than 256 characters long.")
             .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$").WithMessage("Email must be in a valid format.");
 
-        RuleFor(x => x.PhoneNumber)
-            .Must(x => !string.IsNullOrWhiteSpace(x))
-            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
-            .WithMessage("Phone number can't be empty if country id is being provided");
+        RuleFor(x => x.Password)
+           .NotEmpty().WithMessage("Password is required.")
+            .NotNull().WithMessage("Password is required.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
+            .MaximumLength(20).WithMessage("Password must be less than 20 characters long.")
+            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase character.")
+            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase character.")
+            .Matches("[0-9]").WithMessage("Password must contain at least one numeric character.")
+            .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage("Password must contain at least one special character.")
+            .Matches(@"^\S*$").WithMessage("Password must not contain spaces.");
 
-        RuleFor(x => x.CountryId)
-            .GreaterThan(0)
-            .When(x => !string.IsNullOrEmpty(x.PhoneNumber))
-            .WithMessage("CountryId is required when PhoneNumber is provided.");
+        RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage("Confirmation password is required.")
+            .NotNull().WithMessage("Confirmation password is required.")
+            .Equal(x => x.Password).WithMessage("Passwords aren't matching.");
     }
 }
