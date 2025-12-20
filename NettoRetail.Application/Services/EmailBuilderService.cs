@@ -12,7 +12,8 @@ namespace NettoRetail.Application.Services;
 public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
-    IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
+    IOptions<ResetPasswordOptions> passwordOptions,
+    IOptions<EmailVerificationOptions> verificationOptions) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
     {
@@ -131,9 +132,7 @@ public class EmailBuilderService(
 
     public async Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link)
     {
-        EmailVerificationOptions options = new();
-
-        var model = new { user_name = firstName, activation_link = link, token_expiration_hours = options.TokenExpirationHours };
+        var model = new { user_name = firstName, activation_link = link, token_expiration_hours = verificationOptions.Value.TokenExpirationHours };
 
         var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ActivateCustomerAccount, model);
 

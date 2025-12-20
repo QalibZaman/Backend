@@ -35,7 +35,9 @@ public class CreateCustomerCommandHandler(
         if (account)
            throw new ConflictException("This email address is already signed up. Please Sign in");
 
-        var roleSpecification = new GetRoleByNameSpecification("Customer");
+        var roleSpecification = new GetRoleByNameSpecification("Customer")
+            ?? throw new NotFoundException("Role 'Customer' not found.");
+
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
         var accountEntity = request.Model.Adapt<AccountEntity>();

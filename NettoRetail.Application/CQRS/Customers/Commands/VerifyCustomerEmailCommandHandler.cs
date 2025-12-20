@@ -9,14 +9,14 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record VerifyCustomerEmailCommand(string Token) : IRequest;
+public record VerifyCustomerEmailCommand(string Token) : IRequest<Unit>;
 public class VerifyCustomerEmailCommandHandler(
     IJwtManager jwtManager,
     ICustomerRepository customerRepository,
     IAccountRepository accountRepository)
-    : IRequestHandler<VerifyCustomerEmailCommand>
+    : IRequestHandler<VerifyCustomerEmailCommand, Unit>
 {
-    public async Task Handle(
+    public async Task<Unit> Handle(
         VerifyCustomerEmailCommand command,
         CancellationToken cancellationToken)
     {
@@ -53,5 +53,7 @@ public class VerifyCustomerEmailCommandHandler(
             customer.IsActive = true;
             await customerRepository.UpdateAsync(customer, cancellationToken);
         }
+
+        return Unit.Value;
     }
 }
