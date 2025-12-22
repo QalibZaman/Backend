@@ -18,16 +18,30 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
-    [AllowAnonymous]
-    [HttpPost("sign-up/{shopId:int}")]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("create-customer")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create(int shopId, [FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
+        var shopId = HttpContext.GetUserShopId();
         var command = new CreateCustomerCommand(shopId, customer);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(result);
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("sign-up/{shopId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<SighnUpCustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SighnUpCustomer(int shopId, [FromBody] SighnUpCustomerRequest customer, CancellationToken cancellationToken)
+    {
+        var command = new SighnUpCustomerCommand(shopId, customer);
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<SighnUpCustomerResponse>(result);
 
         return Ok(response);
     }

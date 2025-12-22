@@ -1,14 +1,16 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Services.ILinkService;
+using NettoRetail.Application.Services.ICountryValidationService;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
@@ -19,38 +21,59 @@ public record CreateCustomerCommand(int ShopId, CreateCustomerRequest Model) : I
 
 public class CreateCustomerCommandHandler(
     IAccountRepository accountRepository,
+    ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
-    ILinkService linkService,
+    ICountryRepository countryRepository,
     IRoleRepository roleRepository,
-    IEmailBuilderService emailBuilderService,
-    IEmailSender emailSender,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrEmpty(request.Model.PhoneNumber))
+        {
+            var countryValidationModel = new CountryValidationModel()
+            {
+                CountryId = request.Model.CountryId,
+                PhoneNumber = request.Model.PhoneNumber!
+            };
+
+            var countryValidationOptions = new CountryValidationOptions() { CheckForPhoneNumber = true, CheckForZipCode = false };
+
+            await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+        }
+
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
         var account = await accountRepository.Exists(emailSpecification, cancellationToken);
-
         if (account)
-           throw new ConflictException("This email address is already signed up. Please Sign in");
+            throw new ConflictException("Account with this email already exists");
 
-        var roleSpecification = new GetRoleByNameSpecification("Customer");
-        var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
-            ?? throw new NotFoundException("Role 'Customer' not found.");
+        var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
+        var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
         var accountEntity = request.Model.Adapt<AccountEntity>();
-        accountEntity.RoleId = role.Id;
-        accountEntity.ShopId = request.ShopId;
-
         var customerEntity = request.Model.Adapt<CustomerEntity>();
 
-        var initialPassword = request.Model.Password;
+        accountEntity.RoleId = role!.Id;
+        accountEntity.ShopId = request.ShopId;
+
+        // Every customer is registered with a random password - in future, they'll be able to reset and set theirs when they'll be registered
+        // Right now, customers shouldn't be able to log in - and in the future, when they get the activation link, they'll be able to reset their password
+        var initialPassword = Guid.NewGuid().ToString();
         accountEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
         customerEntity.AccountId = accountEntity.Id;
+        customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
 
-        using var transaction = unitOfWork.BeginTransaction();
+        var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
+        var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
+
+        if (request.Model.PhoneNumber != null)
+        {
+            customerEntity.PhoneNumber = $"{country!.PhoneCode} {request.Model.PhoneNumber}";
+        }
+
+        var transaction = unitOfWork.BeginTransaction();
 
         try
         {
@@ -64,16 +87,10 @@ public class CreateCustomerCommandHandler(
             throw;
         }
 
-        var link = await linkService.CreateCustomerAccountVerificationLink(request.Model.Email);
-
-        var emailModel = await emailBuilderService.BuildCustomerAccountActivationEmailAsync(accountEntity.Email, accountEntity.FirstName, link);
-        await emailSender.SendAsync(emailModel);
-
         var response = accountEntity.Adapt<CreateCustomerResponse>();
 
         customerEntity.Adapt(response);
-
-        response.ActivationLink = link;
+        response.Country = country?.Adapt<CountryResponse>() ?? null;
 
         return response;
     }

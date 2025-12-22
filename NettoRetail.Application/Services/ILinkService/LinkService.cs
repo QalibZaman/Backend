@@ -12,8 +12,6 @@ public class LinkService(IJwtManager jwtManager,
     // That method was created to give link for customer activation in respone for swagger testing
     public Task<string> CreateCustomerAccountVerificationLink(string email)
     {
-        EmailVerificationOptions options = new();
-
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, email),
@@ -22,7 +20,7 @@ public class LinkService(IJwtManager jwtManager,
 
         var verificationToken = jwtManager.Generate(claims, TimeSpan.FromHours(emailVerificationOptions.Value.TokenExpirationHours));
 
-        var link = string.Format(emailVerificationOptions.Value.VerificationLink, Uri.EscapeDataString(verificationToken));
+        var link = string.Format(emailVerificationOptions.Value.VerificationLink!, Uri.EscapeDataString(verificationToken));
 
         return Task.FromResult(link);
     }
