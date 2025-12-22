@@ -26,8 +26,6 @@ public class InventoryService(
     IBrandRepository brandRepository,
     ILogger<InventoryService> logger) : IInventoryService
 {
-    
-
     public bool IsItemNew(InventoryItemEntity item) =>
         item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-options.Value.NewItemDaysThreshold);
 

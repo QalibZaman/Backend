@@ -10,7 +10,7 @@ namespace NettoRetail.Tests.UnitTests.PaginationTests
 {
     public class PaginationRequestTests
     {
-        private readonly GetPaginationRequestValidator _validator = new();
+        private readonly PaginationRequestValidator _validator = new();
 
         [Theory]
         [InlineData(0, 10)]
