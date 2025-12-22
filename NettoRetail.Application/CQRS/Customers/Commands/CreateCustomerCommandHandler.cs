@@ -15,7 +15,7 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record CreateCustomerCommand(CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
+public record CreateCustomerCommand(int ShopId, CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
 
 public class CreateCustomerCommandHandler(
     IAccountRepository accountRepository,
@@ -36,12 +36,12 @@ public class CreateCustomerCommandHandler(
            throw new ConflictException("This email address is already signed up. Please Sign in");
 
         var roleSpecification = new GetRoleByNameSpecification("Customer");
-
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
             ?? throw new NotFoundException("Role 'Customer' not found.");
 
         var accountEntity = request.Model.Adapt<AccountEntity>();
         accountEntity.RoleId = role.Id;
+        accountEntity.ShopId = request.ShopId;
 
         var customerEntity = request.Model.Adapt<CustomerEntity>();
 

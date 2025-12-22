@@ -38,7 +38,10 @@ public class VerifyCustomerEmailCommandHandler(
             throw new BadRequestException("Invalid activation token.");
         }
 
-        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+        var emailClaim = principal.FindFirst(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(emailClaim?.Value))
+            throw new BadRequestException("Activation token does not contain a valid email.");
+        var email = emailClaim.Value;
 
         var accSpec = new GetAccountByEmailSpecification(email!);
         var account = await accountRepository.GetAsync(accSpec, cancellationToken)

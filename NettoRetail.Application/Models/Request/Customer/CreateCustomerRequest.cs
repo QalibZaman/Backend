@@ -2,7 +2,6 @@
 
 public class CreateCustomerRequest
 {
-    public required int ShopId { get; set; }
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string Email { get; set; }
