@@ -64,6 +64,7 @@ public class CreateCustomerCommandHandler(
 
         customerEntity.AccountId = accountEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
+        customerEntity.IsActive = true;
 
         var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
         var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
