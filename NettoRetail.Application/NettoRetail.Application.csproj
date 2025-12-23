@@ -5,7 +5,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<CodeAnalysisRuleSet>..\CodeStyleRuleSets.ruleset</CodeAnalysisRuleSet>
-		<UserSecretsId>0e37a1c0-2067-4c02-aee2-d5ed7d983902</UserSecretsId>
 	</PropertyGroup>
 
     <ItemGroup>
