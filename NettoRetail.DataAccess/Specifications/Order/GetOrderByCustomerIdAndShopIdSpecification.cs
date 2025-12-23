@@ -1,4 +1,3 @@
-using System.Runtime.Intrinsics.X86;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
