@@ -9,19 +9,21 @@ namespace NettoRetail.Application.CQRS.Brands.Queries;
 
 public record GetBrandInfoQuery(int BrandId, int ShopId) : IRequest<BrandResponse>;
 
-public class GetBrandInfoQueryHandler(IBrandRepository brandRepository) : IRequestHandler<GetBrandInfoQuery, BrandResponse>
+public sealed class GetBrandInfoQueryHandler(
+    IBrandRepository brandRepository,
+    TypeAdapterConfig config)
+    : IRequestHandler<GetBrandInfoQuery, BrandResponse>
 {
     public async Task<BrandResponse> Handle(GetBrandInfoQuery request, CancellationToken cancellationToken)
     {
         var specification = new GetBrandsByIdSpecification(request.BrandId);
-        var brand = await brandRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"No brand with id: {request.BrandId}");
+
+        var brand = await brandRepository.GetAsync(specification, cancellationToken)
+            ?? throw new NotFoundException($"Brand with id {request.BrandId} not found.");
 
         if (brand.ShopId != request.ShopId)
-        {
-            throw new MyUnauthorizedException("This item is inaccessible");
-        }
+            throw new MyUnauthorizedException("Brand does not belong to the current shop.");
 
-        var brandResponse = brand.Adapt<BrandResponse>();
-        return brandResponse;
+        return brand.Adapt<BrandResponse>(config);
     }
 }
