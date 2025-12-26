@@ -22,6 +22,7 @@ using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IOrderService;
+using NettoRetail.Application.Services.IOrderService.OrderStatusService;
 using NettoRetail.Application.Services.IPasswordService;
 using NettoRetail.Application.Services.IPdfGenerator;
 using NettoRetail.Application.Services.IRecentlyViewedService;
@@ -108,6 +109,7 @@ public static class ServiceExtensions
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
+        services.AddScoped<IOrderStatusService, OrderStatusService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
