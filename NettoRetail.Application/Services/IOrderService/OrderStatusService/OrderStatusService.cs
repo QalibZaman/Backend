@@ -100,7 +100,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
                 else if (newStatus == OrderStatusEnum.Cancelled)
                 {
                     inventoryItem.ReservedAmount += item.Quantity;
-                    inventoryItem.OnHandAmount -= item.Quantity;
+                    inventoryItem.OnHandAmount += item.Quantity;
                 }
             }
         }
