@@ -326,7 +326,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpPut("{id:guid}/personal-info")]
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
@@ -341,7 +341,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpPut("{id:guid}/profile-image")]
     public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
     {
@@ -355,7 +355,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpDelete("{id:guid}/profile-image")]
     public async Task<IActionResult> DeleteProfileImage([FromRoute] Guid id, CancellationToken cancellationToken)
     {
