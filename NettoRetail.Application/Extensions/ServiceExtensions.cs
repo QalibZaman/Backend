@@ -109,6 +109,7 @@ public static class ServiceExtensions
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
