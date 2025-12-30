@@ -54,10 +54,10 @@ public class CreateInventoryItemCommandHandler(
         if (productExists)
             throw new ConflictException("This product UPC is already registered.");
 
-        var categoryName = await categoryRepository.GetCategoryNameAsync(request.Model.CategoryId, cancellationToken)
-            ?? throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}"); ;
+        var categoryName = await categoryRepository.GetCategoryNameAsync(request.Model.CategoryId, request.ShopId, cancellationToken)
+            ?? throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}");
 
-        var brandName = await brandRepository.GetBrandNameAsync(request.Model.BrandId, cancellationToken)
+        var brandName = await brandRepository.GetBrandNameAsync(request.Model.BrandId, request.ShopId, cancellationToken)
             ?? throw new NotFoundException($"There is no brand with Id: {request.Model.BrandId}");
 
         return (categoryName, brandName);

@@ -9,11 +9,11 @@ public class BrandRepository : BaseRepository<BrandEntity>, IBrandRepository
 {
     public BrandRepository(AppDbContext dbContext)
     : base(dbContext) { }
-    public async Task<string> GetBrandNameAsync(int id, CancellationToken cancellationToken)
+    public async Task<string> GetBrandNameAsync(int id, int shopId, CancellationToken cancellationToken)
     {
         var name = await _dbSet
             .AsNoTracking()
-            .Where(b => b.Id == id)
+            .Where(b => b.Id == id && b.ShopId == shopId)
             .Select(b => b.Name)
             .SingleOrDefaultAsync(cancellationToken);
 
