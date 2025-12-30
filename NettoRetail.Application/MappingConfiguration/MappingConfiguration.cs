@@ -254,7 +254,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductName, src => src.ProductName)
             .Map(dest => dest.Price, src => src.Price)
             .Map(dest => dest.PromotionPrice, src => src.PromotionPrice)
-            .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault()!.BlobUrl)
+            .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
             .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
     }
 }
