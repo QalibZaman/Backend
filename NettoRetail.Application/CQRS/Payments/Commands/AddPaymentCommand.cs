@@ -9,21 +9,17 @@ using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
-public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest;
+public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<Unit>;
 
 public sealed class AddPaymentCommandHandler(
     IAccountRepository accountRepository,
     IPaymentRepository paymentRepository,
-    IStripePaymentService stripePaymentService
-) : IRequestHandler<AddPaymentCommand>
+    IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
 {
-    public async Task Handle(AddPaymentCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
         if (request.AccountId == Guid.Empty)
             throw new ArgumentException("AccountId is empty.", nameof(request.AccountId));
-
-        if (string.IsNullOrWhiteSpace(request.PaymentMethodId))
-            throw new ArgumentException("PaymentMethodId is required.", nameof(request.PaymentMethodId));
 
         var account = await accountRepository.GetAsync(
             new GetAccountByIdSpecification(request.AccountId),
@@ -66,5 +62,6 @@ public sealed class AddPaymentCommandHandler(
         };
 
         await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+        return Unit.Value;
     }
 }
