@@ -64,7 +64,7 @@ public class CategoryRepository(AppDbContext dbContext)
             .AsNoTracking()
             .Where(c => c.Id == id)
             .Select(c => c.Name)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(cancellationToken);
 
         return name;
     }

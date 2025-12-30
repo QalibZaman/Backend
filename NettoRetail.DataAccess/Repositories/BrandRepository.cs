@@ -15,7 +15,7 @@ public class BrandRepository : BaseRepository<BrandEntity>, IBrandRepository
             .AsNoTracking()
             .Where(b => b.Id == id)
             .Select(b => b.Name)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(cancellationToken);
 
         return name;
     }
