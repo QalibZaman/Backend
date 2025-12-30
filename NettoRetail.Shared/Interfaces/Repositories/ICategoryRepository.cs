@@ -9,4 +9,5 @@ public interface ICategoryRepository : IBaseRepository<CategoryEntity>
     Task<List<CategoryEntity>> GetCategorySubtreeAsync(int categoryId, CancellationToken cancellationToken);
     Task<List<CategoryEntity>> GetCategoryWithHierarchyAsync(int categoryId, CancellationToken cancellationToken);
     Task<Dictionary<string, int>> GetCategoryNameAndIdDictionaryAsync(CancellationToken cancellationToken);
+    Task<string> GetCategoryNameAsync(int categoryId, CancellationToken cancellationToken);
 }

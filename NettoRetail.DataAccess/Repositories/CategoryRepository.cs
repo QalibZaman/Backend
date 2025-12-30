@@ -57,4 +57,15 @@ public class CategoryRepository(AppDbContext dbContext)
 
         return result;
     }
+
+    public async Task<string> GetCategoryNameAsync(int id, CancellationToken cancellationToken)
+    {
+        var name = await _dbSet
+            .AsNoTracking()
+            .Where(c => c.Id == id)
+            .Select(c => c.Name)
+            .SingleOrDefaultAsync();
+
+        return name;
+    }
 }
