@@ -33,6 +33,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
 

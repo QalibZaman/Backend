@@ -1,15 +1,7 @@
-using System.Linq.Expressions;
-using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
-using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 
