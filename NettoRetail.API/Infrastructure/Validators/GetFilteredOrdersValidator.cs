@@ -6,53 +6,68 @@ namespace NettoRetail.API.Infrastructure.Validators;
 
 public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersModel>
 {
+    private const string LatinTextRegex = @"^[a-zA-Z0-9\s-]*$";
+
     public GetFilteredOrdersValidator()
     {
-        RuleForEach(x => x.CustomerFirstNames).ChildRules(x =>
+        RuleForEach(x => x.CustomerFirstNames).ChildRules(r =>
         {
-            x.RuleFor(v => v)
+            r.RuleFor(v => v)
                 .MaximumLength(30)
-                .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid first name characters.");
+                .Matches(LatinTextRegex)
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid first name characters.");
         });
 
-        RuleForEach(x => x.CustomerLastNames).ChildRules(x =>
+        RuleForEach(x => x.CustomerLastNames).ChildRules(r =>
         {
-            x.RuleFor(v => v)
+            r.RuleFor(v => v)
                 .MaximumLength(30)
-                .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid last name characters.");
+                .Matches(LatinTextRegex)
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid last name characters.");
         });
 
-        RuleForEach(x => x.CustomerEmails).ChildRules(x =>
+        RuleForEach(x => x.CustomerEmails).ChildRules(r =>
         {
-            x.RuleFor(v => v)
+            r.RuleFor(v => v)
                 .MaximumLength(256)
-                .EmailAddress().WithMessage("Invalid email format.");
+                .When(v => !string.IsNullOrWhiteSpace(v));
+
+            r.RuleFor(v => v)
+                .EmailAddress()
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid email format.");
         });
 
-        RuleForEach(x => x.Creators).ChildRules(x =>
+        RuleForEach(x => x.Creators).ChildRules(r =>
         {
-            x.RuleFor(v => v)
+            r.RuleFor(v => v)
                 .MaximumLength(50)
-                .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid characters in creator.");
+                .Matches(LatinTextRegex)
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid characters in creator.");
         });
 
-        RuleForEach(x => x.OrderStatuses).ChildRules(x =>
+        RuleForEach(x => x.OrderStatuses).ChildRules(r =>
         {
-            x.RuleFor(v => v)
-                .MustBeAValidOrderStatus().WithMessage("Invalid order status.");
+            r.RuleFor(v => v)
+                .MustBeAValidOrderStatus()
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid order status.");
         });
 
-        RuleForEach(x => x.DeliveryTypes).ChildRules(x =>
+        RuleForEach(x => x.DeliveryTypes).ChildRules(r =>
         {
-            x.RuleFor(v => v)
-                .MustBeAValidOrderDeliveryType().WithMessage("Invalid delivery type.");
+            r.RuleFor(v => v)
+                .MustBeAValidOrderDeliveryType()
+                .When(v => !string.IsNullOrWhiteSpace(v))
+                .WithMessage("Invalid delivery type.");
         });
 
-        RuleForEach(x => x.OrderIds).ChildRules(id =>
-        {
-            id.RuleFor(v => v)
-                .GreaterThan(0).WithMessage("Order ID must be greater than zero.");
-        });
+        RuleForEach(x => x.OrderIds)
+            .GreaterThan(0)
+            .WithMessage("Order ID must be greater than zero.");
 
         RuleFor(x => x.StartDate)
             .LessThanOrEqualTo(x => x.EndDate)
@@ -62,7 +77,8 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
         RuleForEach(x => x.SortingOptions).ChildRules(s =>
         {
             s.RuleFor(x => x.Field)
-                .NotEmpty().WithMessage("Sorting field required.");
+                .NotEmpty()
+                .WithMessage("Sorting field required.");
         });
     }
 }
