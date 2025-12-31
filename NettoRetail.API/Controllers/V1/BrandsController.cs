@@ -48,15 +48,17 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> GetBrand([FromQuery] int brandId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetBrand(
+        [FromRoute] int brandId,
+        CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var getBrandInfoQuery = new GetBrandInfoQuery(brandId, shopId);
-        var data = await mediator.Send(getBrandInfoQuery, cancellationToken);
 
-        var response = new ApiResponse<BrandResponse>(data);
+        var data = await mediator.Send(
+            new GetBrandInfoQuery(brandId, shopId),
+            cancellationToken);
 
-        return Ok(response);
+        return Ok(new ApiResponse<BrandResponse>(data));
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
