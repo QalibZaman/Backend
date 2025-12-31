@@ -31,4 +31,18 @@ public class ShopEntity
     public ICollection<AccountEntity>? Account { get; set; }
     public ICollection<InventoryItemEntity>? InventoryItems { get; set; }
     public ICollection<BrandEntity>? Brands { get; set; }
+    public void Activate()
+    {
+        IsActive = true;
+        DeactivationReason = null;
+        DeactivationDate = null;
+    }
+
+    public void Deactivate(string reason, DateTime deactivationDate)
+    {
+        IsActive = false;
+        DeactivationReason = reason;
+        DeactivationDate = deactivationDate;
+    }
+
 }
