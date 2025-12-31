@@ -8,4 +8,5 @@ public class EmailTemplates
     public const string ShopDeactivationWarning = "shop-deactivation-warning.html";
     public const string PlatformAdminActivation = "platform-admin-activation.html";
     public const string FeedbackRejectionNotification = "feedback-rejection-notification.html";
+    public const string ActivateCustomerAccount = "customer-activation.html";
 }

@@ -19,6 +19,7 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
+using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IOrderService;
@@ -109,6 +110,7 @@ public static class ServiceExtensions
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
+        services.AddScoped<ILinkService, LinkService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
