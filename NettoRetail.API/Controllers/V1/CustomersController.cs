@@ -35,14 +35,14 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("sign-up/{shopId:int}")]
-    [ProducesResponseType(typeof(ApiResponse<SighnUpCustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SignUpCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SighnUpCustomer(int shopId, [FromBody] SighnUpCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> SighnUpCustomer(int shopId, [FromBody] SignUpCustomerRequest customer, CancellationToken cancellationToken)
     {
         var command = new SighnUpCustomerCommand(shopId, customer);
         var result = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<SighnUpCustomerResponse>(result);
+        var response = new ApiResponse<SignUpCustomerResponse>(result);
 
         return Ok(response);
     }

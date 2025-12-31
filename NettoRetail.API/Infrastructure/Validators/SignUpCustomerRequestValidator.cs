@@ -3,9 +3,9 @@ using NettoRetail.Application.Models.Request.Customer;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class SighnUpCustomerRequestValidator : AbstractValidator<SighnUpCustomerRequest>
+public class SignUpCustomerRequestValidator : AbstractValidator<SignUpCustomerRequest>
 {
-    public SighnUpCustomerRequestValidator()
+    public SignUpCustomerRequestValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")

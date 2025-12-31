@@ -16,9 +16,9 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record SighnUpCustomerCommand(int ShopId, SighnUpCustomerRequest Model) : IRequest<SighnUpCustomerResponse>;
+public record SighnUpCustomerCommand(int ShopId, SignUpCustomerRequest Model) : IRequest<SignUpCustomerResponse>;
 
-public class SighnUpCustomerCommandHandler(
+public class SignUpCustomerCommandHandler(
     IAccountRepository accountRepository,
     ICustomerRepository customerRepository,
     ILinkService linkService,
@@ -26,9 +26,9 @@ public class SighnUpCustomerCommandHandler(
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<SighnUpCustomerCommand, SighnUpCustomerResponse>
+    : IRequestHandler<SighnUpCustomerCommand, SignUpCustomerResponse>
 {
-    public async Task<SighnUpCustomerResponse> Handle(SighnUpCustomerCommand request, CancellationToken cancellationToken)
+    public async Task<SignUpCustomerResponse> Handle(SighnUpCustomerCommand request, CancellationToken cancellationToken)
     {
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
         var account = await accountRepository.Exists(emailSpecification, cancellationToken);
@@ -36,12 +36,8 @@ public class SighnUpCustomerCommandHandler(
         if (account)
            throw new ConflictException("This email address is already signed up. Please Sign in");
 
-        var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
-        var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
-            ?? throw new NotFoundException("Role 'Customer' not found.");
-
         var accountEntity = request.Model.Adapt<AccountEntity>();
-        accountEntity.RoleId = role.Id;
+        accountEntity.RoleId = RoleConstants.Customer;
         accountEntity.ShopId = request.ShopId;
 
         var customerEntity = request.Model.Adapt<CustomerEntity>();
@@ -70,7 +66,7 @@ public class SighnUpCustomerCommandHandler(
         var emailModel = await emailBuilderService.BuildCustomerAccountActivationEmailAsync(accountEntity.Email, accountEntity.FirstName, link);
         await emailSender.SendAsync(emailModel);
 
-        var response = accountEntity.Adapt<SighnUpCustomerResponse>();
+        var response = accountEntity.Adapt<SignUpCustomerResponse>();
 
         customerEntity.Adapt(response);
 

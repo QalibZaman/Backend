@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Request.Customer;
 
-public class SighnUpCustomerRequest
+public class SignUpCustomerRequest
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }

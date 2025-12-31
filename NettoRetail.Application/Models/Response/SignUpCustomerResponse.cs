@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Response;
 
-public class SighnUpCustomerResponse
+public class SignUpCustomerResponse
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
