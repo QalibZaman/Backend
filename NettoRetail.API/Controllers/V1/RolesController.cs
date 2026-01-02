@@ -32,11 +32,7 @@ public class RolesController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole([FromBody] CreateRoleRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var command = new CreateRoleCommand(
-            Name: model.Name,
-            Description: model.Description,
-            ShopId: shopId,
-            PermissionIds: model.PermissionIds);
+        var command = new CreateRoleCommand(model, shopId);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateRoleResponse>(result);
         return Ok(response);
