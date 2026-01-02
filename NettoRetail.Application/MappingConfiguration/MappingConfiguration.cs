@@ -203,6 +203,15 @@ public class MappingConfiguration : IRegister
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
 
+        config.NewConfig<ProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<UpsertProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<ProductDetailEntity, ProductDetailModel>()
+            .Map(dest => dest.Type, src => src.TypeEnum);
+
         config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
             .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
