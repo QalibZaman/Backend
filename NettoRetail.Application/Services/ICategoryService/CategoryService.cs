@@ -20,6 +20,15 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
             throw new NotFoundException($"There is no category with Id: {id}");
         }
 
+        var conflictModelSpecification = new GetCategoriesOfParentByIdSpecification(id);
+        var subcategoryExists = await categoryRepository.Exists(conflictModelSpecification, cancellationToken);
+
+        if (subcategoryExists)
+        {
+            logger.LogWarning("Attempt to delete category with Id {CategoryId} that has subcategories.", id);
+            throw new BadRequestException($"Cannot delete category with Id {id} as it has subcategories.");
+        }
+
         if (category.InventoryItems.Any(i => i.Status != InventoryItemStatusEnum.Unavailable))
         {
             logger.LogWarning("Attempt to delete category with Id {CategoryId} that contains products.", id);

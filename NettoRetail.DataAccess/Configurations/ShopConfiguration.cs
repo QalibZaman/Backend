@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.DataAccess.Configurations;
 
@@ -43,6 +44,9 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
         builder.Property(s => s.Description)
             .HasMaxLength(500);
 
+        builder.Property(s => s.SubscriptionPlanId)
+            .HasDefaultValue(SubscriptionConstants.Free);
+
         builder.HasOne(s => s.Country)
             .WithMany(c => c.Shops)
             .HasForeignKey(p => p.CountryId)
@@ -59,8 +63,5 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
 
         builder.Navigation(s => s.Country)
             .AutoInclude();
-
-        builder.Property(s => s.Subscription)
-            .HasConversion<string>();
-  }
+    }
 }

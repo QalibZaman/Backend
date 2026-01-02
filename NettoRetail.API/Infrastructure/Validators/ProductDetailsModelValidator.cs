@@ -12,6 +12,7 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
     public ProductDetailsModelValidator()
     {
         RuleFor(x => x.Name)
+            .MinimumLength(2).WithMessage("Product detail name length must be at least 2 characters long.")
             .MaximumLength(50).WithMessage("Product detail name length must be less than 50 characters long.")
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product detail name must only contain letters, digits, '-' and '_'.");
 
@@ -42,11 +43,11 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
                 switch (typeEnum)
                 {
                     case ProductDetailTypeEnum.String:
-                        if (value is not string)
+                        if (value is not string strValue || !Regex.IsMatch(strValue, @"^(?! )[A-Za-z0-9.,\-_ ]{1,50}(?<! )$"))
                             context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Number:
-                        if (value is not decimal)
+                        if (value is not decimal numValue || !Regex.IsMatch(numValue.ToString(), @"^[0-9]+(\.[0-9]{2})$^[0-9]+(\.[0-9]{2})$"))
                             context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Color:

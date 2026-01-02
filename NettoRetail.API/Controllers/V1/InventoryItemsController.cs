@@ -1,12 +1,15 @@
 using Asp.Versioning;
+using Bogus.DataSets;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.Request.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -18,18 +21,18 @@ namespace NettoRetail.API.Controllers.V1;
 public class InventoryItemsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [ProducesResponseType(typeof(ApiResponse<InventoryItemInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<InventoryItemInfoFullResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetInventoryItemInfo(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}/full-info")]
+    public async Task<IActionResult> GetInventoryItemFullInfo(Guid id, CancellationToken cancellationToken)
     {
-        var inventoryItemQuery = new GetInventoryItemInfoQuery(id);
+        var inventoryItemQuery = new GetInventoryItemFullInfoQuery(id);
         var data = await mediator.Send(inventoryItemQuery, cancellationToken);
-        var response = new ApiResponse<InventoryItemInfoResponse>(data);
+        var response = new ApiResponse<InventoryItemInfoFullResponse>(data);
 
         return Ok(response);
     }
@@ -65,6 +68,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return File(response, "text/csv", "Inventory items.csv");
     }
 
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(typeof(ApiResponse<InventoryItemResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -99,11 +103,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Ok();
     }
 
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPatch("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPatch("{id:guid}")]
     public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
-        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, model);
+        var userShopId = HttpContext.GetUserShopId();
+
+        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, userShopId, model);
 
         await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
 
@@ -134,6 +147,51 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<ProductDescriptionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpGet("{id}/description")]
+    public async Task<IActionResult> GetInventoryItemDescription(Guid id, CancellationToken cancellationToken)
+    {
+        var descriptionText = await mediator.Send(new GetInventoryItemDescriptionQuery(id), cancellationToken);
+        var response = new ApiResponse<ProductDescriptionResponse>(new ProductDescriptionResponse { Description = descriptionText });
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("{id}/description")]
+    public async Task<IActionResult> UpdateInventoryItemDescription(Guid id, [FromBody] UpdateProductsDescriptionRequest request, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new UpdateInventoryItemDescriptionCommand(id, request.Description), cancellationToken);
+        return Ok();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<UploadedImageResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("{id}/description/image")]
+    public async Task<IActionResult> UploadDescriptionImage(Guid id, IFormFile file, CancellationToken cancellationToken)
+    {
+        var imageUrl = await mediator.Send(new UploadDescriptionImageCommand(file), cancellationToken);
+        var response = new ApiResponse<UploadedImageResponse>(
+            new UploadedImageResponse { FileUrl = imageUrl });
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("{id}/images")]
     public async Task<IActionResult> UploadInventoryItemImage(Guid id, IFormFile image, CancellationToken cancellationToken)
     {
@@ -141,5 +199,39 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<ItemComparisonResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("comparison/{itemId}")]
+    public async Task<IActionResult> AddToComparison(Guid itemId, CancellationToken cancellationToken)
+    {
+        Guid userId = HttpContext.GetUserId();
+
+        var command = new AddItemToComparisonCommand(itemId, userId);
+
+        var response = await mediator.Send(command, cancellationToken);
+
+        return Ok(response);
+    }
+
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<ItemComparisonResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpDelete("comparison/{itemId}")]
+    public async Task<IActionResult> DeleteFromComparison(Guid itemId, CancellationToken cancellationToken)
+    {
+        Guid userId = HttpContext.GetUserId();
+
+        var command = new DeleteItemFromComparisonCommand(itemId, userId);
+
+        var response = await mediator.Send(command, cancellationToken);
+
+        return Ok(response);
     }
 }

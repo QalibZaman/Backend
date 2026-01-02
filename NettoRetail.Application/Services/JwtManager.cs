@@ -80,6 +80,37 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return principal;
     }
 
+    public ClaimsPrincipal ValidateEmailActivation(string emailActivationToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        var principal = handler.ValidateToken(
+            emailActivationToken,
+            new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(_key),
+                ClockSkew = TimeSpan.Zero
+            },
+            out _);
+
+        var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
+
+        if (tokenType != AuthTokenTypes.EmailVerification)
+        {
+            throw new BadRequestException("Invalid token type.");
+        }
+
+        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+            throw new BadRequestException("Email claim is missing in token.");
+
+        return principal;
+    }
+
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
     {
         const string tokenType = AuthClaims.TokenType;

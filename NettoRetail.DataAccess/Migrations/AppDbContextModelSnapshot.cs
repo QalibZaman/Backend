@@ -137,9 +137,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeCustomerId")
                         .HasColumnType("text");
 
-                    b.Property<int?>("SubscriptionPlanId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -157,8 +154,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.HasIndex("ShopId");
-
-                    b.HasIndex("SubscriptionPlanId");
 
                     b.ToTable("Accounts");
                 });
@@ -469,7 +464,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 1,
                             Name = "Austria",
                             PhoneCode = "+43",
-                            PhoneMask = "^\\d{3} \\d{6}$",
+                            PhoneMask = "^\\d{3} \\d{7}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -477,7 +472,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 2,
                             Name = "Belgium",
                             PhoneCode = "+32",
-                            PhoneMask = "^\\d \\d{3} \\d{2} \\d{2}$",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -501,7 +496,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 5,
                             Name = "Cyprus",
                             PhoneCode = "+357",
-                            PhoneMask = "^2\\d \\d{6}$",
+                            PhoneMask = "^\\d{2} \\d{6}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -533,7 +528,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 9,
                             Name = "Finland",
                             PhoneCode = "+358",
-                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^\\d{5}$"
                         },
                         new
@@ -573,7 +568,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 14,
                             Name = "Ireland",
                             PhoneCode = "+353",
-                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^[A-Z]\\d{2}$"
                         },
                         new
@@ -605,7 +600,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 18,
                             Name = "Luxembourg",
                             PhoneCode = "+352",
-                            PhoneMask = "^\\d{3} \\d{3}$",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -661,7 +656,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 25,
                             Name = "Slovenia",
                             PhoneCode = "+386",
-                            PhoneMask = "^\\d \\d{4} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -677,7 +672,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 27,
                             Name = "Sweden",
                             PhoneCode = "+46",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^\\d{3} \\d{2}$"
                         });
                 });
@@ -941,6 +936,38 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("InventoryItems");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ItemComparison");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
+                {
+                    b.Property<Guid>("ComparisonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ComparisonId", "InventoryItemId");
+
+                    b.HasIndex("InventoryItemId");
+
+                    b.ToTable("ItemComparison_Item", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
@@ -1329,6 +1356,10 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentHistoryEntity", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
@@ -1368,7 +1399,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("TransactionId")
                         .IsUnique();
@@ -1758,9 +1791,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeSubscriptionId")
                         .HasColumnType("text");
 
-                    b.Property<string>("Subscription")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("SubscriptionPlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -1784,6 +1818,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
+
+                    b.HasIndex("SubscriptionPlanId");
 
                     b.ToTable("Shops");
                 });
@@ -1935,17 +1971,11 @@ namespace NettoRetail.DataAccess.Migrations
                         .WithMany("Account")
                         .HasForeignKey("ShopId");
 
-                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
-                        .WithMany("Accounts")
-                        .HasForeignKey("SubscriptionPlanId");
-
                     b.Navigation("Country");
 
                     b.Navigation("Role");
 
                     b.Navigation("Shop");
-
-                    b.Navigation("SubscriptionPlan");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
@@ -2097,6 +2127,36 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Shop");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
+                        .WithOne("ComparedItems")
+                        .HasForeignKey("NettoRetail.Domain.Entities.ItemComparisonEntity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ItemComparisonEntity", "Comparison")
+                        .WithMany("ComparisonItems")
+                        .HasForeignKey("ComparisonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                        .WithMany("ComparisonItems")
+                        .HasForeignKey("InventoryItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Comparison");
+
+                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
@@ -2297,7 +2357,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
+                        .WithMany("Shops")
+                        .HasForeignKey("SubscriptionPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Country");
+
+                    b.Navigation("SubscriptionPlan");
                 });
 
             modelBuilder.Entity("PriceHistoryEntity", b =>
@@ -2314,6 +2382,8 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("CommunicationPreference");
+
+                    b.Navigation("ComparedItems");
 
                     b.Navigation("FailedAuthAttempt")
                         .IsRequired();
@@ -2365,6 +2435,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("ComparisonItems");
+
                     b.Navigation("FavouriteListItems");
 
                     b.Navigation("Images");
@@ -2374,6 +2446,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("ProductDetails");
 
                     b.Navigation("RecentlyViewedByUsers");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.Navigation("ComparisonItems");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.NewProductsSectionEntity", b =>
@@ -2420,7 +2497,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
                 {
-                    b.Navigation("Accounts");
+                    b.Navigation("Shops");
                 });
 #pragma warning restore 612, 618
         }

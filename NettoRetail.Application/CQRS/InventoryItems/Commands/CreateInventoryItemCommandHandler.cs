@@ -25,6 +25,11 @@ public class CreateInventoryItemCommandHandler(
 {
     public async Task<InventoryItemResponse> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(request.Model.Description))
+        {
+            request.Model.Description = request.Model.Description.Trim();
+        }
+
         var productByUpcSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
         var productExists = await inventoryItemRepository.Exists(productByUpcSpecification, cancellationToken);
 

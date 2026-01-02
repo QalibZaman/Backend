@@ -194,11 +194,12 @@ public class StaffController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DisableTwoFactorAuth(
-        [FromBody] VerifyTotpRequest request)
+        [FromBody] DisableTwoFactorAuthRequest request)
     {
         var userId = HttpContext.GetUserId();
+        var accessToken = JwtUtils.ExtractTokenFromAuthorizationHeader(HttpContext);
 
-        var command = new DisableTwoFactorAuthCommand(userId, request.TotpCode);
+        var command = new DisableTwoFactorAuthCommand(userId, request, accessToken!);
         await mediator.Send(command);
 
         return NoContent();
@@ -299,7 +300,11 @@ public class StaffController(
     public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        var absoluteUrl = Url.Action("unsubscribe-to-newsletter", "staff", null, Request.Scheme);
+        var absoluteUrl = Url.Action(
+            nameof(UnsubscribeToNewsletter),
+            nameof(StaffController).Replace("Controller", string.Empty),
+            null,
+            Request.Scheme);
 
         var command = new SubscribeToNewsletterCommand(userId, absoluteUrl!);
 
@@ -321,7 +326,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpPut("{id:guid}/personal-info")]
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
@@ -336,7 +341,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpPut("{id:guid}/profile-image")]
     public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
     {
@@ -350,7 +355,7 @@ public class StaffController(
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize]
     [HttpDelete("{id:guid}/profile-image")]
     public async Task<IActionResult> DeleteProfileImage([FromRoute] Guid id, CancellationToken cancellationToken)
     {
@@ -378,16 +383,16 @@ public class StaffController(
     }
 
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadStaffList(IFormFile file, int id)
+    public async Task<IActionResult> UploadStaffList(IFormFile file, int id, CancellationToken cancellationToken)
     {
         var command = new UploadStaffListCommand(file, id);
-        var result = await mediator.Send(command);
+        await mediator.Send(command, cancellationToken);
 
-        if (!result.Success)
-            return BadRequest(result.Errors);
-
-        return Ok(result);
+        return NoContent();
     }
 
     [Authorize]

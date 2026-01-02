@@ -2,46 +2,31 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record UpdateInventoryItemCommand(Guid Id, UpdateInventoryItemModel Model) : IRequest;
+public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryItemModel Model) : IRequest;
 
-public class UpdateInventoryItemCommandHandler(IInventoryItemRepository inventoryItemRepository, ICategoryRepository categoryRepository)
+public class UpdateInventoryItemCommandHandler(
+    IInventoryItemRepository inventoryItemRepository,
+    IInventoryService inventoryService)
     : IRequestHandler<UpdateInventoryItemCommand>
 {
     public async Task Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
     {
-        var itemByIdSpecification = new GetItemByIdSpecification(request.Id);
-        var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
+        var itemByIdSpecification = new GetInventoryItemByIdAndShopIdSpecification(request.Id, request.ShopId);
+        var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        if (request.Model.ProductUpc.HasValue && inventoryItem.ProductUpc != request.Model.ProductUpc)
-        {
-            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc.Value);
-            var product = await inventoryItemRepository.GetAsync(productByNameSpecification, cancellationToken);
-
-            if (product != null)
-            {
-                throw new ConflictException("This product UPC is already registered.");
-            }
-        }
-
-        if (request.Model.CategoryId != null)
-        {
-            var categoryByIdSpecification = new GetCategoryByIdSpecification(request.Model.CategoryId);
-            var category = await categoryRepository.GetAsync(categoryByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no category with such id.");
-        }
+        await inventoryService.ValidateUpdateAsync(request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
 
         request.Model.Adapt(inventoryItem);
 
-        inventoryItem.LastUpdatedDate = DateTime.UtcNow;
-        inventoryItem.Status = inventoryItem.IsActive
-            ? InventoryItemStatusEnum.Available
-            : InventoryItemStatusEnum.Unavailable;
+        inventoryItem.UpdateStatus();
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
     }

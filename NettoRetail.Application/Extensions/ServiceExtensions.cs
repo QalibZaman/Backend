@@ -1,3 +1,4 @@
+using System.Reflection;
 using EntityFramework.Exceptions.PostgreSQL;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -7,22 +8,28 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.IBrandService;
 using NettoRetail.Application.Services.ICartCalculatorService;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
+using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Application.Services.IPasswordService;
-using NettoRetail.Application.Services.INotificationService;
+using NettoRetail.Application.Services.IPdfGenerator;
 using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopValidationService;
+using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
@@ -30,7 +37,6 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
 using Stripe;
-using System.Reflection;
 
 namespace NettoRetail.Application.Extensions;
 
@@ -70,7 +76,8 @@ public static class ServiceExtensions
         });
         services.AddHangfireServer();
 
-         //Services
+        //Services
+        services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
@@ -85,10 +92,12 @@ public static class ServiceExtensions
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<ICsvFileService, CsvFileService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<IInventoryItemQueryService, InventoryItemQueryService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<IPdfGenerator, PdfGenerator>();
         services.AddScoped<INewsletterService, NewsletterService>();
         services.AddScoped<IPriceHistoryService, PriceHistoryService>();
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
@@ -96,8 +105,17 @@ public static class ServiceExtensions
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
         services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IBrandService, BrandService>();
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
+        services.AddScoped<IStaffService, StaffService>();
+        services.AddScoped<IFilteredOrderService, FilteredOrderService>();
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<ILinkService, LinkService>();
 
-        var featureToggleOptions = configuration.GetSection(nameof(FeatureToggleOptions)).Get<FeatureToggleOptions>();
+        var featureToggleOptions = configuration
+            .GetSection(nameof(FeatureToggleOptions))
+            .Get<FeatureToggleOptions>();
 
         if (featureToggleOptions != null && featureToggleOptions.Redis)
         {

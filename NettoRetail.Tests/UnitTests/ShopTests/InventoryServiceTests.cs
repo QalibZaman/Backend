@@ -1,8 +1,12 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
+using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.ShopTests;
 
@@ -19,9 +23,22 @@ public class InventoryServiceTests
             NewItemDaysThreshold = 7
         });
 
-        _fixture = new Fixture();
-        _inventoryService = new InventoryService(options);
+        var inventoryRepo = Substitute.For<IInventoryItemRepository>();
+        var csvService = Substitute.For<ICsvFileService>();
+        var categoryRepo = Substitute.For<ICategoryRepository>();
+        var brandRepo = Substitute.For<IBrandRepository>();
+        var logger = Substitute.For<ILogger<InventoryService>>();
 
+        _fixture = new Fixture();
+
+        _inventoryService = new InventoryService(
+            options,
+            inventoryRepo,
+            csvService,
+            categoryRepo,
+            brandRepo,
+            logger
+        );
     }
 
     [Fact]

@@ -98,7 +98,26 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
         }
 
         [Fact]
-        public async Task DeleteCategory_ShouldReturnNoContent_HasValidData()
+        public async Task DeleteCategory_ShouldReturnNoContent_HasNoChild()
+        {
+            // Arrange
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            // Act
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var itemsResponse = await _client.DeleteAsync("api/v1/categories/6");
+
+            // Asserts
+            Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryHasChildren()
         {
             // Arrange
             var email = "stringa@gmail.com";
@@ -113,7 +132,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             var itemsResponse = await _client.DeleteAsync("api/v1/categories/5");
 
             // Asserts
-            Assert.Equal(HttpStatusCode.NoContent, itemsResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, itemsResponse.StatusCode);
         }
 
         [Fact]
@@ -226,7 +245,8 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                         Country = countries[0],
                         IsActive = true,
                         StripeCustomerId = "cus_test_1",
-                        StripeSubscriptionId = "sub_test_1"
+                        StripeSubscriptionId = "sub_test_1",
+                        SubscriptionPlanId = 1
                     },
                     new ShopEntity
                     {
@@ -244,7 +264,8 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                         IsActive = true,
                         Country = countries[1],
                         StripeCustomerId = "cus_test_2",
-                        StripeSubscriptionId = "sub_test_2"
+                        StripeSubscriptionId = "sub_test_2",
+                        SubscriptionPlanId = 1
                     }
                 };
                 var categories = new List<CategoryEntity>
@@ -411,8 +432,6 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                 dbContext.Shops.RemoveRange(dbContext.Shops);
 
                 dbContext.SaveChanges();
-
-                dbContext.Database.EnsureDeleted();
             }
         }
     }
