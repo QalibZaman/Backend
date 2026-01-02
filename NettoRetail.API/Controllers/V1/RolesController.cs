@@ -77,7 +77,7 @@ public class RolesController(IMediator mediator) : ControllerBase
 
     [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut("{id:int}")]
+    [HttpPut("{roleId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

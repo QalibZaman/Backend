@@ -23,7 +23,12 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IPermissio
         }
 
         var roleByIdSpecification = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
-        var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken) ?? throw new NotFoundException("The role with such id doesn't exist.");
+        var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException("The role with such id doesn't exist.");
+
+        if (await roleRepository.Exists(new GetRoleByNameExcludingCurrentSpecification(request.Model.Name, request.Id), cancellationToken))
+            throw new ConflictException("Role with such name already exists");
+
         request.Model.Adapt(role);
 
         var validPermissionsSpecification = new GetValidPermissionsSpecification(request.Model.PermissionIds);
