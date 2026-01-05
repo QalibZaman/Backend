@@ -7,7 +7,6 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
@@ -43,7 +42,7 @@ public class UpdateStaffServiceTests
 
         //Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => 
-        _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None));
+        _staffService.UpdateStaffAsync(request, staff, CancellationToken.None));
     }
 
     [Fact]
@@ -59,7 +58,7 @@ public class UpdateStaffServiceTests
             .Returns(true);
 
         await Assert.ThrowsAsync<ConflictException>(() =>
-        _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None));
+        _staffService.UpdateStaffAsync(request, staff, CancellationToken.None));
     }
 
     [Fact]
@@ -75,7 +74,7 @@ public class UpdateStaffServiceTests
             .Returns(staff);
 
         //Act
-        await _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None);
+        await _staffService.UpdateStaffAsync(request, staff, CancellationToken.None);
 
         //Assert
 

@@ -11,7 +11,6 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
-using Stripe.Climate;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -21,18 +20,18 @@ namespace NettoRetail.API.Controllers.V1;
 public class OrdersController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{orderId:int}")]
-    [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status200OK)]
+    [HttpGet("{orderId:int}/products")]
+    [ProducesResponseType(typeof(ApiResponse<OrderProductsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrderDetails(int orderId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrderProducts(int orderId, CancellationToken cancellationToken)
     {
-        var orderCreationCommand = new GetOrderDetailsQuery(orderId);
+        var orderCreationCommand = new GetOrderProductsQuery(orderId);
 
         var data = await mediator.Send(orderCreationCommand, cancellationToken);
-        var response = new ApiResponse<OrderResponse>(data);
+        var response = new ApiResponse<OrderProductsResponse>(data);
 
         return Ok(response);
     }
@@ -143,7 +142,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPost("history/{customerId:guid}")]
+    [HttpGet("history/{customerId:guid}")]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderHistoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -151,9 +150,26 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
     {
-        var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId);
+        var shopId = HttpContext.GetUserShopId();
+        var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{orderId:int}/information")]
+    [ProducesResponseType(typeof(ApiResponse<OrderGeneralInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrderGeneralInfo(int orderId, CancellationToken cancellationToken)
+    {
+        var getOrderInfoQuery = new GetOrderGeneralInfoQuery(orderId);
+        var data = await mediator.Send(getOrderInfoQuery, cancellationToken);
+        var response = new ApiResponse<OrderGeneralInfoResponse>(data);
 
         return Ok(response);
     }

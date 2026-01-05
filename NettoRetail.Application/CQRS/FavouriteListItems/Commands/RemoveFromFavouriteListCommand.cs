@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -13,6 +14,11 @@ public class RemoveFromFavouriteListCommandHandler(
     public async Task Handle(RemoveFromFavouriteListCommand request, CancellationToken cancellationToken)
     {
         var spec = new GetFavouriteListItemByAccountAndItemId(request.UserId, request.InventoryItemId);
-        await favouriteListItemRepository.DeleteManyBySpecAsync(spec, cancellationToken);
+
+        var favouriteItemExists = await favouriteListItemRepository.Exists(spec, cancellationToken);
+        if (!favouriteItemExists)
+            throw new NotFoundException("Item is not in your favourites");
+
+        await favouriteListItemRepository.DeleteAsync(spec, cancellationToken);
     }
 }

@@ -1,14 +1,10 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.UOW;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -31,12 +27,12 @@ public class UpdateStaffCommandHandler(
         if (staff.ShopId != request.ShopId)
             throw new BadRequestException("You are not allowed to access this staff member.");
 
-        await CheckRoleExistenceAsync(request.Model, staff, request.ShopId, cancellationToken);
+        await CheckRoleExistenceAsync(request.Model, request.ShopId, cancellationToken);
 
         var transaction = unitOfWork.BeginTransaction();
         try
         {
-            await staffService.UpdateStaffAsync(request.Model, staff, request.Id, cancellationToken);
+            await staffService.UpdateStaffAsync(request.Model, staff, cancellationToken);
 
             await accountRepository.UpdateAsync(staff, cancellationToken);
 
@@ -51,7 +47,6 @@ public class UpdateStaffCommandHandler(
 
     private async Task CheckRoleExistenceAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
         int shopId,
         CancellationToken cancellationToken)
     {

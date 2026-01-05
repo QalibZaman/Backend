@@ -105,8 +105,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity> { CreateItem("Item", 123, 15) };
 
-            _inventoryRepo.GetAllBySortedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(items));
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(((ICollection<InventoryItemEntity>)items, items.Count));
 
             // Act
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -115,7 +115,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
             Assert.Equal(1, result.TotalAmount);
             Assert.Single(result.Items);
             await _inventoryRepo.Received(1)
-                .GetAllBySortedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
+                .GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -235,13 +235,16 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 SortingOptions = null
             };
 
-            _inventoryRepo.GetAllBySortedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(new List<InventoryItemEntity>()));
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
 
+            Assert.NotNull(result);
             Assert.Equal(0, result.TotalAmount);
             Assert.Empty(result.Items);
+            await _inventoryRepo.Received(1)
+                .GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]

@@ -15,6 +15,5 @@ public interface IStaffService
     Task UpdateStaffAsync(
         UpdateStaffRequest request,
         AccountEntity staff,
-        Guid userId,
         CancellationToken token = default);
 }

@@ -1,16 +1,18 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsModel>
+public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDetailModel>
 {
     public ProductDetailsModelValidator()
     {
         RuleFor(x => x.Name)
+            .MinimumLength(2).WithMessage("Product detail name length must be at least 2 characters long.")
             .MaximumLength(50).WithMessage("Product detail name length must be less than 50 characters long.")
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product detail name must only contain letters, digits, '-' and '_'.");
 
@@ -18,11 +20,12 @@ public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsMode
             .GreaterThanOrEqualTo(0).WithMessage("Product detail index can't be less than 0");
 
         RuleFor(x => x.Type)
-            .MustBeAValidProductDetailType().WithMessage("Invalid type value provided.");
+            .NotNull()
+            .WithMessage("Type is required");
 
         RuleFor(x => x.Unit)
-            .MustBeAValidProductDetailUnit().WithMessage("Invalid unit value provided.")
-            .Must((model, unit) => string.IsNullOrEmpty(unit) || model.Type == ProductDetailTypeEnum.Number.ToString())
+            .Must((model, unit) => unit == null
+            || model.Type.Equals(ProductDetailTypeEnum.Number))
             .WithMessage("Unit can only be specified for numeric values.");
 
         RuleFor(x => x.Value)
@@ -35,19 +38,16 @@ public class ProductDetailsModelValidator : AbstractValidator<ProductDetailsMode
                     return;
                 }
 
-                if (!Enum.TryParse<ProductDetailTypeEnum>(context.InstanceToValidate.Type, out var typeEnum))
-                {
-                    return;
-                }
+                var typeEnum = context.InstanceToValidate.Type;
 
                 switch (typeEnum)
                 {
                     case ProductDetailTypeEnum.String:
-                        if (value is not string)
+                        if (value is not string strValue || !Regex.IsMatch(strValue, @"^(?! )[A-Za-z0-9.,\-_ ]{1,50}(?<! )$"))
                             context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Number:
-                        if (value is not decimal)
+                        if (value is not decimal numValue || !Regex.IsMatch(numValue.ToString(), @"^[0-9]+(\.[0-9]{2})$^[0-9]+(\.[0-9]{2})$"))
                             context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Color:

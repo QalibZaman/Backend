@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;

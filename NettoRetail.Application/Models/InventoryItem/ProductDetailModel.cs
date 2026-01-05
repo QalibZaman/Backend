@@ -1,11 +1,17 @@
-﻿using NettoRetail.Domain.Enums;
+﻿using NettoRetail.API.Infrastructure.JsonConverters;
+using NettoRetail.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace NettoRetail.Application.Models.InventoryItem;
-public class ProductDetailModel
+public class ProductDetailModel : IInventoryItemDetailModel
 {
     public required string Name { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public required ProductDetailTypeEnum Type { get; set; }
-    public ProductDetailUnitEnum Unit { get; set; }
-    public required string Value { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ProductDetailUnitEnum? Unit { get; set; }
+
+    [JsonConverter(typeof(ProductDetailsValueConverter))]
+    public required object Value { get; set; }
     public int OrderIndex { get; set; }
 }

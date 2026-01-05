@@ -8,13 +8,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.IInventoryItemQueryService;
+
 public class InventoryItemQueryService(
     IInventoryItemRepository inventoryRepo,
     ICategoryRepository categoryRepo) : IInventoryItemQueryService
 {
     private readonly IInventoryItemRepository _inventoryRepo = inventoryRepo;
     private readonly ICategoryRepository _categoryRepo = categoryRepo;
-
     public async Task<PaginatedResponse<InventoryItemListResponse>> GetInventoryItemsAsync(
         int shopId,
         InventoryItemsSearchModel model,
@@ -27,6 +27,15 @@ public class InventoryItemQueryService(
             return await HandleSimpleSortAsync(shopId, model, ct);
 
         return await HandleFilteredAndSortedAsync(shopId, model, ct);
+    }
+
+    private static PaginatedResponse<InventoryItemListResponse> CreateResponse(ICollection<InventoryItemEntity> items, int total)
+    {
+        return new PaginatedResponse<InventoryItemListResponse>
+        {
+            Items = items.Adapt<List<InventoryItemListResponse>>(),
+            TotalAmount = total
+        };
     }
 
     private async Task<PaginatedResponse<InventoryItemListResponse>> HandleQuickSearchAsync(
@@ -47,11 +56,7 @@ public class InventoryItemQueryService(
 
         var (items, total) = await _inventoryRepo.GetAllPaginatedAsync(spec, ct);
 
-        return new PaginatedResponse<InventoryItemListResponse>
-        {
-            Items = items.Adapt<List<InventoryItemListResponse>>(),
-            TotalAmount = total
-        };
+        return CreateResponse(items, total);
     }
 
     private async Task<PaginatedResponse<InventoryItemListResponse>> HandleSimpleSortAsync(
@@ -59,14 +64,14 @@ public class InventoryItemQueryService(
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
-        var spec = new GetInventoryItemPriceSortingSpecification(shopId, model.SortOption!.Value);
-        var sortedItems = await _inventoryRepo.GetAllBySortedAsync(spec, ct);
+        var builder = new SpecificationBuilder<InventoryItemEntity>()
+           .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value);
+        var skip = Math.Max(0, (model.PageNumber - 1) * model.PageSize);
+        var spec = builder.Skip(skip).Take(model.PageSize).Build();
 
-        return new PaginatedResponse<InventoryItemListResponse>
-        {
-            Items = sortedItems.Adapt<List<InventoryItemListResponse>>(),
-            TotalAmount = sortedItems.Count
-        };
+        var (sortedItems, total) = await _inventoryRepo.GetAllPaginatedAsync(spec, ct);
+
+        return CreateResponse(sortedItems, total);
     }
 
     private async Task<PaginatedResponse<InventoryItemListResponse>> HandleFilteredAndSortedAsync(
@@ -75,7 +80,7 @@ public class InventoryItemQueryService(
         CancellationToken ct)
     {
         var filter = model.Adapt<GetFilteredInventoryItemsModel>();
-        var skip = (model.PageNumber - 1) * model.PageSize;
+        var skip = model.PageNumber > 0 ? (model.PageNumber - 1) * model.PageSize : 0;
 
         var categoryIds = Enumerable.Empty<int>();
         if (filter.CategoryId != 0)
@@ -104,10 +109,6 @@ public class InventoryItemQueryService(
 
         var (items, total) = await _inventoryRepo.GetAllPaginatedAsync(finalSpec, ct);
 
-        return new PaginatedResponse<InventoryItemListResponse>
-        {
-            Items = items.Adapt<List<InventoryItemListResponse>>(),
-            TotalAmount = total
-        };
+        return CreateResponse(items, total);
     }
 }

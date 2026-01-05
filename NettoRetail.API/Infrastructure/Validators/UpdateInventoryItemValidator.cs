@@ -11,6 +11,7 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .Must(model =>
                 model.ProductName != null ||
                 model.CategoryId != null ||
+                model.BrandId != null ||
                 model.ProductUpc != null ||
                 model.Description != null ||
                 model.IsActive.HasValue ||
@@ -35,6 +36,10 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Product name must only contain letters, digits, '-' and '_'")
             .When(x => x.ProductName != null);
 
+        RuleFor(x => x.BrandId)
+           .GreaterThan(0).WithMessage("Brand id must be greater than 0.")
+           .When(x => x.BrandId.HasValue);
+
         RuleFor(x => x.CategoryId)
             .GreaterThan(0).WithMessage("Category id must be greater than 0.")
             .When(x => x.CategoryId.HasValue);
@@ -48,7 +53,8 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .NotEmpty().WithMessage("Description is required.")
             .MaximumLength(500).WithMessage("Description must be less than 500 characters long.")
             .Matches(@"^[A-Za-z0-9 ,.\-_'()]*$").WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
-            .Matches("^(|[^ ].*[^ ]$)").WithMessage("Description must not have leading or trailing spaces.")
+            .Matches(@"^(?! ).*(?<! )$").WithMessage("Description must not have leading or trailing spaces.")
+            .Matches(@"^(?!.*<[^>]+>).*$").WithMessage("Description must not contain HTML tags.")
             .When(x => x.Description != null);
 
         RuleFor(x => x.IsActive)
@@ -77,15 +83,11 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .GreaterThan(0).WithMessage("Promotion price must be greater than 0.")
             .Must(x => decimal.Round(x!.Value, 2) == x.Value)
             .WithMessage("Price must not have more than two decimal places.")
-            .When(x => x.Price.HasValue);
+            .When(x => x.PromotionPrice.HasValue);
 
         RuleFor(x => x)
             .Must(x => x.Price.HasValue && x.PromotionPrice.HasValue && x.PromotionPrice < x.Price)
             .WithMessage("Promotion price must be less than the regular price.")
             .When(x => x.Price.HasValue && x.PromotionPrice.HasValue);
-
-        RuleFor(x => x.IsPromoted)
-            .NotNull().WithMessage("IsPromoted must be a valid boolean value.")
-            .When(x => x.IsPromoted.HasValue);
     }
 }

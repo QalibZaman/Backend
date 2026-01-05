@@ -8,15 +8,15 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
-public record GetOrderHistoryQuery(Guid CustomerId) : IRequest<IEnumerable<OrderHistoryResponse>>;
+public record GetOrderHistoryQuery(Guid CustomerId,int shopId) : IRequest<IEnumerable<OrderHistoryResponse>>;
 
 public class GetOrderHistoryQueryHandler(IOrderRepository orderRepository)
     : IRequestHandler<GetOrderHistoryQuery, IEnumerable<OrderHistoryResponse>>
 {
     public async Task<IEnumerable<OrderHistoryResponse>> Handle(GetOrderHistoryQuery request, CancellationToken cancellationToken)
     {
-        var ordersByIdSpecification = new GetOrdersByCustomerIdSpecification(request.CustomerId);
-        var order = await orderRepository.GetManyBySpecAsync(ordersByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no such order.");
+        var ordersByCustomerIdShopId = new GetOrderByCustomerIdAndShopIdSpecification(request.CustomerId,request.shopId);
+        var order = await orderRepository.GetManyBySpecAsync(ordersByCustomerIdShopId, cancellationToken) ?? throw new NotFoundException("There is no such order.");
 
         var response = order.Adapt<IEnumerable<OrderHistoryResponse>>();
 

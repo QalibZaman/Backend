@@ -16,17 +16,16 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) :
 {
     public async Task<GetCategoriesResponse> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<CategoryEntity>();
         var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
 
-        var getSpecification = specificationBuilder
+        var specification = new SpecificationBuilder<CategoryEntity>()
             .Add<GetCategoriesByShopIdSpecification>(request.ShopId)
             .Skip(skip)
             .Take(request.Model.PageSize)
-            .Build()
-            .AddInclude(p => p.InventoryItems);
+            .AddInclude(p => p.InventoryItems)
+            .Build();
 
-        var (items, totalAmount) = await categoryRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
+        var (items, totalAmount) = await categoryRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
         var responseCollection = items.Adapt<List<CategoryResponse>>();
 

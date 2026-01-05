@@ -9,6 +9,6 @@ public interface IJwtManager
     ClaimsPrincipal? Validate(string refreshToken);
     ClaimsPrincipal ValidateResetToken(string resetToken);
     string GenerateTempToken(string userId);
-
+    ClaimsPrincipal ValidateEmailActivation(string emailActivationToken);
     TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId);
 }

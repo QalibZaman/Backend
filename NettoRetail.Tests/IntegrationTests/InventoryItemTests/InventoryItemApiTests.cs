@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Application.Models.InventoryItem;
+using Stripe;
 
 
 namespace NettoRetail.Tests.IntegrationTests.InventoryItemTests;
@@ -54,7 +55,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             CategoryId = 1,
             BrandId = 1,
             Price = 123,
-            ProductUpc = 123456789123
+            ProductUpc = 123456789123,
+            ProductDetails = new List<ProductDetailModel> { }
         };
 
         var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
@@ -133,7 +135,8 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             CategoryId = 1,
             BrandId = 1,
             Price = 123,
-            ProductUpc = 123456789123
+            ProductUpc = 123456789123,
+            ProductDetails = new List<ProductDetailModel> { }
         };
 
         var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
@@ -415,6 +418,20 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     StripeCustomerId = "cus_test_2",
                     StripeSubscriptionId = "sub_test_2",
                     SubscriptionPlanId = 1
+                }
+            };
+
+            var brands = new List<BrandEntity>
+            {
+                new BrandEntity
+                {
+                    Id = 1,
+                    Name = "Apple",
+                    Description = "Innovative technology products",
+                    WebsiteUrl = "https://www.apple.com",
+                    LogoImageUrl = "https://www.apple.com/logo.png",
+                    ShopId = 1,
+                    Shop = shops[0]
                 }
             };
 
@@ -935,6 +952,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
 
             dbContext.Accounts.AddRange(accounts);
             dbContext.Shops.AddRange(shops);
+            dbContext.Brands.AddRange(brands);
             dbContext.InventoryItems.AddRange(inventoryItems);
             dbContext.Categories.AddRange(categories);
             dbContext.Categories.AddRange(categories2);
