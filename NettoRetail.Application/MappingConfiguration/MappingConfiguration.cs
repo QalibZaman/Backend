@@ -136,8 +136,8 @@ public class MappingConfiguration : IRegister
 			.Map(dest => dest.Role, src => src.Role.Name)
 			.Map(dest => dest.Status, src => src.Status.ToString());
 
-		config.NewConfig<InventoryItemEntity, InventoryItemInfoResponse>()
-			.Map(dest => dest.Status, src => src.Status.ToString());
+        config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
+            .Map(dest => dest.Status, src => src.Status.ToString());
 
 		config.NewConfig<OrderEntity, OrderHistoryResponse>()
 			.Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
@@ -203,8 +203,17 @@ public class MappingConfiguration : IRegister
 		config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
 			.Ignore(nameof(InventoryItemEntity.ProductDetails));
 
-		config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
-			.Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
+        config.NewConfig<ProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<UpsertProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<ProductDetailEntity, ProductDetailModel>()
+            .Map(dest => dest.Type, src => src.TypeEnum);
+
+        config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
+            .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
 		config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
 			.Map(d => d.Id, s => s.Id)
@@ -216,17 +225,20 @@ public class MappingConfiguration : IRegister
 			.Map(d => d.AvailableAmount, s => s.AvailableAmount)
 			.Map(d => d.IsOutOfStock, s => s.AvailableAmount <= 0);
 
-		config.NewConfig<OrderEntity, OrderProductsResponse>()
-			.Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-			.Map(dest => dest.OrderStatus, src => src.OrderStatus)
-			.Map(dest => dest.OrderItems, src => src.OrderItems)
-			.IgnoreNonMapped(true)
-			.AfterMapping((src, dest) =>
-			{
-				dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
-				dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
-				dest.Total = dest.OrderItems.Sum(i => i.Total);
-			});
+        config.NewConfig<PaymentHistoryEntity, PaymentHistoryResponse>()
+            .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
+
+        config.NewConfig<OrderEntity, OrderProductsResponse>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.OrderItems, src => src.OrderItems)
+            .IgnoreNonMapped(true)
+            .AfterMapping((src, dest) =>
+            {
+                dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
+                dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+                dest.Total = dest.OrderItems.Sum(i => i.Total);
+            });
 
 		config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
 			.Map(dest => dest.Creator, src => src.Creator)

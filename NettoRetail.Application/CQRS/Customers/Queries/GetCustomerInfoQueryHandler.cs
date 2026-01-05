@@ -11,18 +11,20 @@ namespace NettoRetail.Application.CQRS.Customers.Queries;
 
 public record GetCustomerInfoQuery(string LoyaltyId) : IRequest<CustomerInfoResponse>;
 
-public class GetCustomerInfoQueryHandler(ICustomerRepository customerRepository) : IRequestHandler<GetCustomerInfoQuery, CustomerInfoResponse>
+public class GetCustomerInfoQueryHandler(
+    ICustomerRepository customerRepository,
+    TypeAdapterConfig config) : IRequestHandler<GetCustomerInfoQuery, CustomerInfoResponse>
 {
     public async Task<CustomerInfoResponse> Handle(GetCustomerInfoQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
-        specificationBuilder.Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId)
-            .AddInclude(c => c.Account);
+        var spec = new SpecificationBuilder<CustomerEntity>()
+            .Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId)
+            .AddInclude(c => c.Account)
+            .Build();
 
-        var customer = await customerRepository.GetAsync(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There is no customer with such loyalty id.");
+        var customer = await customerRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException("There is no customer with such loyalty id.");
 
-        var response = customer.Adapt<CustomerInfoResponse>();
-
-        return response;
+        return customer.Adapt<CustomerInfoResponse>(config);
     }
 }

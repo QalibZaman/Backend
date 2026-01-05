@@ -1,7 +1,5 @@
 include:
-  - project: 'Andersen/netto-retailtech/v1/devops'
+  - project: 'Andersen/netto-retailtech/v1/devops-work/ci-cd'
     ref: main
-    file: 
-      - '/templates/dotnet/stages.yml'
-      - '/templates/dotnet/monolith.yml'
-      - '/templates/dev-to-test.yml'
+    file:
+      - '.gitlab-ci-net.yml'

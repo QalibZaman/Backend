@@ -23,13 +23,22 @@ public class InventoryServiceTests
             NewItemDaysThreshold = 7
         });
 
-        var repo = Substitute.For<IInventoryItemRepository>();
-        var csv = Substitute.For<ICsvFileService>();
+        var inventoryRepo = Substitute.For<IInventoryItemRepository>();
+        var csvService = Substitute.For<ICsvFileService>();
+        var categoryRepo = Substitute.For<ICategoryRepository>();
+        var brandRepo = Substitute.For<IBrandRepository>();
         var logger = Substitute.For<ILogger<InventoryService>>();
 
         _fixture = new Fixture();
-        _inventoryService = new InventoryService(options, repo, csv, logger);
 
+        _inventoryService = new InventoryService(
+            options,
+            inventoryRepo,
+            csvService,
+            categoryRepo,
+            brandRepo,
+            logger
+        );
     }
 
     [Fact]

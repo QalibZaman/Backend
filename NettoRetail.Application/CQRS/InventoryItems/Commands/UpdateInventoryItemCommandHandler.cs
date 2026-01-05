@@ -2,10 +2,8 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.DataAccess.Specifications.Brands;
-using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -15,8 +13,7 @@ public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryIte
 
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
-    ICategoryRepository categoryRepository,
-    IBrandRepository brandRepository)
+    IInventoryService inventoryService)
     : IRequestHandler<UpdateInventoryItemCommand>
 {
     public async Task Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -25,60 +22,12 @@ public class UpdateInventoryItemCommandHandler(
         var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken)
             ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        await ValidateRequestModel(request, inventoryItem, cancellationToken);
+        await inventoryService.ValidateUpdateAsync(request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
 
         request.Model.Adapt(inventoryItem);
 
-        inventoryItem.LastUpdatedDate = DateTime.UtcNow;
-        inventoryItem.Status = inventoryItem.IsActive
-            ? InventoryItemStatusEnum.Available
-            : InventoryItemStatusEnum.Unavailable;
+        inventoryItem.UpdateStatus();
 
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
-    }
-
-    private async Task ValidateRequestModel(UpdateInventoryItemCommand request, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
-    {
-        if (request.Model.ProductUpc.HasValue && inventoryItem.ProductUpc != request.Model.ProductUpc)
-        {
-            var productByNameSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc.Value);
-            var productExists = await inventoryItemRepository.Exists(productByNameSpecification, cancellationToken);
-
-            if (productExists)
-                throw new ConflictException("This product UPC is already registered.");
-        }
-
-        if (request.Model.CategoryId != null)
-        {
-            var categoryByIdSpecification = new GetCategoryByIdAndShopIdSpecification(request.Model.CategoryId.Value, request.ShopId);
-            var categoryExists = await categoryRepository.Exists(categoryByIdSpecification, cancellationToken);
-
-            if (!categoryExists)
-                throw new NotFoundException("There is no category with such id.");
-        }
-
-        if (request.Model.BrandId != null)
-        {
-            var brandByIdSpecification = new GetBrandsByIdAndShopIdSpecification(request.Model.BrandId.Value, request.ShopId);
-            var brandExists = await brandRepository.Exists(brandByIdSpecification, cancellationToken);
-
-            if (!brandExists)
-                throw new NotFoundException("There is no brand with such id.");
-        }
-
-        if (request.Model.IsPromoted == true && request.Model.PromotionPrice == null)
-        {
-            throw new BadRequestException("Promotion price must be provided for promoted products.");
-        }
-
-        if (request.Model.IsPromoted == false && request.Model.PromotionPrice != null)
-        {
-            throw new BadRequestException("Promotion price cannot be provided for non-promoted products.");
-        }
-
-        if (request.Model.PromotionPrice != null && request.Model.PromotionPrice >= request.Model.Price)
-        {
-            throw new BadRequestException("Promotion price must be less than the regular price.");
-        }
     }
 }
