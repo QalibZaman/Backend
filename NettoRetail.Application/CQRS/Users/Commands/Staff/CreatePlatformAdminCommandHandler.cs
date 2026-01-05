@@ -21,8 +21,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record CreatePlatformAdminCommand(
     CreatePlatformAdminRequest Model,
-    Guid SuperAdminId
-) : IRequest<CreatePlatformAdminResponse>;
+    Guid SuperAdminId) : IRequest<CreatePlatformAdminResponse>;
 
 public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
     IRoleRepository roleRepo,
@@ -45,6 +44,7 @@ public class CreatePlatformAdminCommandHandler(IAccountRepository accountRepo,
         var role = await roleService.CreatePlatformAdminRole(model, cancellationToken);
         var account = model.Adapt<AccountEntity>();
         account.Role = role;
+        
         var rawToken = invitationTokenService.GenerateRawToken();
 
         var hash = invitationTokenService.Hash(rawToken);

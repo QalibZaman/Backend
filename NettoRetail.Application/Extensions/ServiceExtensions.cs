@@ -19,7 +19,6 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
-using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IOrderService;
