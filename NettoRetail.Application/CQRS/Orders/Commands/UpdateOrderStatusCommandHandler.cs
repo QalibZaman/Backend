@@ -14,8 +14,6 @@ public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderS
     {
         var order = await orderService.GetOrderAsync(request.Model.OrderId, cancellationToken);
 
-        orderStatusService.EnforceOrderStatusRules(order.OrderStatus, request.Model.Status, request.Model.Comment);
-
         await orderStatusService.UpdateOrderStatusAsync(order, request.Model, cancellationToken);
 
         var response = order.Adapt<OrderResponse>();

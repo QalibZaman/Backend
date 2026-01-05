@@ -16,6 +16,8 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
     {
         public async Task UpdateOrderStatusAsync(OrderEntity order, UpdateOrderRequest model, CancellationToken cancellation)
         {
+            EnforceOrderStatusRules(order.OrderStatus, model.Status, model.Comment);
+
             order.StatusHistory ??= new List<OrderStatusHistoryEntity>();
             order.StatusHistory.Add(CreateStatusHistory(order, model));
             using var tx = unitOfWork.BeginTransaction();
@@ -31,34 +33,6 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
             {
                 tx.Rollback();
                 throw;
-            }
-        }
-
-        public void EnforceOrderStatusRules(OrderStatusEnum currentStatus, OrderStatusEnum newStatus, string? comment)
-        {
-            if (currentStatus == newStatus)
-            {
-                throw new BadRequestException("Old and new statuses can not be the same");
-            }
-
-            if (currentStatus == OrderStatusEnum.Done || currentStatus == OrderStatusEnum.Cancelled)
-            {
-                throw new BadRequestException("Order status can not be edited if the status is Done or Cancelled");
-            }
-
-            if ((newStatus == OrderStatusEnum.Processing || newStatus == OrderStatusEnum.Cancelled) && string.IsNullOrEmpty(comment))
-            {
-                throw new BadRequestException("Comment can't be empty when changing status to Processing or Cancelled");
-            }
-
-            if (currentStatus == OrderStatusEnum.InProgress && newStatus == OrderStatusEnum.Processing && string.IsNullOrEmpty(comment))
-            {
-                throw new BadRequestException("Comment can't be empty when changing status from In Progress to Processing");
-            }
-
-            if (currentStatus == OrderStatusEnum.Processing && newStatus == OrderStatusEnum.New)
-            {
-                throw new BadRequestException("Changing status from Processing to New is prohibited");
             }
         }
 
@@ -117,6 +91,33 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
 
             ApplyInventoryChanges(inventoryItems!, order.OrderItems, newStatus);
             await itemRepository.UpdateManyAsync(inventoryItems!, ct);
+        }
+        private void EnforceOrderStatusRules(OrderStatusEnum currentStatus, OrderStatusEnum newStatus, string? comment)
+        {
+            if (currentStatus == newStatus)
+            {
+                throw new BadRequestException("Old and new statuses can not be the same");
+            }
+
+            if (currentStatus == OrderStatusEnum.Done || currentStatus == OrderStatusEnum.Cancelled)
+            {
+                throw new BadRequestException("Order status can not be edited if the status is Done or Cancelled");
+            }
+
+            if ((newStatus == OrderStatusEnum.Processing || newStatus == OrderStatusEnum.Cancelled) && string.IsNullOrEmpty(comment))
+            {
+                throw new BadRequestException("Comment can't be empty when changing status to Processing or Cancelled");
+            }
+
+            if (currentStatus == OrderStatusEnum.InProgress && newStatus == OrderStatusEnum.Processing && string.IsNullOrEmpty(comment))
+            {
+                throw new BadRequestException("Comment can't be empty when changing status from In Progress to Processing");
+            }
+
+            if (currentStatus == OrderStatusEnum.Processing && newStatus == OrderStatusEnum.New)
+            {
+                throw new BadRequestException("Changing status from Processing to New is prohibited");
+            }
         }
     }
 }
