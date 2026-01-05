@@ -26,6 +26,7 @@ using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Application.Services.IPasswordService;
 using NettoRetail.Application.Services.IPdfGenerator;
 using NettoRetail.Application.Services.IRecentlyViewedService;
+using NettoRetail.Application.Services.IRoleService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopValidationService;
@@ -110,8 +111,7 @@ public static class ServiceExtensions
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
-        services.AddScoped<IStripePaymentService, StripePaymentService>();
-        services.AddScoped<ILinkService, LinkService>();
+        services.AddScoped<IRoleService, RoleService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
