@@ -78,6 +78,7 @@ public static class ServiceExtensions
         services.AddHangfireServer();
 
         //Services
+        services.AddScoped<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();

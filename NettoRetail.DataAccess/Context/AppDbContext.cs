@@ -8,6 +8,7 @@ namespace NettoRetail.DataAccess.Context;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
 {
+    public DbSet<InvitationTokenEntity> InvitationTokens { get; set; }
     public DbSet<AccountEntity> Accounts { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<FailedAuthAttemptEntity> FailedAuthAttempt { get; set; }

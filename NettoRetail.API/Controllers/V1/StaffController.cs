@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.InvitationToken;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands;
@@ -434,5 +435,40 @@ public class StaffController(
         var command = new UpdateCommunicationPreferencesCommand(userId, request);
 
         await mediator.Send(command, cancellationToken);
+    }
+    
+        
+    [HttpPost("activate-by-invitation")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ActivateByInvitation([FromBody] SetPasswordByInvitationRequest model)
+    {
+        var tokenResponse = await mediator.Send(
+            new SetPasswordByInvitationTokenCommand(model));
+
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+
+        var sessionCreateCommand = new CreateSessionCommand(
+            ipAddress,
+            Request.Headers["User-Agent"].ToString(),
+            tokenResponse.AccessToken,
+            tokenResponse.RefreshToken);
+
+        await mediator.Send(sessionCreateCommand);
+
+        return Ok(new ApiResponse<TokenResponse>(tokenResponse));
+    }
+    [HttpPost("validate-invitation")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ValidateInvitation([FromBody] string Token)
+    {
+        await mediator.Send(new ValidateInvitationTokenCommand(Token));
+        return NoContent();
+    }
+    
+    [HttpPost("resend-invitation")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResendInvitation([FromBody]ResendInvitationRequest request) {
+        await mediator.Send(new ResendInvitationByTokenCommand(request.Token));
+        return Ok(new ApiResponse("A new invitation link was sent"));
     }
 }
