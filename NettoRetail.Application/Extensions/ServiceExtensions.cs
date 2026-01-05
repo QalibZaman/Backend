@@ -19,6 +19,7 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IImageUploadService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
+using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.Application.Services.INewsletterService;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.Application.Services.IOrderService;
@@ -77,6 +78,8 @@ public static class ServiceExtensions
         services.AddHangfireServer();
 
         //Services
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
