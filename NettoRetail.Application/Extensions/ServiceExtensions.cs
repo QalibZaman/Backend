@@ -113,6 +113,9 @@ public static class ServiceExtensions
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
         services.AddScoped<IRoleService, RoleService>();
 
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<ILinkService, LinkService>();
+
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
             .Get<FeatureToggleOptions>();
