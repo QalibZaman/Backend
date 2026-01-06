@@ -16,7 +16,7 @@ public class GetAllContentBlocksQueryHandler(IContentRepository contentRepo)
     {
         var spec = new GetContentByShopSpecification(request.ShopId);
         var contentBlock = await contentRepo.GetAllBySpecAsync(spec, cancellationToken);
-        if (!contentBlock.Any())
+        if (contentBlock == null || !contentBlock.Any())
         {
             throw new NotFoundException($"Contents not found with shop id {request.ShopId}.");
         }
