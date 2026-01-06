@@ -237,5 +237,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
+
+        config.NewConfig<ContentEntity, ContentBlockResponse>()
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
     }
 }
