@@ -10,6 +10,7 @@ using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
@@ -22,7 +23,7 @@ public class CreateCustomerCommandHandler(
     IAccountRepository accountRepository,
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
-    ICountryRepository countryRepository, 
+    ICountryRepository countryRepository,
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
@@ -43,14 +44,11 @@ public class CreateCustomerCommandHandler(
         }
 
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
-        var account = await accountRepository.GetAsync(emailSpecification, cancellationToken);
-
-        if (account != null)
-        {
+        var account = await accountRepository.Exists(emailSpecification, cancellationToken);
+        if (account)
             throw new ConflictException("Account with this email already exists");
-        }
 
-        var roleSpecification = new GetRoleByNameSpecification("customer");
+        var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
         var accountEntity = request.Model.Adapt<AccountEntity>();
@@ -66,6 +64,7 @@ public class CreateCustomerCommandHandler(
 
         customerEntity.AccountId = accountEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
+        customerEntity.IsActive = true;
 
         var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
         var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
