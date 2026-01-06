@@ -6,7 +6,7 @@ public class CustomerEntity
 {
     public required Guid AccountId { get; set; }
     public AccountEntity Account { get; set; }
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; } = false;
     public bool IsDeleted { get; set; }
     public string? LoyaltyId { get; set; }
     public string? Remarks { get; set; }
