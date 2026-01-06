@@ -472,7 +472,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 2,
                             Name = "Belgium",
                             PhoneCode = "+32",
-                            PhoneMask = "^\\d \\d{3} \\d{2} \\d{2}$",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -496,7 +496,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 5,
                             Name = "Cyprus",
                             PhoneCode = "+357",
-                            PhoneMask = "^2\\d \\d{6}$",
+                            PhoneMask = "^\\d{2} \\d{6}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -528,7 +528,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 9,
                             Name = "Finland",
                             PhoneCode = "+358",
-                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^\\d{5}$"
                         },
                         new
@@ -568,7 +568,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 14,
                             Name = "Ireland",
                             PhoneCode = "+353",
-                            PhoneMask = "^\\d \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^[A-Z]\\d{2}$"
                         },
                         new
@@ -600,7 +600,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 18,
                             Name = "Luxembourg",
                             PhoneCode = "+352",
-                            PhoneMask = "^\\d{3} \\d{3}$",
+                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -656,7 +656,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 25,
                             Name = "Slovenia",
                             PhoneCode = "+386",
-                            PhoneMask = "^\\d \\d{4} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
                             ZipCodeMask = "^\\d{4}$"
                         },
                         new
@@ -672,7 +672,7 @@ namespace NettoRetail.DataAccess.Migrations
                             Id = 27,
                             Name = "Sweden",
                             PhoneCode = "+46",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
+                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
                             ZipCodeMask = "^\\d{3} \\d{2}$"
                         });
                 });
@@ -1356,6 +1356,10 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentHistoryEntity", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
@@ -1395,7 +1399,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("TransactionId")
                         .IsUnique();

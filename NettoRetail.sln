@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35122.118
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11222.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NettoRetail.API", "NettoRetail.API\NettoRetail.API.csproj", "{E4813A07-99DA-46AD-AB9B-D352263085DC}"
 EndProject
@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NettoRetail.Domain", "Netto
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2AC98CEB-83C1-4FA3-BF22-191047239BBA}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		CodeStyleRuleSets.ruleset = CodeStyleRuleSets.ruleset
 	EndProjectSection
 EndProject
