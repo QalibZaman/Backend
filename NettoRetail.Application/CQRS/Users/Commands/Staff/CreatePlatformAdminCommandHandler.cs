@@ -1,6 +1,7 @@
 using Mapster;
 using MediatR;
 using Microsoft.Extensions.Options;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Request.Staff;
@@ -19,8 +20,9 @@ public record CreatePlatformAdminCommand(
     CreatePlatformAdminRequest Model,
     Guid SuperAdminId) : IRequest<CreatePlatformAdminResponse>;
 
-public class CreatePlatformAdminCommandHandler(
+public class CreatePlatformAdminCommandHandler (
     IAccountRepository accountRepo,
+    IRoleRepository roleRepo,
     IUnitOfWork unitOfWork,
     IInvitationTokenRepository invitationTokenRepo,
     IInvitationTokenService invitationTokenService,
@@ -28,59 +30,83 @@ public class CreatePlatformAdminCommandHandler(
     IEmailSender emailSender,
     IOptions<FrontendOptions> frontendOptions,
     IOptions<InvitationOptions> invitationOptions,
-    IRoleService roleService)
-    : IRequestHandler<CreatePlatformAdminCommand, CreatePlatformAdminResponse>
+    IRoleService roleService) : IRequestHandler<CreatePlatformAdminCommand, CreatePlatformAdminResponse>
 {
-    public async Task<CreatePlatformAdminResponse> Handle(
-        CreatePlatformAdminCommand request,
-        CancellationToken cancellationToken)
-    {
-        var model = new CreatePlatformAdminModel(request.Model);
 
-        var role = await roleService.CreatePlatformAdminRole(model, cancellationToken);
-
-        var account = model.Adapt<AccountEntity>();
-
-        account.Role = role;
-
-        var rawToken = invitationTokenService.GenerateRawToken();
-        var hash = invitationTokenService.Hash(rawToken);
-
-        var expiresAt = DateTimeOffset.UtcNow.AddHours(invitationOptions.Value.PlatformAdminExpiryHours);
-
-        var invitationToken = new InvitationTokenEntity
+        public async Task<CreatePlatformAdminResponse> Handle(
+            CreatePlatformAdminCommand request,
+            CancellationToken cancellationToken)
         {
-            AccountId = account.Id,
-            TokenHash = hash,
-            ExpiresAt = expiresAt
-        };
+            var baseUrl = frontendOptions.Value.BaseUrl;
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new BadRequestException("Frontend BaseUrl is not configured (Frontend:BaseUrl).");
 
-        using var tx = unitOfWork.BeginTransaction();
+            var model = new CreatePlatformAdminModel(request.Model);
 
+            var role = await roleService.CreatePlatformAdminRole(model, cancellationToken);
 
-        await accountRepo.AddAsync(account, cancellationToken);
+            var account = model.Adapt<AccountEntity>();
+            if (account.Id == Guid.Empty)
+                account.Id = Guid.NewGuid();
 
-        await invitationTokenRepo.InvalidateAllActiveAsync(account.Id, cancellationToken);
-        await invitationTokenRepo.AddAsync(invitationToken, cancellationToken);
+            account.Role = role;
 
-        tx.Commit();
+            var rawToken = invitationTokenService.GenerateRawToken();
+            var tokenHash = invitationTokenService.Hash(rawToken);
 
-        var invitationBaseUrl = frontendOptions.Value.BaseUrl.TrimEnd('/');
-        var link = $"{invitationBaseUrl}/set-password?token={rawToken}";
+            var expiresAt = DateTimeOffset.UtcNow.AddHours(invitationOptions.Value.PlatformAdminExpiryHours);
 
-        var emailModel = await emailBuilderService.BuildPlatformAdminActivationEmailAsync(
-            account.Email,
-            account.FirstName,
-            link);
+            var invitationToken = new InvitationTokenEntity
+            {
+                AccountId = account.Id,
+                TokenHash = tokenHash,
+                ExpiresAt = expiresAt
+            };
 
-        await emailSender.SendAsync(emailModel);
+            using var tx = unitOfWork.BeginTransaction();
+            try
+            {
+                if (role.Id == 0)
+                {
+                    await roleRepo.AddAsync(role, cancellationToken);
+                }
 
-        return new CreatePlatformAdminResponse
-        {
-            AccountId = account.Id,
-            Email = account.Email,
-            Status = account.Status,
-            Permissions = model.Permissions
-        };
+                await accountRepo.AddAsync(account, cancellationToken);
+
+                await invitationTokenRepo.InvalidateAllActiveAsync(account.Id, cancellationToken);
+                await invitationTokenRepo.AddAsync(invitationToken, cancellationToken);
+
+                tx.Commit();
+            }
+            catch
+            {
+                try
+                {
+                    tx.Rollback();
+                }
+                catch
+                {
+                }
+
+                throw;
+            }
+
+            var invitationUrl = baseUrl.TrimEnd('/');
+            var link = $"{invitationUrl}/set-password?token={rawToken}";
+
+            var emailModel = await emailBuilderService.BuildPlatformAdminActivationEmailAsync(
+                account.Email,
+                account.FirstName,
+                link);
+
+            await emailSender.SendAsync(emailModel);
+
+            return new CreatePlatformAdminResponse
+            {
+                AccountId = account.Id,
+                Email = account.Email,
+                Status = account.Status,
+                Permissions = model.Permissions
+            };
+        }
     }
-}
