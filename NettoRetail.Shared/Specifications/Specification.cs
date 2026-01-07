@@ -23,8 +23,7 @@ public class Specification<TEntity>
     // Pagination
     public int? Skip { get; set; }
     public int? Take { get; set; }
-
-    public Specification(Expression<Func<TEntity, bool>> criteria)
+	public Specification(Expression<Func<TEntity, bool>> criteria)
     {
         Criteria = criteria;
         _includes = new List<Expression<Func<TEntity, object>>>();

@@ -1,6 +1,7 @@
 ﻿namespace NettoRetail.Domain.Entities;
 public class PaymentHistoryEntity
 {
+    public Guid Id { get; set; }
     public Guid AccountId { get; set; }
     public DateTime PaymentDate { get; set; }
     public string CustomerName { get; set; }

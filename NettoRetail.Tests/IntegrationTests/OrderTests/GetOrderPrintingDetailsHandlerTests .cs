@@ -155,6 +155,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
         public Task UpdateBulkAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task UpdateManyAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task<OrderEntity> GetWithRelatedDataAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
+        public Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
         #endregion
     }
 }
