@@ -9,6 +9,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.IRoleService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -50,7 +51,7 @@ public class CreatePlatformAdminCommandHandler (
                 account.Id = Guid.NewGuid();
 
             account.Role = role;
-
+            account.Status = StaffStatusEnum.Pending;
             var rawToken = invitationTokenService.GenerateRawToken();
             var tokenHash = invitationTokenService.Hash(rawToken);
 

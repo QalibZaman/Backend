@@ -50,6 +50,8 @@ public class SetPasswordByInvitationTokenHandler(
             cancellationToken) 
                       ?? throw new NotFoundException("This account no longer exists. Contact your administrator.");
 
+        if (account.Status == StaffStatusEnum.Active)
+            throw new ConflictException("Account is already activated.");
         if (account.Status != StaffStatusEnum.Pending)
         {
             throw new ConflictException("Account cannot be activated.");
