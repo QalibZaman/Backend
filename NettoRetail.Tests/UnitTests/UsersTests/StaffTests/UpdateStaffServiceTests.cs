@@ -43,7 +43,7 @@ public class UpdateStaffServiceTests
 
         //Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => 
-        _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None));
+        _staffService.UpdateStaffAsync(request, staff, CancellationToken.None));
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class UpdateStaffServiceTests
             .Returns(true);
 
         await Assert.ThrowsAsync<ConflictException>(() =>
-        _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None));
+        _staffService.UpdateStaffAsync(request, staff, CancellationToken.None));
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class UpdateStaffServiceTests
             .Returns(staff);
 
         //Act
-        await _staffService.UpdateStaffAsync(request, staff, userId, CancellationToken.None);
+        await _staffService.UpdateStaffAsync(request, staff, CancellationToken.None);
 
         //Assert
 
