@@ -19,8 +19,7 @@ namespace NettoRetail.API.Controllers.V1;
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPost("sign-up")]
-    [HttpPost("create-customer")]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]

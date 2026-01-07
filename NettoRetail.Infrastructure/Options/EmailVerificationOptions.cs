@@ -3,5 +3,5 @@
 public class EmailVerificationOptions
 {
     public int TokenExpirationHours { get; init; }
-    public string? VerificationLink { get; init; }
+    public required string VerificationLink { get; init; }
 }
