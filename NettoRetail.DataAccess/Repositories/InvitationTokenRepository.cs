@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 

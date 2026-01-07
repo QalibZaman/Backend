@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
 

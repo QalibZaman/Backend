@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Interfaces.Repositories;

@@ -5,7 +5,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.InvitationToken;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Interfaces.Repositories;

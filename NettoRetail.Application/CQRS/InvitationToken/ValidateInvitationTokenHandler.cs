@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.InvitationToken;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InvitationToken;

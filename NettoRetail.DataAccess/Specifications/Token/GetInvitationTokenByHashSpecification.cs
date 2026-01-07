@@ -1,4 +1,4 @@
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Token;

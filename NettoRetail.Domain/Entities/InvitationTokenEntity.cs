@@ -1,4 +1,4 @@
-namespace NettoRetail.Domain.Entities.JunctionEntities;
+namespace NettoRetail.Domain.Entities;
 
 public class InvitationTokenEntity
 {
