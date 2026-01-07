@@ -12,6 +12,7 @@ namespace NettoRetail.Application.Services;
 public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
+    IOptions<EmailVerificationOptions> verificationOptions,
     IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
