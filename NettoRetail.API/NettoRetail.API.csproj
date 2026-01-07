@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <NoWarn>$(NoWarn);1591</NoWarn>
 	    <CodeAnalysisRuleSet>..\CodeStyleRuleSets.ruleset</CodeAnalysisRuleSet>
+	    <UserSecretsId>7521e994-8e90-4dcf-9ff7-c3934e3c56cb</UserSecretsId>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

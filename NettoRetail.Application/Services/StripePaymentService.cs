@@ -49,5 +49,21 @@ namespace NettoRetail.Application.Services
                 pm.Card.Last4
             );
         }
+        public async Task SetDefaultPaymentMethodAsync(
+            string customerId,
+            string paymentMethodId,
+            CancellationToken cancellationToken)
+        {
+            var options = new CustomerUpdateOptions
+            {
+                InvoiceSettings = new CustomerInvoiceSettingsOptions
+                {
+                    DefaultPaymentMethod = paymentMethodId
+                }
+            };
+
+            await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+        }
+
     }
 }
