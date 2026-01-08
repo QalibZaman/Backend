@@ -203,6 +203,15 @@ public class MappingConfiguration : IRegister
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
 
+        config.NewConfig<ProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<UpsertProductDetailModel, ProductDetailEntity>()
+            .Map(dest => dest.TypeEnum, src => src.Type);
+
+        config.NewConfig<ProductDetailEntity, ProductDetailModel>()
+            .Map(dest => dest.Type, src => src.TypeEnum);
+
         config.NewConfig<UpdatePersonalInformationRequest, UpdatePersonalInformationCommand>()
             .Map(dest => dest.State, src => string.IsNullOrWhiteSpace(src.State) ? null : src.State);
 
@@ -256,5 +265,21 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.PromotionPrice, src => src.PromotionPrice)
             .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
             .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
+
+        config.NewConfig<CreatePlatformAdminModel, AccountEntity>()
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName)
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.PhoneNumber,
+                 src => src.PhoneNumber == null ? null : src.PhoneNumber.Trim())
+            .AfterMapping(dest =>
+            {
+                dest.Status = StaffStatusEnum.CreatePassword;
+                dest.PasswordHash = string.Empty;
+            })
+            .Ignore(dest => dest.Role);
+
+        config.NewConfig<ContentEntity, ContentBlockResponse>()
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
     }
 }
