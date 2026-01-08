@@ -10,7 +10,7 @@ public class LinkService(IJwtManager jwtManager,
     IOptions<EmailVerificationOptions> emailVerificationOptions) : ILinkService
 {
     // Creates a verification link for customer account activation in swagger.
-    public Task<string> CreateCustomerAccountVerificationLink(string email)
+    public string CreateCustomerAccountVerificationLink(string email)
     {
         var claims = new List<Claim>
         {
@@ -22,6 +22,6 @@ public class LinkService(IJwtManager jwtManager,
 
         var link = string.Format(emailVerificationOptions.Value.VerificationLink, Uri.EscapeDataString(verificationToken));
 
-        return Task.FromResult(link);
+        return link;
     }
 }
