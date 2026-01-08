@@ -240,28 +240,46 @@ public class MappingConfiguration : IRegister
                 dest.Total = dest.OrderItems.Sum(i => i.Total);
             });
 
-		config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
-			.Map(dest => dest.Creator, src => src.Creator)
-			.Map(dest => dest.OrderId, src => src.Id)
-			.Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-			.Map(dest => dest.DeliveryType, src => src.DeliveryType)
-			.Map(dest => dest.DateCreated, src => src.CreationDate)
-			.Map(dest => dest.OrderStatus, src => src.OrderStatus)
-			.Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
-			.Map(dest => dest.LastName, src => src.Customer.Account.LastName);
+        config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
+            .Map(dest => dest.Creator, src => src.Creator)
+            .Map(dest => dest.OrderId, src => src.Id)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.DateCreated, src => src.CreationDate)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
+            .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
 
-     //CreatePlatformAdminModel mappings
-		config.NewConfig<CreatePlatformAdminModel, AccountEntity>()
-	        .Map(dest => dest.FirstName, src => src.FirstName)
-	        .Map(dest => dest.LastName, src => src.LastName)
-	        .Map(dest => dest.Email, src => src.Email)
-	        .Map(dest => dest.PhoneNumber,
-	        	 src => src.PhoneNumber == null ? null : src.PhoneNumber.Trim())
-	        .AfterMapping(dest =>
-	        {
-	        	dest.Status = StaffStatusEnum.CreatePassword;
-	        	dest.PasswordHash = string.Empty;
-	        })
-	        .Ignore(dest => dest.Role);
-	        }
+        config.NewConfig<CartEntity, GetCartItemsResponse>()
+            .Map(dest => dest.Items, src => src.Items)
+            .Map(dest => dest.TotalPrice, src => src.TotalPrice)
+            .Map(dest => dest.SubtotalPrice, src => src.Items.Sum(i => i.Quantity * i.Price))
+            .Map(dest => dest.TotalQuantity, src => src.TotalQuantity);
+
+        config.NewConfig<CartItemEntity, GetCartItemResponse>()
+            .Map(dest => dest.Status, src => src.InventoryItem.Status)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+            .Map(dest => dest.ProductName, src => src.ProductName)
+            .Map(dest => dest.Price, src => src.Price)
+            .Map(dest => dest.PromotionPrice, src => src.PromotionPrice)
+            .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
+            .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
+
+        config.NewConfig<CreatePlatformAdminModel, AccountEntity>()
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName)
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.PhoneNumber,
+                 src => src.PhoneNumber == null ? null : src.PhoneNumber.Trim())
+            .AfterMapping(dest =>
+            {
+                dest.Status = StaffStatusEnum.CreatePassword;
+                dest.PasswordHash = string.Empty;
+            })
+            .Ignore(dest => dest.Role);
+
+        config.NewConfig<ContentEntity, ContentBlockResponse>()
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+    }
 }

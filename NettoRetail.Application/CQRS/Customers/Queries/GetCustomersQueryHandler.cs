@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
@@ -16,6 +16,21 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
 {
     public async Task<PaginatedResponse<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
     {
+        var specification = BuildSpecification(request);
+
+        var (items, totalAmount) = await customerRepository.GetAllPaginatedAsync(specification, cancellationToken);
+
+        var mappedCustomers = items.Adapt<ICollection<CustomerResponse>>();
+
+        return new PaginatedResponse<CustomerResponse>()
+        {
+            Items = mappedCustomers,
+            TotalAmount = totalAmount
+        };
+    }
+
+    private Specification<CustomerEntity> BuildSpecification(GetCustomersQuery request)
+    {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
         var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
 
@@ -27,16 +42,6 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
             .Skip(skip)
             .Take(request.PageModel.PageSize);
 
-        var specification = specificationBuilder.Build();
-
-        var (items, totalAmount) = await customerRepository.GetAllPaginatedAsync(specification, cancellationToken);
-
-        var mappedCustomers = items.Adapt<ICollection<CustomerResponse>>();
-
-        return new PaginatedResponse<CustomerResponse>()
-        {
-            Items = mappedCustomers,
-            TotalAmount = totalAmount
-        };
+        return specificationBuilder.Build();
     }
 }
