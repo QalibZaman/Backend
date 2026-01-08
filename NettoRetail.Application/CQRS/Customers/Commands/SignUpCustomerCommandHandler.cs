@@ -46,7 +46,7 @@ public class SignUpCustomerCommandHandler(
 
         await SaveEntitiesToDbAsync(account, customer, cancellationToken);
 
-        var link = linkService.CreateCustomerAccountVerificationLink(request.Model.Email);
+        var link = await linkService.CreateCustomerAccountVerificationLink(request.Model.Email);
 
         var emailModel = await emailBuilderService.BuildCustomerAccountActivationEmailAsync(account.Email, account.FirstName, link);
         await emailSender.SendAsync(emailModel);

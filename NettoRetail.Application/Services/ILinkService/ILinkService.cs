@@ -2,5 +2,5 @@
 
 public interface ILinkService
 {
-    public string CreateCustomerAccountVerificationLink(string email);
+    public Task<string> CreateCustomerAccountVerificationLink(string email);
 }
