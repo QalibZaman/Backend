@@ -46,7 +46,8 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
             throw new NotFoundException($"No shop with id: {request.ShopId}");
         }
 
-        var category = request.Adapt<CategoryEntity>();
+        var category = request.Model.Adapt<CategoryEntity>();
+        category.ShopId = request.ShopId;
 
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 
