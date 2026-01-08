@@ -250,7 +250,22 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
 
-        //CreatePlatformAdminModel mappings
+        config.NewConfig<CartEntity, GetCartItemsResponse>()
+            .Map(dest => dest.Items, src => src.Items)
+            .Map(dest => dest.TotalPrice, src => src.TotalPrice)
+            .Map(dest => dest.SubtotalPrice, src => src.Items.Sum(i => i.Quantity * i.Price))
+            .Map(dest => dest.TotalQuantity, src => src.TotalQuantity);
+
+        config.NewConfig<CartItemEntity, GetCartItemResponse>()
+            .Map(dest => dest.Status, src => src.InventoryItem.Status)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+            .Map(dest => dest.ProductName, src => src.ProductName)
+            .Map(dest => dest.Price, src => src.Price)
+            .Map(dest => dest.PromotionPrice, src => src.PromotionPrice)
+            .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
+            .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
+
         config.NewConfig<CreatePlatformAdminModel, AccountEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
