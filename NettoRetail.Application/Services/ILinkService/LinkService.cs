@@ -22,6 +22,6 @@ public class LinkService(IJwtManager jwtManager,
 
         var link = string.Format(emailVerificationOptions.Value.VerificationLink, Uri.EscapeDataString(verificationToken));
 
-        return link;
+        return Task.FromResult(link);
     }
 }
