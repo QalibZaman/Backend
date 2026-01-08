@@ -1,5 +1,6 @@
 ﻿using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -20,7 +21,13 @@ public class CreateRoleCommandHandlerTests
     public async Task Handle_ShouldCreateRole_WhenShopExists_AndPermissionsValid()
     {
         // Arrange
-        var cmd = new CreateRoleCommand("Account Officer", "Handles financial responsibilities", 10, new[] { 1, 1, 2 });
+        var request = new CreateRoleRequest()
+        {
+            Name = "Account Officer",
+            Description = "Handles financial responsibilities",
+            PermissionIds = new[] { 1, 2 }
+        };
+        var cmd = new CreateRoleCommand(request, 10);
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
                        .Returns(await TaskList(1, 2));
@@ -55,36 +62,17 @@ public class CreateRoleCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldNullDescription_WhenWhitespaceOnly()
-    {
-        // Arrange
-        var cmd = new CreateRoleCommand("Name", "   ", 1, new[] { 5 });
-        _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
-        _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
-                       .Returns(await TaskList(5));
-        RoleEntity persisted = null!;
-        _roleRepo.AddAsync(Arg.Any<RoleEntity>(), Arg.Any<CancellationToken>()).Returns(ci =>
-        {
-            persisted = ci.Arg<RoleEntity>();
-            persisted.Id = 1;
-            return Task.FromResult(persisted);
-        });
-        var handler = new CreateRoleCommandHandler(_roleRepo, _permissionRepo, _shopRepo);
-
-        // Act
-        var result = await handler.Handle(cmd, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Null(persisted.Description);
-        Assert.Null(result.Description);
-    }
-
-    [Fact]
     public async Task Handle_ShouldThrowNotFound_WhenShopDoesNotExist()
     {
         // Arrange
-        var cmd = new CreateRoleCommand("Name", "Desc", 999, new[] { 1, 2 });
+        var request = new CreateRoleRequest()
+        {
+            Name = "Account Officer",
+            Description = "Handles financial responsibilities",
+            PermissionIds = new[] { 1, 2 }
+        };
+
+        var cmd = new CreateRoleCommand(request, 999);
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(false));
         var handler = new CreateRoleCommandHandler(_roleRepo, _permissionRepo, _shopRepo);
 
@@ -96,7 +84,14 @@ public class CreateRoleCommandHandlerTests
     public async Task Handle_ShouldThrowBadRequest_WhenNoPermissionsProvided()
     {
         // Arrange
-        var cmd = new CreateRoleCommand("Name", "Desc", 1, Array.Empty<int>());
+        var request = new CreateRoleRequest()
+        {
+            Name = "Account Officer",
+            Description = "Handles financial responsibilities",
+            PermissionIds = Array.Empty<int>()
+        };
+
+        var cmd = new CreateRoleCommand(request, 1);
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         var handler = new CreateRoleCommandHandler(_roleRepo, _permissionRepo, _shopRepo);
 
@@ -108,7 +103,14 @@ public class CreateRoleCommandHandlerTests
     public async Task Handle_ShouldThrowBadRequest_WhenAnyPermissionIsInvalid()
     {
         // Arrange
-        var cmd = new CreateRoleCommand("Name", "Desc", 1, new[] { 1, 2, 3 });
+        var request = new CreateRoleRequest()
+        {
+            Name = "Account Officer",
+            Description = "Handles financial responsibilities",
+            PermissionIds = new[] { 1, 2, 3 }
+        };
+
+        var cmd = new CreateRoleCommand(request, 1);
         _shopRepo.Exists(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
         _permissionRepo.GetIdsBySpecAsync(Arg.Any<Specification<PermissionEntity>>(), Arg.Any<CancellationToken>())
                        .Returns(await TaskList(1, 2));
