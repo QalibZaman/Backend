@@ -6,18 +6,16 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
-using System.Threading;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record SighnUpCustomerCommand(int ShopId, SignUpCustomerRequest Model) : IRequest<SignUpCustomerResponse>;
+public record SignUpCustomerCommand(int ShopId, SignUpCustomerRequest Model) : IRequest<SignUpCustomerResponse>;
 
 public class SignUpCustomerCommandHandler(
     IAccountRepository accountRepository,
@@ -26,9 +24,9 @@ public class SignUpCustomerCommandHandler(
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<SighnUpCustomerCommand, SignUpCustomerResponse>
+    : IRequestHandler<SignUpCustomerCommand, SignUpCustomerResponse>
 {
-    public async Task<SignUpCustomerResponse> Handle(SighnUpCustomerCommand request, CancellationToken cancellationToken)
+    public async Task<SignUpCustomerResponse> Handle(SignUpCustomerCommand request, CancellationToken cancellationToken)
     {
         var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
 
