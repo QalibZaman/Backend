@@ -31,7 +31,7 @@ namespace NettoRetail.API.Controllers.V1
             var customerId = HttpContext.User.GetUserId();
             var query = new GetCartItemsQuery(customerId);
 
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<GetCartItemsResponse>(result));
         }

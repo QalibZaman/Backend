@@ -24,7 +24,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var command = new CreateCustomerCommand(shopId, customer);
@@ -65,7 +65,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
 
-    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCustomers([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
     {
         var query = new GetCustomersQuery(pageModel, filter);
         var result = await mediator.Send(query, cancellationToken);
