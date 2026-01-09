@@ -20,7 +20,7 @@ public class VerifyCustomerEmailCommandHandler(
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(command.Token))
-            throw new ArgumentException("Activation token is required.");
+            throw new BadRequestException("Activation token is required.");
 
         ClaimsPrincipal principal;
 
