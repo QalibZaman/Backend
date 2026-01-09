@@ -11,10 +11,10 @@ namespace NettoRetail.Infrastructure.Services
             var emails = plan.Shops
                 .Select(a => a.Email)
                 .Where(email => !string.IsNullOrWhiteSpace(email))
-                .Distinct()
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (emails == null || emails.Count == 0)
+            if (emails.Count == 0)
                 return;
 
             var subject = "Subscription price change notification";
