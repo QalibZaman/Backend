@@ -21,12 +21,12 @@ public class ShopSubscriptionService(
         var exist = await stripeService.PaymentMethodExistsAsync(paymentMethodId, cancellationToken);
         if (!exist)
         {
-            throw new BadRequestException("Payment method does not exist.");
+            throw new BadRequestException("Payment method does not exist.Subscription is not updated.");
         }
 
         var plan = await subscriptionPlanRepository
             .GetByTypeAsync(newPlan, cancellationToken)
-            ?? throw new NotFoundException("Subscription plan not found");
+            ?? throw new NotFoundException("Subscription plan not found.Subscription is not updated.");
 
         if (string.IsNullOrWhiteSpace(shop.StripeCustomerId))
         {
