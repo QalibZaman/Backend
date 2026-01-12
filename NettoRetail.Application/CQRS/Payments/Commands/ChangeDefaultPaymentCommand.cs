@@ -50,8 +50,8 @@ public class ChangeDefaultPaymentCommandHandler(
                 "Failed to update default payment method.", ex);
         }
 
-        foreach (var pm in allMethods)
-            pm.IsDefault = pm.StripePaymentMethodId == request.PaymentMethodId;
+        foreach (var payMethod in allMethods)
+            payMethod.IsDefault = payMethod.StripePaymentMethodId == request.PaymentMethodId;
 
         try
         {
