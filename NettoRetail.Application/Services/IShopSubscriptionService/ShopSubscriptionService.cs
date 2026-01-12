@@ -1,9 +1,10 @@
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Services;
 
-namespace NettoRetail.Infrastructure.Services;
+namespace NettoRetail.Application.Services;
 
 public class ShopSubscriptionService(
     ISubscriptionPlanRepository subscriptionPlanRepository,
@@ -14,18 +15,24 @@ public class ShopSubscriptionService(
     public async Task ChangeSubscriptionAsync(
         ShopEntity shop,
         SubscriptionTypeEnum newPlan,
-        string? paymentMethodId,
+        string paymentMethodId,
         CancellationToken cancellationToken)
     {
+        var exist = await stripeService.PaymentMethodExistsAsync(paymentMethodId, cancellationToken);
+        if (!exist)
+        {
+            throw new BadRequestException("Payment method does not exist.");
+        }
+
         var plan = await subscriptionPlanRepository
             .GetByTypeAsync(newPlan, cancellationToken)
-            ?? throw new InvalidOperationException("Subscription plan not found");
+            ?? throw new NotFoundException("Subscription plan not found");
 
         if (string.IsNullOrWhiteSpace(shop.StripeCustomerId))
         {
             shop.StripeCustomerId = await stripeService.CreateCustomerAsync(
                 shop.Email,
-                paymentMethodId!,
+                paymentMethodId,
                 cancellationToken);
         }
 

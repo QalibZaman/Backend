@@ -1,5 +1,6 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Services;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -15,7 +16,7 @@ public record ChangeSubscriptionCommand(
     int ShopId,
     Guid UserId,
     SubscriptionTypeEnum NewPlan,
-    string? PaymentMethodId) : IRequest;
+    string PaymentMethodId) : IRequest;
 
 public class ChangeSubscriptionCommandHandler(
     IShopRepository shopRepository,
