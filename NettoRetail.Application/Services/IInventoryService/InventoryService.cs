@@ -100,6 +100,9 @@ public class InventoryService(
 
     public List<InventoryItemEntity> CreateVariations(ICollection<VariationModel> models, InventoryItemEntity parentItem)
     {
+        if (models == null)
+            return new List<InventoryItemEntity>();
+
         List<InventoryItemEntity> result = [];
 
         foreach (var item in models)
