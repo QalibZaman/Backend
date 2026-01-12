@@ -1,12 +1,16 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Order;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
-public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersModel>
+public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersModel>
 {
-    private const string LatinTextRegex = @"^[a-zA-Z0-9\s-]*$";
+    private static readonly Regex LatinTextRegex = LatinTextRegexGenerated();
+
+    [GeneratedRegex("^[a-zA-Z0-9\\s-]*$", RegexOptions.CultureInvariant)]
+    private static partial Regex LatinTextRegexGenerated();
 
     public GetFilteredOrdersValidator()
     {
@@ -14,8 +18,7 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
         {
             r.RuleFor(v => v)
                 .MaximumLength(30)
-                .Matches(LatinTextRegex)
-                .When(v => !string.IsNullOrWhiteSpace(v))
+                .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
                 .WithMessage("Invalid first name characters.");
         });
 
@@ -23,8 +26,7 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
         {
             r.RuleFor(v => v)
                 .MaximumLength(30)
-                .Matches(LatinTextRegex)
-                .When(v => !string.IsNullOrWhiteSpace(v))
+                .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
                 .WithMessage("Invalid last name characters.");
         });
 
@@ -44,8 +46,7 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
         {
             r.RuleFor(v => v)
                 .MaximumLength(50)
-                .Matches(LatinTextRegex)
-                .When(v => !string.IsNullOrWhiteSpace(v))
+                .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
                 .WithMessage("Invalid characters in creator.");
         });
 
