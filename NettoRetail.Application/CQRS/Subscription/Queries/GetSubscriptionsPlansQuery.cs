@@ -10,12 +10,12 @@ public record GetSubscriptionsPlansQuery(int ShopId) : IRequest<List<Subscriptio
 public class GetSubscriptionsPlansQueryHandler(
     ISubscriptionPlanRepository subscriptionPlanRepository,IShopRepository shopRepository) : IRequestHandler<GetSubscriptionsPlansQuery, List<SubscriptionPlanResponse>>
 {
-    public async Task<List<SubscriptionPlanResponse>> Handle(GetSubscriptionsPlansQuery request, CancellationToken ct)
+    public async Task<List<SubscriptionPlanResponse>> Handle(GetSubscriptionsPlansQuery request, CancellationToken cancellationToken)
     {
-        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), ct)
+        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
             ?? throw new NotFoundException("Shop not found");
 
-        var plans = await subscriptionPlanRepository.GetAllAsync(ct);
+        var plans = await subscriptionPlanRepository.GetAllAsync(cancellationToken);
 
         return plans.Select(s =>
         {
