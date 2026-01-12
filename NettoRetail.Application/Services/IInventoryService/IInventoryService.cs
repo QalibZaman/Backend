@@ -15,5 +15,5 @@ public interface IInventoryService
     Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default);
 
     Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken);
-    List<InventoryItemEntity> CreateVariationsAsync(ICollection<VariationModel> models, InventoryItemEntity parentItem);
+    List<InventoryItemEntity> CreateVariations(ICollection<VariationModel> models, InventoryItemEntity parentItem);
 }

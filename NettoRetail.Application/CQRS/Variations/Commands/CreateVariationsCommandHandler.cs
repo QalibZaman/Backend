@@ -21,7 +21,7 @@ namespace NettoRetail.Application.CQRS.Variations.Commands
             var parentItem = await inventoryItemRepository.GetAsync(parentItemSpec, cancellationToken)
                 ?? throw new BadRequestException("The parent variation does not exist");
 
-            List<InventoryItemEntity> variations = inventoryService.CreateVariationsAsync(command.Model.Variations, parentItem);
+            List<InventoryItemEntity> variations = inventoryService.CreateVariations(command.Model.Variations, parentItem);
 
             parentItem.HasVariations = true;
 

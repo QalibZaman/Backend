@@ -98,7 +98,7 @@ public class InventoryService(
 
     }
 
-    public List<InventoryItemEntity> CreateVariationsAsync(ICollection<VariationModel> models, InventoryItemEntity parentItem)
+    public List<InventoryItemEntity> CreateVariations(ICollection<VariationModel> models, InventoryItemEntity parentItem)
     {
         List<InventoryItemEntity> result = [];
 
@@ -110,7 +110,7 @@ public class InventoryService(
             variant.IsVariation = true;
             variant.Price = parentItem.Price;
             variant.ShopId = parentItem.ShopId;
-            variant.ParentItemId = parentItem.ParentItemId;
+            variant.ParentItemId = parentItem.Id;
             //In US currently nothing said about description and category, but currently it not nullable. In future that must be clarified.
             variant.Description = parentItem.Description;
             variant.CategoryId = parentItem.CategoryId;
