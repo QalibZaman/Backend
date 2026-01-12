@@ -24,6 +24,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 
@@ -449,7 +450,7 @@ public class StaffController(
 
         var sessionCreateCommand = new CreateSessionCommand(
             ipAddress,
-            Request.Headers["User-Agent"].ToString(),
+            Request.Headers.GetUserAgent(),
             tokenResponse.AccessToken,
             tokenResponse.RefreshToken);
 

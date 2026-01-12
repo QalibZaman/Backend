@@ -323,7 +323,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpPost("{id:guid}resend-invitation")]
+    [HttpPost("{id:guid}/resend-invitation")]
     public async Task<IActionResult> ResendInvitationEmail(Guid id)
     {
         await mediator.Send(new ResendInvitationBySuperAdminCommand(id));

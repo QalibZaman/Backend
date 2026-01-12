@@ -65,32 +65,16 @@ public class CreatePlatformAdminCommandHandler (
             };
 
             using var tx = unitOfWork.BeginTransaction();
-            try
-            {
-                if (role.Id == 0)
-                {
-                    await roleRepo.AddAsync(role, cancellationToken);
-                }
 
-                await accountRepo.AddAsync(account, cancellationToken);
+            if (role.Id == 0)
+                await roleRepo.AddAsync(role, cancellationToken);
 
-                await invitationTokenRepo.InvalidateAllActiveAsync(account.Id, cancellationToken);
-                await invitationTokenRepo.AddAsync(invitationToken, cancellationToken);
+            await accountRepo.AddAsync(account, cancellationToken);
 
-                tx.Commit();
-            }
-            catch
-            {
-                try
-                {
-                    tx.Rollback();
-                }
-                catch
-                {
-                }
+            await invitationTokenRepo.InvalidateAllActiveAsync(account.Id, cancellationToken);
+            await invitationTokenRepo.AddAsync(invitationToken, cancellationToken);
 
-                throw;
-            }
+            tx.Commit();
 
             var invitationUrl = baseUrl.TrimEnd('/');
             var link = $"{invitationUrl}/set-password?token={rawToken}";
