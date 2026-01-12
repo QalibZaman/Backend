@@ -1,55 +1,67 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Payments;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using Stripe;
 
-namespace NettoRetail.Application.CQRS.Payments.Commands
+namespace NettoRetail.Application.CQRS.Payments.Commands;
+
+public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<Unit>;
+
+public sealed class AddPaymentCommandHandler(
+    IAccountRepository accountRepository,
+    IPaymentRepository paymentRepository,
+    IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
 {
-    public record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest;
-
-    public class AddPaymentCommandHandler(IAccountRepository accountRepository, IPaymentRepository paymentRepository, CustomerService customerService, PaymentMethodService paymentMethodService) : IRequestHandler<AddPaymentCommand>
+    public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
-        public async Task Handle(AddPaymentCommand request, CancellationToken cancellationToken)
+        if (request.AccountId == Guid.Empty)
+            throw new ArgumentException("AccountId is empty.", nameof(request.AccountId));
+
+        var account = await accountRepository.GetAsync(
+            new GetAccountByIdSpecification(request.AccountId),
+            cancellationToken);
+
+        if (account is null)
+            throw new KeyNotFoundException($"Account '{request.AccountId}' not found.");
+
+        if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
+            throw new ArgumentException("Payment method already exists.");
+
+        var fullName = $"{account.FirstName} {account.LastName}".Trim();
+
+        var customerId = await stripePaymentService.EnsureCustomerAsync(
+            account.StripeCustomerId,
+            fullName,
+            account.Email,
+            cancellationToken);
+
+        if (!string.Equals(account.StripeCustomerId, customerId, StringComparison.Ordinal))
         {
-            var specification = new GetAccountByIdSpecification(request.AccountId);
-            var account = await accountRepository.GetAsync(specification, cancellationToken);
-
-            if (String.IsNullOrEmpty(account.StripeCustomerId))
-            {
-                var customerOptions = new CustomerCreateOptions
-                {
-                    Name = $"{account.FirstName} {account.LastName}",
-                    Email = account.Email
-                };
-
-                var customer = await customerService.CreateAsync(customerOptions);
-                account.StripeCustomerId = customer.Id;
-
-                account = await accountRepository.UpdateAsync(account, cancellationToken);
-            }
-
-            var paymentMethod = await paymentMethodService.GetAsync(request.PaymentMethodId);
-
-            await paymentMethodService.AttachAsync(request.PaymentMethodId, new PaymentMethodAttachOptions
-            {
-                Customer = account.StripeCustomerId
-            });
-
-            var paymentMethodRecord = new PaymentMethodEntity
-            {
-                AccountId = account.Id,
-                StripePaymentMethodId = request.PaymentMethodId,
-                CardBrand = paymentMethod.Card.Brand,
-                CardExpMonth = paymentMethod.Card.ExpMonth,
-                CardExpYear = paymentMethod.Card.ExpYear,
-                FourLastCardNumbers = paymentMethod.Card.Last4,
-                CreatedAt = DateTime.UtcNow,
-            };
-
-            await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+            account.StripeCustomerId = customerId;
+            await accountRepository.UpdateAsync(account, cancellationToken);
         }
+
+        var card = await stripePaymentService.AttachAndGetCardAsync(
+            request.PaymentMethodId,
+            customerId,
+            cancellationToken);
+
+        var paymentMethodRecord = new PaymentMethodEntity
+        {
+            AccountId = account.Id,
+            StripePaymentMethodId = request.PaymentMethodId,
+            CardBrand = card.Brand,
+            CardExpMonth = card.ExpMonth,
+            CardExpYear = card.ExpYear,
+            FourLastCardNumbers = card.Last4,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+        return Unit.Value;
     }
 }
