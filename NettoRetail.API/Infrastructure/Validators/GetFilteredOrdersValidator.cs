@@ -8,26 +8,20 @@ public class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersMod
 {
     public GetFilteredOrdersValidator()
     {
-        RuleForEach(x => x.CustomerFirstNames).ChildRules(x =>
-        {
-            x.RuleFor(v => v)
-                .MaximumLength(30)
-                .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid first name characters.");
-        });
+        RuleForEach(x => x.CustomerFirstNames)
+            .MaximumLength(30)
+            .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$")
+            .WithMessage("Invalid first name characters at index.");
 
-        RuleForEach(x => x.CustomerLastNames).ChildRules(x =>
-        {
-            x.RuleFor(v => v)
-                .MaximumLength(30)
-                .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$").WithMessage("Invalid last name characters.");
-        });
+        RuleForEach(x => x.CustomerLastNames)
+            .MaximumLength(30)
+            .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$")
+            .WithMessage("Invalid last name characters at index.");
 
-        RuleForEach(x => x.CustomerEmails).ChildRules(x =>
-        {
-            x.RuleFor(v => v)
-                .MaximumLength(256)
-                .EmailAddress().WithMessage("Invalid email format.");
-        });
+        RuleForEach(x => x.CustomerEmails)
+            .MaximumLength(256)
+            .EmailAddress()
+            .WithMessage("Invalid email format at index.");
 
         RuleForEach(x => x.Creators).ChildRules(x =>
         {
