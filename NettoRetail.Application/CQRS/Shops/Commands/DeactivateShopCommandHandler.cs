@@ -7,24 +7,23 @@ namespace NettoRetail.Application.CQRS.Shops.Commands;
 
 public record DeactivateShopCommand(int ShopId, string Reason, DateTime? DeactivationDate) : IRequest;
 
-public class DeactivateShopCommandHandler(
+public sealed class DeactivateShopCommandHandler(
     IShopRepository shopRepository,
-    IMediator mediator) : IRequestHandler<DeactivateShopCommand>
+    IPublisher publisher) : IRequestHandler<DeactivateShopCommand>
 {
     public async Task Handle(DeactivateShopCommand request, CancellationToken cancellationToken)
     {
-        DateTime deactivationDate = request.DeactivationDate ?? DateTime.UtcNow.AddDays(14);
+        var deactivationDate = request.DeactivationDate ?? DateTime.UtcNow.AddDays(14);
 
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
-            ?? throw new NotFoundException("Shop not found");
+            ?? throw new NotFoundException($"Shop with id {request.ShopId} not found");
 
-        shop.IsActive = false;
-        shop.DeactivationReason = request.Reason;
-        shop.DeactivationDate = deactivationDate;
+        shop.Deactivate(request.Reason, deactivationDate);
 
         await shopRepository.UpdateAsync(shop, cancellationToken);
 
-        await mediator.Publish(new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate), cancellationToken);
-
+        await publisher.Publish(
+            new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate),
+            cancellationToken);
     }
 }

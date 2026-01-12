@@ -1,5 +1,4 @@
 ﻿using NettoRetail.Domain.Enums;
-using System.Text.Json.Serialization;
 
 namespace NettoRetail.Application.Models.Request.Staff;
 

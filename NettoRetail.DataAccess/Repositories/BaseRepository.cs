@@ -6,16 +6,11 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
+public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRepository<TEntity>
     where TEntity : class
 {
-    protected readonly DbSet<TEntity> _dbSet;
-    protected readonly AppDbContext _dbContext;
-    protected BaseRepository(AppDbContext dbContext)
-    {
-        _dbContext = dbContext;
-        _dbSet = dbContext.Set<TEntity>();
-    }
+    protected readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
+    protected readonly AppDbContext _dbContext = dbContext;
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {

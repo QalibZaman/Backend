@@ -17,18 +17,30 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
     {
         var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL, request.ShopId);
 
-        var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
+        var conflictingCategoryExists = await categoryRepository.Exists(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
-        if (conflictModel != null)
+        if (conflictingCategoryExists)
         {
             throw new ConflictException("Category with such name or url already exists");
         }
 
+        if (request.ParentId is int parentId)
+        {
+            var parentCategoryExists = await categoryRepository.Exists(
+                new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
+                cancellationToken);
+
+            if (!parentCategoryExists)
+            {
+                throw new NotFoundException("Parent category not found");
+            }
+        }
+
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);
 
-        var shop = await shopRepository.GetAsync(shopSpecification, cancellationToken);
+        var shopExists = await shopRepository.Exists(shopSpecification, cancellationToken);
 
-        if (shop == null)
+        if (!shopExists)
         {
             throw new NotFoundException($"No shop with id: {request.ShopId}");
         }

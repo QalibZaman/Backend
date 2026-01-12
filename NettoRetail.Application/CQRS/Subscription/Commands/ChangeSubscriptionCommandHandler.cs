@@ -26,16 +26,17 @@ public class ChangeSubscriptionCommandHandler(
 {
     public async Task Handle(ChangeSubscriptionCommand request, CancellationToken cancellationToken)
     {
+        var shopSpec = new GetShopByIdSpecification(request.ShopId);
+        var shop = await shopRepository.GetAsync(shopSpec, cancellationToken)
+            ?? throw new NotFoundException($"Shop with ID {request.ShopId} not found.");
+
         var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
+
         var admin = await accountRepository.GetAsync(adminSpec, cancellationToken)
             ?? throw new ForbiddenException("Shop has no admin.");
 
         if (admin.Id != request.UserId)
             throw new ForbiddenException("You are not the owner of this shop");
-
-        var shopSpec = new GetShopByIdSpecification(request.ShopId);
-        var shop = await shopRepository.GetAsync(shopSpec, cancellationToken)
-            ?? throw new NotFoundException("Shop with that Id not found");
 
         var plan = await subscriptionPlanRepository
             .GetByTypeAsync(request.NewPlan, cancellationToken)
