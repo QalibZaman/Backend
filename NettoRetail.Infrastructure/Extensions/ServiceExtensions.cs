@@ -34,7 +34,6 @@ public static class ServiceExtensions
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<IStripeService, StripeService>();
-        services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
 
         return services;
     }
