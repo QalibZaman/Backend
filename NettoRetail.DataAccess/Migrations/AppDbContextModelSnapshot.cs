@@ -879,10 +879,16 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<bool>("HasVariations")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsPromoted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVariation")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("LastUpdatedDate")
@@ -890,6 +896,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<int>("OnHandAmount")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("ParentItemId")
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
@@ -929,6 +938,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("ParentItemId");
 
                     b.HasIndex("ProductUpc")
                         .IsUnique();
@@ -2116,6 +2127,11 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "ParentItem")
+                        .WithMany("ChildItems")
+                        .HasForeignKey("ParentItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
                         .WithMany("InventoryItems")
                         .HasForeignKey("ShopId")
@@ -2125,6 +2141,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+
+                    b.Navigation("ParentItem");
 
                     b.Navigation("Shop");
                 });
@@ -2435,6 +2453,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
                 {
+                    b.Navigation("ChildItems");
+
                     b.Navigation("ComparisonItems");
 
                     b.Navigation("FavouriteListItems");

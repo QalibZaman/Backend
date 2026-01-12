@@ -1,12 +1,12 @@
 using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
@@ -97,7 +97,30 @@ public class InventoryService(
         ValidatePromotionPrice(model, shopId, id, inventoryItem, cancellationToken);
 
     }
-    
+
+    public List<InventoryItemEntity> CreateVariationsAsync(ICollection<VariationModel> models, InventoryItemEntity parentItem)
+    {
+        List<InventoryItemEntity> result = [];
+
+        foreach (var item in models)
+        {
+            var variant = item.Adapt<InventoryItemEntity>();
+
+            variant.AvailableAmount = 0;
+            variant.IsVariation = true;
+            variant.Price = parentItem.Price;
+            variant.ShopId = parentItem.ShopId;
+            variant.ParentItemId = parentItem.ParentItemId;
+            //In US currently nothing said about description and category, but currently it not nullable. In future that must be clarified.
+            variant.Description = parentItem.Description;
+            variant.CategoryId = parentItem.CategoryId;
+
+            result.Add(variant);
+        }
+
+        return result;
+    }
+
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
@@ -134,5 +157,4 @@ public class InventoryService(
         if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
             throw new BadRequestException("Promotion price must be less than the regular price.");
     }
-
 }
