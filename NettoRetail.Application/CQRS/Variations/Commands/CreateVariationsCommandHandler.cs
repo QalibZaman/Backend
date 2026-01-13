@@ -3,7 +3,6 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -21,24 +20,16 @@ namespace NettoRetail.Application.CQRS.Variations.Commands
             var parentItem = await inventoryItemRepository.GetAsync(parentItemSpec, cancellationToken)
                 ?? throw new BadRequestException("The parent variation does not exist");
 
-            List<InventoryItemEntity> variations = inventoryService.CreateVariations(command.Model.Variations, parentItem);
+            var variations = inventoryService.BuildVariationInventoryItemEntities(command.Model.Variations, parentItem);
 
             parentItem.HasVariations = true;
 
             using var transaction = unitOfWork.BeginTransaction();
 
-            try
-            {
-                await inventoryItemRepository.UpdateAsync(parentItem, cancellationToken);
-                await inventoryItemRepository.AddRangeAsync(variations, cancellationToken);
+            await inventoryItemRepository.UpdateAsync(parentItem, cancellationToken);
+            await inventoryItemRepository.AddRangeAsync(variations, cancellationToken);
 
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            transaction.Commit();
 
             return Unit.Value;
         }
