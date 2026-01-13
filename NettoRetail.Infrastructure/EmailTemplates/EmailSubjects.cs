@@ -7,5 +7,6 @@ public static class EmailSubjects
     public const string ShopDeactivationWarning = "Shop Deactivation Scheduled";
     public const string PlatformAdminActivation = "Your Platform Admin Account Is Ready";
     public const string FeedbackRejectionNotification = "Your FeedBack rejected";
+    public const string PlatformAdminActivated = "Your account has been activated";
     public const string ActivateCustomerAccount = "NettoRetail account acivation";
 }

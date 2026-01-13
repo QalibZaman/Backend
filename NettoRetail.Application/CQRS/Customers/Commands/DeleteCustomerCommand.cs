@@ -36,9 +36,8 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
             var transaction = unitOfWork.BeginTransaction();
             try
             {
-                customer.IsDeleted = true;
                 await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
-                await customerRepository.UpdateAsync(customer, cancellationToken);
+                await customerRepository.DeleteAsync(customer, cancellationToken);
 
                 transaction.Commit();
             }

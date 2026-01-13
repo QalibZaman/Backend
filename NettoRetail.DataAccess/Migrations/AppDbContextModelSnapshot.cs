@@ -955,6 +955,42 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("ItemComparison");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.InvitationTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("InvalidatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("InvitationTokens");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
                 {
                     b.Property<Guid>("ComparisonId")
@@ -2139,6 +2175,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.InvitationTokenEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "AccountEntity")
+                        .WithMany("InvitationTokens")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountEntity");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.ItemComparisonEntity", "Comparison")
@@ -2390,6 +2437,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("FavouriteListItems");
 
                     b.Navigation("Feedbacks");
+
+                    b.Navigation("InvitationTokens");
 
                     b.Navigation("PasswordHistories");
 

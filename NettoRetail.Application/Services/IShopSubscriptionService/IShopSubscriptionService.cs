@@ -1,13 +1,13 @@
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 
-namespace NettoRetail.Shared.Interfaces.Services;
+namespace NettoRetail.Application.Services;
 
 public interface IShopSubscriptionService
 {
     Task ChangeSubscriptionAsync(
         ShopEntity shop,
         SubscriptionTypeEnum newPlan,
-        string? paymentMethodId,
+        string paymentMethodId,
         CancellationToken cancellationToken = default);
 }

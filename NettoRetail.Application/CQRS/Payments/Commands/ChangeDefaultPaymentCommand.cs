@@ -1,32 +1,53 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using System.ComponentModel.DataAnnotations;
+using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Repositories;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Payment;
 using NettoRetail.Shared.Interfaces.Repositories;
-using Stripe;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
-public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId) : IRequest<bool>;
+public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId) : IRequest;
 
-public class ChangeDefaultPaymentCommandHandler(IPaymentRepository paymentRepository, PaymentMethodService paymentMethodService)
-    : IRequestHandler<ChangeDefaultPaymentCommand, bool>
+public class ChangeDefaultPaymentCommandHandler(
+    IPaymentRepository paymentRepository,
+    IStripePaymentService stripePaymentService,
+    IUnitOfWork unitOfWork) : IRequestHandler<ChangeDefaultPaymentCommand>
 {
-    public async Task<bool> Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
     {
         var spec = new PaymentMethodsByAccountSpecification(request.PaymentMethodId, request.AccountId);
+
         var paymentMethod = await paymentRepository.GetAsync(spec, cancellationToken)
-                            ?? throw new NotFoundException("Payment method not found.");
+            ?? throw new NotFoundException("Payment method not found.");
 
-        var allMethods = paymentMethod.Account.PaymentMethods?.ToList() ?? throw new NotFoundException("No payment methods found for the account.");
+        var allMethods = paymentMethod.Account.PaymentMethods?.ToList()
+            ?? throw new NotFoundException("No payment methods found for the account.");
 
-        allMethods.ForEach(pm => pm.IsDefault = (pm.StripePaymentMethodId == request.PaymentMethodId));
+        if (allMethods.Count < 2)
+            throw new ValidationException("At least two payment methods are required to change default.");
+
+        if (paymentMethod.IsDefault)
+            return;
+
+        var customerId = paymentMethod.Account.StripeCustomerId;
+        if (string.IsNullOrWhiteSpace(customerId))
+            throw new ValidationException("Stripe customer is not configured for this account.");
+
+        var newDefaultStripeId = paymentMethod.StripePaymentMethodId;
+
+        await stripePaymentService.SetDefaultPaymentMethodAsync(
+            customerId,
+            newDefaultStripeId,
+            cancellationToken);
+
+        using var tx = unitOfWork.BeginTransaction();
+        foreach (var payMethod in allMethods)
+                payMethod.IsDefault = payMethod.StripePaymentMethodId == newDefaultStripeId;
 
         await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
 
-        await paymentMethodService.UpdateAsync(paymentMethod.StripePaymentMethodId, null, null, cancellationToken);
-
-        return true;
+        tx.Commit();
     }
 }
