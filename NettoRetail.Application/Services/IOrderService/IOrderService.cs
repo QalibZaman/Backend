@@ -6,4 +6,5 @@ namespace NettoRetail.Application.Services.IOrderService;
 public interface IOrderService
 {
     Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order);
+    Task<OrderEntity> GetOrderAsync(int orderId, CancellationToken ct);
 }

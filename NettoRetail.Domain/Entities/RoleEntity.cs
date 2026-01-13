@@ -6,7 +6,7 @@ public class RoleEntity
 {
     public int Id { get; set; }
     public required string Name { get; set; }
-    public required string Description { get; set; }
+    public string? Description { get; set; }
 
     public int? ShopId { get; set; }
     public ShopEntity? Shop { get; set; }
