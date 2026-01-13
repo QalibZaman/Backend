@@ -7,6 +7,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;

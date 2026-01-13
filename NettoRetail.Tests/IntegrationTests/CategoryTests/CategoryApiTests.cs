@@ -87,7 +87,6 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                 Name = "Outdoorz",
                 URL = "outdoorz",
                 ParentId = null,
-                ShopId = 1,
                 Visibility = true,
             };
 

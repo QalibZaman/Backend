@@ -32,30 +32,34 @@ namespace NettoRetail.Application.Services.IRoleService
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<RoleEntity> CreatePlatformAdminRole(CreatePlatformAdminModel model, CancellationToken cancellationToken)
+        public async Task<RoleEntity> CreatePlatformAdminRole(
+            CreatePlatformAdminModel model,
+            CancellationToken cancellationToken)
         {
             model.Normalize();
-            var emailSpec = new GetAccountByEmailSpecification(model.Email);
 
+            var emailSpec = new GetAccountByEmailSpecification(model.Email);
             if (await _accountRepository.Exists(emailSpec, cancellationToken))
                 throw new ValidationException("Email is already in use");
 
             if (model.Permissions == null || !model.Permissions.Any())
                 throw new BadRequestException("At least one permission must be selected.");
 
-            var permissionTitles = model.Permissions.Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant())
+            var permissionTitles = model.Permissions
+                .Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant())
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .Distinct()
                 .ToList();
 
             var permissionIDs = await _permissionRepository.GetIdsBySpecAsync(
                 new GetPermissionsByTitlesSpecification(permissionTitles), cancellationToken);
-            //retrun  exiseted Platform admin role
-            var spec = new GetRoleByExactPermissionsSpecification(permissionIDs);
-            var existingRole = await _roleRepository.GetAllBySpecAsync(spec, cancellationToken);
 
-            if (existingRole.ToList().Count > 0)
-                return existingRole?.FirstOrDefault();
+            var spec = new GetRoleByExactPermissionsSpecification(permissionIDs);
+            var existingRoles = await _roleRepository.GetAllBySpecAsync(spec, cancellationToken);
+            var existingRole = existingRoles?.FirstOrDefault();
+
+            if (existingRole != null)
+                return existingRole;
 
             var newRole = new RoleEntity
             {
@@ -63,16 +67,12 @@ namespace NettoRetail.Application.Services.IRoleService
                 Description = CreatePlatformAdminConstants.PlatformAdminDescription,
                 ShopId = null,
                 PermissionRoles = permissionIDs
-                .Select(id => new PermissionRoleEntity { PermissionId = id })
-                .ToList()
+                    .Select(id => new PermissionRoleEntity { PermissionId = id })
+                    .ToList()
             };
 
-            using var tx = _unitOfWork.BeginTransaction();
-            await _roleRepository.AddAsync(newRole, cancellationToken);
-            tx.Commit();
-
             return newRole;
-
         }
+
     }
 }

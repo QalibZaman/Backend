@@ -12,15 +12,18 @@ public class StripeService : IStripeService
 
     private readonly CustomerService _customerService;
     private readonly SubscriptionService _subscriptionService;
+    private readonly PaymentMethodService _paymentMethodService;
 
     public StripeService(
         IOptions<StripeOptions> options,
         CustomerService customerService,
-        SubscriptionService subscriptionService)
+        SubscriptionService subscriptionService,
+        PaymentMethodService paymentMethodService)
     {
         StripeConfiguration.ApiKey = options.Value.SecretKey;
         _customerService = customerService;
         _subscriptionService = subscriptionService;
+        _paymentMethodService = paymentMethodService;
     }
 
     public async Task<string> CreateCustomerAsync(string email, string paymentMethodId, CancellationToken cancellationToken = default)
@@ -54,5 +57,18 @@ public class StripeService : IStripeService
 
         var subscription = await _subscriptionService.CreateAsync(subscriptionOptions, cancellationToken: cancellationToken);
         return subscription.Id;
+    }
+
+    public async Task<bool> PaymentMethodExistsAsync(string paymentMethodId, CancellationToken cancellationToken=default)
+    {
+        try
+        {
+            var pm = await _paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
+            return true;
+        }
+        catch (StripeException)
+        {
+            return false;
+        }
     }
 }

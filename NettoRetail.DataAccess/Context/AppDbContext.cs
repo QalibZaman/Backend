@@ -7,7 +7,7 @@ using NettoRetail.Domain.Entities.JunctionEntities;
 namespace NettoRetail.DataAccess.Context;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
-{
+{ 
     public DbSet<AccountEntity> Accounts { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<FailedAuthAttemptEntity> FailedAuthAttempt { get; set; }
@@ -45,6 +45,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
     public DbSet<ProductDetailEntity> ProductDetails { get; set; }
     public DbSet<ItemComparisonEntity> ItemComparison { get; set; }
+    public DbSet<InvitationTokenEntity> InvitationTokens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
