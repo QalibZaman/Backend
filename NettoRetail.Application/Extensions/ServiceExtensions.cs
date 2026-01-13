@@ -79,6 +79,9 @@ public static class ServiceExtensions
         services.AddHangfireServer();
 
         //Services
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<ILinkService, LinkService>();
+        services.AddScoped<IInvitationTokenService, InvitationTokenService>();
         services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();

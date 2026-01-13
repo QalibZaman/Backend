@@ -21,6 +21,7 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using NettoRetail.Application.Models.Request.Token;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -318,5 +319,14 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         var response = new ApiResponse<List<PlatformAdminResponse>>(data);
 
         return Ok(response);
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPost("{id:guid}/resend-invitation")]
+    public async Task<IActionResult> ResendInvitationEmail(Guid id)
+    {
+        await mediator.Send(new ResendInvitationBySuperAdminCommand(id));
+        return Ok(new ApiResponse("Invitation was send succesfully"));
     }
 }

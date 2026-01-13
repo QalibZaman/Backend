@@ -10,5 +10,6 @@ public interface IEmailBuilderService
     Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason);
     Task<EmailModel> BuildPlatformAdminActivationEmailAsync(string email, string firstName, string activationLink);
     Task<BulkEmailModel> BuildFeedbackRejectedEmailsAsync(List<string> emails, string reason);
+    Task<EmailModel> BuildPlatformAdminActivatedEmailAsync(string email, string firstName);
     Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link);
 }
