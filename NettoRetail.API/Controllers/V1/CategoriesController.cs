@@ -50,7 +50,9 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
-            var command = model.Adapt<AddCategoryCommand>();
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new AddCategoryCommand(model, shopId);
 
             var response = await mediator.Send(command, cancellationToken);
 
