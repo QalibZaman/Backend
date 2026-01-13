@@ -45,8 +45,8 @@ public class ChangeDefaultPaymentCommandHandler(
         using var tx = unitOfWork.BeginTransaction();
         try
         {
-            foreach (var pm in allMethods)
-                pm.IsDefault = pm.StripePaymentMethodId == newDefaultStripeId;
+            foreach (var payMethod in allMethods)
+                payMethod.IsDefault = payMethod.StripePaymentMethodId == newDefaultStripeId;
 
             await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
 
