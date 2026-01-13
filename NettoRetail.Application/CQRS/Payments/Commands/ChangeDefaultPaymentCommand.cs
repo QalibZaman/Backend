@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Payment;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -12,14 +12,12 @@ public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId
 
 public class ChangeDefaultPaymentCommandHandler(
     IPaymentRepository paymentRepository,
-    IStripePaymentService stripePaymentService
-) : IRequestHandler<ChangeDefaultPaymentCommand, bool>
+    IStripePaymentService stripePaymentService,
+    IUnitOfWork unitOfWork) : IRequestHandler<ChangeDefaultPaymentCommand, bool>
 {
     public async Task<bool> Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
     {
-        var spec = new PaymentMethodsByAccountSpecification(
-            request.PaymentMethodId,
-            request.AccountId);
+        var spec = new PaymentMethodsByAccountSpecification(request.PaymentMethodId, request.AccountId);
 
         var paymentMethod = await paymentRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Payment method not found.");
@@ -37,32 +35,28 @@ public class ChangeDefaultPaymentCommandHandler(
         if (string.IsNullOrWhiteSpace(customerId))
             throw new ValidationException("Stripe customer is not configured for this account.");
 
+        var newDefaultStripeId = paymentMethod.StripePaymentMethodId;
+
+        await stripePaymentService.SetDefaultPaymentMethodAsync(
+            customerId,
+            newDefaultStripeId,
+            cancellationToken);
+
+        using var tx = unitOfWork.BeginTransaction();
         try
         {
-            await stripePaymentService.SetDefaultPaymentMethodAsync(
-                customerId,
-                paymentMethod.StripePaymentMethodId,
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException(
-                "Failed to update default payment method.", ex);
-        }
+            foreach (var pm in allMethods)
+                pm.IsDefault = pm.StripePaymentMethodId == newDefaultStripeId;
 
-        foreach (var payMethod in allMethods)
-            payMethod.IsDefault = payMethod.StripePaymentMethodId == request.PaymentMethodId;
-
-        try
-        {
             await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
-        }
-        catch (DbUpdateException ex)
-        {
-            throw new InvalidOperationException(
-                "Failed to save default payment method.", ex);
-        }
 
-        return true;
+            tx.Commit();
+            return true;
+        }
+        catch
+        {
+            tx.Rollback();
+            throw;
+        }
     }
 }
