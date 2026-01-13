@@ -53,7 +53,8 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .NotEmpty().WithMessage("Description is required.")
             .MaximumLength(500).WithMessage("Description must be less than 500 characters long.")
             .Matches(@"^[A-Za-z0-9 ,.\-_'()]*$").WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
-            .Matches("^(|[^ ].*[^ ]$)").WithMessage("Description must not have leading or trailing spaces.")
+            .Matches(@"^(?! ).*(?<! )$").WithMessage("Description must not have leading or trailing spaces.")
+            .Matches(@"^(?!.*<[^>]+>).*$").WithMessage("Description must not contain HTML tags.")
             .When(x => x.Description != null);
 
         RuleFor(x => x.IsActive)

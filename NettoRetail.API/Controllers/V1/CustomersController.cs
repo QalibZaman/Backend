@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,23 +18,54 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class CustomersController(IMediator mediator) : ControllerBase
 {
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("sign-up")]
+    [HttpPost("create-customer")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
-        var command = new CreateCustomerCommand(customer);
+        var shopId = HttpContext.GetUserShopId();
+        var command = new CreateCustomerCommand(shopId, customer);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(result);
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("sign-up/{shopId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<SignUpCustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SighnUpCustomer(int shopId, [FromBody] SignUpCustomerRequest customer, CancellationToken cancellationToken)
+    {
+        var command = new SighnUpCustomerCommand(shopId, customer);
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<SignUpCustomerResponse>(result);
 
         return Ok(response);
     }
 
+    [AllowAnonymous]
+    [HttpGet("verify-customer-activation")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> VerifyCustomer([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        var command = new VerifyCustomerEmailCommand(token);
+        await mediator.Send(command, cancellationToken);
+
+        return Ok(new ApiResponse<string>("Your email was successfully verified!"));
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
 
-    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCustomers([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
     {
         var query = new GetCustomersQuery(pageModel, filter);
         var result = await mediator.Send(query, cancellationToken);
@@ -69,7 +100,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPatch("{id:guid}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]

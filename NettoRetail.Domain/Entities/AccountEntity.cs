@@ -1,3 +1,4 @@
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
@@ -26,6 +27,7 @@ public class AccountEntity
     public bool IsSubscribedToNewsletter { get; set; }
     public bool IsOnboardingCompleted { get; set; } = false;
 
+    public ICollection<InvitationTokenEntity> InvitationTokens { get; set; } = [];
     public CountryEntity? Country { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public int? ShopId { get; set; }

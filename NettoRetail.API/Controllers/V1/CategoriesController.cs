@@ -20,7 +20,7 @@ namespace NettoRetail.API.Controllers.V1
     [Route("api/v{v:ApiVersion}/[controller]")]
     public class CategoriesController(IMediator mediator) : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<GetCategoriesResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,9 +28,12 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel, [FromQuery] GetCategoriesRequest model, CancellationToken cancellationToken)
+
+        public async Task<IActionResult> GetCategories([FromQuery] PaginationRequest pageModel, CancellationToken cancellationToken)
         {
-            var query = new GetCategoriesQuery(pageModel, model.ShopId);
+            var shopId = HttpContext.GetUserShopId();
+
+            var query = new GetCategoriesQuery(pageModel, shopId);
 
             var response = await mediator.Send(query, cancellationToken);
 
@@ -47,7 +50,9 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
-            var command = model.Adapt<AddCategoryCommand>();
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new AddCategoryCommand(model, shopId);
 
             var response = await mediator.Send(command, cancellationToken);
 

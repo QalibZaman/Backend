@@ -12,6 +12,7 @@ namespace NettoRetail.Application.Services;
 public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
+    IOptions<EmailVerificationOptions> verificationOptions,
     IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
@@ -126,6 +127,41 @@ public class EmailBuilderService(
             EmailAddresses = emails,
             Subject = EmailSubjects.FeedbackRejectionNotification,
             Message = body
+        };
+    }
+
+    public async Task<EmailModel> BuildPlatformAdminActivatedEmailAsync(string email, string firstName)
+    {
+        var templateModel = new
+        {
+            first_name = firstName,
+            current_year = DateTime.UtcNow.Year
+        };
+
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.PlatformAdminActivated,
+            templateModel);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.PlatformAdminActivated,
+            Message = body
+        };
+    }
+
+
+    public async Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link)
+    {
+        var model = new { user_name = firstName, activation_link = link, token_expiration_hours = verificationOptions.Value.TokenExpirationHours };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ActivateCustomerAccount, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.ActivateCustomerAccount,
+            Message = emailBody
         };
     }
 }

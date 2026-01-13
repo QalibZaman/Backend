@@ -22,8 +22,12 @@ public static class ServiceExtensions
             client.BaseAddress = new Uri(configuration.GetSection("IpInfo").GetValue<string>("BaseUrl") ?? "https://ipinfo.io/");
         });
 
+        services.Configure<FrontendOptions>(configuration.GetSection(nameof(FrontendOptions)));
+        services.Configure<InvitationOptions>(configuration.GetSection(nameof(InvitationOptions)));
+
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
+        services.Configure<EmailVerificationOptions>(configuration.GetSection(nameof(EmailVerificationOptions)));
         services.Configure<StripeOptions>(configuration.GetSection(nameof(StripeOptions)));
         StripeConfiguration.ApiKey = configuration.GetSection(nameof(StripeOptions))["SecretKey"];
 
@@ -33,7 +37,6 @@ public static class ServiceExtensions
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<IStripeService, StripeService>();
-        services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
 
         return services;
     }
