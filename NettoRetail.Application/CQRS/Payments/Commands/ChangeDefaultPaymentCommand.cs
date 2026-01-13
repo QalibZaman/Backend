@@ -8,14 +8,14 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
-public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId) : IRequest<bool>;
+public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId) : IRequest;
 
 public class ChangeDefaultPaymentCommandHandler(
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService,
-    IUnitOfWork unitOfWork) : IRequestHandler<ChangeDefaultPaymentCommand, bool>
+    IUnitOfWork unitOfWork) : IRequestHandler<ChangeDefaultPaymentCommand>
 {
-    public async Task<bool> Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
     {
         var spec = new PaymentMethodsByAccountSpecification(request.PaymentMethodId, request.AccountId);
 
@@ -29,7 +29,7 @@ public class ChangeDefaultPaymentCommandHandler(
             throw new ValidationException("At least two payment methods are required to change default.");
 
         if (paymentMethod.IsDefault)
-            return true;
+            return;
 
         var customerId = paymentMethod.Account.StripeCustomerId;
         if (string.IsNullOrWhiteSpace(customerId))
@@ -43,20 +43,11 @@ public class ChangeDefaultPaymentCommandHandler(
             cancellationToken);
 
         using var tx = unitOfWork.BeginTransaction();
-        try
-        {
-            foreach (var payMethod in allMethods)
+        foreach (var payMethod in allMethods)
                 payMethod.IsDefault = payMethod.StripePaymentMethodId == newDefaultStripeId;
 
-            await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
+        await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
 
-            tx.Commit();
-            return true;
-        }
-        catch
-        {
-            tx.Rollback();
-            throw;
-        }
+        tx.Commit();
     }
 }
