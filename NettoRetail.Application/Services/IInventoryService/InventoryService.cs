@@ -114,9 +114,10 @@ public class InventoryService(
             variant.Price = parentItem.Price;
             variant.ShopId = parentItem.ShopId;
             variant.ParentItemId = parentItem.Id;
-            //In US currently nothing said about description and category, but currently it not nullable. In future that must be clarified.
+            //In US currently nothing said about description, brand and category, but currently it not nullable. In future that must be clarified.
             variant.Description = parentItem.Description;
             variant.CategoryId = parentItem.CategoryId;
+            variant.BrandId = parentItem.BrandId;
 
             result.Add(variant);
         }
