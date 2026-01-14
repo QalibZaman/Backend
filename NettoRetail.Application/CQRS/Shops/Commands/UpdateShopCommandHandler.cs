@@ -16,9 +16,11 @@ public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDe
 {
     public async Task Handle(UpdateShopCommand request, CancellationToken cancellationToken)
     {
-        var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
-
-        await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
+        if (request.Model.CountryId != null)
+        {
+            var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+            await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
+        }
 
         var shopValidationModel = request.Model.Adapt<ShopValidationModel>();
 

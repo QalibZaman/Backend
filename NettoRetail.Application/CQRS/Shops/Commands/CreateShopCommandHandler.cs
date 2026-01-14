@@ -30,8 +30,11 @@ public class CreateShopCommandHandler(
 {
     public async Task<ShopResponse> Handle(CreateShopCommand request, CancellationToken cancellationToken)
     {
-        var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
-        await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
+        if (request.Model.CountryId != null)
+        {
+            var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+            await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
+        }
 
         var shop = request.Model.Adapt<ShopEntity>();
         shop.SubscriptionPlanId = SubscriptionConstants.Free;

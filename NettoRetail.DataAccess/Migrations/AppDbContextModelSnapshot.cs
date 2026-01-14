@@ -1776,7 +1776,6 @@ namespace NettoRetail.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(90)
                         .HasColumnType("character varying(90)");
 
@@ -1790,11 +1789,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("CountryId")
+                    b.Property<int?>("CountryId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("DeactivationDate")
@@ -1804,7 +1802,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -1827,7 +1824,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<string>("State")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -1848,7 +1844,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("ZipCode")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
@@ -2418,8 +2413,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
                         .WithMany("Shops")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
                         .WithMany("Shops")
