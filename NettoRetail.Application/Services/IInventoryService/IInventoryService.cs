@@ -1,5 +1,6 @@
 ﻿using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 
@@ -14,4 +15,5 @@ public interface IInventoryService
     Task<byte[]> DownloadInventoryItemsCsvAsync(int userShopId, CancellationToken cancellationToken = default);
 
     Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken);
+    List<InventoryItemEntity> BuildVariationInventoryItemEntities(ICollection<VariationModel> models, InventoryItemEntity parentItem);
 }

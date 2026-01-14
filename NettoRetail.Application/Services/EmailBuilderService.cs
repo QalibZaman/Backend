@@ -153,7 +153,12 @@ public class EmailBuilderService(
 
     public async Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link)
     {
-        var model = new { user_name = firstName, activation_link = link, token_expiration_hours = verificationOptions.Value.TokenExpirationHours };
+        var model = new
+        {
+            user_name = firstName,
+            activation_link = link,
+            token_expiration_hours = verificationOptions.Value.TokenExpirationHours
+        };
 
         var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ActivateCustomerAccount, model);
 

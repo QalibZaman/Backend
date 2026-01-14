@@ -84,7 +84,9 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
     {
         var handler = new JwtSecurityTokenHandler();
 
-        var principal = handler.ValidateToken(
+        try
+        {
+            var principal = handler.ValidateToken(
             emailActivationToken,
             new TokenValidationParameters
             {
@@ -97,18 +99,31 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
             },
             out _);
 
-        var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
+            var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
 
-        if (tokenType != AuthTokenTypes.EmailVerification)
-        {
-            throw new BadRequestException("Invalid token type.");
+            if (tokenType != AuthTokenTypes.EmailVerification)
+            {
+                throw new BadRequestException("Invalid token type.");
+            }
+
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                throw new BadRequestException("Email claim is missing in token.");
+
+            return principal;
         }
-
-        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
-        if (string.IsNullOrEmpty(email))
-            throw new BadRequestException("Email claim is missing in token.");
-
-        return principal;
+        catch (SecurityTokenExpiredException)
+        {
+            throw new BadRequestException("Token has expired.");
+        }
+        catch (SecurityTokenMalformedException)
+        {
+            throw new BadRequestException("Token format is invalid.");
+        }
+        catch (SecurityTokenException)
+        {
+            throw new BadRequestException("Invalid token.");
+        }
     }
 
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
