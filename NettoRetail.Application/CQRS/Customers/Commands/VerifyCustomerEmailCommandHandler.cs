@@ -12,8 +12,7 @@ namespace NettoRetail.Application.CQRS.Customers.Commands;
 public record VerifyCustomerEmailCommand(string Token) : IRequest<Unit>;
 public class VerifyCustomerEmailCommandHandler(
     IJwtManager jwtManager,
-    ICustomerRepository customerRepository,
-    IAccountRepository accountRepository)
+    ICustomerRepository customerRepository)
     : IRequestHandler<VerifyCustomerEmailCommand, Unit>
 {
     public async Task<Unit> Handle(
@@ -25,31 +24,16 @@ public class VerifyCustomerEmailCommandHandler(
 
         ClaimsPrincipal principal;
 
-        try
-        {
-            principal = jwtManager.ValidateEmailActivation(command.Token);
-        }
-        catch (SecurityTokenExpiredException)
-        {
-            throw new MyUnauthorizedException("The activation link has expired.");
-        }
-        catch (SecurityTokenException)
-        {
-            throw new BadRequestException("Invalid activation token.");
-        }
+        principal = jwtManager.ValidateEmailActivation(command.Token);
 
         var emailClaim = principal.FindFirst(ClaimTypes.Email);
         if (string.IsNullOrWhiteSpace(emailClaim?.Value))
             throw new BadRequestException("Activation token does not contain a valid email.");
         var email = emailClaim.Value;
 
-        var accSpec = new GetAccountByEmailSpecification(email!);
-        var account = await accountRepository.GetAsync(accSpec, cancellationToken)
-            ?? throw new BadRequestException("Account not found.");
-
-        var customerSpec = new GetCustomerByIdSpecification(account.Id);
+        var customerSpec = new GetCustomerByEmailSpecification(email);
         var customer = await customerRepository.GetAsync(customerSpec, cancellationToken)
-            ?? throw new BadRequestException("Customer not found.");
+            ?? throw new NotFoundException("Customer not found.");
 
         if (!customer.IsActive)
         {

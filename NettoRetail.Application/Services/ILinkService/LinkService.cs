@@ -9,8 +9,8 @@ namespace NettoRetail.Application.Services.ILinkService;
 public class LinkService(IJwtManager jwtManager,
     IOptions<EmailVerificationOptions> emailVerificationOptions) : ILinkService
 {
-    // That method was created to give link for customer activation in respone for swagger testing
-    public Task<string> CreateCustomerAccountVerificationLink(string email)
+    // Creates a verification link for customer account activation in swagger.
+    public string CreateCustomerAccountVerificationLink(string email)
     {
         var claims = new List<Claim>
         {
@@ -20,8 +20,8 @@ public class LinkService(IJwtManager jwtManager,
 
         var verificationToken = jwtManager.Generate(claims, TimeSpan.FromHours(emailVerificationOptions.Value.TokenExpirationHours));
 
-        var link = string.Format(emailVerificationOptions.Value.VerificationLink!, Uri.EscapeDataString(verificationToken));
+        var link = string.Format(emailVerificationOptions.Value.VerificationLink, Uri.EscapeDataString(verificationToken));
 
-        return Task.FromResult(link);
+        return link;
     }
 }
