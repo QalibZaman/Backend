@@ -15,15 +15,16 @@ public class EmailSender(IOptions<EmailOptions> emailOptions) : IEmailSender
             emailOptions.Value.Host,
             emailOptions.Value.Port)
         {
-            EnableSsl = true,
+            EnableSsl = emailOptions.Value.EnableSsl,
+            UseDefaultCredentials = false,
             Credentials = new NetworkCredential(
-                emailOptions.Value.Sender,
+                emailOptions.Value.Username,
                 emailOptions.Value.Password)
         };
 
         using var message = new MailMessage
         {
-            From = new MailAddress(emailOptions.Value.Sender),
+            From = new MailAddress(emailOptions.Value.Sender, emailOptions.Value.Username),
             Subject = model.Subject,
             Body = model.Message,
             IsBodyHtml = true
