@@ -31,19 +31,11 @@ public class CreateInventoryItemCommandHandler(
 
         using var transaction = unitOfWork.BeginTransaction();
 
-        try
-        {
-            var response = await AddItemAndDetailsAsync(request, categoryName, brandName, cancellationToken);
+        var response = await AddItemAndDetailsAsync(request, categoryName, brandName, cancellationToken);
 
-            transaction.Commit();
+        transaction.Commit();
 
-            return response;
-        }
-        catch (Exception)
-        {
-            transaction.Rollback();
-            throw;
-        }
+        return response;
     }
 
     public async Task<(string CategoryName, string BrandName)> CheckForConflictsAsync(CreateInventoryItemCommand request, CancellationToken cancellationToken)
