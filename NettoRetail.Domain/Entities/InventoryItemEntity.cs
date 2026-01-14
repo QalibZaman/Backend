@@ -21,7 +21,10 @@ public class InventoryItemEntity
     public required int OnHandAmount { get; set; }
     public required string ProductLocation { get; set; } = "No location";
     public required int ShopId { get; set; }
+    public bool HasVariations { get; set; }
+    public bool IsVariation { get; set; }
 
+    public Guid? ParentItemId { get; set; } = null;
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
@@ -32,6 +35,8 @@ public class InventoryItemEntity
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
     public ICollection<ProductDetailEntity> ProductDetails { get; set; } = [];
     public ICollection<ItemComparisonItemEntity> ComparisonItems { get; set; } = null!;
+    public InventoryItemEntity? ParentItem { get; set; }
+    public ICollection<InventoryItemEntity>? ChildItems { get; set; } = [];
 
     public void UpdateStatus()
     {
