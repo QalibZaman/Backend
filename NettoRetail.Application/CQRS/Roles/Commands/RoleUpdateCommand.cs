@@ -44,8 +44,6 @@ public class RoleUpdateCommandHandler(
 
         var permissionRoles = permissionsIds.Select(value => new PermissionRoleEntity { PermissionId = value, RoleId = role.Id }).ToList();
         role.PermissionRoles = permissionRoles;
-        using var transaction = unitOfWork.BeginTransaction();
         await roleRepository.UpdateAsync(role, cancellationToken);
-        transaction.Commit();
     }
 }
