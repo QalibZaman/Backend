@@ -96,6 +96,11 @@ public class InventoryService(
         await ValidateBrand(model, shopId, id, inventoryItem, cancellationToken);
         ValidatePromotionPrice(model, shopId, id, inventoryItem, cancellationToken);
 
+        var newUpc = model.ProductUpc!.Value;
+        if (inventoryItem.ProductUpc != newUpc)
+        {
+            await ValidateUpcUnique(newUpc, shopId, inventoryItem.Id, cancellationToken);
+        }
     }
 
     public List<InventoryItemEntity> BuildVariationInventoryItemEntities(ICollection<VariationModel> models, InventoryItemEntity parentItem)
@@ -124,7 +129,13 @@ public class InventoryService(
 
         return result;
     }
-
+    
+    private async Task ValidateCategoryExists(int categoryId, int shopId, CancellationToken ct)
+    {
+        var spec = new GetCategoryByIdAndShopIdSpecification(categoryId, shopId);
+        if (!await categoryRepository.Exists(spec, ct))
+            throw new NettoRetail.Application.Exceptions.NotFoundException("There is no category with such id.");
+    }
     public async Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken)
     {
         if (inventoryItemsIds == null || !inventoryItemsIds.Any())
@@ -148,7 +159,7 @@ public class InventoryService(
 
         return true;
     }
-
+    
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
@@ -167,7 +178,6 @@ public class InventoryService(
         if (!await categoryRepository.Exists(spec, cancellationToken))
             throw new NotFoundException("There is no category with such id.");
     }
-
     private async Task ValidateBrand(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.BrandId is null) return;
@@ -176,7 +186,6 @@ public class InventoryService(
         if (!await brandRepository.Exists(spec, cancellationToken))
             throw new NotFoundException("There is no brand with such id.");
     }
-
     private void ValidatePromotionPrice(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.IsPromoted == true && model.PromotionPrice == null)
@@ -187,5 +196,14 @@ public class InventoryService(
 
         if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
             throw new BadRequestException("Promotion price must be less than the regular price.");
+    }
+    
+    private async Task ValidateUpcUnique(long upc, int shopId, Guid currentItemId, CancellationToken ct)
+    {
+        var spec = new GetProductByUpcSpecification(upc);
+        var existing = await inventoryItemRepository.GetAsync(spec, ct);
+
+        if (existing is not null && existing.Id != currentItemId)
+            throw new NettoRetail.Application.Exceptions.ConflictException("This product UPC is already registered.");
     }
 }
