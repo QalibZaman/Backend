@@ -125,6 +125,30 @@ public class InventoryService(
         return result;
     }
 
+    public async Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken)
+    {
+        if (inventoryItemsIds == null || !inventoryItemsIds.Any())
+            throw new BadRequestException("There must be at least one item id");
+
+        var spec = new GetItemsByIdsSpecification(inventoryItemsIds);
+        var items = inventoryItemRepository.GetRangeByIdsAsync(spec, cancellationToken);
+
+        int foundCount = 0;
+
+        await foreach (var item in items.WithCancellation(cancellationToken))
+        {
+            if (item.ShopId != shopId)
+                return false;
+
+            foundCount++;
+        }
+
+        var areAllItemnsExists = foundCount == inventoryItemsIds.Count();
+        if (!areAllItemnsExists) throw new BadRequestException("All items must be unique");
+
+        return true;
+    }
+
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
