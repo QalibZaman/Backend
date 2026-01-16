@@ -7,7 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Variations.Commands;
 using NettoRetail.Application.CQRS.Variations.Queries;
 using NettoRetail.Application.Models.Request.Variation;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -75,13 +75,13 @@ public class VariationsController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{parentId:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<List<InventoryItemResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<VariationResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<List<InventoryItemResponse>> GetItemVariations(Guid parentId, CancellationToken cancellationToken)
+    public async Task<List<VariationResponse>> GetItemVariations(Guid parentId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
