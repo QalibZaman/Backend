@@ -15,6 +15,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
+using NotFoundException = NettoRetail.Application.Exceptions.NotFoundException;
 
 namespace NettoRetail.Application.Services.IInventoryService;
 
@@ -119,7 +120,7 @@ public class InventoryService(
             variant.Price = parentItem.Price;
             variant.ShopId = parentItem.ShopId;
             variant.ParentItemId = parentItem.Id;
-            //In US currently nothing said about description, brand and category, but currently it not nullable. In future that must be clarified.
+
             variant.Description = parentItem.Description;
             variant.CategoryId = parentItem.CategoryId;
             variant.BrandId = parentItem.BrandId;
@@ -134,13 +135,12 @@ public class InventoryService(
     {
         var spec = new GetCategoryByIdAndShopIdSpecification(categoryId, shopId);
         if (!await categoryRepository.Exists(spec, ct))
-            throw new NettoRetail.Application.Exceptions.NotFoundException("There is no category with such id.");
+            throw new NotFoundException("There is no category with such id.");
     }
     public async Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken)
     {
         if (inventoryItemsIds == null || !inventoryItemsIds.Any())
             throw new BadRequestException("There must be at least one item id");
-
         var spec = new GetItemsByIdsSpecification(inventoryItemsIds);
         var items = inventoryItemRepository.GetRangeByIdsAsync(spec, cancellationToken);
 
@@ -159,7 +159,13 @@ public class InventoryService(
 
         return true;
     }
-    
+
+    private async Task ValidateBrandExists(int brandId, int shopId, CancellationToken ct)
+    {
+        var spec = new GetBrandsByIdAndShopIdSpecification(brandId, shopId);
+        if (!await brandRepository.Exists(spec, ct))
+            throw new NotFoundException("There is no brand with such id.");
+    }
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
@@ -204,6 +210,6 @@ public class InventoryService(
         var existing = await inventoryItemRepository.GetAsync(spec, ct);
 
         if (existing is not null && existing.Id != currentItemId)
-            throw new NettoRetail.Application.Exceptions.ConflictException("This product UPC is already registered.");
+            throw new ConflictException("This product UPC is already registered.");
     }
 }

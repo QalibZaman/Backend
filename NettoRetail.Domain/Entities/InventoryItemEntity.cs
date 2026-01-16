@@ -2,17 +2,6 @@
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
-public record InventoryItemUpdateData(
-    long ProductUpc,
-    string ProductName,
-    int CategoryId,
-    int BrandId,
-    string Description,
-    bool IsActive,
-    decimal Price,
-    bool IsPromoted,
-    decimal? PromotionPrice
-);
 
 
 public class InventoryItemEntity
@@ -40,8 +29,8 @@ public class InventoryItemEntity
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
-    public required int? BrandId { get; set; }
-    public required BrandEntity? Brand { get; set; }
+    public required int BrandId { get; set; }
+    public required BrandEntity Brand { get; set; }
     public ICollection<InventoryItemImageEntity> Images { get; set; } = [];
     public ICollection<FavouriteListItemEntity>? FavouriteListItems { get; set; }
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
@@ -75,9 +64,9 @@ public class InventoryItemEntity
         IsPromoted = data.IsPromoted;
         PromotionPrice = data.PromotionPrice;
 
-        LastUpdatedDate = DateTime.UtcNow;
-        Status = IsActive ? InventoryItemStatusEnum.Available : InventoryItemStatusEnum.Unavailable;
+        UpdateStatus();
     }
+
 
 
 
