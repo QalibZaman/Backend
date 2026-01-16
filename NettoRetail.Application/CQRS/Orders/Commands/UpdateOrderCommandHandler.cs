@@ -53,7 +53,7 @@ public class UpdateOrderCommandHandler(
         var inventoryById = inventoryItems.ToDictionary(x => x.Id);
         var changedItems = new HashSet<InventoryItemEntity>();
 
-        var transaction = unitOfWork.BeginTransaction();
+        using var transaction = unitOfWork.BeginTransaction();
 
         try
         {
@@ -70,6 +70,9 @@ public class UpdateOrderCommandHandler(
                 var existingOrderItem = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId);
                 var oldQty = existingOrderItem?.Quantity ?? 0;
                 var delta = newQty - oldQty;
+
+                if (delta > 0 && item.AvailableAmount < delta)
+                    throw new BadRequestException($"Not enough stock for item {item.Id}.");
 
                 if (existingOrderItem is null)
                 {
@@ -102,7 +105,6 @@ public class UpdateOrderCommandHandler(
 
                 item.AvailableAmount += itemToRemove.Quantity;
                 item.ReservedAmount -= itemToRemove.Quantity;
-
                 ValidateInventoryAmounts(item);
                 changedItems.Add(item);
 
@@ -129,15 +131,13 @@ public class UpdateOrderCommandHandler(
     private static void ValidateInventoryAmounts(InventoryItemEntity item)
     {
         if (item.AvailableAmount < 0)
-            throw new BadRequestException($"Available amount must be a non-negative integer (item {item.Id}).");
+            throw new BadRequestException($"Available amount must be non-negative (item {item.Id}).");
 
         if (item.ReservedAmount < 0)
-            throw new BadRequestException($"Reserved amount must be a non-negative integer (item {item.Id}).");
+            throw new BadRequestException($"Reserved amount must be non-negative (item {item.Id}).");
 
-        if (item.ReservedAmount > item.AvailableAmount)
-            throw new BadRequestException($"Reserved amount cannot exceed available amount (item {item.Id}).");
-
-        if (item.ReservedAmount + item.AvailableAmount > item.OnHandAmount)
-            throw new BadRequestException($"Reserved + Available cannot exceed on-hand amount (item {item.Id}).");
+        if (item.AvailableAmount + item.ReservedAmount > item.OnHandAmount)
+            throw new BadRequestException($"Available + Reserved cannot exceed OnHand (item {item.Id}).");
     }
+
 }
