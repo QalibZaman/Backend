@@ -6,17 +6,17 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Variations.Queries;
 
-public record GetVariationsByExistenceQuery(bool Exists, Guid ParentId, int ShopId) : IRequest<List<InventoryItemResponse>>;
+public record GetItemVariationsQuery(Guid ParentId, int ShopId) : IRequest<List<InventoryItemResponse>>;
 
-public class GetVariationsByExistenceQueryHandler(
+public class GetItemVariationsQueryHandler(
     IInventoryItemRepository inventoryItemRepository)
-    : IRequestHandler<GetVariationsByExistenceQuery, List<InventoryItemResponse>>
+    : IRequestHandler<GetItemVariationsQuery, List<InventoryItemResponse>>
 {
     public async Task<List<InventoryItemResponse>> Handle(
-        GetVariationsByExistenceQuery request,
+        GetItemVariationsQuery request,
         CancellationToken cancellationToken)
     {
-        var spec = new GetVariationsByParentIdAndExistenceSpecification(request.ParentId, request.Exists);
+        var spec = new GetVariationsByParentIdSpecification(request.ParentId);
 
         var variations = await inventoryItemRepository.GetAllBySpecAsync(spec, cancellationToken);
 

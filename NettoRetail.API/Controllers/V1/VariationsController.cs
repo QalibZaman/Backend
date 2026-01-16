@@ -74,18 +74,18 @@ public class VariationsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("existing/{exists:bool}/{parentId:guid}")]
+    [HttpGet("{parentId:guid}")]
     [ProducesResponseType(typeof(ApiResponse<List<InventoryItemResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<List<InventoryItemResponse>> GetVariationsByExistence(bool exists, Guid parentId, CancellationToken cancellationToken)
+    public async Task<List<InventoryItemResponse>> GetItemVariations(Guid parentId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetVariationsByExistenceQuery(exists, parentId, shopId);
+        var query = new GetItemVariationsQuery(parentId, shopId);
 
         var response = await mediator.Send(query, cancellationToken);
 
