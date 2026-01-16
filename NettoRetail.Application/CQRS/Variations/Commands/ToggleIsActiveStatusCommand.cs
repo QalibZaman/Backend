@@ -1,0 +1,27 @@
+﻿using MediatR;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.DataAccess.Specifications.Inventory;
+using NettoRetail.Shared.Interfaces.Repositories;
+
+namespace NettoRetail.Application.CQRS.Variations.Commands;
+
+public record ToggleIsActiveStatusCommand(Guid Id, int ShopId) : IRequest<Unit>;
+
+public class ToggleIsActiveStatusCommandHandler(
+    IInventoryItemRepository inventoryItemRepository)
+    : IRequestHandler<ToggleIsActiveStatusCommand, Unit>
+{
+    public async Task<Unit> Handle(ToggleIsActiveStatusCommand request, CancellationToken cancellationToken)
+    {
+        var spec = new GetInventoryItemByIdAndShopIdSpecification(request.Id, request.ShopId);
+
+        var item = await inventoryItemRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException("Variation not found");
+
+        item.IsActive = !item.IsActive;
+
+        await inventoryItemRepository.UpdateAsync(item, cancellationToken);
+
+        return Unit.Value;
+    }
+}
