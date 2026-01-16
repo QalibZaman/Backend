@@ -35,8 +35,11 @@ public class UpdateOrderCommandHandler(
             throw new BadRequestException("This order cannot be edited while in 'In Progress' status.");
 
         var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-        _ = await customerRepository.GetAsync(customerSpecification, cancellationToken)
-            ?? throw new NotFoundException("There is no such customer.");
+        var customerExists = await customerRepository.Exists(customerSpecification, cancellationToken);
+        if (!customerExists)
+        {
+            throw new NotFoundException("There is no such customer.");
+        }
 
         var inventoryItemIds = request.Model.ItemsToUpsert.Keys
             .Concat(request.Model.ItemsToDelete)
