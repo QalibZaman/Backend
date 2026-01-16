@@ -29,27 +29,11 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(false);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None)); ;
-        }
-
-        [Fact]
-        public async Task Handle_ShouldThrowNotFound_WhenAccountDoesNotExist()
-        {
-            // Arrange
-            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
-            var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
-
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
-                .Returns(true);
-            _accountRepository.Exists(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
-                .Returns(false);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -59,9 +43,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
-                .Returns(true);
-            _accountRepository.Exists(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(true);
             _favouriteListItemRepository.Exists(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
                 .Returns(true);
@@ -77,9 +59,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
-                .Returns(true);
-            _accountRepository.Exists(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(true);
             _favouriteListItemRepository.Exists(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
                 .Returns(false);
