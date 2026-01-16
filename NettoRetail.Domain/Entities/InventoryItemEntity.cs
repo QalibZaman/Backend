@@ -29,8 +29,8 @@ public class InventoryItemEntity
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
-    public required int BrandId { get; set; }
-    public required BrandEntity Brand { get; set; }
+    public required int? BrandId { get; set; }
+    public required BrandEntity? Brand { get; set; }
     public ICollection<InventoryItemImageEntity> Images { get; set; } = [];
     public ICollection<FavouriteListItemEntity>? FavouriteListItems { get; set; }
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];

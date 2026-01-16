@@ -102,6 +102,22 @@ public class InventoryService(
         {
             await ValidateUpcUnique(newUpc, shopId, inventoryItem.Id, cancellationToken);
         }
+
+        ValidateFinalState(model,inventoryItem);
+    }
+
+    public static void ValidateFinalState(UpdateInventoryItemModel model,
+        InventoryItemEntity inventoryItem)
+    {
+        var availabe = model.AvailableAmount ?? inventoryItem.AvailableAmount;
+        var reserved = model.ReservedAmount ?? inventoryItem.ReservedAmount;
+        var onHand = model.OnHandAmount ?? inventoryItem.OnHandAmount;
+
+        if (availabe < reserved)
+            throw new BadRequestException("Reserved amount cannot exceed the available amount");
+
+        if (reserved + availabe > onHand)
+            throw new BadRequestException("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
     }
 
     public List<InventoryItemEntity> BuildVariationInventoryItemEntities(ICollection<VariationModel> models, InventoryItemEntity parentItem)
