@@ -13,5 +13,10 @@ public class OrderStatusHistoryEntityConfiguration : IEntityTypeConfiguration<Or
             .WithMany(o => o.StatusHistory)
             .HasForeignKey(o => o.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(osh => osh.UpdatedAt)
+            .HasColumnType("timestamp with time zone")
+            .HasDefaultValueSql("NOW()")
+            .ValueGeneratedOnAdd();
     }
 }

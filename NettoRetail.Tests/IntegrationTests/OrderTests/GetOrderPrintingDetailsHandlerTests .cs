@@ -104,7 +104,15 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
 
         var statusHistory = new List<OrderStatusHistoryEntity>
         {
-            new OrderStatusHistoryEntity {OrderId=9, Id = Guid.NewGuid(), UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow), OldStatus = OrderStatusEnum.New, NewStatus = OrderStatusEnum.Processing, Comment = "" }
+            new OrderStatusHistoryEntity {
+                OrderId = 9,
+                Id = Guid.NewGuid(),
+                UpdatedAt = DateTime.UtcNow,
+                OldStatus = OrderStatusEnum.New,
+                NewStatus = OrderStatusEnum.Processing,
+                Comment = "",
+                UpdatedBy = account
+            }
         };
 
         var order = new OrderEntity

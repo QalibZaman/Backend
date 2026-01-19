@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,9 +16,11 @@ public class OrderRepository(AppDbContext dbContext)
             .Include(o => o.Customer)
                 .ThenInclude(c => c.Account)
             .Include(o => o.StatusHistory)
+                .ThenInclude(sh => sh.UpdatedBy)
             .Include(o => o.OrderItems)
-                .ThenInclude(o => o.InventoryItem)
-            .FirstOrDefaultAsync();
+                .ThenInclude(oi => oi.InventoryItem)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(cancellationToken);
 
         return order;
     }

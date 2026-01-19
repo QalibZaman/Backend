@@ -9,5 +9,6 @@ public class OrderStatusHistoryDto
     public required OrderStatusEnum OldStatus { get; set; }
     public required OrderStatusEnum NewStatus { get; set; }
     public string? Comment { get; set; }
-    public required DateOnly UpdatedAt { get; set; }
+    public required DateTime UpdatedAt { get; set; }
+    public required AccountDtoForPdf UpdatedBy { get; set; }
 }

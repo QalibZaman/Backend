@@ -13,7 +13,6 @@ public class OrderService(IOrderRepository orderRepository) : IOrderService
     public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order)
     {
         var model = order.Adapt<PrintOrderDetailsModel>();
-
         model.TotalProducts = order.OrderItems.Count;
         model.Subtotal = order.OrderItems.Sum(x => x.Quantity * x.InventoryItem.Price);
         model.TotalSale = order.OrderItems.Sum(x =>
@@ -22,7 +21,6 @@ public class OrderService(IOrderRepository orderRepository) : IOrderService
                 : 0);
 
         model.TotalAmount = model.Subtotal - model.TotalSale;
-
         return model;
     }
 

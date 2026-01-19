@@ -1,4 +1,5 @@
-﻿using NettoRetail.Application.CQRS.Orders.Queries;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Order;
@@ -27,7 +28,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             _orderRepository = Substitute.For<IOrderRepository>();
             _orderService = Substitute.For<IOrderService>();
             _pdfGenerator = Substitute.For<IPdfGenerator>();
-            _handler = new GetOrderDetailsForPrintingQueryHandler(_orderRepository, _orderService, _pdfGenerator);
+            _handler = new GetOrderDetailsForPrintingQueryHandler(_orderRepository, _orderService, _pdfGenerator, NullLogger<GetOrderDetailsForPrintingQueryHandler>.Instance);
         }
 
         [Fact]
@@ -163,10 +164,11 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 {
                     OrderId = id,
                     Id = Guid.NewGuid(),
-                    UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                    UpdatedAt = DateTime.UtcNow,
                     OldStatus = OrderStatusEnum.New,
                     NewStatus = OrderStatusEnum.Processing,
-                    Comment = ""
+                    Comment = "",
+                    UpdatedBy = account
                 }
             };
 
@@ -193,7 +195,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             return new PrintOrderDetailsModel
             {
                 Id = order.Id,
-                CreationDate = DateOnly.FromDateTime(order.CreationDate),
+                CreationDate = order.CreationDate,
                 CustomerId = order.CustomerId,
                 CustomerFirstName = order.Customer.Account.FirstName,
                 CustomerLastName = order.Customer.Account.LastName,
