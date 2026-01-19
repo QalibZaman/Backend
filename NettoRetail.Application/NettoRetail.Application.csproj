@@ -34,4 +34,18 @@
       <Folder Include="Models\Request\Feedback\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Services\IPdfGenerator\Utilities\Fonts\*.ttf">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <Target Name="QuestPDF_DoNotIncludeLatoFont_AfterBuild" AfterTargets="Build">
+      <RemoveDir Directories="$(OutDir)LatoFont" />
+    </Target>
+
+    <Target Name="QuestPDF_DoNotIncludeLatoFont_AfterPublish" AfterTargets="Publish">
+      <RemoveDir Directories="$(PublishDir)LatoFont" />
+    </Target>
+
 </Project>
