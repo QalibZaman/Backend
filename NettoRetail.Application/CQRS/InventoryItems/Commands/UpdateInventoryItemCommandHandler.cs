@@ -10,14 +10,14 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryItemModel Model) : IRequest;
+public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryItemModel Model) : IRequest<Unit>;
 
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     IInventoryService inventoryService)
-    : IRequestHandler<UpdateInventoryItemCommand>
+    : IRequestHandler<UpdateInventoryItemCommand,Unit>
 {
-    public async Task Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var spec = new GetInventoryItemByIdAndShopIdSpecification(request.Id, request.ShopId);
 
@@ -30,5 +30,6 @@ public class UpdateInventoryItemCommandHandler(
         var data = request.Model.Adapt<InventoryItemUpdateData>();
         inventoryItem.ApplyUpdate(data);
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
+        return Unit.Value;
     }
 }
