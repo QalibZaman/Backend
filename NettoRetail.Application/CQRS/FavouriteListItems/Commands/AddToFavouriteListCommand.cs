@@ -25,13 +25,6 @@ public class AddToFavouriteListCommandHandler(
             throw new NotFoundException($"No inventory item with Id: {request.InventoryItemId}");
         }
 
-        var accountSpec = new GetAccountByIdSpecification(request.UserId);
-        var accountExists = await accountRepository.Exists(accountSpec, cancellationToken);
-        if (!accountExists)
-        {
-            throw new NotFoundException($"No account with Id: {request.UserId}");
-        }
-
         var favouriteListItemSpec = new GetFavouriteListItemByAccountAndItemId(request.UserId, request.InventoryItemId);
         var favouriteItemExists = await favouriteListItemRepository.Exists(favouriteListItemSpec, cancellationToken);
         if (favouriteItemExists)

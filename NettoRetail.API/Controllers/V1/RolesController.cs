@@ -70,8 +70,8 @@ public class RolesController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
         return Ok(response);
     }
-
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    
+    [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
