@@ -15,15 +15,15 @@ namespace NettoRetail.Application.Services.VariationService
         IVariationDetailsService detailsService)
         : IVariationService
     {
-        public async Task UpdateVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken ct)
+        public async Task UpdateVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken cancellationToken)
         {
-            var variation = await LoadVariationAsync(model, shopId, ct);
-            var parent = await LoadParentAsync(variation, shopId, ct);
+            var variation = await LoadVariationAsync(model, shopId, cancellationToken);
+            var parent = await LoadParentAsync(variation, shopId, cancellationToken);
 
             if (variation.ProductUpc != model.ProductUpc)
             {
                 var upcSpec = new GetProductByUpcSpecification(model.ProductUpc);
-                if (await inventoryItemRepository.Exists(upcSpec, ct))
+                if (await inventoryItemRepository.Exists(upcSpec, cancellationToken))
                     throw new ConflictException("This product UPC is already registered.");
             }
 
@@ -54,17 +54,17 @@ namespace NettoRetail.Application.Services.VariationService
 
             if (model.ApplyImagesFromParent)
             {
-                await mediaService.InheritImagesFromParentAsync(variation, parent, ct);
+                await mediaService.InheritImagesFromParentAsync(variation, parent, cancellationToken);
             }
             else
             {
                 if (model.ImageIds?.Any() == true)
-                    await mediaService.ReplaceWithExistingImagesAsync(variation, model.ImageIds, ct);
+                    await mediaService.ReplaceWithExistingImagesAsync(variation, model.ImageIds, cancellationToken);
 
                 if (model.NewImages?.Any() == true)
                 {
                     var pathPrefix = $"shops/{shopId}/products/{variation.Id}";
-                    await mediaService.AddUploadedImagesAsync(variation, model.NewImages, pathPrefix, ct);
+                    await mediaService.AddUploadedImagesAsync(variation, model.NewImages, pathPrefix, cancellationToken);
                 }
             }
 
@@ -88,27 +88,27 @@ namespace NettoRetail.Application.Services.VariationService
 
             if (model.ApplyDetailsFromParent)
             {
-                await detailsService.InheritDetailsAsync(variation, parent, ct);
+                await detailsService.InheritDetailsAsync(variation, parent, cancellationToken);
             }
             else
             {
                 if (model.CustomParameters == null || !model.CustomParameters.Any())
                     throw new BadRequestException("Custom parameters are required when not inheriting from parent.");
 
-                await detailsService.ApplyCustomDetailsAsync(variation, model.CustomParameters, ct);
+                await detailsService.ApplyCustomDetailsAsync(variation, model.CustomParameters, cancellationToken);
             }
 
             variation.ProductUpc = model.ProductUpc;
             variation.IsActive = model.IsActive;
 
-            await inventoryItemRepository.UpdateAsync(variation, ct);
+            await inventoryItemRepository.UpdateAsync(variation, cancellationToken);
         }
 
-        private async Task<InventoryItemEntity> LoadVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken ct)
+        private async Task<InventoryItemEntity> LoadVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken cancellationToken)
         {
             var spec = new GetInventoryItemWithImagesAndDetailsSpecification(model.InventoryItemId, shopId);
 
-            var variation = await inventoryItemRepository.GetAsync(spec, ct)
+            var variation = await inventoryItemRepository.GetAsync(spec, cancellationToken)
                 ?? throw new NotFoundException("Variation does not exist.");
 
             if (!variation.IsVariation)
@@ -117,14 +117,14 @@ namespace NettoRetail.Application.Services.VariationService
             return variation;
         }
 
-        private async Task<InventoryItemEntity> LoadParentAsync(InventoryItemEntity variation, int shopId, CancellationToken ct)
+        private async Task<InventoryItemEntity> LoadParentAsync(InventoryItemEntity variation, int shopId, CancellationToken cancellationToken)
         {
             if (variation.ParentItemId is null)
                 throw new BadRequestException("Variation has no parent product.");
 
             var spec = new GetInventoryItemWithImagesAndDetailsSpecification(variation.ParentItemId.Value, shopId);
 
-            return await inventoryItemRepository.GetAsync(spec, ct)
+            return await inventoryItemRepository.GetAsync(spec, cancellationToken)
                 ?? throw new NotFoundException("Parent product not found.");
         }
     }

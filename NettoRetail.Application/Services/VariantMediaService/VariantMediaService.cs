@@ -15,7 +15,7 @@ namespace NettoRetail.Application.Services.VariantMediaService
         public Task InheritImagesFromParentAsync(
             InventoryItemEntity variation,
             InventoryItemEntity parent,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             variation.Images.Clear();
 
@@ -36,7 +36,7 @@ namespace NettoRetail.Application.Services.VariantMediaService
         public Task ReplaceWithExistingImagesAsync(
             InventoryItemEntity variation,
             List<Guid> existingImageIds,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             variation.Images.Clear();
 
@@ -62,11 +62,11 @@ namespace NettoRetail.Application.Services.VariantMediaService
             InventoryItemEntity variation,
             List<IFormFile> newImages,
             string pathPrefix,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             foreach (var file in newImages)
             {
-                var blobUrl = await _imageUploadService.UploadImageAsync(file, pathPrefix, ct);
+                var blobUrl = await _imageUploadService.UploadImageAsync(file, pathPrefix, cancellationToken);
 
                 variation.Images.Add(new InventoryItemImageEntity
                 {
@@ -78,5 +78,4 @@ namespace NettoRetail.Application.Services.VariantMediaService
             }
         }
     }
-
 }

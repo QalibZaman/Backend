@@ -5,7 +5,7 @@ namespace NettoRetail.Application.Services.VariationService.VariationDetailsServ
 {
     public interface IVariationDetailsService
     {
-        Task InheritDetailsAsync(InventoryItemEntity variation, InventoryItemEntity parent, CancellationToken ct);
-        Task ApplyCustomDetailsAsync(InventoryItemEntity variation, List<CustomDetailModel> customDetails, CancellationToken ct);
+        Task InheritDetailsAsync(InventoryItemEntity variation, InventoryItemEntity parent, CancellationToken cancellationToken);
+        Task ApplyCustomDetailsAsync(InventoryItemEntity variation, List<CustomDetailModel> customDetails, CancellationToken cancellationToken);
     }
 }

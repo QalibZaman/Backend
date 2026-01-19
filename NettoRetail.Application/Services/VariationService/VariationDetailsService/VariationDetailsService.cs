@@ -8,7 +8,7 @@ namespace NettoRetail.Application.Services.VariationService.VariationDetailsServ
         public Task InheritDetailsAsync(
             InventoryItemEntity variation,
             InventoryItemEntity parent,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
             variation.ProductDetails.Clear();
 
@@ -32,9 +32,8 @@ namespace NettoRetail.Application.Services.VariationService.VariationDetailsServ
         public Task ApplyCustomDetailsAsync(
             InventoryItemEntity variation,
             List<CustomDetailModel> customDetails,
-            CancellationToken ct)
+            CancellationToken cancellationToken)
         {
-            // remove old variant details first
             variation.ProductDetails.Clear();
 
             foreach (var detail in customDetails.OrderBy(x => x.OrderIndex))
