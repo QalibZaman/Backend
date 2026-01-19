@@ -5,8 +5,8 @@ using SixLabors.ImageSharp;
 namespace NettoRetail.Infrastructure.Services.IImageValidatorService;
 public class ImageValidatorService : IImageValidatorService
 {
-    private const int MaxSizeMb = 5;
-    private const int MinSizeMb = 1;
+    private const int MaxSizeKb = 5 * 1024;
+    private const int MinSizeKb = 500;
     private const int MinWidth = 800;
     private const int MinHeight = 800;
     private const int MaxWidth = 2000;
@@ -19,8 +19,8 @@ public class ImageValidatorService : IImageValidatorService
         if (!_allowedExtensions.Contains(ext))
             throw new ValidationException($"Usupported file format: {ext}");
 
-        if (file.Length < MinSizeMb * 1024 * 1024 || file.Length > MaxSizeMb * 1024 * 1024)
-            throw new ValidationException("File size must be between 1MB and 5MB");
+        if (file.Length < MinSizeKb * 1024 || file.Length > MaxSizeKb * 1024)
+            throw new ValidationException("File size must be between 500KB and 5MB");
 
         try
         {
@@ -29,7 +29,7 @@ public class ImageValidatorService : IImageValidatorService
                 throw new ValidationException($" Image is too small. Minimum size is {MinWidth}x{MinHeight}");
 
             if (image.Width > MaxWidth || image.Height > MaxHeight)
-                throw new ValidationException($"Image is too large. Maximus size is {MaxWidth}x{MaxHeight}");
+                throw new ValidationException($"Image is too large. Maximum size is {MaxWidth}x{MaxHeight}");
         }
         catch (UnknownImageFormatException)
         {

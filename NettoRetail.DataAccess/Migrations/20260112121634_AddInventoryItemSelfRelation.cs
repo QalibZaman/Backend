@@ -11,62 +11,75 @@ namespace NettoRetail.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "HasVariations",
-                table: "InventoryItems",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems"
+            ADD COLUMN IF NOT EXISTS "HasVariations" boolean NOT NULL DEFAULT FALSE;
+            """);
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsVariation",
-                table: "InventoryItems",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems"
+            ADD COLUMN IF NOT EXISTS "IsVariation" boolean NOT NULL DEFAULT FALSE;
+            """);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "ParentItemId",
-                table: "InventoryItems",
-                type: "uuid",
-                nullable: true);
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems"
+            ADD COLUMN IF NOT EXISTS "ParentItemId" uuid NULL;
+            """);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_InventoryItems_ParentItemId",
-                table: "InventoryItems",
-                column: "ParentItemId");
+            migrationBuilder.Sql("""
+            CREATE INDEX IF NOT EXISTS "IX_InventoryItems_ParentItemId"
+            ON "InventoryItems" ("ParentItemId");
+            """);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_InventoryItems_InventoryItems_ParentItemId",
-                table: "InventoryItems",
-                column: "ParentItemId",
-                principalTable: "InventoryItems",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+            migrationBuilder.Sql("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint c
+                    WHERE c.conname = 'FK_InventoryItems_InventoryItems_ParentItemId'
+                ) THEN
+                    ALTER TABLE "InventoryItems"
+                    ADD CONSTRAINT "FK_InventoryItems_InventoryItems_ParentItemId"
+                    FOREIGN KEY ("ParentItemId") REFERENCES "InventoryItems" ("Id")
+                    ON DELETE RESTRICT;
+                END IF;
+            END $$;
+            """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_InventoryItems_InventoryItems_ParentItemId",
-                table: "InventoryItems");
+            migrationBuilder.Sql("""
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM pg_constraint c
+                    WHERE c.conname = 'FK_InventoryItems_InventoryItems_ParentItemId'
+                ) THEN
+                    ALTER TABLE "InventoryItems"
+                    DROP CONSTRAINT "FK_InventoryItems_InventoryItems_ParentItemId";
+                END IF;
+            END $$;
+            """);
 
-            migrationBuilder.DropIndex(
-                name: "IX_InventoryItems_ParentItemId",
-                table: "InventoryItems");
+            migrationBuilder.Sql("""
+            DROP INDEX IF EXISTS "IX_InventoryItems_ParentItemId";
+            """);
 
-            migrationBuilder.DropColumn(
-                name: "HasVariations",
-                table: "InventoryItems");
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems" DROP COLUMN IF EXISTS "HasVariations";
+            """);
 
-            migrationBuilder.DropColumn(
-                name: "IsVariation",
-                table: "InventoryItems");
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems" DROP COLUMN IF EXISTS "IsVariation";
+            """);
 
-            migrationBuilder.DropColumn(
-                name: "ParentItemId",
-                table: "InventoryItems");
+            migrationBuilder.Sql("""
+            ALTER TABLE "InventoryItems" DROP COLUMN IF EXISTS "ParentItemId";
+            """);
         }
     }
 }
