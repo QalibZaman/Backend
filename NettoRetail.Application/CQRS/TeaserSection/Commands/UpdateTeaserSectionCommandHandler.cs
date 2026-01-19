@@ -3,7 +3,7 @@ using Mapster;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Application.Requests.TeaserSection;
 using NettoRetail.Application.Responses.TeaserSection;
-using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.ImageUploadService;
 
 namespace NettoRetail.Application.CQRS.TeaserSection.Commands;
 

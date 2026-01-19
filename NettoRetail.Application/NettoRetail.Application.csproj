@@ -7,6 +7,10 @@
 		<CodeAnalysisRuleSet>..\CodeStyleRuleSets.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Models\Request\CustomParameterModel.cs" />
+	</ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="Bogus" Version="35.6.2" />
       <PackageReference Include="CsvHelper" Version="33.0.1" />
