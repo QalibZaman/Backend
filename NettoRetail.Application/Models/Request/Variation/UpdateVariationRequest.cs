@@ -12,7 +12,6 @@ namespace NettoRetail.Application.Models.Request.Variation
         public bool ApplyPromotion { get; set; }
         public decimal Price { get; set; }
         public decimal? PromotionPrice { get; set; }
-        public string? ProductDescription { get; set; }
         public bool ApplyImagesFromParent { get; set; }
         public List<Guid>? ImageIds { get; set; }
         public List<IFormFile>? NewImages { get; set; }

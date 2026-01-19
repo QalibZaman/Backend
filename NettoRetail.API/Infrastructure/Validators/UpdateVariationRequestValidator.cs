@@ -36,11 +36,6 @@ namespace NettoRetail.API.Infrastructure.Validators
                         .WithMessage("Description must not have leading or trailing spaces.");
             });
 
-            RuleFor(x => x.ProductDescription)
-                .MaximumLength(500).WithMessage("Product description must be less than 500 characters long.")
-                .Matches("^(|[^ ].*[^ ]$)").WithMessage("Product description must not have leading or trailing spaces.")
-                .When(x => !string.IsNullOrWhiteSpace(x.ProductDescription));
-
             When(x => !x.ApplyImagesFromParent, () =>
             {
                 RuleFor(x => x.NewImages)

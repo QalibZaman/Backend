@@ -33,9 +33,7 @@ using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopValidationService;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.Application.Services.VariantMediaService;
 using NettoRetail.Application.Services.VariationService;
-using NettoRetail.Application.Services.VariationService.VariationDetailsService;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
@@ -124,8 +122,6 @@ public static class ServiceExtensions
         services.AddScoped<IStripePaymentService, StripePaymentService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IVariationService, VariationService>();
-        services.AddScoped<IVariantMediaService, VariantMediaService>();
-        services.AddScoped<IVariationDetailsService, VariationDetailsService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
