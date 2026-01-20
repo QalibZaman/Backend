@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.DataAccess.Specifications.Customer;
@@ -37,9 +36,14 @@ public class UpdateOrderCommandHandler(
         var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
         var customerExists = await customerRepository.Exists(customerSpecification, cancellationToken);
         if (!customerExists)
-        {
             throw new NotFoundException("There is no such customer.");
-        }
+
+        var overlap = request.Model.ItemsToUpsert.Keys
+            .Intersect(request.Model.ItemsToDelete)
+            .ToList();
+
+        if (overlap.Any())
+            throw new BadRequestException($"Items cannot be both upserted and deleted: {string.Join(", ", overlap)}");
 
         var inventoryItemIds = request.Model.ItemsToUpsert.Keys
             .Concat(request.Model.ItemsToDelete)
@@ -57,17 +61,31 @@ public class UpdateOrderCommandHandler(
 
         try
         {
-            request.Model.Adapt(order);
-
             foreach (var itemToUpsert in request.Model.ItemsToUpsert)
             {
                 var itemId = itemToUpsert.Key;
                 var newQty = itemToUpsert.Value;
 
+                if (newQty < 0)
+                    throw new BadRequestException("Quantity must be non-negative.");
+
                 if (!inventoryById.TryGetValue(itemId, out var item))
                     throw new NotFoundException($"There is no such inventory item (Id: {itemId}).");
 
                 var existingOrderItem = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId);
+
+                if (existingOrderItem != null && newQty == 0)
+                {
+                    item.AvailableAmount += existingOrderItem.Quantity;
+                    item.ReservedAmount -= existingOrderItem.Quantity;
+
+                    ValidateInventoryAmounts(item);
+                    changedItems.Add(item);
+
+                    order.OrderItems.Remove(existingOrderItem);
+                    continue;
+                }
+
                 var oldQty = existingOrderItem?.Quantity ?? 0;
                 var delta = newQty - oldQty;
 
@@ -76,6 +94,9 @@ public class UpdateOrderCommandHandler(
 
                 if (existingOrderItem is null)
                 {
+                    if (newQty == 0)
+                        continue;
+
                     order.OrderItems.Add(new OrderItemEntity
                     {
                         ItemId = itemId,
@@ -105,6 +126,7 @@ public class UpdateOrderCommandHandler(
 
                 item.AvailableAmount += itemToRemove.Quantity;
                 item.ReservedAmount -= itemToRemove.Quantity;
+
                 ValidateInventoryAmounts(item);
                 changedItems.Add(item);
 
@@ -114,11 +136,7 @@ public class UpdateOrderCommandHandler(
             if (changedItems.Count > 0)
                 await inventoryItemRepository.UpdateManyAsync(changedItems.ToList(), cancellationToken);
 
-            if (order.OrderItems.Any())
-                await orderRepository.UpdateAsync(order, cancellationToken);
-            else
-                await orderRepository.DeleteAsync(order, cancellationToken);
-
+            await orderRepository.UpdateAsync(order, cancellationToken);
             transaction.Commit();
         }
         catch
@@ -139,5 +157,4 @@ public class UpdateOrderCommandHandler(
         if (item.AvailableAmount + item.ReservedAmount > item.OnHandAmount)
             throw new BadRequestException($"Available + Reserved cannot exceed OnHand (item {item.Id}).");
     }
-
 }
