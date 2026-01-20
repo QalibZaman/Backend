@@ -2,7 +2,7 @@ using Mapster;
 using MediatR;
 using NettoRetail.Application.Requests.TeaserSection;
 using NettoRetail.Application.Responses.TeaserSection;
-using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.ImageUploadService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 

@@ -134,6 +134,7 @@ public class InventoryService(
                 throw new ConflictException("This product UPC is already registered.");
         }
     }
+
     private async Task ValidateCategory(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.CategoryId is null) return;
@@ -142,6 +143,7 @@ public class InventoryService(
         if (!await categoryRepository.Exists(spec, cancellationToken))
             throw new NotFoundException("There is no category with such id.");
     }
+
     private async Task ValidateBrand(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.BrandId is null) return;
@@ -150,6 +152,7 @@ public class InventoryService(
         if (!await brandRepository.Exists(spec, cancellationToken))
             throw new NotFoundException("There is no brand with such id.");
     }
+
     private void ValidatePromotionPrice(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.IsPromoted == true && model.PromotionPrice == null)
