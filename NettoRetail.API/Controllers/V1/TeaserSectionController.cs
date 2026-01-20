@@ -47,7 +47,7 @@ public class TeaserSectionController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> UpdateTeaserSection([FromBody] TeaserSectionRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateTeaserSection([FromForm] TeaserSectionRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var updatedBy = User?.Identity?.Name ?? "system";
