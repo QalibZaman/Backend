@@ -61,6 +61,8 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var command = new LogInCustomerCommand(model, ipAddress, userAgent);
 
         var data = await mediator.Send(command, cancellationToken);
+        if (data == null)
+            return Unauthorized(new ApiResponse("Invalid credentials"));
         return Ok(new ApiResponse<TokenResponse>(data));
     }
 
