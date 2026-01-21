@@ -47,7 +47,7 @@ public class UpdateTeaserSectionCommandHandler(
         if (request.Model.TeaserImage is null)
             return;
 
-        imageValidatorService.ValidateImage(request.Model.TeaserImage);
+        await imageValidatorService.ValidateImage(request.Model.TeaserImage);
 
         if (entity.TeaserImageUrl != null)
             await azureBlobService.DeleteByUrlAsync(entity.TeaserImageUrl);

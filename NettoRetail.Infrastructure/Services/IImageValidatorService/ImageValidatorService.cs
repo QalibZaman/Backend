@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
-using NettoRetail.Shared.Constants;
-using SixLabors.ImageSharp;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
 
 namespace NettoRetail.Infrastructure.Services.IImageValidatorService;
 public class ImageValidatorService : IImageValidatorService
@@ -38,18 +37,22 @@ public class ImageValidatorService : IImageValidatorService
         }
     }
 
-    public void ValidateImage(IFormFile file)
+    public async Task ValidateImage(IFormFile file)
     {
         if (file == null || file.Length == 0)
             throw new ValidationException("File is empty");
 
-        var ext = Path.GetExtension(file.FileName).ToLower();
-        if (!_allowedExtensions.Contains(ext))
-            throw new ValidationException($"Unsupported file format: {ext}");
-
-        if (!AllowedImageContentTypes.AllowedContentTypes.Contains(file.ContentType))
+        try
         {
-            throw new ValidationException("File format is invalid");
+            await Image.LoadAsync(file.OpenReadStream());
+        }
+        catch (UnknownImageFormatException)
+        {
+            throw new ValidationException("File is not a valid image");
+        }
+        catch (ImageFormatException)
+        {
+            throw new ValidationException("Image file is corrupted or invalid");
         }
     }
 }
