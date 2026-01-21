@@ -23,6 +23,7 @@ public class InventoryItemEntity
     public required int ShopId { get; set; }
     public bool HasVariations { get; set; }
     public bool IsVariation { get; set; }
+    public bool Exists { get; set; } = true;
 
     public Guid? ParentItemId { get; set; } = null;
     public required CategoryEntity Category { get; set; }
