@@ -11,4 +11,5 @@ public interface IJwtManager
     string GenerateTempToken(string userId);
     ClaimsPrincipal ValidateEmailActivation(string emailActivationToken);
     TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId);
+    ClaimsPrincipal ValidateCustomerResetPasswordToken(string customerResetPasswordToken);
 }
