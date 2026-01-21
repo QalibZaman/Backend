@@ -24,6 +24,7 @@ public static class ServiceExtensions
 
         services.Configure<FrontendOptions>(configuration.GetSection(nameof(FrontendOptions)));
         services.Configure<InvitationOptions>(configuration.GetSection(nameof(InvitationOptions)));
+        services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
 
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
