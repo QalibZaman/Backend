@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -90,5 +90,20 @@ public class VariationsController(IMediator mediator) : ControllerBase
         var response = await mediator.Send(query, cancellationToken);
 
         return response;
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPut("variation")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateVariation([FromForm] UpdateVariationRequest model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        await mediator.Send(new UpdateVariationCommand(model, shopId), cancellationToken);
+        return NoContent();
     }
 }

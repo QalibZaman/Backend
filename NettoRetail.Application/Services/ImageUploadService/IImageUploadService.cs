@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace NettoRetail.Application.Services.IImageUploadService
+namespace NettoRetail.Application.Services.ImageUploadService
 {
     public interface IImageUploadService
     {

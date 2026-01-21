@@ -118,13 +118,15 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ChangeOrderStatus([FromQuery] UpdateOrderRequest model, CancellationToken cancellationToken)
     {
-        var command = new UpdateOrderStatusCommand(model);
+        var userId = HttpContext.GetUserId();
+        var command = new UpdateOrderStatusCommand(model, userId);
         var data = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<OrderResponse>(data);
 
         return Ok(response);
     }
 
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("print/{orderId}")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

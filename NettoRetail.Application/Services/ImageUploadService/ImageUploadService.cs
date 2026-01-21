@@ -4,7 +4,7 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 
-namespace NettoRetail.Application.Services.IImageUploadService
+namespace NettoRetail.Application.Services.ImageUploadService
 {
     public class ImageUploadService(
         IAzureBlobService azureBlobService,

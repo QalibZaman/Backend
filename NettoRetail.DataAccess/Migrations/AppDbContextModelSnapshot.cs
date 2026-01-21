@@ -1369,12 +1369,19 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
-                    b.Property<DateOnly>("UpdatedAt")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("UpdatedById");
 
                     b.ToTable("OrderStatusHistories");
                 });
@@ -2316,7 +2323,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Order");
+
+                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>

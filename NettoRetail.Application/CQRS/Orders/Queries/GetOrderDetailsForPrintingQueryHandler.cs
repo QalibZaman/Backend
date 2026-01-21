@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.IOrderService;
@@ -15,31 +16,46 @@ public record GetOrderDetailsForPrintingQuery(int OrderId) : IRequest<OrderPrint
 public class GetOrderDetailsForPrintingQueryHandler(
     IOrderRepository orderRepository,
     IOrderService orderService,
-    IPdfGenerator pdfGenerator)
+    IPdfGenerator pdfGenerator,
+    ILogger<GetOrderDetailsForPrintingQueryHandler> logger)
     : IRequestHandler<GetOrderDetailsForPrintingQuery, OrderPrintingResponse>
 {
     public async Task<OrderPrintingResponse> Handle(GetOrderDetailsForPrintingQuery request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Fetching order {OrderId} for printing", request.OrderId);
+
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
-            .AddInclude(x => x.Customer)
-            .AddInclude(x => x.Customer.Account)
-            .AddInclude(x => x.StatusHistory)
-            .AddInclude(x => x.OrderItems)
             .Build();
 
         var order = await orderRepository.GetOrderForPrinting(spec, cancellationToken);
-        if (order is null)
-            throw new NotFoundException("Order can't be found");
 
+        if (order is null)
+        {
+            logger.LogWarning("Order {OrderId} not found for printing", request.OrderId);
+            throw new NotFoundException("Order can't be found");
+        }
+
+        logger.LogInformation("Building print model for order {OrderId}", request.OrderId);
         var model = await orderService.BuildPrintOrderDetailsModelAsync(order);
 
-        var pdfStream = await pdfGenerator.PrintOrderDetailsAsync(model);
-
-        return new OrderPrintingResponse
+        try
         {
-            Stream = pdfStream,
-            FileName = $"order_{order.Id}.pdf"
-        };
+            logger.LogInformation("Generating PDF for order {OrderId}", request.OrderId);
+            var pdfStream = await pdfGenerator.PrintOrderDetailsAsync(model);
+
+            logger.LogInformation("Successfully generated PDF for order {OrderId}", request.OrderId);
+
+            return new OrderPrintingResponse
+            {
+                Stream = pdfStream,
+                FileName = $"order_{order.Id}.pdf"
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to generate PDF for order {OrderId}", request.OrderId);
+            throw;
+        }
     }
 }

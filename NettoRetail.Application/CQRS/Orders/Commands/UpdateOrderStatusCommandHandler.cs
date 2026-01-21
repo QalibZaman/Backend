@@ -6,7 +6,7 @@ using NettoRetail.Application.Services.IOrderService;
 using NettoRetail.Application.Services.IOrderService.OrderStatusService;
 namespace NettoRetail.Application.CQRS.Orders.Commands;
 
-public record UpdateOrderStatusCommand(UpdateOrderRequest Model) : IRequest<OrderResponse>;
+public record UpdateOrderStatusCommand(UpdateOrderRequest Model, Guid userId) : IRequest<OrderResponse>;
 
 public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderStatusService orderStatusService) : IRequestHandler<UpdateOrderStatusCommand, OrderResponse>
 {
@@ -14,7 +14,7 @@ public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderS
     {
         var order = await orderService.GetOrderAsync(request.Model.OrderId, cancellationToken);
 
-        await orderStatusService.UpdateOrderStatusAsync(order, request.Model, cancellationToken);
+        await orderStatusService.UpdateOrderStatusAsync(order, request.Model, request.userId, cancellationToken);
 
         var response = order.Adapt<OrderResponse>();
 
