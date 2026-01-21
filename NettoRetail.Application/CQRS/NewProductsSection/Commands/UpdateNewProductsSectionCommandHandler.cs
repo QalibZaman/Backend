@@ -1,28 +1,31 @@
 ﻿using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.NewProductsSection;
+using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.NewProductSection;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
-namespace NettoRetail.Application.CQRS.NewProductsSection.Command;
+namespace NettoRetail.Application.CQRS.NewProductsSection.Commands;
 
-public record UpdateNewProductsSectionCommand(
-    int ShopId,
-    UpdateNewProductsSectionRequest Model
-) : IRequest;
+public record UpdateNewProductsSectionCommand(int ShopId, UpdateNewProductsSectionRequest Model) : IRequest<Unit>;
 
 public class UpdateNewProductsSectionCommandHandler(
     INewProductsRepository sectionRepo,
     INewProductsProductRepository productRepo,
-    IUnitOfWork unitOfWork
-) : IRequestHandler<UpdateNewProductsSectionCommand>
+    IInventoryService inventoryService,
+    IUnitOfWork unitOfWork) : IRequestHandler<UpdateNewProductsSectionCommand, Unit>
 {
-    public async Task Handle(UpdateNewProductsSectionCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateNewProductsSectionCommand request, CancellationToken cancellationToken)
     {
+        var areAllProductsBelongToShop = await inventoryService.AreAllItemsBelongToShopAsync(
+            request.ShopId, request.Model.InventoryItemIds, cancellationToken);
+        if (!areAllProductsBelongToShop) throw new BadRequestException("All products must be related to your store");
+
         var specification = new GetNewProductsSectionByShopIdSpecification(request.ShopId);
-        var section = await sectionRepo.GetAsync(specification, cancellationToken);        
+        var section = await sectionRepo.GetAsync(specification, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -46,6 +49,11 @@ public class UpdateNewProductsSectionCommandHandler(
             await sectionRepo.UpdateAsync(section, cancellationToken);
 
         transaction.Commit();
+
+        return Unit.Value;
+
+        //The current version of the handler works for both POST and PUT.
+        //This handler requires refactoring after the BA clarifies the requirements.
     }
 
     private static NewProductsSectionEntity MapToNewSection(UpdateNewProductsSectionCommand request) => new()
