@@ -27,10 +27,10 @@ public class UpdateTeaserSectionCommandValidator : AbstractValidator<TeaserSecti
 
         RuleFor(x => x.AdditionalTextColor)
             .Matches("^#([A-Fa-f0-9]{6})$")
-                .WithMessage("Color must be a valid hex RGB code (e.g. #CE6767).");
+                .WithMessage("Color must be a valid hex code (e.g. #CE6767).");
 
         RuleFor(x => x.HeadingColor)
             .Matches("^#([A-Fa-f0-9]{6})$")
-                .WithMessage("Color must be a valid hex RGB code (e.g. #CE6767).");
+                .WithMessage("Color must be a valid hex code (e.g. #CE6767).");
     }
 }
