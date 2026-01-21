@@ -12,4 +12,5 @@ public interface IEmailBuilderService
     Task<BulkEmailModel> BuildFeedbackRejectedEmailsAsync(List<string> emails, string reason);
     Task<EmailModel> BuildPlatformAdminActivatedEmailAsync(string email, string firstName);
     Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link);
+    Task<EmailModel> BuildCustomerPasswordResetEmailAsync(string email, string link);
 }

@@ -3,4 +3,5 @@
 public interface ILinkService
 {
     public string CreateCustomerAccountVerificationLink(string email);
+    public string CreateCustomerResetPasswordLink(string email);
 }
