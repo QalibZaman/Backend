@@ -21,18 +21,23 @@ public class GetClientsShopInfoQueryHandler(
 {
     public async Task<ClientsShopInfoResponse> Handle(GetClientsShopInfoQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<ShopEntity>();
-        specificationBuilder.Add<GetShopByIdSpecification>(request.ShopId).AddInclude(x => x.Country);
+        var specificationBuilder = new SpecificationBuilder<ShopEntity>()
+            .Add<GetShopByIdSpecification>(request.ShopId)
+            .AddInclude(x => x.Country)
+            .Build();
 
-        var shop = await shopRepository.GetAsync(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There is no shop with such Id");
+        var shop = await shopRepository.GetAsync(specificationBuilder, cancellationToken)
+            ?? throw new NotFoundException($"Shop with id {request.ShopId} was not found.");
 
         var getClientAccountByIdSpecification = new GetAccountByShopIdAndRoleSpecification(request.ShopId, adminOptions.Value.RoleId);
-        var clientsAccount = await accountRepository.GetAsync(getClientAccountByIdSpecification, cancellationToken) ?? throw new NotFoundException("There is no account with such Id");
+        var clientsAccount = await accountRepository.GetAsync(getClientAccountByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException("Admin account for this shop was not found.");
 
-        var shopResponse = shop.Adapt<ClientsShopInfoResponse>();
-        shopResponse.AdminsEmail = clientsAccount.Email;
-        shopResponse.AdminsFullName = $"{clientsAccount.FirstName} {clientsAccount.LastName}";
+        var response = shop.Adapt<ClientsShopInfoResponse>();
+        response.AdminsEmail = clientsAccount.Email;
+        response.AdminsFullName = $"{clientsAccount.FirstName} {clientsAccount.LastName}".Trim();
 
-        return shopResponse;
+        return response;
     }
+
 }
