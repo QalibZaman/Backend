@@ -112,13 +112,11 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> EditInventoryItem(Guid id, [FromBody] UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
-        var userShopId = HttpContext.GetUserShopId();
+        var shopId = HttpContext.GetUserShopId();
 
-        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, userShopId, model);
-
-        await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
+        await mediator.Send(new UpdateInventoryItemCommand(id, shopId, model), cancellationToken);
 
         return NoContent();
     }
