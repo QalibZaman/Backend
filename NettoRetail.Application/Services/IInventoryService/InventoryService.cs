@@ -155,13 +155,13 @@ public class InventoryService(
         if (parentId == childId)
             throw new ConflictException("Product cannot be parent and child of itself");
 
-        var parent = await inventoryItemRepository.GetAsync(
-            new GetInventoryItemWithParentAndChildrenSpecification(parentId),
-            cancellationToken) ?? throw new BadRequestException("Parent product not found");
+        var parentExists = await inventoryItemRepository.Exists(new GetInventoryItemByIdSpecification(parentId), cancellationToken);
+        if (!parentExists)
+            throw new BadRequestException("Parent product not found");
 
         var child = await inventoryItemRepository.GetAsync(
-            new GetInventoryItemWithParentAndChildrenSpecification(childId),
-            cancellationToken) ?? throw new Exception("Child product not found");
+            new GetInventoryItemWithChildrenSpecification(childId),
+            cancellationToken) ?? throw new BadRequestException("Child product not found");
 
         if (child.ParentItemId.HasValue && child.ParentItemId.Value != parentId)
             throw new ConflictException("Child product already belongs to another parent");
@@ -178,7 +178,6 @@ public class InventoryService(
             isLinkedNow = true;
         }
 
-        await inventoryItemRepository.UpdateAsync(parent, cancellationToken);
         await inventoryItemRepository.UpdateAsync(child, cancellationToken);
         return new ToggleLinkProductsResponse(childId, child.ProductName, child.ProductUpc, isLinkedNow);
     }
