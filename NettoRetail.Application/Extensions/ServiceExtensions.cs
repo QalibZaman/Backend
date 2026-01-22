@@ -108,7 +108,7 @@ public static class ServiceExtensions
         services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IImageUploadService, ImageUploadService>();
-        services.AddScoped<IShopDetailsValidationService, ShopDetailsValidationService>();
+        services.AddScoped<IShopValidationService, ShopValidationService>();
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<IOrderService, OrderService>();

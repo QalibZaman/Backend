@@ -12,7 +12,7 @@ namespace NettoRetail.Application.CQRS.Shops.Commands;
 
 public record UpdateShopCommand(int Id, ShopModel Model) : IRequest;
 
-public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDetailsValidationService countryDetailsValidator, IShopDetailsValidationService shopDetailsValidator) : IRequestHandler<UpdateShopCommand>
+public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDetailsValidationService countryDetailsValidator, IShopValidationService shopDetailsValidator) : IRequestHandler<UpdateShopCommand>
 {
     public async Task Handle(UpdateShopCommand request, CancellationToken cancellationToken)
     {
