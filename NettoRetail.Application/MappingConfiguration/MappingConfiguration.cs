@@ -38,6 +38,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
 
+        config.NewConfig<UpdateInventoryItemModel, InventoryItemUpdateData>();
+
         config.NewConfig<AccountEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
