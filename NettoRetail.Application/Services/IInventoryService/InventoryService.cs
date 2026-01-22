@@ -149,6 +149,40 @@ public class InventoryService(
         return true;
     }
 
+    public async Task<ToggleLinkProductsResponse> ToggleLinkProductsAsync(Guid parentId, Guid childId, CancellationToken cancellationToken)
+    {
+        bool isLinkedNow = false;
+        if (parentId == childId)
+            throw new ConflictException("Product cannot be parent and child of itself");
+
+        var parent = await inventoryItemRepository.GetAsync(
+            new GetInventoryItemWithParentAndChildrenSpecification(parentId),
+            cancellationToken) ?? throw new BadRequestException("Parent product not found");
+
+        var child = await inventoryItemRepository.GetAsync(
+            new GetInventoryItemWithParentAndChildrenSpecification(childId),
+            cancellationToken) ?? throw new Exception("Child product not found");
+
+        if (child.ParentItemId.HasValue && child.ParentItemId.Value != parentId)
+            throw new ConflictException("Child product already belongs to another parent");
+
+        if (child.ChildItems!.Any())
+            throw new ConflictException("A parent product cannot be linked as a child");
+        if (child.ParentItemId == parentId)
+        {
+            child.ParentItemId = null;
+        }
+        else if (child.ParentItemId is null)
+        {
+            child.ParentItemId = parentId;
+            isLinkedNow = true;
+        }
+
+        await inventoryItemRepository.UpdateAsync(parent, cancellationToken);
+        await inventoryItemRepository.UpdateAsync(child, cancellationToken);
+        return new ToggleLinkProductsResponse(childId, child.ProductName, child.ProductUpc, isLinkedNow);
+    }
+
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
