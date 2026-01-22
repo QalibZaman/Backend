@@ -118,7 +118,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SendResetPasswordLink(
-        [FromBody]SendResetPasswordLinkRequest request,
+        [FromQuery]SendResetPasswordLinkRequest request,
         CancellationToken cancellationToken)
     {
         var query = new SendResetPasswordLinkCommand(request);
