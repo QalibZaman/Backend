@@ -17,7 +17,7 @@ public class LogInCustomerCommandHandler(IMediator mediator) : IRequestHandler<L
         if (!string.IsNullOrEmpty(data.TempToken))
             return data;
 
-        var ip = (request.IpAddress ?? string.Empty).Split(',')[0].Trim();
+        var ip = request.IpAddress;
 
         var sessionCreateCommand = new CreateSessionCommand(
             ip,

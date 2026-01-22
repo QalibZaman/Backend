@@ -48,17 +48,18 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("log-in/customer")]
+    [HttpPost("log-in")]
     [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LogInCustomer([FromBody] LoginModel model, CancellationToken cancellationToken)
     {
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        ip = ip.Trim(); 
         var userAgent = Request.Headers.UserAgent.ToString();
 
-        var command = new LogInCustomerCommand(model, ipAddress, userAgent);
+        var command = new LogInCustomerCommand(model, ip, userAgent);
 
         var data = await mediator.Send(command, cancellationToken);
         if (data == null)
