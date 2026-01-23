@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace NettoRetail.Shared.Specifications;
 
@@ -17,8 +18,14 @@ public class Specification<TEntity>
     public IEnumerable<(Expression<Func<TEntity, object>> Expr, bool IsDesc)> Orderings => _orderings;
 
     // Includes
-    private readonly List<Expression<Func<TEntity, object>>> _includes;
-    public IEnumerable<Expression<Func<TEntity, object>>> Includes => _includes;
+    [Obsolete("Use _includes to get support for ThenInclude functionality.")]
+    private readonly List<Expression<Func<TEntity, object>>> _obsoleteIncludes;
+
+    [Obsolete("Use UpdatedIncludes to get support for ThenInclude functionality.")]
+    public IEnumerable<Expression<Func<TEntity, object>>> Includes => _obsoleteIncludes;
+
+    private List<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>> _includes;
+    public IEnumerable<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>> UpdatedIncludes => _includes;
 
     // Pagination
     public int? Skip { get; set; }
@@ -26,8 +33,9 @@ public class Specification<TEntity>
 	public Specification(Expression<Func<TEntity, bool>> criteria)
     {
         Criteria = criteria;
-        _includes = new List<Expression<Func<TEntity, object>>>();
+        _obsoleteIncludes = new List<Expression<Func<TEntity, object>>>();
         _orderings = new List<(Expression<Func<TEntity, object>>, bool)>();
+        _includes = new List<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>();
     }
 
     public Specification<TEntity> And(Specification<TEntity> other)
@@ -56,7 +64,14 @@ public class Specification<TEntity>
         return this;
     }
 
+    [Obsolete("Use override that accepts Func with IQueryable. To get support for ThenInclude.")]
     public Specification<TEntity> AddInclude(Expression<Func<TEntity, object>> includeExpression)
+    {
+        _obsoleteIncludes.Add(includeExpression);
+        return this;
+    }
+
+    public Specification<TEntity> AddInclude(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> includeExpression)
     {
         _includes.Add(includeExpression);
         return this;

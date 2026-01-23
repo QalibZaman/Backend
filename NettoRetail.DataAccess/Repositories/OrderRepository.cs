@@ -12,13 +12,16 @@ public class OrderRepository(AppDbContext dbContext)
 {
     public async Task<OrderEntity?> GetOrderForPrinting(Specification<OrderEntity> specification, CancellationToken cancellationToken)
     {
-        var order = await _dbSet.Where(specification.Criteria)
-            .Include(o => o.Customer)
-                .ThenInclude(c => c.Account)
-            .Include(o => o.StatusHistory)
-                .ThenInclude(sh => sh.UpdatedBy)
-            .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.InventoryItem)
+        IQueryable<OrderEntity> query = _dbSet;
+
+        query = query.Where(specification.Criteria);
+
+        foreach (var include in specification.UpdatedIncludes)
+        {
+            query = include(query);
+        }
+
+        var order = await query
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 

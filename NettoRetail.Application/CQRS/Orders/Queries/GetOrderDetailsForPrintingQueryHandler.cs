@@ -8,6 +8,8 @@ using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
@@ -26,6 +28,15 @@ public class GetOrderDetailsForPrintingQueryHandler(
 
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
+            .AddInclude(q => q
+                .Include(o => o.Customer)
+                    .ThenInclude(c => c.Account))
+            .AddInclude(q => q
+                .Include(o => o.StatusHistory)
+                    .ThenInclude(sh => sh.UpdatedBy))
+            .AddInclude(q => q
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.InventoryItem))
             .Build();
 
         var order = await orderRepository.GetOrderForPrinting(spec, cancellationToken);
