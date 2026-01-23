@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,13 +16,10 @@ using NettoRetail.Application.Models.ClientsShop;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using NettoRetail.Application.Models.Request.Token;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -314,11 +312,9 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
     {
-        var query = new GetAllPlatformAdminsQuery();
-        var data = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<List<PlatformAdminResponse>>(data);
+        var data = await mediator.Send(new GetAllPlatformAdminsQuery(), cancellationToken);
 
-        return Ok(response);
+        return Ok(new ApiResponse<List<PlatformAdminResponse>>(data));
     }
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]

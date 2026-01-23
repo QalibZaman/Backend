@@ -10,6 +10,6 @@ public class PlatformAdminResponse
     public DateTime? LastActivityTime { get; set; }
     public DateTime DateCreated { get; set; }
     public required string Email { get; set; } = string.Empty;
-    public required StaffStatusEnum Status { get; set; }
+    public required string Status { get; set; }
     public required List<int> Permissions { get; set; }
 }
