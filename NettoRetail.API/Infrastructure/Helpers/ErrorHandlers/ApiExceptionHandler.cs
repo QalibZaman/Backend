@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using NettoRetail.API.Models.Error;
 using NettoRetail.API.Models.Response;
@@ -15,7 +16,8 @@ public static class ApiExceptionHandler
             { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
             { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
             { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) },
-            { typeof(PaymentExceptions), ex => HandlePaymentExceptions((PaymentExceptions)ex) }
+            { typeof(PaymentExceptions), ex => HandlePaymentExceptions((PaymentExceptions)ex) },
+            { typeof(ValidationException), ex => HandleValidationException((ValidationException)ex) }
         };
 
     public static ApiExceptionHandlerResponse Handle(Exception ex)
@@ -58,6 +60,11 @@ public static class ApiExceptionHandler
     }
 
     private static ApiExceptionHandlerResponse HandlePaymentExceptions(PaymentExceptions ex)
+    {
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
+    }
+
+    private static ApiExceptionHandlerResponse HandleValidationException(ValidationException ex)
     {
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
     }

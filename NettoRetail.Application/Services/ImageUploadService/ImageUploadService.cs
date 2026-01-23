@@ -20,7 +20,7 @@ namespace NettoRetail.Application.Services.ImageUploadService
             if (file == null)
                 throw new ArgumentException("No image provided");
 
-            await imageValidatorService.ValidateImageAsync(file, cancellationToken);
+            await imageValidatorService.ValidateBannerImageAsync(file, cancellationToken);
 
             var fileName = $"{pathPrefix}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var container = azureBlobStorageOptions.Value.ContainerName;
