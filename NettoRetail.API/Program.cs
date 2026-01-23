@@ -22,7 +22,8 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>();
+    var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>()
+        ?? throw new InvalidOperationException("Configuration section 'CorsOptions:AllowedOrigins' is missing or empty.");
 
     options.AddPolicy("CorsPolicy", policy =>
     {
