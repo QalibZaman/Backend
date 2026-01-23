@@ -14,4 +14,17 @@ public class RoleRepository(AppDbContext dbContext)
         return await dbContext.Roles.ToListAsync(cancellationToken);
     }
 
+    public async Task<RoleEntity> AttachOrAddAsync(RoleEntity role, CancellationToken cancellationToken)
+    {
+        if (role.Id != 0)
+        {
+            _dbContext.Attach(role);
+        }
+        else
+        {
+            await _dbContext.Roles.AddAsync(role, cancellationToken);
+        }
+
+        return role;
+    }
 }
