@@ -25,16 +25,16 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
         account.IsSubscribedToNewsletter = true;
         await accountRepository.UpdateAsync(account, cancellationToken);
 
-        var unsubscribeUrl = linkService.BuildNewsletterUnsubscribeUrl(account.Id);
-        var emailModel = await emailBuilderService.BuildNewsletterSubscribedEmailAsync(account.Email, account.FullName, unsubscribeUrl);
+        var emailModel = await emailBuilderService.BuildNewsletterSubscribedEmailAsync(account.Email, account.FullName,account.Id);
+        if (string.IsNullOrWhiteSpace(emailModel.Email))
+            throw new BadRequestException("Generated EmailModel.Email is empty");
+
         try
         {
             await emailSender.SendAsync(emailModel);
         }
         catch (Exception ex)
         {
-            account.IsSubscribedToNewsletter = false;
-            await accountRepository.UpdateAsync(account, cancellationToken);
             throw new BadRequestException(
                 $"Email send failed: {ex.GetType().FullName} | {ex.Message} | {ex.InnerException?.GetType().FullName} | {ex.InnerException?.Message}");
 
