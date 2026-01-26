@@ -6,6 +6,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -64,9 +65,9 @@ public sealed class AddPaymentCommandHandler(
 
             await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
         }
-        catch (Exception ex)
+        catch (StripeException ex)
         {
-            logger.LogError("Attaching payment method failed. " + ex);
+            logger.LogError(ex, "Attaching payment method failed.");
             throw new PaymentExceptions(ex.Message);
         }
 
