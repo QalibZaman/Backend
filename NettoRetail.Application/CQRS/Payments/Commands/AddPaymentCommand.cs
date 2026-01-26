@@ -1,11 +1,11 @@
 ﻿using Mapster;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Models.Payments;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -14,7 +14,8 @@ public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) :
 public sealed class AddPaymentCommandHandler(
     IAccountRepository accountRepository,
     IPaymentRepository paymentRepository,
-    IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
+    IStripePaymentService stripePaymentService,
+    ILogger<AddPaymentCommandHandler> logger) : IRequestHandler<AddPaymentCommand, Unit>
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
@@ -23,10 +24,8 @@ public sealed class AddPaymentCommandHandler(
 
         var account = await accountRepository.GetAsync(
             new GetAccountByIdSpecification(request.AccountId),
-            cancellationToken);
-
-        if (account is null)
-            throw new KeyNotFoundException($"Account '{request.AccountId}' not found.");
+            cancellationToken)
+            ?? throw new NotFoundException($"Account {request.AccountId} not found");
 
         if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
             throw new ArgumentException("Payment method already exists.");
@@ -45,23 +44,32 @@ public sealed class AddPaymentCommandHandler(
             await accountRepository.UpdateAsync(account, cancellationToken);
         }
 
-        var card = await stripePaymentService.AttachAndGetCardAsync(
+        try
+        {
+            var card = await stripePaymentService.AttachAndGetCardAsync(
             request.PaymentMethodId,
             customerId,
             cancellationToken);
 
-        var paymentMethodRecord = new PaymentMethodEntity
-        {
-            AccountId = account.Id,
-            StripePaymentMethodId = request.PaymentMethodId,
-            CardBrand = card.Brand,
-            CardExpMonth = card.ExpMonth,
-            CardExpYear = card.ExpYear,
-            FourLastCardNumbers = card.Last4,
-            CreatedAt = DateTime.UtcNow
-        };
+            var paymentMethodRecord = new PaymentMethodEntity
+            {
+                AccountId = account.Id,
+                StripePaymentMethodId = request.PaymentMethodId,
+                CardBrand = card.Brand,
+                CardExpMonth = card.ExpMonth,
+                CardExpYear = card.ExpYear,
+                FourLastCardNumbers = card.Last4,
+                CreatedAt = DateTime.UtcNow
+            };
 
-        await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+            await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Attaching payment method failed. " + ex);
+            throw new PaymentExceptions(ex.Message);
+        }
+
         return Unit.Value;
     }
 }

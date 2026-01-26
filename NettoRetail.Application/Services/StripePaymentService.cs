@@ -4,9 +4,8 @@ using Stripe;
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
-        CustomerService customerService,
-        PaymentMethodService paymentMethodService
-    ) : IStripePaymentService
+        CustomerService stripeCustomerService,
+        PaymentMethodService paymentMethodService) : IStripePaymentService
     {
         public async Task<string> EnsureCustomerAsync(
             string? existingCustomerId,
@@ -23,7 +22,7 @@ namespace NettoRetail.Application.Services
                 Email = email
             };
 
-            var customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+            var customer = await stripeCustomerService.CreateAsync(options, cancellationToken: cancellationToken);
             return customer.Id;
         }
 
@@ -46,9 +45,9 @@ namespace NettoRetail.Application.Services
                 pm.Card.Brand,
                 pm.Card.ExpMonth,
                 pm.Card.ExpYear,
-                pm.Card.Last4
-            );
+                pm.Card.Last4);
         }
+
         public async Task SetDefaultPaymentMethodAsync(
             string customerId,
             string paymentMethodId,
@@ -62,7 +61,7 @@ namespace NettoRetail.Application.Services
                 }
             };
 
-            await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            await stripeCustomerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
         }
 
     }
