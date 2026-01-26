@@ -6,6 +6,7 @@ using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Newsletters.Commands;
@@ -15,8 +16,7 @@ public record SubscribeToNewsletterCommand(Guid AccountId) : IRequest<Unit>;
 public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
-    ILinkService linkService
-    ) : IRequestHandler<SubscribeToNewsletterCommand,Unit>
+    ILogger<SubscribeToNewsletterCommandHandler> logger) : IRequestHandler<SubscribeToNewsletterCommand,Unit>
 {
     public async Task<Unit> Handle(SubscribeToNewsletterCommand request, CancellationToken cancellationToken)
     {
@@ -35,6 +35,7 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Failed to send newsletter confirmation email.");
             throw new BadRequestException(
                 $"Email send failed: {ex.GetType().FullName} | {ex.Message} | {ex.InnerException?.GetType().FullName} | {ex.InnerException?.Message}");
 
