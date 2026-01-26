@@ -11,10 +11,8 @@ namespace NettoRetail.Infrastructure.Services;
 public class EmailSender(IOptions<EmailOptions> emailOptions,
     ILogger<EmailSender> logger) : IEmailSender
 {
-    public async Task SendAsync(EmailModel model)
+    public async Task SendAsync(EmailModel model, Guid userId)
     {
-        logger.LogInformation("Building SMTP client...");
-
         using var client = new SmtpClient(
             emailOptions.Value.Host,
             emailOptions.Value.Port)
@@ -26,8 +24,6 @@ public class EmailSender(IOptions<EmailOptions> emailOptions,
                 emailOptions.Value.Password)
         };
 
-        logger.LogInformation("Building message model...");
-
         using var message = new MailMessage
         {
             From = new MailAddress(emailOptions.Value.Sender, emailOptions.Value.Username),
@@ -38,18 +34,16 @@ public class EmailSender(IOptions<EmailOptions> emailOptions,
 
         message.To.Add(model.Email);
 
-        logger.LogInformation("Sending Email...");
-
         try
         {
             await client.SendMailAsync(message);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send email");
+            logger.LogError(ex, $"Failed to send email. User id = {userId}");
         }
 
-        logger.LogInformation("Email succesfully sent!");
+        logger.LogInformation($"Email succesfully sent! User id = {userId}");
     }
 
     public async Task SendBulkAsync(BulkEmailModel model)

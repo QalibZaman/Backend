@@ -27,6 +27,6 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
         await accountRepository.UpdateAsync(account, cancellationToken);
 
         var emailModel = await emailBuilderService.BuildNewsletterSubscribedEmailAsync(account.Email, account.FullName, request.UnsubscribeUrl);
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
     }
 }
