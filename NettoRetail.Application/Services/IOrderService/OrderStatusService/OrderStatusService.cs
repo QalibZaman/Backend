@@ -1,5 +1,6 @@
 ﻿using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Order;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
@@ -12,14 +13,17 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
     public class OrderStatusService(
         IInventoryItemRepository itemRepository,
         IUnitOfWork unitOfWork,
-        IOrderRepository orderRepository) : IOrderStatusService
+        IOrderRepository orderRepository,
+        IAccountRepository accountRepository) : IOrderStatusService
     {
-        public async Task UpdateOrderStatusAsync(OrderEntity order, UpdateOrderRequest model, CancellationToken cancellation)
+        public async Task UpdateOrderStatusAsync(OrderEntity order, UpdateOrderRequest model, Guid updatedBy, CancellationToken cancellation)
         {
             EnforceOrderStatusRules(order.OrderStatus, model.Status, model.Comment);
 
+            var account = await GetUpdatedByAccount(updatedBy, cancellation);
+
             order.StatusHistory ??= new List<OrderStatusHistoryEntity>();
-            order.StatusHistory.Add(CreateStatusHistory(order, model));
+            order.StatusHistory.Add(CreateStatusHistory(order, model, account));
             using var tx = unitOfWork.BeginTransaction();
             try
             {
@@ -38,15 +42,17 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
 
         private static OrderStatusHistoryEntity CreateStatusHistory(
         OrderEntity order,
-        UpdateOrderRequest model)
+        UpdateOrderRequest model,
+        AccountEntity updatedBy)
         {
             return new OrderStatusHistoryEntity
             {
                 OrderId = order.Id,
                 OldStatus = order.OrderStatus,
                 NewStatus = model.Status,
-                UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
-                Comment = model.Comment
+                UpdatedAt = DateTime.UtcNow,
+                Comment = model.Comment,
+                UpdatedBy = updatedBy
             };
         }
 
@@ -77,6 +83,11 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
                     inventoryItem.OnHandAmount += item.Quantity;
                 }
             }
+        }
+
+        private async Task<AccountEntity> GetUpdatedByAccount(Guid accountId, CancellationToken cancellationToken)
+        {
+            return await accountRepository.GetAsync(new GetAccountByIdSpecification(accountId), cancellationToken) ?? throw new NotFoundException("The account does not exist.");
         }
 
         private async Task UpdateInventoryAsync(

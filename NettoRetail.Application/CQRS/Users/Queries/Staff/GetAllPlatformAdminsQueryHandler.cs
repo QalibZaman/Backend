@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
@@ -15,15 +16,13 @@ public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
 {
     public async Task<List<PlatformAdminResponse>> Handle(GetAllPlatformAdminsQuery request, CancellationToken cancellationToken)
     {
-        var specBuilder = new SpecificationBuilder<AccountEntity>();
-
-        specBuilder.AddInclude(a => a.Sessions!);
-        specBuilder.AddInclude(a => a.Role);
-        specBuilder.AddInclude(a => a.Role.PermissionRoles);
-        specBuilder.AddCriteria(a => a.Role.Name.StartsWith(PlatformAdminConstants.RoleName) || a.Role.Id == PlatformAdminConstants.RoleId);
-
-        var specification = specBuilder
+        var specification = new SpecificationBuilder<AccountEntity>()
             .AddOrderBy(a => a.DateCreated, isDesc: true)
+            .AddCriteria(
+                a => a.Role.Name.StartsWith(PlatformAdminConstants.RoleName) || a.Role.Id == PlatformAdminConstants.RoleId)
+            .AddInclude(a => a.Sessions!)
+            .AddInclude(a => a.Role)
+            .AddInclude(a => a.Role.PermissionRoles)
             .Build();
 
         var accounts = await accountRepo.GetAllBySpecAsync(specification, cancellationToken);
