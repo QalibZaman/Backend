@@ -4,7 +4,7 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 
-namespace NettoRetail.Application.Services.IImageUploadService
+namespace NettoRetail.Application.Services.ImageUploadService
 {
     public class ImageUploadService(
         IAzureBlobService azureBlobService,
@@ -20,7 +20,7 @@ namespace NettoRetail.Application.Services.IImageUploadService
             if (file == null)
                 throw new ArgumentException("No image provided");
 
-            await imageValidatorService.ValidateImageAsync(file, cancellationToken);
+            await imageValidatorService.ValidateBannerImageAsync(file, cancellationToken);
 
             var fileName = $"{pathPrefix}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var container = azureBlobStorageOptions.Value.ContainerName;

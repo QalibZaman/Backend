@@ -70,20 +70,20 @@ public class RolesController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
         return Ok(response);
     }
-
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    
+    [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut("{id:int}")]
+    [HttpPut("{roleId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> EditRole(int id, [FromBody] UpdateRoleRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> EditRole(int roleId, [FromBody] UpdateRoleRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var roleUpdateCommand = new RoleUpdateCommand(id, shopId, model);
+        var roleUpdateCommand = new RoleUpdateCommand(roleId, shopId, model);
         await mediator.Send(roleUpdateCommand, cancellationToken);
         return NoContent();
     }
