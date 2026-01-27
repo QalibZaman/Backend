@@ -2,9 +2,10 @@ using Mapster;
 using MediatR;
 using NettoRetail.Application.Requests.TeaserSection;
 using NettoRetail.Application.Responses.TeaserSection;
-using NettoRetail.Application.Services.IImageUploadService;
+using NettoRetail.Application.Services.ImageUploadService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Infrastructure.Services.IImageValidatorService;
 
 namespace NettoRetail.Application.CQRS.TeaserSection.Commands;
 
@@ -17,7 +18,8 @@ public record UpdateTeaserSectionCommand(
 public class UpdateTeaserSectionCommandHandler(
     ITeaserSectionRepository teaserSectionRepository,
     IImageUploadService imageUploadService,
-    IAzureBlobService azureBlobService) : IRequestHandler<UpdateTeaserSectionCommand, TeaserSectionResponse>
+    IAzureBlobService azureBlobService,
+    IImageValidatorService imageValidatorService) : IRequestHandler<UpdateTeaserSectionCommand, TeaserSectionResponse>
 {
     public async Task<TeaserSectionResponse> Handle(UpdateTeaserSectionCommand request, CancellationToken cancellationToken)
     {
@@ -44,6 +46,8 @@ public class UpdateTeaserSectionCommandHandler(
     {
         if (request.Model.TeaserImage is null)
             return;
+
+        await imageValidatorService.ValidateImage(request.Model.TeaserImage);
 
         if (entity.TeaserImageUrl != null)
             await azureBlobService.DeleteByUrlAsync(entity.TeaserImageUrl);

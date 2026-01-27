@@ -110,15 +110,13 @@ public class MappingConfiguration : IRegister
 					: dest.Price * dest.Quantity;
 			});
 
-		config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
-			.Map(dest => dest.CustomerId, src => src.CustomerId)
-			.Map(dest => dest.CreationDate, src => DateOnly.FromDateTime(src.CreationDate))
-			.Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-			.Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-			.Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-			.Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
-			.Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-			.Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+        config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
 
 		config.NewConfig<OrderEntity, OrderResponse>()
 		   .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
@@ -145,9 +143,8 @@ public class MappingConfiguration : IRegister
 
 		config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
-		config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
-			.Map(dest => dest.Motto, src => src.Moto)
-			.Map(dest => dest.Name, src => src.Name);
+        config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
+            .Map(dest => dest.Name, src => src.Name);
 
 		config.NewConfig<StaffCsvModel, AccountEntity>()
 			.Map(dest => dest.FirstName, src => src.FirstName)
