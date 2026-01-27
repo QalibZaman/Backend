@@ -25,6 +25,9 @@ public class ChangeDefaultPaymentCommandHandler(
         var paymentMethod = await paymentRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Payment method not found.");
 
+        if (paymentMethod.AccountId != request.AccountId)
+            throw new ValidationException("Payment method does not belong to this account.");
+
         var allMethods = paymentMethod.Account.PaymentMethods?.ToList()
             ?? throw new NotFoundException("No payment methods found for the account.");
 
