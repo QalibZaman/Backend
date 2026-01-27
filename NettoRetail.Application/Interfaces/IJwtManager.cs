@@ -6,6 +6,7 @@ namespace NettoRetail.Application.Interfaces;
 public interface IJwtManager
 {
     string Generate(List<Claim> claims, TimeSpan expiration);
+    string GenerateWihoutTime(List<Claim> claims);
     ClaimsPrincipal? Validate(string refreshToken);
     ClaimsPrincipal ValidateResetToken(string resetToken);
     string GenerateTempToken(string userId);
