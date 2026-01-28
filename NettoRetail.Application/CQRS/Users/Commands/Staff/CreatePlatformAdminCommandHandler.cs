@@ -84,7 +84,7 @@ public class CreatePlatformAdminCommandHandler (
                 account.FirstName,
                 link);
 
-            await emailSender.SendAsync(emailModel);
+            await emailSender.SendAsync(emailModel, account.Id);
 
             return new CreatePlatformAdminResponse
             {

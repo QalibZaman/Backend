@@ -65,6 +65,6 @@ public class ResendInvitationByTokenHandler(
 
         var emailModel = await emailBuilderService.BuildPlatformAdminActivationEmailAsync(account.Email, account.FirstName,link);
 
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
     }
 }

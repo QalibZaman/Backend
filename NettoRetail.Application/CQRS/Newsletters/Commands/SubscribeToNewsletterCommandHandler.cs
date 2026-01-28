@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -31,7 +31,7 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
 
         try
         {
-            await emailSender.SendAsync(emailModel);
+            await emailSender.SendAsync(emailModel, account.Id);
         }
         catch (Exception ex)
         {
