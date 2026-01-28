@@ -18,7 +18,8 @@ public class GetCategoryProductStatusesCammandHandler(ICategoryRepository catego
         var spec = new GetCategoryByIdAndShopIdSpecification(request.CategoryId, request.ShopId)
             .AddInclude(x => x.InventoryItems);
 
-        var category = await categoryRepository.GetAsync(spec, cancellationToken);
+        var category = await categoryRepository.GetAsync(spec, cancellationToken) ??
+            throw new NotFoundException($"Category {request.CategoryId} not found in shop {request.ShopId}");
 
         var response = category.Adapt<GetCategoryProductStatusesResponse>();
 

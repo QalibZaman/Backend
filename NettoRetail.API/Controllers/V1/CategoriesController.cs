@@ -150,7 +150,7 @@ namespace NettoRetail.API.Controllers.V1
 
             var result = await mediator.Send(command,cancellationToken);
 
-            return Ok(result);
+            return Ok(new ApiResponse<GetCategoryProductStatusesResponse>(result));
         }
     }
 }
