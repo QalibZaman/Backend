@@ -36,18 +36,11 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
                 throw new BadRequestException("Cannot delete, customer has active orders");
 
             using var transaction = unitOfWork.BeginTransaction();
-            try
-            {
-                await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
-                await customerRepository.DeleteAsync(customer, cancellationToken);
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
-        }
 
+            await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
+            await customerRepository.DeleteAsync(customer, cancellationToken);
+
+            transaction.Commit();
+        }
     }
 }
