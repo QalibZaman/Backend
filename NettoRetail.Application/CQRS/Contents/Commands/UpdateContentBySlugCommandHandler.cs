@@ -30,12 +30,11 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         spec.And(new GetContentBySectionTypeSpecification(slugTuple!.Value.SectionType));
 
         var contentBlock = await contentRepo.GetAsync(spec, cancellationToken);
+        var sanitizer = new HtmlSanitizer();
+        request.Model.Content = sanitizer.Sanitize(request.Model.Content);
 
         if (contentBlock == null)
         {
-            var sanitizer = new HtmlSanitizer();
-            request.Model.Content = sanitizer.Sanitize(request.Model.Content);
-
             var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
 
             contentBlockToCreate.LastUpdated = DateTime.UtcNow;
