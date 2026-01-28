@@ -26,9 +26,7 @@ public class SendResetPasswordLinkCommandHandler(ICustomerRepository customerRep
         if (!isAccountWithSuchEmailExists) throw new NotFoundException("There is no active customer account with this email.");
 
         var link = linkService.CreateCustomerResetPasswordLink(command.Model.Email);
-
         var emailModel = await emailBuilderService.BuildCustomerPasswordResetEmailAsync(command.Model.Email, link);
-
         await emailSender.SendAsync(emailModel);
 
         var response = new SendResetPasswordLinkResponse

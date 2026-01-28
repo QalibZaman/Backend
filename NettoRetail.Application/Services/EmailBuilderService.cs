@@ -174,7 +174,7 @@ public class EmailBuilderService(
     {
         var model = new
         {
-            activation_link = link,
+            reset_link = link,
             token_expiration_hours = customerPasswordResetOptions.Value.TokenExpirationHours
         };
 

@@ -113,12 +113,12 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("send-reset-password-email")]
+    [HttpPost("send-reset-password-email")]
     [ProducesResponseType(typeof(ApiResponse<SendResetPasswordLinkResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SendResetPasswordLink(
-        [FromQuery]SendResetPasswordLinkRequest request,
+        [FromBody]SendResetPasswordLinkRequest request,
         CancellationToken cancellationToken)
     {
         var query = new SendResetPasswordLinkCommand(request);

@@ -23,7 +23,8 @@ public class ResetCustomerPasswordVerirficationCommandHandler(
 
         var principal = jwtManager.ValidateCustomerResetPasswordToken(command.Token);
 
-        var emailClaim = principal.FindFirst(ClaimTypes.Email);
+        var emailClaim = principal.FindFirst(ClaimTypes.Email)
+            ?? throw new BadRequestException("Reset password token does not contain an email claim.");
 
         var spec = new GetAccountByEmailSpecification(emailClaim!.Value);
         var account = await accountRepository.GetAsync(spec, cancellationToken)
