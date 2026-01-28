@@ -28,9 +28,8 @@ public class SendResetPasswordLinkCommandHandler(ICustomerRepository customerRep
         var link = linkService.CreateCustomerResetPasswordLink(command.Model.Email);
 
         var emailModel = await emailBuilderService.BuildCustomerPasswordResetEmailAsync(command.Model.Email, link);
-        //Right now EmailSender not configured that's why it's commented.
-        //In future this line must be uncommented.
-        //await emailSender.SendAsync(emailModel);
+
+        await emailSender.SendAsync(emailModel);
 
         var response = new SendResetPasswordLinkResponse
         {
