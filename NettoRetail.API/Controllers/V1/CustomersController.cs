@@ -149,7 +149,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ResetCustomerPasswordVerification(
+    public async Task<IActionResult> ResetCustomerPassword(
         [FromBody] ResetCustomerPasswordRequest request,
         CancellationToken cancellationToken)
     {
