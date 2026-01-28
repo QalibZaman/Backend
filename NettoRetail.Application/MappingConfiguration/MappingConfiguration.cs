@@ -110,7 +110,7 @@ public class MappingConfiguration : IRegister
 					: dest.Price * dest.Quantity;
 			});
 
-        config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
+		config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
@@ -247,7 +247,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
 
-        config.NewConfig<CartEntity, GetCartItemsResponse>()
+		config.NewConfig<CartEntity, GetCartItemsResponse>()
             .Map(dest => dest.Items, src => src.Items)
             .Map(dest => dest.TotalPrice, src => src.TotalPrice)
             .Map(dest => dest.SubtotalPrice, src => src.Items.Sum(i => i.Quantity * i.Price))
@@ -278,5 +278,15 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
             .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+
+		config.NewConfig<CategoryEntity, GetCategoryProductStatusesResponse>()
+            .Map(dest => dest.Available, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Available))
+			.Map(dest => dest.Committed, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Committed))
+			.Map(dest => dest.Unavailable, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Unavailable))
+			.Map(dest => dest.Incoming, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Incoming));
     }
 }
