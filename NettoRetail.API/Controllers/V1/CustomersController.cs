@@ -6,6 +6,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
+using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
@@ -82,6 +83,21 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var query = new GetCustomerInfoQuery(loyaltyId);
         var result = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<CustomerInfoResponse>(result);
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{customerId:guid}/orders")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrdersFortheCustomer([FromRoute] Guid customerId,[FromQuery]PaginationRequest paginationRequest,CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetOrdersForTheCustomeQuery(shopId,customerId,paginationRequest);
+        var result = await mediator.Send(query,cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>(result);
         return Ok(response);
     }
 

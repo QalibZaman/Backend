@@ -21,7 +21,6 @@ public class GetCustomerInfoQueryHandler(
             .Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId)
             .AddInclude(c => c.Account)
             .Build();
-
         var customer = await customerRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("There is no customer with such loyalty id.");
 
