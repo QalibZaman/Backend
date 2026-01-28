@@ -135,7 +135,7 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-        [HttpGet("get-category-product-statuses")]
+        [HttpGet("get-category-product-statuses/{id:int}")]
         [ProducesResponseType(typeof(ApiResponse<GetCategoryProductStatusesResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
