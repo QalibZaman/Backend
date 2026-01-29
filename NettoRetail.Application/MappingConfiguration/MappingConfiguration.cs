@@ -287,8 +287,6 @@ public class MappingConfiguration : IRegister
 			.Map(dest => dest.RoleName, src => src.Name)
             .AfterMapping((src, dest) =>
             {
-                dest.Permissions = [];
-
                 var rolePermissionTitles = src.PermissionRoles
                     .Where(pr => pr.Permission != null)
                     .Select(pr => pr.Permission!.Title)
