@@ -280,5 +280,13 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
             .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+
+        config.NewConfig<AccountEntity, ClientsShopInfoResponse>()
+            .Map(dest => dest.AdminsEmail, src => src.Email)
+            .Map(dest => dest.AdminsFullName, src =>
+                string.Join(
+                    " ",
+                    new[] { src.FirstName, src.LastName }
+                        .Where(x => !string.IsNullOrWhiteSpace(x))));
     }
 }

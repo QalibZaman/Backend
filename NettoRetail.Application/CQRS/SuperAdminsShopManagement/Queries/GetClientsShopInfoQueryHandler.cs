@@ -34,8 +34,8 @@ public class GetClientsShopInfoQueryHandler(
             ?? throw new NotFoundException("Admin account for this shop was not found.");
 
         var response = shop.Adapt<ClientsShopInfoResponse>();
-        response.AdminsEmail = clientsAccount.Email;
-        response.AdminsFullName = $"{clientsAccount.FirstName} {clientsAccount.LastName}".Trim();
+
+        clientsAccount.Adapt(response);
 
         return response;
     }
