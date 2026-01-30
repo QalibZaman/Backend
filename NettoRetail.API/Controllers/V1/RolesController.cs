@@ -70,7 +70,7 @@ public class RolesController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
         return Ok(response);
     }
-    
+
     [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{roleId:int}")]
@@ -85,6 +85,63 @@ public class RolesController(IMediator mediator) : ControllerBase
         var shopId = HttpContext.GetUserShopId();
         var roleUpdateCommand = new RoleUpdateCommand(roleId, shopId, model);
         await mediator.Send(roleUpdateCommand, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("{roleId:int}/lock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LockRole(int roleId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var userId = HttpContext.GetUserId();
+        var command = new LockRoleCommand(roleId, userId, shopId);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("{roleId:int}/refresh-lock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RefreshLock(int roleId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var userId = HttpContext.GetUserId();
+        var command = new RefreshLockCommand(roleId, userId, shopId);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpDelete("{roleId:int}/unlock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UnlockRole(int roleId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var userId = HttpContext.GetUserId();
+        var command = new UnlockRoleCommand(roleId, userId, shopId);
+        await mediator.Send(command, cancellationToken);
         return NoContent();
     }
 }

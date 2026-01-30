@@ -16,6 +16,10 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
         builder.Property(model => model.Description)
             .HasMaxLength(500);
 
+        builder.Property(model => model.LockedAtUtc);
+
+        builder.Property(model => model.LockedByUserId);
+
         builder.HasMany(model => model.PermissionRoles)
             .WithOne(model => model.Role)
             .HasForeignKey(model => model.RoleId);
@@ -27,6 +31,11 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
         builder.HasMany(r => r.Accounts)
             .WithOne(s => s.Role)
             .HasForeignKey(c => c.RoleId);
+
+        builder.HasOne<AccountEntity>()
+            .WithMany()
+            .HasForeignKey(r => r.LockedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasData(
             new RoleEntity() { Id = 1, Name = "Admin", Description = "Has full access to the system" },

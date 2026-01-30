@@ -7,7 +7,8 @@ public class RoleEntity
     public int Id { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
-
+    public DateTime? LockedAtUtc { get; set; }
+    public Guid? LockedByUserId { get; set; }
     public int? ShopId { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<PermissionRoleEntity> PermissionRoles { get; set; } = null!;

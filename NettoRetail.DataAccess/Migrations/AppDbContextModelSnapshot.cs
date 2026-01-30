@@ -1680,6 +1680,12 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<DateTime?>("LockedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LockedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
