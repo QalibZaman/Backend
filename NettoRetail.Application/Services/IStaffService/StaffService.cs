@@ -47,7 +47,7 @@ public class StaffService(
         var emailModel = await emailBuilderService
             .BuildResetPasswordEmailAsync(staffCsvModel.Email, staffCsvModel.FirstName);
 
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
     }
 
     public async Task UpdateStaffAsync(
