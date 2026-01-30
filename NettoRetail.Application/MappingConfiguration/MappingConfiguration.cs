@@ -26,7 +26,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.AccountId, src => src.AccountId)
             .Map(dest => dest.CustomerName, src => src.Account.FirstName + " " + src.Account.LastName)
             .Map(dest => dest.Email, src => src.Account.Email)
-            .Map(dest => dest.Phone, src => src.PhoneNumber)
+            .Map(dest => dest.Phone, src => src.Account.PhoneNumber)
             .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
             .Map(dest => dest.Remarks, src => src.Remarks);
         
