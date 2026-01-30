@@ -11,6 +11,7 @@ public class RoleEntity
     public Guid? LockedByUserId { get; set; }
     public int? ShopId { get; set; }
     public ShopEntity? Shop { get; set; }
+    public AccountEntity? LockedByUser { get; set; }
     public ICollection<PermissionRoleEntity> PermissionRoles { get; set; } = null!;
     public ICollection<AccountEntity> Accounts { get; set; } = null!;
 }

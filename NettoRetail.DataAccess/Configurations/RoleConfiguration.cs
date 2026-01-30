@@ -32,8 +32,8 @@ public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
             .WithOne(s => s.Role)
             .HasForeignKey(c => c.RoleId);
 
-        builder.HasOne<AccountEntity>()
-            .WithMany()
+        builder.HasOne(r => r.LockedByUser)
+            .WithMany(a => a.LockedRoles)
             .HasForeignKey(r => r.LockedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
 
