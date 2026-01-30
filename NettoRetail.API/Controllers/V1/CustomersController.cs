@@ -20,52 +20,24 @@ namespace NettoRetail.API.Controllers.V1;
 public class CustomersController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPost("create")]
+    [HttpPost("sign-up")]
     [ProducesResponseType(typeof(ApiResponse<CreateCustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest customer, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var command = new CreateCustomerCommand(shopId, customer);
         var result = await mediator.Send(command, cancellationToken);
         var response = new ApiResponse<CreateCustomerResponse>(result);
-        return Ok(response);
-    }
-
-    [AllowAnonymous]
-    [HttpPost("sign-up/{shopId:int}")]
-    [ProducesResponseType(typeof(ApiResponse<SignUpCustomerResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SignUpCustomer(int shopId, [FromBody] SignUpCustomerRequest customer, CancellationToken cancellationToken)
-    {
-        var command = new SignUpCustomerCommand(shopId, customer);
-        var result = await mediator.Send(command, cancellationToken);
-        var response = new ApiResponse<SignUpCustomerResponse>(result);
 
         return Ok(response);
     }
 
-    [AllowAnonymous]
-    [HttpGet("verify-customer-activation")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> VerifyCustomer([FromQuery] string token, CancellationToken cancellationToken)
-    {
-        var command = new VerifyCustomerEmailCommand(token);
-        await mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponse<string>("Your email was successfully verified!"));
-    }
-
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
 
-    public async Task<IActionResult> GetCustomers([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pageModel, [FromQuery] GetCustomersRequest? filter, CancellationToken cancellationToken)
     {
         var query = new GetCustomersQuery(pageModel, filter);
         var result = await mediator.Send(query, cancellationToken);
@@ -88,11 +60,10 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{customerId:guid}/orders")]
-    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerInfoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrdersFortheCustomer([FromRoute] Guid customerId,[FromQuery]PaginationRequest paginationRequest,CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrdersForTheCustomer([FromRoute] Guid customerId,[FromQuery]PaginationRequest paginationRequest,CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var query = new GetOrdersForTheCustomeQuery(shopId,customerId,paginationRequest);
@@ -115,7 +86,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpDelete("{id:guid}")]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
