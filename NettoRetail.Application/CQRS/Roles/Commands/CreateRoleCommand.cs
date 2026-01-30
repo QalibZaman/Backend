@@ -2,6 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Permissions;
+using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
@@ -38,6 +39,9 @@ public class CreateRoleCommandHandler(
 
         if (validPermissions.Count() != distinctPermissionIds.Length)
             throw new BadRequestException("Some of the permissions don't exist. Please provide valid permissions.");
+
+        if (await roleRepository.Exists(new GetRoleByNameAndShopIdSpecification(request.Name, request.ShopId), cancellationToken))
+            throw new ConflictException("Role with such name already exists in your shop");
 
         var role = new RoleEntity
         {
