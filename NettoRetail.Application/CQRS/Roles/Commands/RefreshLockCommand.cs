@@ -22,7 +22,7 @@ public class RefreshLockCommandHandler(IRoleRepository roleRepository) : IReques
             request.RoleId,
             request.ShopId,
             request.UserId,
-            DateTime.UtcNow,
+            DateTimeOffset.UtcNow,
             RoleLockConstants.Ttl,
             cancellationToken);
 

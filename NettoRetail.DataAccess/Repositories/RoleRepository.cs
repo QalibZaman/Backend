@@ -32,7 +32,7 @@ public class RoleRepository(AppDbContext dbContext)
         int roleId,
         int shopId,
         Guid userId,
-        DateTime nowUtc,
+        DateTimeOffset nowUtc,
         TimeSpan ttl,
         CancellationToken cancellationToken)
     {
@@ -40,17 +40,17 @@ public class RoleRepository(AppDbContext dbContext)
 
         var rows = await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $@"
-            UPDATE Roles
-            SET LockedByUserId = {userId},
-                LockedAtUtc     = {nowUtc}
-            WHERE Id = {roleId}
-              AND ShopId = {shopId}
-              AND (
-                    LockedByUserId IS NULL
-                 OR LockedAtUtc < {ttlBorder}
-                 OR LockedByUserId = {userId}
-              )
-        ",
+            UPDATE ""Roles""
+            SET ""LockedByUserId"" = {userId},
+            ""LockedAtUtc""     = {nowUtc}
+            WHERE ""Id"" = {roleId}
+                AND ""ShopId"" = {shopId}
+                AND (
+                    ""LockedByUserId"" IS NULL
+                    OR ""LockedAtUtc"" < {ttlBorder}
+                    OR ""LockedByUserId"" = {userId}
+                    )
+            ",
             cancellationToken);
 
         return rows == 1;
@@ -60,7 +60,7 @@ public class RoleRepository(AppDbContext dbContext)
         int roleId,
         int shopId,
         Guid userId,
-        DateTime nowUtc,
+        DateTimeOffset nowUtc,
         TimeSpan ttl,
         CancellationToken cancellationToken)
     {
@@ -68,13 +68,13 @@ public class RoleRepository(AppDbContext dbContext)
 
         var rows = await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $@"
-            UPDATE Roles
-            SET LockedAtUtc = {nowUtc}
-            WHERE Id = {roleId}
-              AND ShopId = {shopId}
-              AND LockedByUserId = {userId}
-              AND LockedAtUtc >= {ttlBorder}
-        ",
+            UPDATE ""Roles""
+            SET ""LockedAtUtc"" = {nowUtc}
+            WHERE ""Id"" = {roleId}
+                AND ""ShopId"" = {shopId}
+                AND ""LockedByUserId"" = {userId}
+                AND ""LockedAtUtc"" >= {ttlBorder}
+            ",
             cancellationToken);
 
         return rows == 1;
@@ -84,13 +84,13 @@ public class RoleRepository(AppDbContext dbContext)
     {
         var rows = await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $@"
-            UPDATE Roles
-            SET LockedByUserId = NULL,
-                LockedAtUtc     = NULL
-            WHERE Id = {roleId}
-              AND ShopId = {shopId}
-              AND LockedByUserId = {userId}
-        ",
+            UPDATE ""Roles""
+            SET ""LockedByUserId"" = NULL,
+                ""LockedAtUtc""     = NULL
+            WHERE ""Id"" = {roleId}
+                AND ""ShopId"" = {shopId}
+                AND ""LockedByUserId"" = {userId}
+            ",
             cancellationToken);
 
         return rows == 1;

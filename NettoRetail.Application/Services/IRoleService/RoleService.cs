@@ -88,7 +88,7 @@ namespace NettoRetail.Application.Services.IRoleService
             if (!role.LockedByUserId.HasValue || !role.LockedAtUtc.HasValue)
                 return false;
 
-            var lockActive = role.LockedAtUtc.Value >= DateTime.UtcNow - RoleLockConstants.Ttl;
+            var lockActive = role.LockedAtUtc.Value >= DateTimeOffset.UtcNow - RoleLockConstants.Ttl;
 
             return lockActive;
         }

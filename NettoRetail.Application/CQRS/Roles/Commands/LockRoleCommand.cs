@@ -22,7 +22,7 @@ public class LockRoleCommandHandler(IRoleRepository roleRepository) : IRequestHa
             request.RoleId,
             request.ShopId,
             request.UserId,
-            DateTime.UtcNow,
+            DateTimeOffset.UtcNow,
             RoleLockConstants.Ttl,
             cancellationToken);
 
