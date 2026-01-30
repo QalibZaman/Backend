@@ -10,6 +10,7 @@ using NettoRetail.Application.CQRS.Subscriptions.Commands;
 using NettoRetail.Application.Models.Request.Subscription;
 using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Shared.Constants;
+using StackExchange.Redis;
 
 namespace NettoRetail.API.Controllers.V1;
 

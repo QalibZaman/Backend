@@ -31,7 +31,6 @@ public class ChangeSubscriptionCommandHandler(
             ?? throw new NotFoundException($"Shop with ID {request.ShopId} not found.");
 
         var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
-
         var admin = await accountRepository.GetAsync(adminSpec, cancellationToken)
             ?? throw new ForbiddenException("Shop has no admin.");
 
