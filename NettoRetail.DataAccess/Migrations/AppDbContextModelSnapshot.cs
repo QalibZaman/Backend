@@ -1696,6 +1696,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LockedByUserId");
+
                     b.HasIndex("ShopId");
 
                     b.ToTable("Roles");
@@ -2414,9 +2416,16 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
+                        .WithMany("LockedRoles")
+                        .HasForeignKey("LockedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
                         .WithMany("Roles")
                         .HasForeignKey("ShopId");
+
+                    b.Navigation("LockedByUser");
 
                     b.Navigation("Shop");
                 });
@@ -2475,6 +2484,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Feedbacks");
 
                     b.Navigation("InvitationTokens");
+
+                    b.Navigation("LockedRoles");
 
                     b.Navigation("PasswordHistories");
 
