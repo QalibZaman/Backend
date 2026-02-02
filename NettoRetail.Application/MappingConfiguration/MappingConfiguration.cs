@@ -2,6 +2,7 @@ using Mapster;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
@@ -21,6 +22,14 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
+            .Map(dest => dest.AccountId, src => src.AccountId)
+            .Map(dest => dest.CustomerName, src => src.Account.FirstName + " " + src.Account.LastName)
+            .Map(dest => dest.Email, src => src.Account.Email)
+            .Map(dest => dest.Phone, src => src.Account.PhoneNumber)
+            .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
+            .Map(dest => dest.Remarks, src => src.Remarks);
+        
         config.NewConfig<AdminSignUpModel, AccountEntity>()
             .Map(dest => dest.PasswordHash, src => src.Password);
 
@@ -37,8 +46,6 @@ public class MappingConfiguration : IRegister
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
-
-        config.NewConfig<UpdateInventoryItemModel, InventoryItemUpdateData>();
 
         config.NewConfig<AccountEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);

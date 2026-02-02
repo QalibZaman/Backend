@@ -13,7 +13,8 @@ public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
     IOptions<EmailVerificationOptions> verificationOptions,
-    IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
+    IOptions<ResetPasswordOptions> passwordOptions,
+    ILinkService.ILinkService linkService) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
     {
@@ -52,11 +53,13 @@ public class EmailBuilderService(
         };
     }
 
-    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, string unsubscribeUrl)
+    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, Guid accountId)
     {
-        var model = new { full_name = fullName, unsubscribe_url = unsubscribeUrl };
+        var url = linkService.BuildNewsletterUnsubscribeUrl(accountId);
 
-        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.SubscriptionConfirmation, model);
+        var model = new { full_name = fullName, unsubscribe_url = url };
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.SubscriptionConfirmation, model);
 
         return new EmailModel
         {
@@ -65,6 +68,7 @@ public class EmailBuilderService(
             Message = emailBody
         };
     }
+
 
     public async Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason)
     {
