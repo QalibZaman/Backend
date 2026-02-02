@@ -17,4 +17,5 @@ public interface IInventoryService
     Task ValidateUpdateAsync(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken);
     List<InventoryItemEntity> BuildVariationInventoryItemEntities(ICollection<VariationModel> models, InventoryItemEntity parentItem);
     Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken);
+    Task<ToggleLinkProductsResponse> ToggleLinkProductsAsync(Guid parentId, Guid childId, CancellationToken cancellationToken);
 }

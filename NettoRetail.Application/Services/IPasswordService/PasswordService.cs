@@ -28,7 +28,7 @@ public class PasswordService(
 
         await ChangeAndCommitAsync(user, newPassword, cancellationToken);
 
-        await SendConfirmationEmailAsync(user.Email, user.FirstName);
+        await SendConfirmationEmailAsync(user.Email, user.FirstName, userId);
     }
 
     private async Task<AccountEntity> GetUserAsync(Guid userId, CancellationToken cancellationToken)
@@ -79,12 +79,12 @@ public class PasswordService(
         }
     }
 
-    private async Task SendConfirmationEmailAsync(string email, string firstName)
+    private async Task SendConfirmationEmailAsync(string email, string firstName, Guid userId)
     {
         try
         {
             var model = await emailBuilderService.BuildPasswordChangeConfirmationEmailAsync(email, firstName);
-            await emailSender.SendAsync(model);
+            await emailSender.SendAsync(model, userId);
             logger.LogInformation("Password change confirmation email sent to {Email}", email);
         }
         catch (Exception ex)
