@@ -58,6 +58,7 @@ public class DeletePaymentCommandHandler(IPaymentRepository paymentRepository,
         if (fallbackMethod != null)
         {
             fallbackMethod.IsDefault = true;
+            await paymentRepository.UpdateAsync(fallbackMethod, cancellationToken);
         }
     }
 }
