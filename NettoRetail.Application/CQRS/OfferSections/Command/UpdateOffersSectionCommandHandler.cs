@@ -1,52 +1,49 @@
 ﻿using MediatR;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Offer;
+using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.OfferSections.Command;
 
 public record UpdateOffersSectionCommand(
-    int ShopId,
-    string Name,
-    string? Preview,
-    bool IsVisible,
-    SelectionTypeEnum SelectionType,
-    List<Guid> InventoryItemIds,
-    string UpdatedBy
-) : IRequest;
+    UpdateOfferSectionRequest Model,
+    int ShopId) : IRequest;
 
 public class UpdateOffersSectionCommandHandler(
     IOfferRepository offerRepo,
     IOffersProductRepository productRepo,
+    IInventoryItemRepository inventoryItemRepository,
     IUnitOfWork unitOfWork
 ) : IRequestHandler<UpdateOffersSectionCommand>
 {
     public async Task Handle(UpdateOffersSectionCommand request, CancellationToken cancellationToken)
     {
-        var normalized = request with
-        {
-            Name = request.Name.Trim(),
-            Preview = request.Preview?.Trim()
-        };
-
-        var spec = new GetOfferSectionByShopIdSpecification(normalized.ShopId);
+        var spec = new GetOfferSectionByShopIdSpecification(request.ShopId);
         var offer = await offerRepo.GetAsync(spec, cancellationToken);
+
+        foreach (var item in request.Model.InventoryItemIds)
+        {
+            if (await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, request.ShopId), cancellationToken))
+                throw new BadRequestException("This item is not in your shop.");
+        }
 
         using var transaction = unitOfWork.BeginTransaction();
 
         if (offer is null)
-            offer = MapToNewOffer(normalized);
+            offer = MapToNewOffer(request);
         else
         {
-            UpdateOffer(offer, normalized);
+            UpdateOffer(offer, request.Model);
 
             var deleteSpec = new GetProductsByOfferSectionIdSpecification(offer.Id);
             await productRepo.DeleteManyBySpecAsync(deleteSpec, cancellationToken);
         }
 
-        offer.Products = BuildLinkedProducts(normalized.InventoryItemIds, offer);
+        offer.Products = BuildLinkedProducts(request.Model.InventoryItemIds, offer);
 
         if (offer is null)
             await offerRepo.AddAsync(offer, cancellationToken);
@@ -59,22 +56,20 @@ public class UpdateOffersSectionCommandHandler(
     private static OfferEntity MapToNewOffer(UpdateOffersSectionCommand request) => new()
     {
         ShopId = request.ShopId,
-        Name = request.Name,
-        Preview = request.Preview,
-        IsVisible = request.IsVisible,
-        SelectionType = request.SelectionType,
+        Name = request.Model.Name,
+        IsVisible = request.Model.IsVisible,
+        SelectionType = request.Model.SelectionType,
         LastUpdated = DateTime.UtcNow,
-        UpdatedBy = request.UpdatedBy
+        //UpdatedBy = request.UpdatedBy
     };
 
-    private static void UpdateOffer(OfferEntity offer, UpdateOffersSectionCommand request)
+    private static void UpdateOffer(OfferEntity offer, UpdateOfferSectionRequest model)
     {
-        offer.Name = request.Name.Trim();
-        offer.Preview = request.Preview?.Trim();
-        offer.IsVisible = request.IsVisible;
-        offer.SelectionType = request.SelectionType;
+        offer.Name = model.Name.Trim();
+        offer.IsVisible = model.IsVisible;
+        offer.SelectionType = model.SelectionType;
         offer.LastUpdated = DateTime.UtcNow;
-        offer.UpdatedBy = request.UpdatedBy;
+        //offer.UpdatedBy = model.UpdatedBy;
     }
 
     private static List<OffersProductEntity> BuildLinkedProducts(
