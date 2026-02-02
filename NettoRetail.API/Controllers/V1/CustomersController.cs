@@ -128,4 +128,51 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
         return NoContent();
     }
+
+    [AllowAnonymous]
+    [HttpPost("send-reset-password-email")]
+    [ProducesResponseType(typeof(ApiResponse<SendResetPasswordLinkResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SendResetPasswordLink(
+        [FromBody]SendResetPasswordLinkRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new SendResetPasswordLinkCommand(request);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<SendResetPasswordLinkResponse>(result);
+
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("reset-password-token-validation")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetCustomerPasswordVerification(
+        [FromQuery] string token,
+        CancellationToken cancellationToken)
+    {
+        var query = new ResetCustomerPasswordVerificationCommand(token);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<string>(result);
+
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPatch("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetCustomerPassword(
+        [FromBody] ResetCustomerPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new ResetCustomerPasswordCommand(request);
+        await mediator.Send(query, cancellationToken);
+
+        return NoContent();
+    }
 }
