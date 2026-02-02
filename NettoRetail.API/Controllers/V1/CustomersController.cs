@@ -6,6 +6,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
+using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
@@ -45,6 +46,26 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<SignUpCustomerResponse>(result);
 
         return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("log-in")]
+    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LogInCustomer([FromBody] LoginModel model, CancellationToken cancellationToken)
+    {
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        ip = ip.Trim(); 
+        var userAgent = Request.Headers.UserAgent.ToString();
+
+        var command = new LogInCustomerCommand(model, ip, userAgent);
+
+        var data = await mediator.Send(command, cancellationToken);
+        if (data == null)
+            return Unauthorized(new ApiResponse("Invalid credentials"));
+        return Ok(new ApiResponse<TokenResponse>(data));
     }
 
     [AllowAnonymous]
