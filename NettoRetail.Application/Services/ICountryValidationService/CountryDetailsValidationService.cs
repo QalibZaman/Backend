@@ -12,7 +12,6 @@ public class CountryDetailsValidationService(ICountryRepository countryRepositor
     public async Task ValidateAsync(CountryValidationModel model, CancellationToken cancellationToken, CountryValidationOptions? options = null)
     {
         var countryOptions = options ?? new CountryValidationOptions();
-        var errors = new List<string>();
         var specification = new GetCountryByIdSpecification(model.CountryId);
         var country = await countryRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Country not found");
@@ -28,12 +27,12 @@ public class CountryDetailsValidationService(ICountryRepository countryRepositor
         }
     }
 
-    public bool IsPhoneNumberValid(CountryEntity country, string phoneNumber)
+    private static bool IsPhoneNumberValid(CountryEntity country, string phoneNumber)
     {
         return Regex.IsMatch(phoneNumber, country.PhoneMask);
     }
 
-    private bool IsZipCodeValid(CountryEntity country, string zipCode)
+    private static bool IsZipCodeValid(CountryEntity country, string zipCode)
     {
         return Regex.IsMatch(zipCode, country.ZipCodeMask);
     }

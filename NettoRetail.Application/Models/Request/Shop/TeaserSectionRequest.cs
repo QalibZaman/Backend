@@ -13,7 +13,6 @@ public class TeaserSectionRequest
     public string? Link { get; set; }
 
     public IFormFile? TeaserImage { get; set; }
-    public string? TeaserImageUrl { get; set; }
 
     public TextAlignmentEnum HeadingAlignment { get; set; }
     public TextAlignmentEnum AdditionalTextAlignment { get; set; }

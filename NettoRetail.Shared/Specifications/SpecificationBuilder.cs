@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace NettoRetail.Shared.Specifications;
 
@@ -30,9 +31,16 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
+    [Obsolete("Use AddInclude overload that works with IQueryable, in order to get support for ThenInclude functionality.")]
     public SpecificationBuilder<TEntity> AddInclude(Expression<Func<TEntity, object>> include)
     {
         _specification.AddInclude(include);
+        return this;
+    }
+
+    public SpecificationBuilder<TEntity> AddInclude(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> includeExpression)
+    {
+        _specification.AddInclude(includeExpression);
         return this;
     }
 

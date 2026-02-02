@@ -14,7 +14,7 @@ namespace NettoRetail.API.Infrastructure.Validators
             RuleFor(x => x.Description)
                .MaximumLength(500).WithMessage("Description must be less than 500 characters long.")
                .Matches(@"^[A-Za-z0-9 ,.\-_'()]*$").WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
-              .Matches(@"^[^\s].*[^\s]$").WithMessage("Description must not start or end with spaces.");
+               .Must(d => string.IsNullOrEmpty(d) || d == d.Trim()).WithMessage("Description must not start or end with spaces.");
         }
     }
 }

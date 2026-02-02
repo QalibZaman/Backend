@@ -75,7 +75,7 @@ public class SetPasswordByInvitationTokenHandler(
             account.Email,
             account.FirstName);
 
-        await emailSender.SendAsync(confirmationEmail);
+        await emailSender.SendAsync(confirmationEmail, account.Id);
 
         return tokenResponse;
     }
