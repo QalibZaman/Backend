@@ -2,7 +2,6 @@
 
 public enum SubscriptionTypeEnum
 {
-    None,
     Free,
     Super,
     Business
