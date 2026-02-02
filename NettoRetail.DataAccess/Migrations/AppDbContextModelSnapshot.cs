@@ -392,7 +392,8 @@ namespace NettoRetail.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasMaxLength(50000)
+                        .HasColumnType("character varying(50000)");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
@@ -879,6 +880,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<bool>("Exists")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("HasVariations")
                         .HasColumnType("boolean");
 
@@ -949,24 +953,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItems");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("ItemComparison");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.InvitationTokenEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.InvitationTokenEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1000,6 +987,23 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("InvitationTokens");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ItemComparison");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
@@ -2184,6 +2188,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.InvitationTokenEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "AccountEntity")
+                        .WithMany("InvitationTokens")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountEntity");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
@@ -2193,17 +2208,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.InvitationTokenEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "AccountEntity")
-                        .WithMany("InvitationTokens")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AccountEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>

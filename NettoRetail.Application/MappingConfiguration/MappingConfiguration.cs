@@ -2,6 +2,7 @@ using Mapster;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
@@ -10,7 +11,9 @@ using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -21,6 +24,14 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
+            .Map(dest => dest.AccountId, src => src.AccountId)
+            .Map(dest => dest.CustomerName, src => src.Account.FirstName + " " + src.Account.LastName)
+            .Map(dest => dest.Email, src => src.Account.Email)
+            .Map(dest => dest.Phone, src => src.Account.PhoneNumber)
+            .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
+            .Map(dest => dest.Remarks, src => src.Remarks);
+        
         config.NewConfig<AdminSignUpModel, AccountEntity>()
             .Map(dest => dest.PasswordHash, src => src.Password);
 
@@ -110,7 +121,7 @@ public class MappingConfiguration : IRegister
                     : dest.Price * dest.Quantity;
             });
 
-        config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
+		config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
@@ -247,7 +258,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
             .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
 
-        config.NewConfig<CartEntity, GetCartItemsResponse>()
+		config.NewConfig<CartEntity, GetCartItemsResponse>()
             .Map(dest => dest.Items, src => src.Items)
             .Map(dest => dest.TotalPrice, src => src.TotalPrice)
             .Map(dest => dest.SubtotalPrice, src => src.Items.Sum(i => i.Quantity * i.Price))
@@ -278,5 +289,34 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
             .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+
+
+		config.NewConfig<CategoryEntity, GetCategoryProductStatusesResponse>()
+            .Map(dest => dest.Available, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Available))
+			.Map(dest => dest.Committed, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Committed))
+			.Map(dest => dest.Unavailable, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Unavailable))
+			.Map(dest => dest.Incoming, src => src.InventoryItems
+				.Count(i => i.Status == InventoryItemStatusEnum.Incoming));
+
+		config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
+			.Map(dest => dest.RoleId, src => src.Id)
+			.Map(dest => dest.Description, src => src.Description)
+			.Map(dest => dest.RoleName, src => src.Name)
+            .AfterMapping((src, dest) =>
+            {
+                var rolePermissionTitles = src.PermissionRoles
+                    .Where(pr => pr.Permission != null)
+                    .Select(pr => pr.Permission!.Title)
+                    .ToHashSet();
+
+                foreach (var permission in PermissionProvider.All)
+                {
+                    dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
+                }
+            });
+
     }
 }

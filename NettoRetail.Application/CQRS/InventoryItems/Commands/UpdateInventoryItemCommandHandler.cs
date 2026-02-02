@@ -4,30 +4,32 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Enums;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
-public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryItemModel Model) : IRequest;
+public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryItemModel Model) : IRequest<Unit>;
 
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     IInventoryService inventoryService)
-    : IRequestHandler<UpdateInventoryItemCommand>
+    : IRequestHandler<UpdateInventoryItemCommand,Unit>
 {
-    public async Task Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
     {
-        var itemByIdSpecification = new GetInventoryItemByIdAndShopIdSpecification(request.Id, request.ShopId);
-        var inventoryItem = await inventoryItemRepository.GetAsync(itemByIdSpecification, cancellationToken)
-            ?? throw new NotFoundException("There is no inventory item with such id.");
+        var spec = new GetInventoryItemByIdAndShopIdSpecification(request.Id, request.ShopId);
 
-        await inventoryService.ValidateUpdateAsync(request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
+        var inventoryItem = await inventoryItemRepository.GetAsync(spec, cancellationToken)
+                            ?? throw new NotFoundException("There is no inventory item with such id.");
 
-        request.Model.Adapt(inventoryItem);
+        await inventoryService.ValidateUpdateAsync(
+            request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
 
-        inventoryItem.UpdateStatus();
-
+        var data = request.Model.Adapt<InventoryItemUpdateData>();
+        inventoryItem.ApplyUpdate(data);
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
+        return Unit.Value;
     }
 }

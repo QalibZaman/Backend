@@ -6,6 +6,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Customers.Commands;
 using NettoRetail.Application.CQRS.Customers.Queries;
+using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
@@ -84,6 +85,22 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<CustomerInfoResponse>(result);
         return Ok(response);
     }
+    
+    
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{accountId:guid}/contact-info")]
+    [ProducesResponseType(typeof(ApiResponse<CustomerContactInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCustomerContactInfo([FromRoute] Guid accountId,CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId(); 
+        var query = new GetCustomerContactInfoQuery(accountId,shopId);
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<CustomerContactInfoResponse>(result);
+        return Ok(response);
+    }
+    
 
     [Authorize]
     [HttpPut("{loyaltyId}")]

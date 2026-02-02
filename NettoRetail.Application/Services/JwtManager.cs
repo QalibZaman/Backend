@@ -39,6 +39,35 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return handler.WriteToken(token);
     }
 
+    public string GenerateWihoutTime(List<Claim> claims)
+    {
+        if (_key is null || _key.Length == 0)
+            throw new BadRequestException("JwtOptions.SecretKey is empty. JWT generation cannot work.");
+
+        var handler = new JwtSecurityTokenHandler();
+
+        var claimsIdentity = new ClaimsIdentity(claims);
+
+        var securityKey = new SymmetricSecurityKey(_key);
+        var signingCredentials = new SigningCredentials(securityKey, _algorithm);
+
+        var tokenDescriptor = new SecurityTokenDescriptor()
+        {
+            Subject = claimsIdentity,
+            SigningCredentials = signingCredentials,
+        };
+
+        var token = handler.CreateToken(tokenDescriptor);
+
+        var jwt = handler.WriteToken(token);
+
+        if (string.IsNullOrWhiteSpace(jwt))
+            throw new BadRequestException("JWT generation returned empty string.");
+
+        return jwt;
+    }
+
+
     public ClaimsPrincipal? Validate(string refreshToken)
     {
         var handler = new JwtSecurityTokenHandler();

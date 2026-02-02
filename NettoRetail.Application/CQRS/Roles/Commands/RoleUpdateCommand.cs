@@ -25,7 +25,12 @@ public class RoleUpdateCommandHandler(
         if (!shopExists) throw new NotFoundException($"No shop with Id: {request.ShopId}");
 
         var roleByIdSpecification = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
-        var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken) ?? throw new NotFoundException("The role with such id doesn't exist.");
+        var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken)
+            ?? throw new NotFoundException("The role with such id doesn't exist.");
+
+        if (await roleRepository.Exists(new GetRoleByNameExcludingCurrentSpecification(request.Model.Name, request.Id), cancellationToken))
+            throw new ConflictException("Role with such name already exists");
+
         request.Model.Adapt(role);
         var permissionsIds = request.Model.PermissionIds?.Distinct().ToArray()
                                ?? Array.Empty<int>();

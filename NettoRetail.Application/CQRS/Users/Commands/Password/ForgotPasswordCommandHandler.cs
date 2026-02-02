@@ -24,6 +24,6 @@ public class ForgotPasswordCommandHandler(
 
         var emailModel = await emailBuilderService.BuildResetPasswordEmailAsync(user.Email, user.FirstName);
 
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, user.Id);
     }
 }

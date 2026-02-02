@@ -9,7 +9,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.IShopValidationService;
 
-public class ShopDetailsValidationService(IShopRepository shopRepository) : IShopDetailsValidationService
+public class ShopValidationService(IShopRepository shopRepository) : IShopValidationService
 {
     public async Task ValidateShopOnCreate(ShopValidationModel model, CancellationToken cancellationToken)
     {

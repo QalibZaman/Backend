@@ -5,7 +5,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
 
-public record DeactivateShopCommand(int ShopId, string Reason, DateTime? DeactivationDate) : IRequest;
+public record DeactivateShopCommand(int ShopId, string Reason, DateTime? DeactivationDate, Guid AccountId) : IRequest;
 
 public sealed class DeactivateShopCommandHandler(
     IShopRepository shopRepository,
@@ -23,7 +23,7 @@ public sealed class DeactivateShopCommandHandler(
         await shopRepository.UpdateAsync(shop, cancellationToken);
 
         await publisher.Publish(
-            new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate),
+            new DeactivateShopEventCommand(shop.Id, request.Reason, deactivationDate, request.AccountId),
             cancellationToken);
     }
 }
