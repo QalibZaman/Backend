@@ -11,10 +11,8 @@ namespace NettoRetail.Application.CQRS.Roles.Commands;
 
 public record DeleteRoleCommand(int Id, int ShopId) : IRequest;
 
-public class DeleteRoleCommandHandler(IRoleService roleService,
-    IRoleRepository roleRepository,
-    IAccountRepository accountRepository,
-    IShopRepository shopRepository) : IRequestHandler<DeleteRoleCommand>
+public class DeleteRoleCommandHandler(IRoleService roleService, IRoleRepository roleRepository,
+    IAccountRepository accountRepository, IShopRepository shopRepository) : IRequestHandler<DeleteRoleCommand>
 {
     public async Task Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
     {
