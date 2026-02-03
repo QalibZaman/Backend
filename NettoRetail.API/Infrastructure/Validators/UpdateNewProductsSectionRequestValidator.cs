@@ -9,6 +9,7 @@ public class UpdateNewProductsSectionRequestValidator : AbstractValidator<Update
     public UpdateNewProductsSectionRequestValidator()
     {
         RuleFor(x => x.Name)
+            .NotNull().WithMessage("Section name is required.")
             .NotEmpty().WithMessage("Section name is required.")
             .Length(2, 60).WithMessage("Name must be between 2 and 60 characters long.")
             .Must(name => name == name.Trim()).WithMessage("Name must not start or end with a space.")
