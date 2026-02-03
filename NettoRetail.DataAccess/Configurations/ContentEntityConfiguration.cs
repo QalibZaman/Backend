@@ -16,7 +16,8 @@ public class ContentEntityConfiguration : IEntityTypeConfiguration<ContentEntity
             .IsRequired()
             .HasMaxLength(30);
 
-        builder.Property(x => x.Content);
+        builder.Property(x => x.Content)
+            .HasMaxLength(50000);
 
         builder.Property(x => x.UpdatedBy)
             .IsRequired()

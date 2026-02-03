@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.DataAccess.Specifications.Customer;
@@ -28,70 +27,116 @@ public class UpdateOrderCommandHandler(
         specificationBuilder.Add<GetOrdersByIdSpecification>(request.OrderId);
         specificationBuilder.AddInclude(x => x.OrderItems);
 
-        var order = await orderRepository.GetAsync(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There is no such order.");
+        var order = await orderRepository.GetAsync(specificationBuilder.Build(), cancellationToken)
+            ?? throw new NotFoundException("There is no such order.");
 
         if (order.OrderStatus == OrderStatusEnum.InProgress)
-        {
             throw new BadRequestException("This order cannot be edited while in 'In Progress' status.");
-        }
-
-        var inventoryItemsIds = request.Model.ItemsToUpsert.Keys.Concat(request.Model.ItemsToDelete);
-
-        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
-        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsSpecification, cancellationToken) ?? throw new NotFoundException("There are no such items.");
-
-        var itemsList = new List<InventoryItemEntity>();
 
         var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-        var customer = await customerRepository.GetAsync(customerSpecification, cancellationToken) ?? throw new NotFoundException("There is no such customer.");
+        var customerExists = await customerRepository.Exists(customerSpecification, cancellationToken);
+        if (!customerExists)
+            throw new NotFoundException("There is no such customer.");
 
-        var transaction = unitOfWork.BeginTransaction();
+        var overlap = request.Model.ItemsToUpsert.Keys
+            .Intersect(request.Model.ItemsToDelete)
+            .ToList();
+
+        if (overlap.Any())
+            throw new BadRequestException($"Items cannot be both upserted and deleted: {string.Join(", ", overlap)}");
+
+        var inventoryItemIds = request.Model.ItemsToUpsert.Keys
+            .Concat(request.Model.ItemsToDelete)
+            .Distinct()
+            .ToList();
+
+        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemIds);
+        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsSpecification, cancellationToken)
+            ?? throw new NotFoundException("There are no such items.");
+
+        var inventoryById = inventoryItems.ToDictionary(x => x.Id);
+        var changedItems = new HashSet<InventoryItemEntity>();
+
+        using var transaction = unitOfWork.BeginTransaction();
 
         try
         {
-            request.Model.Adapt(order);
-
             foreach (var itemToUpsert in request.Model.ItemsToUpsert)
             {
-                var item = inventoryItems.First(x => x.Id == itemToUpsert.Key);
+                var itemId = itemToUpsert.Key;
+                var newQty = itemToUpsert.Value;
 
-                if (order.OrderItems.Select(x => x.ItemId).Contains(itemToUpsert.Key))
+                if (newQty < 0)
+                    throw new BadRequestException("Quantity must be non-negative.");
+
+                if (!inventoryById.TryGetValue(itemId, out var item))
+                    throw new NotFoundException($"There is no such inventory item (Id: {itemId}).");
+
+                var existingOrderItem = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId);
+
+                if (existingOrderItem != null && newQty == 0)
                 {
-                    var orderItem = order.OrderItems.First(x => x.ItemId == itemToUpsert.Key);
+                    item.AvailableAmount += existingOrderItem.Quantity;
+                    item.ReservedAmount -= existingOrderItem.Quantity;
 
-                    item.AvailableAmount -= itemToUpsert.Value - orderItem.Quantity;
-                    item.ReservedAmount += itemToUpsert.Value - orderItem.Quantity;
+                    ValidateInventoryAmounts(item);
+                    changedItems.Add(item);
 
-                    orderItem.Quantity = itemToUpsert.Value;
+                    order.OrderItems.Remove(existingOrderItem);
+                    continue;
+                }
+
+                var oldQty = existingOrderItem?.Quantity ?? 0;
+                var delta = newQty - oldQty;
+
+                if (delta > 0 && item.AvailableAmount < delta)
+                    throw new BadRequestException($"Not enough stock for item {item.Id}.");
+
+                if (existingOrderItem is null)
+                {
+                    if (newQty == 0)
+                        continue;
+
+                    order.OrderItems.Add(new OrderItemEntity
+                    {
+                        ItemId = itemId,
+                        Quantity = newQty,
+                        OrderId = request.OrderId
+                    });
                 }
                 else
                 {
-                    order.OrderItems.Add(new OrderItemEntity { ItemId = itemToUpsert.Key, Quantity = itemToUpsert.Value, OrderId = request.OrderId });
-
-                    item.AvailableAmount -= itemToUpsert.Value;
-                    item.ReservedAmount += itemToUpsert.Value;
+                    existingOrderItem.Quantity = newQty;
                 }
+
+                item.AvailableAmount -= delta;
+                item.ReservedAmount += delta;
+
+                ValidateInventoryAmounts(item);
+                changedItems.Add(item);
             }
 
-            foreach (var itemIdToDelete in request.Model.ItemsToDelete)
+            foreach (var itemIdToDelete in request.Model.ItemsToDelete.Distinct())
             {
-                var item = inventoryItems.First(x => x.Id == itemIdToDelete);
-                var itemToRemove = order.OrderItems.Where(x => x.ItemId == itemIdToDelete).FirstOrDefault()
-                    ?? throw new NotFoundException("One of the inventory items to delete is inaccessible");
+                if (!inventoryById.TryGetValue(itemIdToDelete, out var item))
+                    throw new NotFoundException($"There is no such inventory item (Id: {itemIdToDelete}).");
+
+                var itemToRemove = order.OrderItems.FirstOrDefault(x => x.ItemId == itemIdToDelete)
+                    ?? throw new NotFoundException("One of the inventory items to delete is inaccessible.");
 
                 item.AvailableAmount += itemToRemove.Quantity;
                 item.ReservedAmount -= itemToRemove.Quantity;
 
+                ValidateInventoryAmounts(item);
+                changedItems.Add(item);
+
                 order.OrderItems.Remove(itemToRemove);
             }
 
-            await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
+            if (changedItems.Count > 0)
+                await inventoryItemRepository.UpdateManyAsync(changedItems.ToList(), cancellationToken);
 
-            if (order.OrderItems.Any())
-                await orderRepository.UpdateAsync(order, cancellationToken);
-            else
-                await orderRepository.DeleteAsync(order, cancellationToken);
-
+            await orderRepository.UpdateAsync(order, cancellationToken);
             transaction.Commit();
         }
         catch
@@ -99,5 +144,17 @@ public class UpdateOrderCommandHandler(
             transaction.Rollback();
             throw;
         }
+    }
+
+    private static void ValidateInventoryAmounts(InventoryItemEntity item)
+    {
+        if (item.AvailableAmount < 0)
+            throw new BadRequestException($"Available amount must be non-negative (item {item.Id}).");
+
+        if (item.ReservedAmount < 0)
+            throw new BadRequestException($"Reserved amount must be non-negative (item {item.Id}).");
+
+        if (item.AvailableAmount + item.ReservedAmount > item.OnHandAmount)
+            throw new BadRequestException($"Available + Reserved cannot exceed OnHand (item {item.Id}).");
     }
 }
