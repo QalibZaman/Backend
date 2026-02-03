@@ -1194,10 +1194,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<string>("Preview")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<int>("SelectionType")
                         .HasColumnType("integer");
 

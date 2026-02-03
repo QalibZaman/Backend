@@ -17,5 +17,8 @@ public class UpdateOfferSectionRequestValidator : AbstractValidator<UpdateOfferS
         RuleFor(x => x.InventoryItemIds)
                 .NotNull().WithMessage("Products list cannot be null.")
                 .Must(list => list.Any()).WithMessage("At least one product must be added.");
+
+        RuleFor(x => x.SelectionType)
+            .IsInEnum().WithMessage("Invalid selection type");
     }
 }

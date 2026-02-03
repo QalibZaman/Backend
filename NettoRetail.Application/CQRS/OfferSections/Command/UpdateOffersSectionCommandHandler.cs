@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Offer;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Domain.Entities;
@@ -11,12 +12,14 @@ namespace NettoRetail.Application.CQRS.OfferSections.Command;
 
 public record UpdateOffersSectionCommand(
     UpdateOfferSectionRequest Model,
-    int ShopId) : IRequest;
+    int ShopId,
+    Guid UserId) : IRequest;
 
 public class UpdateOffersSectionCommandHandler(
     IOfferRepository offerRepo,
     IOffersProductRepository productRepo,
     IInventoryItemRepository inventoryItemRepository,
+    IAccountRepository accountRepository,
     IUnitOfWork unitOfWork
 ) : IRequestHandler<UpdateOffersSectionCommand>
 {
@@ -27,7 +30,7 @@ public class UpdateOffersSectionCommandHandler(
 
         foreach (var item in request.Model.InventoryItemIds)
         {
-            if (await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, request.ShopId), cancellationToken))
+            if (!await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, request.ShopId), cancellationToken))
                 throw new BadRequestException("This item is not in your shop.");
         }
 
@@ -42,6 +45,8 @@ public class UpdateOffersSectionCommandHandler(
             var deleteSpec = new GetProductsByOfferSectionIdSpecification(offer.Id);
             await productRepo.DeleteManyBySpecAsync(deleteSpec, cancellationToken);
         }
+
+        offer.UpdatedBy = await GetUpdatedBy(request.UserId, cancellationToken);
 
         offer.Products = BuildLinkedProducts(request.Model.InventoryItemIds, offer);
 
@@ -60,7 +65,6 @@ public class UpdateOffersSectionCommandHandler(
         IsVisible = request.Model.IsVisible,
         SelectionType = request.Model.SelectionType,
         LastUpdated = DateTime.UtcNow,
-        //UpdatedBy = request.UpdatedBy
     };
 
     private static void UpdateOffer(OfferEntity offer, UpdateOfferSectionRequest model)
@@ -69,7 +73,6 @@ public class UpdateOffersSectionCommandHandler(
         offer.IsVisible = model.IsVisible;
         offer.SelectionType = model.SelectionType;
         offer.LastUpdated = DateTime.UtcNow;
-        //offer.UpdatedBy = model.UpdatedBy;
     }
 
     private static List<OffersProductEntity> BuildLinkedProducts(
@@ -83,5 +86,14 @@ public class UpdateOffersSectionCommandHandler(
             Offer = offer,
             OfferId = offer.Id
         }).ToList();
+    }
+
+    private async Task<string> GetUpdatedBy(Guid userId, CancellationToken cancellationToken)
+    {
+        var spec = new GetAccountByIdSpecification(userId);
+        var user = await accountRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException("User not found");
+
+        return user.FullName;
     }
 }
