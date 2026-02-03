@@ -123,6 +123,21 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
     
 
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{customerId:guid}/orders")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrdersFortheCustomer([FromRoute] Guid customerId,[FromQuery]PaginationRequest paginationRequest,CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetOrdersForTheCustomeQuery(shopId,customerId,paginationRequest);
+        var result = await mediator.Send(query,cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>(result);
+        return Ok(response);
+    }
+
     [Authorize]
     [HttpPut("{loyaltyId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
