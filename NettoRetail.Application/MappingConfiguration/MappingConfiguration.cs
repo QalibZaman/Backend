@@ -143,7 +143,10 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<AccountEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
-            .Map(dest => dest.Status, src => src.Status.ToString());
+            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName);
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
