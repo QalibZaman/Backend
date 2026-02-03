@@ -27,8 +27,9 @@ public class NewProductsSectionController(IMediator mediator) : ControllerBase
         [FromBody] UpdateNewProductsSectionRequest request, CancellationToken cancellationToken)
     {
         var userShopId = HttpContext.GetUserShopId();
+        var updatedBy = HttpContext.GetUpdatedByName();
 
-        var command = new UpdateNewProductsSectionCommand(userShopId, request);
+        var command = new UpdateNewProductsSectionCommand(userShopId, request, updatedBy);
 
         await mediator.Send(command, cancellationToken);
 
