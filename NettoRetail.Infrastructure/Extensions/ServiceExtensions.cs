@@ -27,7 +27,8 @@ public static class ServiceExtensions
         services.Configure<InvitationOptions>(configuration.GetSection(nameof(InvitationOptions)));
         services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
         services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
-
+        services.Configure<CustomerPasswordResetOptions>(configuration.GetSection(nameof(CustomerPasswordResetOptions)));
+        services.Configure<CorsOptions>(configuration.GetSection(nameof(CorsOptions)));
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
         services.Configure<EmailVerificationOptions>(configuration.GetSection(nameof(EmailVerificationOptions)));
