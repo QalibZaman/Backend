@@ -111,7 +111,9 @@ public class ShopsController(IMediator mediator) : ControllerBase
     [HttpPut("deactivation/{shopId:int}")]
     public async Task<IActionResult> DeactivateShop(int shopId, [FromBody] DeactivateShopRequest request)
     {
-        var command = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate);
+        var userId = HttpContext.GetUserId();
+
+        var command = new DeactivateShopCommand(shopId, request.Reason, request.DeactivationDate, userId);
 
         await mediator.Send(command);
 

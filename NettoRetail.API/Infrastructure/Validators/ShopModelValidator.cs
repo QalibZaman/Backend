@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.Shop;
 
 namespace NettoRetail.API.Infrastructure.Validators;
@@ -8,16 +9,13 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
 {
     public ShopModelValidator()
     {
-        RuleFor(x => x.CountryId)
-            .NotEmpty().WithMessage("CountryId is required.");
-
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
             .Length(7, 13).WithMessage("Incorrect phone number length");
 
         RuleFor(x => x.ZipCode)
-            .NotEmpty().WithMessage("Zipcode is required.")
-            .Length(3, 8).WithMessage("Incorrect zipcode length");
+            .Length(3, 8).WithMessage("Incorrect zipcode length")
+            .When(x => !x.ZipCode.IsNullOrEmpty());
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required.")
@@ -38,27 +36,29 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
 
         RuleFor(x => x.Address)
-            .NotEmpty().WithMessage("Address is required.")
             .Length(5, 90).WithMessage("Address must be between 5 and 90 characters.")
             .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("Address can only contain Latin characters, numbers, and special characters.")
-            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
+            .When(x => !x.Address.IsNullOrEmpty());
 
         RuleFor(x => x.City)
-            .NotEmpty().WithMessage("City is required.")
             .Length(2, 50).WithMessage("City must be between 2 and 50 characters.")
             .Matches(@"^[A-Za-z\s-]+$").WithMessage("City can only contain Latin characters, spaces, and hyphens.")
-            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
+            .When(x => !x.City.IsNullOrEmpty());
 
         RuleFor(x => x.State)
             .Length(2, 50).WithMessage("State must be between 2 and 50 characters.")
             .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("State can only contain Latin characters, numbers, spaces, and special characters.")
-            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
+            .When(x => !x.State.IsNullOrEmpty());
 
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Invalid description. Please check format or length.")
             .Matches(@"^[A-Za-z0-9\s\-,._!?()]+$").WithMessage("Invalid description. Please check format or length.")
             .Must(x => x.Trim() == x).WithMessage("Invalid description. Please check format or length.")
             .Must((description) => !Regex.IsMatch(description, @"<[^>]+>"))
-            .WithMessage("Invalid description. Please check format or length.");
+            .WithMessage("Invalid description. Please check format or length.")
+            .When(x => !x.Description.IsNullOrEmpty());
     }
 }

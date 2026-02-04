@@ -11,10 +11,8 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Roles.Commands;
 
 public record CreateRoleCommand(
-    string Name,
-    string? Description,
-    int ShopId,
-    int[] PermissionIds) : IRequest<CreateRoleResponse>;
+    CreateRoleRequest Model,
+    int ShopId) : IRequest<CreateRoleResponse>;
 
 public class CreateRoleCommandHandler(
     IRoleRepository roleRepository,
@@ -30,10 +28,10 @@ public class CreateRoleCommandHandler(
         if (!shopExists)
             throw new NotFoundException($"No shop with Id: {request.ShopId}");
 
-        if (request.PermissionIds is null || request.PermissionIds.Length == 0)
+        if (request.Model.PermissionIds is null || request.Model.PermissionIds.Length == 0)
             throw new BadRequestException("At least one permission must be enabled.");
 
-        var distinctPermissionIds = request.PermissionIds.Distinct().ToArray();
+        var distinctPermissionIds = request.Model.PermissionIds.Distinct().ToArray();
         var validSpec = new GetValidPermissionsSpecification(distinctPermissionIds);
         var validPermissions = await permissionRepository.GetIdsBySpecAsync(validSpec, cancellationToken);
 
@@ -45,8 +43,8 @@ public class CreateRoleCommandHandler(
 
         var role = new RoleEntity
         {
-            Name = request.Name.Trim(),
-            Description = !string.IsNullOrWhiteSpace(request.Description) ? request.Description?.Trim() : null,
+            Name = request.Model.Name.Trim(),
+            Description = !string.IsNullOrWhiteSpace(request.Model.Description) ? request.Model.Description?.Trim() : null,
             ShopId = request.ShopId
         };
 

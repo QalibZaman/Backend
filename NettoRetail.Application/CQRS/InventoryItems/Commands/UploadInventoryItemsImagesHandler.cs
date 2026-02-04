@@ -33,7 +33,7 @@ public class UploadInventoryItemsImagesHandler(
 
         if (request.Image == null) throw new BadRequestException("No image provided");
 
-        await imageValidatorService.ValidateImageAsync(request.Image, cancellationToken);
+        await imageValidatorService.ValidateBannerImageAsync(request.Image, cancellationToken);
 
         var fileName = $"Inventory-item-images/{item.Id}/{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
         var container = azureBlobStorageOptions.Value.ContainerName;

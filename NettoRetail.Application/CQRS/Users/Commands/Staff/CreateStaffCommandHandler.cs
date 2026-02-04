@@ -50,7 +50,7 @@ public class CreateStaffCommandHandler(
         var emailModel = await emailBuilderService
             .BuildResetPasswordEmailAsync(request.Model.Email, request.Model.FirstName);
 
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
 
         return response;
     }

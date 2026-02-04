@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,12 +16,10 @@ using NettoRetail.Application.Models.ClientsShop;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -269,13 +268,14 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         return NoContent();
     }
 
-    [RequiresPermission(Permissions.CUSTOMER_MANAGEMENT)]
-    [RequiresPermission(Permissions.ORDERS_MANAGEMENT)]
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
-    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPatch("platform-admins/{id:guid}")]
     public async Task<IActionResult> EditPlatformAdmin(Guid id, [FromBody] EditPlatformAdminRequest request, CancellationToken cancellationToken)
     {
@@ -313,10 +313,17 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
     {
-        var query = new GetAllPlatformAdminsQuery();
-        var data = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<List<PlatformAdminResponse>>(data);
+        var data = await mediator.Send(new GetAllPlatformAdminsQuery(), cancellationToken);
 
-        return Ok(response);
+        return Ok(new ApiResponse<List<PlatformAdminResponse>>(data));
+    }
+
+    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
+    [Authorize]
+    [HttpPost("{id:guid}/resend-invitation")]
+    public async Task<IActionResult> ResendInvitationEmail(Guid id)
+    {
+        await mediator.Send(new ResendInvitationBySuperAdminCommand(id));
+        return Ok(new ApiResponse("Invitation was send succesfully"));
     }
 }

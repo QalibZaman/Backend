@@ -50,7 +50,9 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCategory(AddCategoryRequest model, CancellationToken cancellationToken)
         {
-            var command = model.Adapt<AddCategoryCommand>();
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new AddCategoryCommand(model, shopId);
 
             var response = await mediator.Send(command, cancellationToken);
 
@@ -130,6 +132,25 @@ namespace NettoRetail.API.Controllers.V1
             await mediator.Send(command, cancellationToken);
 
             return NoContent();
+        }
+
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [HttpGet("get-category-product-statuses/{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<GetCategoryProductStatusesResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCategoryProductStatuses(int id, CancellationToken cancellationToken)
+        {
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new GetCategoryProductStatusesCommand(shopId, id);
+
+            var result = await mediator.Send(command,cancellationToken);
+
+            return Ok(new ApiResponse<GetCategoryProductStatusesResponse>(result));
         }
     }
 }

@@ -9,6 +9,7 @@ public class OrderStatusHistoryEntity
     public required OrderStatusEnum OldStatus { get; set; }
     public required OrderStatusEnum NewStatus { get; set; }
     public string? Comment { get; set; }
-    public required DateOnly UpdatedAt { get; set; }
+    public required DateTime UpdatedAt { get; set; }
     public OrderEntity Order { get; set; }
+    public required AccountEntity UpdatedBy { get; set; }
 }

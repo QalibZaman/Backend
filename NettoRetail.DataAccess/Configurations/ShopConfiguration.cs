@@ -50,8 +50,7 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
         builder.HasOne(s => s.Country)
             .WithMany(c => c.Shops)
             .HasForeignKey(p => p.CountryId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired(true);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(model => model.Roles)
             .WithOne(model => model.Shop)

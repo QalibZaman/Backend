@@ -40,7 +40,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var customerId = Guid.NewGuid();
             var product = MakeProduct(5);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
@@ -84,7 +84,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
                 .Returns(cart);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
@@ -109,7 +109,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
         {
             var customerId = Guid.NewGuid();
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns((InventoryItemEntity?)null);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
@@ -127,7 +127,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var customerId = Guid.NewGuid();
             var product = MakeProduct(0);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             await Assert.ThrowsAsync<BadRequestException>(() =>
@@ -154,7 +154,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns(existingItem);
 
@@ -179,7 +179,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns((CartItemEntity?)null);
 
@@ -198,7 +198,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             product.IsPromoted = true;
             product.PromotionPrice = 7m;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
@@ -235,7 +235,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns(existingItem);
 
@@ -259,7 +259,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product2);
 
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
@@ -280,7 +280,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             var product = MakeProduct(3);
             product.Status = InventoryItemStatusEnum.Unavailable;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             await Assert.ThrowsAsync<BadRequestException>(() =>
@@ -302,7 +302,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns((CartItemEntity?)null);
 
@@ -320,7 +320,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             product.IsPromoted = true;
             product.PromotionPrice = 4.99m;
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product);
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>())
@@ -349,7 +349,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
 
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(product2);
 
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())

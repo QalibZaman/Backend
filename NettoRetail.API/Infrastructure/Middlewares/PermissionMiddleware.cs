@@ -52,15 +52,31 @@ public class PermissionMiddleware
 
             var endpoint = context.GetEndpoint();
             var requiredPermissions = endpoint?.Metadata?.GetOrderedMetadata<RequiresPermissionAttribute>();
+            var requiredPermissionsAny = endpoint?.Metadata?.GetOrderedMetadata<RequiresAnyPermissionAttribute>();
+            var permissionsHashSet = permissions.ToHashSet();
 
             if (requiredPermissions != null && requiredPermissions.Any())
             {
                 var missingPermissions = requiredPermissions
-                     .Where(required => !permissions.Any(permission => permission == required.Permission))
+                     .Where(required => !permissionsHashSet.Contains(required.Permission))
                      .Select(rp => rp.Permission)
                      .ToList();
 
                 if (missingPermissions.Any())
+                {
+                    throw new ForbiddenException("You don't have required permissions");
+                }
+            }
+
+            if (requiredPermissionsAny != null && requiredPermissionsAny.Any())
+            {
+                var failedPermissions = requiredPermissionsAny
+                    .Where(group => group.Permissions == null ||
+                                    group.Permissions.Length == 0 ||
+                                    !group.Permissions.Any(p=>permissionsHashSet.Contains(p)))
+                    .ToList();
+
+                if (failedPermissions.Any())
                 {
                     throw new ForbiddenException("You don't have required permissions");
                 }

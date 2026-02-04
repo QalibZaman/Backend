@@ -3,6 +3,7 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
 
+
 public class InventoryItemEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -21,7 +22,11 @@ public class InventoryItemEntity
     public required int OnHandAmount { get; set; }
     public required string ProductLocation { get; set; } = "No location";
     public required int ShopId { get; set; }
+    public bool HasVariations { get; set; }
+    public bool IsVariation { get; set; }
+    public bool Exists { get; set; } = true;
 
+    public Guid? ParentItemId { get; set; } = null;
     public required CategoryEntity Category { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
@@ -32,10 +37,38 @@ public class InventoryItemEntity
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedByUsers { get; set; } = [];
     public ICollection<ProductDetailEntity> ProductDetails { get; set; } = [];
     public ICollection<ItemComparisonItemEntity> ComparisonItems { get; set; } = null!;
+    public InventoryItemEntity? ParentItem { get; set; }
+    public ICollection<InventoryItemEntity>? ChildItems { get; set; } = [];
 
     public void UpdateStatus()
     {
         Status = IsActive ? InventoryItemStatusEnum.Available : InventoryItemStatusEnum.Unavailable;
         LastUpdatedDate = DateTime.UtcNow;
     }
+    public void ApplyUpdate(InventoryItemUpdateData data)
+    {
+        if (string.IsNullOrWhiteSpace(data.ProductName))
+            throw new InvalidOperationException("Product name cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(data.Description))
+            throw new InvalidOperationException("Description cannot be empty.");
+
+        ProductUpc = data.ProductUpc;
+        ProductName = data.ProductName.Trim();
+        CategoryId = data.CategoryId;
+        BrandId = data.BrandId;
+        Description = data.Description.Trim();
+
+        Price = data.Price;
+        IsActive = data.IsActive;
+
+        IsPromoted = data.IsPromoted;
+        PromotionPrice = data.PromotionPrice;
+
+        UpdateStatus();
+    }
+
+
+
+
 }

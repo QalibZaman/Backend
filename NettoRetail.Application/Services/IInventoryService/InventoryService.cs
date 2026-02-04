@@ -1,12 +1,12 @@
 using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NettoRetail.Application.CQRS.InventoryItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
@@ -15,6 +15,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
+using NotFoundException = NettoRetail.Application.Exceptions.NotFoundException;
 
 namespace NettoRetail.Application.Services.IInventoryService;
 
@@ -96,8 +97,125 @@ public class InventoryService(
         await ValidateBrand(model, shopId, id, inventoryItem, cancellationToken);
         ValidatePromotionPrice(model, shopId, id, inventoryItem, cancellationToken);
 
+        var newUpc = model.ProductUpc!.Value;
+        if (inventoryItem.ProductUpc != newUpc)
+        {
+            await ValidateUpcUnique(newUpc, shopId, inventoryItem.Id, cancellationToken);
+        }
+
+        ValidateFinalState(model,inventoryItem);
+    }
+
+    public static void ValidateFinalState(UpdateInventoryItemModel model,
+        InventoryItemEntity inventoryItem)
+    {
+        var availabe = model.AvailableAmount ?? inventoryItem.AvailableAmount;
+        var reserved = model.ReservedAmount ?? inventoryItem.ReservedAmount;
+        var onHand = model.OnHandAmount ?? inventoryItem.OnHandAmount;
+
+        if (availabe < reserved)
+            throw new BadRequestException("Reserved amount cannot exceed the available amount");
+
+        if (reserved + availabe > onHand)
+            throw new BadRequestException("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
+    }
+
+    public List<InventoryItemEntity> BuildVariationInventoryItemEntities(ICollection<VariationModel> models, InventoryItemEntity parentItem)
+    {
+        if (models == null)
+            return new List<InventoryItemEntity>();
+
+        List<InventoryItemEntity> result = [];
+
+        foreach (var item in models)
+        {
+            var variant = item.Adapt<InventoryItemEntity>();
+
+            variant.AvailableAmount = 0;
+            variant.IsVariation = true;
+            variant.Price = parentItem.Price;
+            variant.ShopId = parentItem.ShopId;
+            variant.ParentItemId = parentItem.Id;
+
+            variant.Description = parentItem.Description;
+            variant.CategoryId = parentItem.CategoryId;
+            variant.BrandId = parentItem.BrandId;
+
+            result.Add(variant);
+        }
+
+        return result;
     }
     
+    private async Task ValidateCategoryExists(int categoryId, int shopId, CancellationToken ct)
+    {
+        var spec = new GetCategoryByIdAndShopIdSpecification(categoryId, shopId);
+        if (!await categoryRepository.Exists(spec, ct))
+            throw new NotFoundException("There is no category with such id.");
+    }
+    public async Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken)
+    {
+        if (inventoryItemsIds == null || !inventoryItemsIds.Any())
+            throw new BadRequestException("There must be at least one item id");
+        var spec = new GetItemsByIdsSpecification(inventoryItemsIds);
+        var items = inventoryItemRepository.GetRangeByIdsAsync(spec, cancellationToken);
+
+        int foundCount = 0;
+
+        await foreach (var item in items.WithCancellation(cancellationToken))
+        {
+            if (item.ShopId != shopId)
+                return false;
+
+            foundCount++;
+        }
+
+        var areAllItemnsExists = foundCount == inventoryItemsIds.Count();
+        if (!areAllItemnsExists) throw new BadRequestException("All items must be unique");
+
+        return true;
+    }
+
+    public async Task<ToggleLinkProductsResponse> ToggleLinkProductsAsync(Guid parentId, Guid childId, CancellationToken cancellationToken)
+    {
+        bool isLinkedNow = false;
+        if (parentId == childId)
+            throw new ConflictException("Product cannot be parent and child of itself");
+
+        var parentExists = await inventoryItemRepository.Exists(new GetInventoryItemByIdSpecification(parentId), cancellationToken);
+        if (!parentExists)
+            throw new BadRequestException("Parent product not found");
+
+        var child = await inventoryItemRepository.GetAsync(
+            new GetInventoryItemWithChildrenSpecification(childId),
+            cancellationToken) ?? throw new BadRequestException("Child product not found");
+
+        if (child.ParentItemId.HasValue && child.ParentItemId.Value != parentId)
+            throw new ConflictException("Child product already belongs to another parent");
+
+        if (child.ChildItems!.Any())
+            throw new ConflictException("A parent product cannot be linked as a child");
+        if (child.ParentItemId == parentId)
+        {
+            child.ParentItemId = null;
+        }
+        else if (child.ParentItemId is null)
+        {
+            child.ParentItemId = parentId;
+            isLinkedNow = true;
+        }
+
+        await inventoryItemRepository.UpdateAsync(child, cancellationToken);
+        return new ToggleLinkProductsResponse(childId, child.ProductName, child.ProductUpc, isLinkedNow);
+    }
+
+    private async Task ValidateBrandExists(int brandId, int shopId, CancellationToken ct)
+    {
+        var spec = new GetBrandsByIdAndShopIdSpecification(brandId, shopId);
+        if (!await brandRepository.Exists(spec, ct))
+            throw new NotFoundException("There is no brand with such id.");
+    }
+
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
@@ -107,6 +225,7 @@ public class InventoryService(
                 throw new ConflictException("This product UPC is already registered.");
         }
     }
+
     private async Task ValidateCategory(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
         if (model.CategoryId is null) return;
@@ -134,5 +253,13 @@ public class InventoryService(
         if (model.PromotionPrice != null && model.PromotionPrice >= model.Price)
             throw new BadRequestException("Promotion price must be less than the regular price.");
     }
+    
+    private async Task ValidateUpcUnique(long upc, int shopId, Guid currentItemId, CancellationToken ct)
+    {
+        var spec = new GetProductByUpcSpecification(upc);
+        var existing = await inventoryItemRepository.GetAsync(spec, ct);
 
+        if (existing is not null && existing.Id != currentItemId)
+            throw new ConflictException("This product UPC is already registered.");
+    }
 }

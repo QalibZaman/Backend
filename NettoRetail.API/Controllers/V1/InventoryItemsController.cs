@@ -112,13 +112,11 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> EditInventoryItem(Guid id, UpdateInventoryItemModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> EditInventoryItem(Guid id, [FromBody] UpdateInventoryItemModel model, CancellationToken cancellationToken)
     {
-        var userShopId = HttpContext.GetUserShopId();
+        var shopId = HttpContext.GetUserShopId();
 
-        var inventoryItemUpdatingCommand = new UpdateInventoryItemCommand(id, userShopId, model);
-
-        await mediator.Send(inventoryItemUpdatingCommand, cancellationToken);
+        await mediator.Send(new UpdateInventoryItemCommand(id, shopId, model), cancellationToken);
 
         return NoContent();
     }
@@ -232,6 +230,21 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
 
         var response = await mediator.Send(command, cancellationToken);
 
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("parent/toggleLink")]
+    public async Task<IActionResult> ToggleLinkProducts(Guid parentId, [FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
+    {
+        var data = await mediator.Send(new ToggleLinkProductsCommand(parentId, request.ChildId), cancellationToken);
+        var response = new ApiResponse<ToggleLinkProductsResponse>(data);
         return Ok(response);
     }
 }
