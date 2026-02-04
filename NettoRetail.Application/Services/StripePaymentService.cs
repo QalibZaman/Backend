@@ -1,11 +1,14 @@
-﻿using NettoRetail.Application.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using Stripe;
 
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
         CustomerService customerService,
-        PaymentMethodService paymentMethodService
+        PaymentMethodService paymentMethodService,
+        ILogger<StripePaymentService> logger
     ) : IStripePaymentService
     {
         public async Task<string> EnsureCustomerAsync(
@@ -62,7 +65,15 @@ namespace NettoRetail.Application.Services
                 }
             };
 
-            await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            try
+            {
+                await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, $"Failed to change the default payment method to {paymentMethodId}");
+                throw new PaymentExceptions(ex.Message);
+            }
         }
 
     }

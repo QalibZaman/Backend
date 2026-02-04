@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Payment;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -15,8 +13,7 @@ public record ChangeDefaultPaymentCommand(string PaymentMethodId, Guid AccountId
 public class ChangeDefaultPaymentCommandHandler(
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService,
-    IUnitOfWork unitOfWork,
-    ILogger<ChangeDefaultPaymentCommandHandler> logger) : IRequestHandler<ChangeDefaultPaymentCommand>
+    IUnitOfWork unitOfWork) : IRequestHandler<ChangeDefaultPaymentCommand>
 {
     public async Task Handle(ChangeDefaultPaymentCommand request, CancellationToken cancellationToken)
     {
@@ -43,18 +40,10 @@ public class ChangeDefaultPaymentCommandHandler(
 
         var newDefaultStripeId = paymentMethod.StripePaymentMethodId;
 
-        try
-        {
-            await stripePaymentService.SetDefaultPaymentMethodAsync(
+        await stripePaymentService.SetDefaultPaymentMethodAsync(
             customerId,
             newDefaultStripeId,
             cancellationToken);
-        }
-        catch (StripeException ex)
-        {
-            logger.LogError(ex, "Failed to change the default payment method");
-            throw new PaymentExceptions(ex.Message);
-        }
 
         using var tx = unitOfWork.BeginTransaction();
         foreach (var payMethod in allMethods)
