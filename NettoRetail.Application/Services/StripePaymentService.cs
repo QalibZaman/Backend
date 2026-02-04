@@ -1,11 +1,14 @@
-﻿using NettoRetail.Application.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using Stripe;
 
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
         CustomerService customerService,
-        PaymentMethodService paymentMethodService
+        PaymentMethodService paymentMethodService,
+        ILogger<StripePaymentService> logger
     ) : IStripePaymentService
     {
         public async Task<string> EnsureCustomerAsync(
@@ -65,5 +68,17 @@ namespace NettoRetail.Application.Services
             await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
         }
 
+        public async Task DetachPaymentMethodAsync(string paymentMethodId)
+        {
+            try
+            {
+                await paymentMethodService.DetachAsync(paymentMethodId);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while detaching payment method {PaymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
+        }
     }
 }

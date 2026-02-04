@@ -6,6 +6,7 @@
 
         Task<CardSnapshot> AttachAndGetCardAsync(string paymentMethodId, string customerId, CancellationToken cancellationToken);
         Task SetDefaultPaymentMethodAsync(string customerId, string paymentMethodId, CancellationToken cancellationToken);
+        Task DetachPaymentMethodAsync(string paymentMethodId);
 
     }
     public sealed record CardSnapshot(
