@@ -292,6 +292,8 @@ public class StaffController(
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
 
+        await mediator.Send(query);
+
         var response = await mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
