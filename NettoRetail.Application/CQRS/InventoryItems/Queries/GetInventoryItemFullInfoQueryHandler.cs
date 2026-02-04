@@ -14,15 +14,19 @@ public class GetInventoryItemFullInfoQueryHandler(
     IInventoryItemRepository inventoryRepo,
     ICategoryRepository categoryRepo) : IRequestHandler<GetInventoryItemFullInfoQuery, InventoryItemInfoFullResponse>
 {
-    public async Task<InventoryItemInfoFullResponse> Handle(GetInventoryItemFullInfoQuery request, CancellationToken cancellationToken)
+    public async Task<InventoryItemInfoFullResponse> Handle(
+        GetInventoryItemFullInfoQuery request,
+        CancellationToken cancellationToken)
     {
         var spec = new GetItemByIdSpecification(request.Id)
-            .AddInclude(i => i.Brand!)
+            .AddInclude(i => i.Brand)
             .AddInclude(i => i.Category)
             .AddInclude(i => i.ProductDetails)
             .AddInclude(i => i.Images);
 
-        var item = await inventoryRepo.GetAsync(spec, cancellationToken) ?? throw new NotFoundException("There is no inventory item with such id.");
+        var item = await inventoryRepo.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException($"Inventory item with id '{request.Id}' was not found.");
+
         var response = item.Adapt<InventoryItemInfoFullResponse>();
 
         var chain = await categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
