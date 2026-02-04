@@ -40,16 +40,13 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
         return blobClient.Uri.ToString();
     }
 
-    public async Task DeleteByUrlAsync(string blobUrl)
+    public async Task DeleteByUrlAsync(string blobUrl, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(blobUrl))
             throw new ArgumentException("Blob URL cannot be null or empty.", nameof(blobUrl));
 
         var uri = new Uri(blobUrl);
-        var segments = uri.AbsolutePath.TrimStart('/').Split('/');
-
-        // Azurite URLs: [account]/[container]/[folder/...]/[filename]
-        // Azure URLs:   [container]/[folder/...]/[filename]
+        var segments = uri.AbsolutePath.TrimStart('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         bool isAzurite = uri.Host.Contains("127.0.0.1") || uri.Host.Contains("localhost");
         int containerIndex = isAzurite ? 1 : 0;
@@ -58,12 +55,12 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
             throw new InvalidOperationException("Invalid blob URL format.");
 
         string containerName = segments[containerIndex];
-        string blobName = string.Join('/', segments.Skip(containerIndex + 1));
+        string blobName = Uri.UnescapeDataString(string.Join('/', segments.Skip(containerIndex + 1)));
 
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
         var blobClient = containerClient.GetBlobClient(blobName);
 
-        await blobClient.DeleteIfExistsAsync();
+        await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
 
     public async Task DeleteBlobAsync(string blobName)
