@@ -1,12 +1,9 @@
-﻿using Mapster;
-using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -15,8 +12,7 @@ public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) :
 public sealed class AddPaymentCommandHandler(
     IAccountRepository accountRepository,
     IPaymentRepository paymentRepository,
-    IStripePaymentService stripePaymentService,
-    ILogger<AddPaymentCommandHandler> logger) : IRequestHandler<AddPaymentCommand, Unit>
+    IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
