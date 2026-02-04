@@ -112,7 +112,7 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [Authorize]
-        [HttpPatch("{shopId:int}section")]
+        [HttpPatch("{shopId:int}/section")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
