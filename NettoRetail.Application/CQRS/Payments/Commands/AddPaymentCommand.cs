@@ -45,31 +45,23 @@ public sealed class AddPaymentCommandHandler(
             await accountRepository.UpdateAsync(account, cancellationToken);
         }
 
-        try
-        {
-            var card = await stripePaymentService.AttachAndGetCardAsync(
+        var card = await stripePaymentService.AttachAndGetCardAsync(
             request.PaymentMethodId,
             customerId,
             cancellationToken);
 
-            var paymentMethodRecord = new PaymentMethodEntity
-            {
-                AccountId = account.Id,
-                StripePaymentMethodId = request.PaymentMethodId,
-                CardBrand = card.Brand,
-                CardExpMonth = card.ExpMonth,
-                CardExpYear = card.ExpYear,
-                FourLastCardNumbers = card.Last4,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
-        }
-        catch (StripeException ex)
+        var paymentMethodRecord = new PaymentMethodEntity
         {
-            logger.LogError(ex, "Attaching payment method failed.");
-            throw new PaymentExceptions(ex.Message);
-        }
+            AccountId = account.Id,
+            StripePaymentMethodId = request.PaymentMethodId,
+            CardBrand = card.Brand,
+            CardExpMonth = card.ExpMonth,
+            CardExpYear = card.ExpYear,
+            FourLastCardNumbers = card.Last4,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
 
         return Unit.Value;
     }
