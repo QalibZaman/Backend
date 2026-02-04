@@ -15,12 +15,12 @@ public class GetAllContentBlocksQueryHandler(IContentRepository contentRepo)
     public async Task<List<ContentBlockResponse>> Handle(GetAllContentBlocksQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetContentByShopSpecification(request.ShopId);
-        var contentBlock = await contentRepo.GetAllBySpecAsync(spec, cancellationToken);
-        if (contentBlock == null || !contentBlock.Any())
+        var contentBlocks = (await contentRepo.GetAllBySpecAsync(spec, cancellationToken)).ToList();
+        if (contentBlocks.Count == 0)
         {
             throw new NotFoundException($"Contents not found with shop id {request.ShopId}.");
         }
 
-        return contentBlock.Adapt<List<ContentBlockResponse>>();
+        return contentBlocks.Adapt<List<ContentBlockResponse>>();
     }
 }
