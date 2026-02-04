@@ -97,7 +97,7 @@ public class StaffController(
 
         await mediator.Send(changePasswordCommand);
 
-        return NoContent(); 
+        return NoContent();
     }
 
     [HttpPost("forgot-password")]
@@ -291,12 +291,9 @@ public class StaffController(
         var shopId = HttpContext.GetUserShopId();
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
-
-        await mediator.Send(query);
-
-        var response = await mediator.Send(query, cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<StaffListResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize]
@@ -339,7 +336,7 @@ public class StaffController(
 
     [Authorize]
     [HttpPut("{id:guid}/profile-image")]
-    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileImage([FromRoute] Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (userId != id) throw new BadRequestException("You are not able to change data of another user");
@@ -431,8 +428,8 @@ public class StaffController(
 
         await mediator.Send(command, cancellationToken);
     }
-    
-        
+
+
     [HttpPost("activate-by-invitation")]
     [AllowAnonymous]
     public async Task<IActionResult> ActivateByInvitation([FromBody] SetPasswordByInvitationRequest model)
@@ -459,10 +456,11 @@ public class StaffController(
         await mediator.Send(new ValidateInvitationTokenCommand(Token));
         return NoContent();
     }
-    
+
     [HttpPost("resend-invitation")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResendInvitation([FromBody]ResendInvitationRequest request) {
+    public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationRequest request)
+    {
         await mediator.Send(new ResendInvitationByTokenCommand(request.Token));
         return Ok(new ApiResponse("A new invitation link was sent"));
     }
