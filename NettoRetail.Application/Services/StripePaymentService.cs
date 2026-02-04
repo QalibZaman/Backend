@@ -71,7 +71,7 @@ namespace NettoRetail.Application.Services
             }
             catch (StripeException ex)
             {
-                logger.LogError(ex, $"Failed to change the default payment method to {paymentMethodId}");
+                logger.LogError(ex, "Stripe error while changing default payment method to {paymentMethodId}", paymentMethodId);
                 throw new PaymentExceptions(ex.Message);
             }
         }
