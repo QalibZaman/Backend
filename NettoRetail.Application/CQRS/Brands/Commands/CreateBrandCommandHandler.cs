@@ -9,7 +9,6 @@ using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -21,7 +20,6 @@ public class CreateBrandCommandHandler(
     IBrandRepository brandRepository,
     IAzureBlobService azureBlobService,
     IBlobNameGenerator blobNameGenerator,
-    IOptions<ConnectionStrings> connectionStrings,
     IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<CreateBrandCommand, BrandResponse>
 {
     public async Task<BrandResponse> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
@@ -43,27 +41,25 @@ public class CreateBrandCommandHandler(
             }
         }
 
-        var azureConnectionString = connectionStrings.Value.AzureConnection;
         var containerName = azureBlobStorageOptions.Value.ContainerName;
 
         var brand = request.Model.Adapt<BrandEntity>();
 
         brand.ShopId = request.ShopId;
 
-        string? fileName = null;
-
-        if (request.Model.LogoFile != null)
-        {
-            fileName = blobNameGenerator.GenerateBlobName(request.Model.LogoFile.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
-        }
-
-        if (fileName != null)
-        {
-            await using var stream = request.Model.LogoFile!.OpenReadStream();
-            brand.LogoImageUrl = await azureBlobService.UploadAsync(fileName, stream, containerName, BlobContentCategoryEnum.Image);
-        }
-
         await brandRepository.AddAsync(brand, cancellationToken);
+
+        if (request.Model.LogoFile is { Length: > 0 } file)
+        {
+            var fileName = blobNameGenerator.GenerateBlobName(
+                file.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
+
+            await using var stream = file.OpenReadStream();
+            brand.LogoImageUrl = await azureBlobService.UploadAsync(
+                fileName, stream, containerName, BlobContentCategoryEnum.Image);
+
+            await brandRepository.UpdateAsync(brand, cancellationToken);
+        }
 
         return brand.Adapt<BrandResponse>();
     }
