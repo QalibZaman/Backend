@@ -2,6 +2,7 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.OfferSections.Command;
 using NettoRetail.Application.CQRS.OfferSections.Queries;
@@ -28,6 +29,8 @@ public class OfferController(IMediator mediator) : ControllerBase
         [FromBody] UpdateOffersSectionRequest request,
         CancellationToken cancellationToken)
     {
+        var updatedBy = HttpContext.GetUpdatedByName();
+
         var command = new UpdateOffersSectionCommand(
             shopId,
             request.Name.Trim(),
@@ -35,7 +38,7 @@ public class OfferController(IMediator mediator) : ControllerBase
             request.IsVisible,
             request.SelectionType,
             request.InventoryItemIds,
-            request.UpdatedBy);
+            updatedBy);
 
         await mediator.Send(command, cancellationToken);
 

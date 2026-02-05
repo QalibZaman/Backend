@@ -10,7 +10,10 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.NewProductsSection.Commands;
 
-public record UpdateNewProductsSectionCommand(int ShopId, UpdateNewProductsSectionRequest Model) : IRequest<Unit>;
+public record UpdateNewProductsSectionCommand(
+    int ShopId,
+    UpdateNewProductsSectionRequest Model,
+    string UpdatedBy) : IRequest<Unit>;
 
 public class UpdateNewProductsSectionCommandHandler(
     INewProductsRepository sectionRepo,
@@ -64,7 +67,7 @@ public class UpdateNewProductsSectionCommandHandler(
         IsVisible = request.Model.IsVisible,
         SelectionType = request.Model.SelectionType,
         LastUpdated = DateTime.UtcNow,
-        UpdatedBy = request.Model.UpdatedBy
+        UpdatedBy = request.UpdatedBy
     };
 
     private static void UpdateSection(NewProductsSectionEntity section, UpdateNewProductsSectionCommand request)
@@ -74,7 +77,7 @@ public class UpdateNewProductsSectionCommandHandler(
         section.IsVisible = request.Model.IsVisible;
         section.SelectionType = request.Model.SelectionType;
         section.LastUpdated = DateTime.UtcNow;
-        section.UpdatedBy = request.Model.UpdatedBy;
+        section.UpdatedBy = request.UpdatedBy;
     }
     private static List<NewProductsProductEntity> BuildLinkedProducts(List<Guid> ids, NewProductsSectionEntity section)
     {
