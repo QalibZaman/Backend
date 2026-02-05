@@ -5,6 +5,7 @@ using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -24,7 +25,7 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
             ?? throw new NotFoundException("Staff member not found");
 
         if (account.ShopId != request.ShopId)
-            throw new BadRequestException("You are not allowed to access this staff member.");
+            throw new ForbiddenException("You are not allowed to access this staff member.");
 
         await DeleteStaffAsync(account, cancellationToken);
     }
@@ -58,7 +59,7 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
             {
                 await notificationService.NotifyUserAsync(
                     account.Id.ToString(),
-                    "Your account has been removed. Your session has been terminated for security reasons. You will be redirected to the Login page in 10 seconds.");
+                    StaffConstants.AccountDeletedNotification);
             }
             catch
             {
