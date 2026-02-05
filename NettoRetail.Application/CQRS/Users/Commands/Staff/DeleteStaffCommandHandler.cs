@@ -3,6 +3,8 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -19,25 +21,49 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
     {
         var specification = new GetAccountByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("Account not found");
+            ?? throw new NotFoundException("Staff member not found");
 
         if (account.ShopId != request.ShopId)
             throw new BadRequestException("You are not allowed to access this staff member.");
 
-        // begin transaction to ensure atomicity between session termination and account deletion.
-        // this prevents partial updates in case of failure for example if sessions are terminated but account deletion fails.
-        var transaction = unitOfWork.BeginTransaction();
+        await DeleteStaffAsync(account, cancellationToken);
+    }
+
+    private async Task DeleteStaffAsync(
+        AccountEntity account,
+        CancellationToken cancellationToken)
+    {
+        var wasOnline = account.Status == StaffStatusEnum.Online;
+
+        using var transaction = unitOfWork.BeginTransaction();
         try
         {
-            await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
-            await notificationService.NotifyUserAsync(account.Id.ToString(), "Your session has been terminated for security reasons");
-            await accountRepository.DeleteAsync(specification, cancellationToken);
+            if (wasOnline)
+            {
+                await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
+            }
+
+            await accountRepository.DeleteAsync(account, cancellationToken);
             transaction.Commit();
         }
         catch
         {
             transaction.Rollback();
             throw;
+        }
+
+        if (wasOnline)
+        {
+            try
+            {
+                await notificationService.NotifyUserAsync(
+                    account.Id.ToString(),
+                    "Your account has been removed. Your session has been terminated for security reasons. You will be redirected to the Login page in 10 seconds.");
+            }
+            catch
+            {
+                // Notification is best-effort; deletion and session termination already completed.
+            }
         }
     }
 }
