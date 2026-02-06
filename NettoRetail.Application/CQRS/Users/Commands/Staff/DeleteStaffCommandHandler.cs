@@ -22,10 +22,10 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
     {
         var specification = new GetAccountByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("Staff member not found");
+            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 
         if (account.ShopId != request.ShopId)
-            throw new ForbiddenException("You are not allowed to access this staff member.");
+            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
         await DeleteStaffAsync(account, cancellationToken);
     }
