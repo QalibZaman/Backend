@@ -6,6 +6,7 @@ using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Locks.Commands;
+using NettoRetail.Application.Enums;
 using NettoRetail.Application.Models.Request.Lock;
 using NettoRetail.Shared.Constants;
 
@@ -89,6 +90,12 @@ public class LocksController(IMediator mediator)
     /// <c>entityType</c> must be specified as the string representation of the enum (e.g., "Role").
     /// <c>resourceId</c> must be provided as a string, representing either an integer ID or a UUID.
     /// </para>
+    /// <para>
+    /// Supported values for locking:
+    /// <list type="bullet">
+    ///   <item><description><c>Role</c></description></item>
+    /// </list>
+    /// </para>
     /// </remarks>
     /// <param name="lockRequest">The lock request containing the entity type and resource ID.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -166,6 +173,12 @@ public class LocksController(IMediator mediator)
     /// <para>
     /// <c>entityType</c> must be specified as the string representation of the enum (e.g., "Role").
     /// <c>resourceId</c> must be provided as a string, representing either an integer ID or a UUID.
+    /// </para>
+    /// <para>
+    /// Supported values for locking:
+    /// <list type="bullet">
+    ///   <item><description><c>Role</c></description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     /// <param name="lockRequest">The lock request containing the entity type and resource ID.</param>
@@ -250,6 +263,12 @@ public class LocksController(IMediator mediator)
     /// <c>entityType</c> must be specified as the string representation of the enum (e.g., "Role").
     /// <c>resourceId</c> must be provided as a string, representing either an integer ID or a UUID.
     /// </para>
+    /// <para>
+    /// Supported values for locking:
+    /// <list type="bullet">
+    ///   <item><description><c>Role</c></description></item>
+    /// </list>
+    /// </para>
     /// </remarks>
     /// <param name="lockRequest">The lock request containing the entity type and resource ID.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -325,6 +344,12 @@ public class LocksController(IMediator mediator)
     /// <para>
     /// <c>entityType</c> must be specified as the string representation of the enum (e.g., "Role").
     /// <c>resourceId</c> must be provided as a string, representing either an integer ID or a UUID.
+    /// </para>
+    /// <para>
+    /// Supported values for locking:
+    /// <list type="bullet">
+    ///   <item><description><c>Role</c></description></item>
+    /// </list>
     /// </para>
     /// </remarks>
     /// <param name="lockRequest">The lock request containing the entity type and resource ID.</param>
