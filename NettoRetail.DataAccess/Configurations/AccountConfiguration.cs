@@ -64,5 +64,10 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
 
         builder.Property(f => f.DateCreated)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder.HasMany(a => a.Locks)
+            .WithOne(l => l.LockedByUser)
+            .HasForeignKey(l => l.LockedByUserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
