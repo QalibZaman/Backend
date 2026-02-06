@@ -9,6 +9,5 @@ namespace NettoRetail.Application.Services.IRoleService
         Task<RoleEntity> CreatePlatformAdminRole(CreatePlatformAdminModel model, CancellationToken cancellationToken);
         Task<RoleEntity> GetOrCreatePlatformAdminRole(ICollection<PlatformAdminPermission> adminPermissions, CancellationToken cancellationToken);
         bool ArePermissionsEqual(ICollection<PermissionRoleEntity> permissions, ICollection<PermissionRoleEntity> permissions1);
-        bool IsLocked(RoleEntity role);
     }
 }

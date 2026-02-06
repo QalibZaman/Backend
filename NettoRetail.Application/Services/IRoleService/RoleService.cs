@@ -80,17 +80,5 @@ namespace NettoRetail.Application.Services.IRoleService
 
             return newRole;
         }
-
-        public bool IsLocked(RoleEntity role)
-        {
-            if (role == null) throw new ArgumentNullException(nameof(role));
-
-            if (!role.LockedByUserId.HasValue || !role.LockedAtUtc.HasValue)
-                return false;
-
-            var lockActive = role.LockedAtUtc.Value >= DateTimeOffset.UtcNow - RoleLockConstants.Ttl;
-
-            return lockActive;
-        }
     }
 }

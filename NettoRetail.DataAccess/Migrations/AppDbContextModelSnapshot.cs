@@ -703,6 +703,36 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.Property<string>("ResourceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ResourceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LockedAtUtc")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid>("LockedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ResourceType", "ResourceId", "ShopId");
+
+                    b.HasIndex("LockedByUserId");
+
+                    b.HasIndex("ResourceType", "ResourceId", "ShopId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_EntityLocks_Resource");
+
+                    b.ToTable("EntityLocks");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1680,12 +1710,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<DateTime?>("LockedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("LockedByUserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1695,8 +1719,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LockedByUserId");
 
                     b.HasIndex("ShopId");
 
@@ -2118,6 +2140,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
+                        .WithMany("Locks")
+                        .HasForeignKey("LockedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LockedByUser");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2416,16 +2449,9 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
-                        .WithMany("LockedRoles")
-                        .HasForeignKey("LockedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
                         .WithMany("Roles")
                         .HasForeignKey("ShopId");
-
-                    b.Navigation("LockedByUser");
 
                     b.Navigation("Shop");
                 });
@@ -2485,7 +2511,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Navigation("InvitationTokens");
 
-                    b.Navigation("LockedRoles");
+                    b.Navigation("Locks");
 
                     b.Navigation("PasswordHistories");
 
