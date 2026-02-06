@@ -26,9 +26,9 @@ public class GetCategoriesSectionForEditQueryHandler(
         var specification = new GetCategoriesByIdsSpecification(request.ShopId);
         specification.AddOrderBy(c => c.Name);
 
-        var categories = await categoryRepository.GetAllNestedAsync(specification, cancellationToken);
+        var countCategory = await categoryRepository.GetAmountBySpecAsync(specification, cancellationToken);
 
-        if (categories.Count == 0)
+        if (countCategory == 0)
         {
             throw new NotFoundException(
                 "Your shop does not have any categories yet. Please, add categories to continue");
@@ -42,7 +42,7 @@ public class GetCategoriesSectionForEditQueryHandler(
             Visibility = shop.CategoriesSectionVisibility,
             Preview = shop.CategoriesSectionPreview ?? string.Empty,
             Name = shop.CategoriesSectionName ?? string.Empty,
-            NumberOfCategories = Math.Min(categories.Count, MaxVisibleCategories)
+            NumberOfCategories = Math.Min(countCategory, MaxVisibleCategories)
         };
 
         return dto;
