@@ -2,7 +2,7 @@
 using NettoRetail.Application.Models.Request.Lock;
 using NettoRetail.Application.Services.IEntityLockService;
 
-namespace NettoRetail.Application.CQRS.Locks.Queries;
+namespace NettoRetail.Application.CQRS.Locks.Commands;
 
 public record IsEntityLockedByAnotherUserCommand(LockRequest LockRequest, int ShopId, Guid UserId) : IRequest<bool>;
 public class IsEntityBlockedByAnotherUserCommandHandler(IEntityLockService lockService) : IRequestHandler<IsEntityLockedByAnotherUserCommand, bool>
