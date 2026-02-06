@@ -18,9 +18,12 @@ public class UploadStaffListCommandHandler
             throw new BadHttpRequestException("CSV file cannot be null. Please Upload CSV file.");
         if (!string.Equals(Path.GetExtension(request.File.FileName), ".csv", StringComparison.OrdinalIgnoreCase))
             throw new BadHttpRequestException("Invalid file Format. Please Upload CSV file.");
+        var records = new List<StaffCsvModel>();
 
-        List<StaffCsvModel> records = (List<StaffCsvModel>)csvFileService.ConvertEntitiesCsvFileToEntityData<StaffCsvModel>(request.File);
-
+        await foreach (var item in csvFileService.ConvertEntitiesCsvFileToEntityData<StaffCsvModel>(request.File))
+        {
+            records.Add(item);
+        }
         var isRecordValid = StaffCsvModel.IsCollectionValid(records);
         if (!isRecordValid)
         {

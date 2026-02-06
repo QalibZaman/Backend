@@ -32,7 +32,9 @@ public class CsvFileService : ICsvFileService
     {
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            Delimiter = ";"
+            Delimiter = ";",
+            MissingFieldFound = null,
+            BadDataFound = null,
         };
 
         using var streamReader = new StreamReader(csvItemsFile.OpenReadStream(), Encoding.UTF8);
