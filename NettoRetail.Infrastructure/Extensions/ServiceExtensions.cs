@@ -17,7 +17,6 @@ public static class ServiceExtensions
     {
         services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
-        services.AddScoped<ILockProvider, HardLockWithTtlProviderService>();
 
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {

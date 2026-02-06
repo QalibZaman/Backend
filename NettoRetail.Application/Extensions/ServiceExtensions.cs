@@ -16,7 +16,6 @@ using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.Application.Services.IEntityLockService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.ILinkService;
@@ -123,7 +122,6 @@ public static class ServiceExtensions
         services.AddScoped<IStripePaymentService, StripePaymentService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IVariationService, VariationService>();
-        services.AddScoped<IEntityLockService, EntityLockService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
