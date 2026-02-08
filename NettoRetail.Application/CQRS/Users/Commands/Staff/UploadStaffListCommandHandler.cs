@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Services.IStaffService;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
+
 public record UploadStaffListCommand(IFormFile File, int ShopId) : IRequest;
 
 public class UploadStaffListCommandHandler
@@ -22,12 +24,12 @@ public class UploadStaffListCommandHandler
 
         await foreach (var item in csvFileService.ConvertEntitiesCsvFileToEntityData<StaffCsvModel>(request.File))
         {
+            if (item == null || !StaffCsvModel.IsValid(item))
+            {
+                throw new BadRequestException("Invalid record found in CSV. Please correct the errors in the CSV file.");
+            }
+
             records.Add(item);
-        }
-        var isRecordValid = StaffCsvModel.IsCollectionValid(records);
-        if (!isRecordValid)
-        {
-            throw new BadHttpRequestException("Unable to upload Staff list. Please correct the errors in the CSV file.", statusCode: 422);
         }
 
         foreach (var record in records)
