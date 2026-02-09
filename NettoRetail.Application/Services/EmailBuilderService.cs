@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Infrastructure.EmailTemplates;
@@ -14,6 +14,7 @@ public class EmailBuilderService(
     IEmailTemplateService emailTemplateService,
     IOptions<EmailVerificationOptions> verificationOptions,
     IOptions<ResetPasswordOptions> passwordOptions,
+    IOptions<CustomerPasswordResetOptions> customerPasswordResetOptions,
     ILinkService.ILinkService linkService) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
@@ -154,7 +155,6 @@ public class EmailBuilderService(
         };
     }
 
-
     public async Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link)
     {
         var model = new
@@ -170,6 +170,24 @@ public class EmailBuilderService(
         {
             Email = email,
             Subject = EmailSubjects.ActivateCustomerAccount,
+            Message = emailBody
+        };
+    }
+
+    public async Task<EmailModel> BuildCustomerPasswordResetEmailAsync(string email, string link)
+    {
+        var model = new
+        {
+            reset_link = link,
+            token_expiration_hours = customerPasswordResetOptions.Value.TokenExpirationHours
+        };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.CustomerPasswordReset, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.ResetPassword,
             Message = emailBody
         };
     }

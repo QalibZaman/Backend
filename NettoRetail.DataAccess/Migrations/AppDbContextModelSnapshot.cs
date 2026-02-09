@@ -704,6 +704,36 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.Property<string>("ResourceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ResourceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LockedAtUtc")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid>("LockedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ResourceType", "ResourceId", "ShopId");
+
+                    b.HasIndex("LockedByUserId");
+
+                    b.HasIndex("ResourceType", "ResourceId", "ShopId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_EntityLocks_Resource");
+
+                    b.ToTable("EntityLocks");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2107,6 +2137,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
+                        .WithMany("Locks")
+                        .HasForeignKey("LockedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LockedByUser");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2466,6 +2507,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Feedbacks");
 
                     b.Navigation("InvitationTokens");
+
+                    b.Navigation("Locks");
 
                     b.Navigation("PasswordHistories");
 
