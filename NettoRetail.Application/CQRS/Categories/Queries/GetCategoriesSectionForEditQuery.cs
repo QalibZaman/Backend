@@ -39,7 +39,6 @@ public class GetCategoriesSectionForEditQueryHandler(
         {
             ShopId = shop.Id,
             Visibility = shop.CategoriesSectionVisibility,
-            Preview = shop.CategoriesSectionPreview ?? string.Empty,
             Name = shop.CategoriesSectionName ?? string.Empty,
             NumberOfCategories = categories.Count >= maxVisibleCategories ? maxVisibleCategories : categories.Count
         };

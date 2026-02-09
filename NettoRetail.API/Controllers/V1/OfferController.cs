@@ -31,7 +31,6 @@ public class OfferController(IMediator mediator) : ControllerBase
         var command = new UpdateOffersSectionCommand(
             shopId,
             request.Name.Trim(),
-            request.Preview?.Trim(),
             request.IsVisible,
             request.SelectionType,
             request.InventoryItemIds,

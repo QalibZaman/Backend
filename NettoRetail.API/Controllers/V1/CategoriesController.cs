@@ -126,7 +126,6 @@ namespace NettoRetail.API.Controllers.V1
             var command = new UpdateCategoriesSectionCommand(
                 shopId,
                 request.Name,
-                request.Preview,
                 request.Visibility);
 
             await mediator.Send(command, cancellationToken);

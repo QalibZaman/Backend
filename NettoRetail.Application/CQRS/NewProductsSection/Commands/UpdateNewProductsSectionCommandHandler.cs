@@ -60,7 +60,6 @@ public class UpdateNewProductsSectionCommandHandler(
     {
         ShopId = request.ShopId,
         Name = request.Model.Name.Trim(),
-        Preview = request.Model.Preview?.Trim(),
         IsVisible = request.Model.IsVisible,
         SelectionType = request.Model.SelectionType,
         LastUpdated = DateTime.UtcNow,
@@ -70,7 +69,6 @@ public class UpdateNewProductsSectionCommandHandler(
     private static void UpdateSection(NewProductsSectionEntity section, UpdateNewProductsSectionCommand request)
     {
         section.Name = request.Model.Name.Trim();
-        section.Preview = request.Model.Preview?.Trim();
         section.IsVisible = request.Model.IsVisible;
         section.SelectionType = request.Model.SelectionType;
         section.LastUpdated = DateTime.UtcNow;

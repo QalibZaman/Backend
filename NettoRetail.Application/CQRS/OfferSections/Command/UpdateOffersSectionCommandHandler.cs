@@ -10,7 +10,6 @@ namespace NettoRetail.Application.CQRS.OfferSections.Command;
 public record UpdateOffersSectionCommand(
     int ShopId,
     string Name,
-    string? Preview,
     bool IsVisible,
     SelectionTypeEnum SelectionType,
     List<Guid> InventoryItemIds,
@@ -28,7 +27,6 @@ public class UpdateOffersSectionCommandHandler(
         var normalized = request with
         {
             Name = request.Name.Trim(),
-            Preview = request.Preview?.Trim()
         };
 
         var spec = new GetOfferSectionByShopIdSpecification(normalized.ShopId);
@@ -60,7 +58,6 @@ public class UpdateOffersSectionCommandHandler(
     {
         ShopId = request.ShopId,
         Name = request.Name,
-        Preview = request.Preview,
         IsVisible = request.IsVisible,
         SelectionType = request.SelectionType,
         LastUpdated = DateTime.UtcNow,
@@ -70,7 +67,6 @@ public class UpdateOffersSectionCommandHandler(
     private static void UpdateOffer(OfferEntity offer, UpdateOffersSectionCommand request)
     {
         offer.Name = request.Name.Trim();
-        offer.Preview = request.Preview?.Trim();
         offer.IsVisible = request.IsVisible;
         offer.SelectionType = request.SelectionType;
         offer.LastUpdated = DateTime.UtcNow;

@@ -5,7 +5,6 @@ namespace NettoRetail.Application.Models.NewProductsSection;
 public class UpdateNewProductsSectionRequest
 {
     public required string Name { get; set; } = default!;
-    public string? Preview { get; set; }
     public required bool IsVisible { get; set; }
     public NewProductsSelectionTypeEnum SelectionType { get; set; }
     public List<Guid> InventoryItemIds { get; set; } = new();
