@@ -323,7 +323,6 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     /// <response code="403">User does not have required permissions.</response>
     /// <response code="500">Unexpected server error.</response>
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
     [HttpGet("platform-admins")]
     [ProducesResponseType(StatusCodes.Status200OK)]
