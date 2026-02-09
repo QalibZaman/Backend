@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Bogus.Extensions.UnitedKingdom;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.OfferSections.Command;
 using NettoRetail.Application.CQRS.OfferSections.Queries;
 using NettoRetail.Application.CQRS.OfferSections.Query;
+using NettoRetail.Application.Models.Offer;
 using NettoRetail.Application.Models.Request.Offer;
 using NettoRetail.Application.Models.Response;
 
@@ -25,20 +27,13 @@ public class OfferController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateOffersSection(
-        int shopId,
-        [FromBody] UpdateOffersSectionRequest request,
+        [FromBody] UpdateOfferSectionRequest request,
         CancellationToken cancellationToken)
     {
-        var updatedBy = HttpContext.GetUpdatedByName();
+        var userId = HttpContext.GetUserId();
+        var shopId = HttpContext.GetUserShopId();
 
-        var command = new UpdateOffersSectionCommand(
-            shopId,
-            request.Name.Trim(),
-            request.Preview?.Trim(),
-            request.IsVisible,
-            request.SelectionType,
-            request.InventoryItemIds,
-            updatedBy);
+        var command = new UpdateOffersSectionCommand(request, shopId, userId);
 
         await mediator.Send(command, cancellationToken);
 
