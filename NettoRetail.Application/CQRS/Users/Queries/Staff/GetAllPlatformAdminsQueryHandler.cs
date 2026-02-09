@@ -18,7 +18,7 @@ public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
         var specification = new SpecificationBuilder<AccountEntity>()
             .AddOrderBy(a => a.DateCreated, isDesc: true)
             .AddCriteria(
-                a => a.Role.Name.StartsWith($"{PlatformAdminConstants.PlatformAdminPrefix}"))
+                a => a.Role.Name.StartsWith(PlatformAdminConstants.PlatformAdminPrefix))
             .AddInclude(a => a.Sessions!)
             .AddInclude(a => a.Role)
             .AddInclude(a => a.Role.PermissionRoles)
