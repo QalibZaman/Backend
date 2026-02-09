@@ -14,4 +14,6 @@ public interface IBrandService
            string brandName,
            int shopId,
            CancellationToken cancellationToken);
+
+    Task EnsureBrandCanBeCreatedAsync(int shopId, string name, string? websiteUrl, CancellationToken cancellationToken);
 }

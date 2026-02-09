@@ -1,16 +1,17 @@
 ﻿using Mapster;
+﻿using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
-﻿using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.DataAccess.Specifications.Brands;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
-using NettoRetail.Application.Models.Response.Brand;
 
 namespace NettoRetail.Application.Services.IBrandService;
 
-public class BrandService(IBrandRepository brandRepository) : IBrandService
+public class BrandService(IShopRepository shopRepository, IBrandRepository brandRepository) : IBrandService
 {
     public async Task<PaginatedResponse<BrandResponse>> GetShopBrandsBySearchAsync(
          string query, int shopId, PaginationRequest pageModel, CancellationToken cancellationToken)
@@ -39,6 +40,7 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
         };
         return response;
     }
+
     public async Task<BrandEntity> GetBrandByNameWithCacheAsync(
       Dictionary<string, BrandEntity> cache,
       string brandName,
@@ -60,4 +62,21 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
         cache[brandName] = brand;
         return brand;
     }
+
+    public async Task EnsureBrandCanBeCreatedAsync(int shopId, string name, string? websiteUrl, CancellationToken cancellationToken)
+    {
+        var shopExists = await shopRepository.Exists(
+            new GetShopByIdSpecification(shopId), cancellationToken);
+
+        if (!shopExists)
+            throw new BadRequestException($"Shop with id '{shopId}' does not exist.");
+
+        if (await brandRepository.Exists(new GetBrandsByNameSpecification(name), cancellationToken))
+            throw new BadRequestException("Brand's name must be unique");
+
+        if (websiteUrl != null &&
+            await brandRepository.Exists(new GetBrandsByWebsiteUrlSpecification(websiteUrl), cancellationToken))
+            throw new BadRequestException("Brand's website url must be unique");
+    }
+
 }
