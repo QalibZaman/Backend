@@ -49,7 +49,7 @@ public class SignUpCustomerCommandHandler(
         var link = linkService.CreateCustomerAccountVerificationLink(request.Model.Email);
 
         var emailModel = await emailBuilderService.BuildCustomerAccountActivationEmailAsync(account.Email, account.FirstName, link);
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
 
         var response = account.Adapt<SignUpCustomerResponse>();
 

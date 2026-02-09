@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Shared.Constants;
+namespace NettoRetail.Shared.Constants;
 
 public static class AuthTokenTypes
 {
@@ -6,4 +6,6 @@ public static class AuthTokenTypes
     public const string Temp = "temp";
     public const string Reset = "reset";
     public const string EmailVerification = "email-verification";
+    public const string CustomerResetPassword = "customer-reset-password";
+    public const string NewsletterUnsubscribe = "newsletter-unsubscribe";
 }

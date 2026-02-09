@@ -302,16 +302,8 @@ public class StaffController(
     public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        var absoluteUrl = Url.Action(
-            nameof(UnsubscribeToNewsletter),
-            nameof(StaffController).Replace("Controller", string.Empty),
-            null,
-            Request.Scheme);
-
-        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl!);
-
+        var command = new SubscribeToNewsletterCommand(userId);
         await mediator.Send(command, cancellationToken);
-
         return NoContent();
     }
 

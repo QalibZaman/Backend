@@ -39,6 +39,35 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         return handler.WriteToken(token);
     }
 
+    public string GenerateWihoutTime(List<Claim> claims)
+    {
+        if (_key is null || _key.Length == 0)
+            throw new BadRequestException("JwtOptions.SecretKey is empty. JWT generation cannot work.");
+
+        var handler = new JwtSecurityTokenHandler();
+
+        var claimsIdentity = new ClaimsIdentity(claims);
+
+        var securityKey = new SymmetricSecurityKey(_key);
+        var signingCredentials = new SigningCredentials(securityKey, _algorithm);
+
+        var tokenDescriptor = new SecurityTokenDescriptor()
+        {
+            Subject = claimsIdentity,
+            SigningCredentials = signingCredentials,
+        };
+
+        var token = handler.CreateToken(tokenDescriptor);
+
+        var jwt = handler.WriteToken(token);
+
+        if (string.IsNullOrWhiteSpace(jwt))
+            throw new BadRequestException("JWT generation returned empty string.");
+
+        return jwt;
+    }
+
+
     public ClaimsPrincipal? Validate(string refreshToken)
     {
         var handler = new JwtSecurityTokenHandler();
@@ -169,5 +198,51 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         };
 
         return Generate(claims, TimeSpan.FromMinutes(jwtOptions.Value.TempTokenExpirationMinutes));
+    }
+
+    public ClaimsPrincipal ValidateCustomerResetPasswordToken(string customerResetPasswordToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        try
+        {
+            var principal = handler.ValidateToken(
+            customerResetPasswordToken,
+            new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(_key),
+                ClockSkew = TimeSpan.Zero
+            },
+            out _);
+
+            var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
+
+            if (tokenType != AuthTokenTypes.CustomerResetPassword)
+            {
+                throw new BadRequestException("Invalid token type.");
+            }
+
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                throw new BadRequestException("Email claim is missing in token.");
+
+            return principal;
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            throw new BadRequestException("Token has expired.");
+        }
+        catch (SecurityTokenMalformedException)
+        {
+            throw new BadRequestException("Token format is invalid.");
+        }
+        catch (SecurityTokenException)
+        {
+            throw new BadRequestException("Invalid token.");
+        }
     }
 }

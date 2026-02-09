@@ -22,16 +22,16 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(
-        "CorsPolicy",
-        policy => policy.WithOrigins(
-            "https://happy-beach-0788df603-develop.westeurope.4.azurestaticapps.net",
-            "http://localhost:4200",
-            "https://happy-beach-0788df603-staging.westeurope.4.azurestaticapps.net",
-            "https://happy-beach-0788df603.4.azurestaticapps.net")
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials());
+    var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>()
+        ?? throw new InvalidOperationException("Configuration section 'CorsOptions:AllowedOrigins' is missing or empty.");
+
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins!)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
 
 builder.Services.AddMemoryCache();

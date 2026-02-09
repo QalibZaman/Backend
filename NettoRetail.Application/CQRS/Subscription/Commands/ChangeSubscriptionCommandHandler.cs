@@ -15,7 +15,7 @@ namespace NettoRetail.Application.CQRS.Subscriptions.Commands;
 public record ChangeSubscriptionCommand(
     int ShopId,
     Guid UserId,
-    SubscriptionTypeEnum NewPlan,
+    SubscriptionTypeEnum? NewPlan,
     string PaymentMethodId) : IRequest;
 
 public class ChangeSubscriptionCommandHandler(
@@ -31,7 +31,6 @@ public class ChangeSubscriptionCommandHandler(
             ?? throw new NotFoundException($"Shop with ID {request.ShopId} not found.");
 
         var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
-
         var admin = await accountRepository.GetAsync(adminSpec, cancellationToken)
             ?? throw new ForbiddenException("Shop has no admin.");
 
@@ -39,7 +38,7 @@ public class ChangeSubscriptionCommandHandler(
             throw new ForbiddenException("You are not the owner of this shop");
 
         var plan = await subscriptionPlanRepository
-            .GetByTypeAsync(request.NewPlan, cancellationToken)
+            .GetByTypeAsync(request.NewPlan.Value, cancellationToken)
             ?? throw new InvalidOperationException("Subscription plan not found");
 
         if (shop.SubscriptionPlanId == plan.Id)
@@ -47,7 +46,7 @@ public class ChangeSubscriptionCommandHandler(
 
         await subscriptionService.ChangeSubscriptionAsync(
             shop,
-            request.NewPlan,
+            request.NewPlan.Value,
             request.PaymentMethodId,
             cancellationToken);
     }
