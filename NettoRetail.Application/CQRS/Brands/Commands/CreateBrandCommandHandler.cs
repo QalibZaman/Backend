@@ -7,17 +7,19 @@ using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Brands.Queries;
+namespace NettoRetail.Application.CQRS.Brands.Commands;
 
 public record CreateBrandCommand(CreateBrandRequest Model, int ShopId) : IRequest<BrandResponse>;
 
 public class CreateBrandCommandHandler(
+    IShopRepository shopRepository,
     IBrandRepository brandRepository,
     IAzureBlobService azureBlobService,
     IBlobNameGenerator blobNameGenerator,
@@ -26,6 +28,12 @@ public class CreateBrandCommandHandler(
 {
     public async Task<BrandResponse> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
     {
+        if (request.ShopId <= 0) throw new ForbiddenException("Brand creation failed. No shop is linked to this account.");
+
+        var shopSpec = new GetShopByIdSpecification(request.ShopId);
+        var isShopWithSuchIdExists = await shopRepository.Exists(shopSpec, cancellationToken);
+        if (!isShopWithSuchIdExists) throw new BadRequestException($"Shop with id '{request.ShopId}' does not exist.");
+
         var getBrandsByNameSpecification = new GetBrandsByNameSpecification(request.Model.Name);
 
         if (await brandRepository.Exists(getBrandsByNameSpecification, cancellationToken))
