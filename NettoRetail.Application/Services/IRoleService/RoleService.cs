@@ -70,8 +70,8 @@ namespace NettoRetail.Application.Services.IRoleService
 
             var newRole = new RoleEntity
             {
-                Name = $"{CreatePlatformAdminConstants.PlatformAdminPrefix}_{Guid.NewGuid():N}",
-                Description = CreatePlatformAdminConstants.PlatformAdminDescription,
+                Name = $"{PlatformAdminConstants.PlatformAdminPrefix}_{Guid.NewGuid():N}",
+                Description = PlatformAdminConstants.PlatformAdminDescription,
                 ShopId = null,
                 PermissionRoles = permissionIDs
                     .Select(id => new PermissionRoleEntity { PermissionId = id })
