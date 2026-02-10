@@ -20,6 +20,18 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class BrandsController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Returns the brands list for the current shop (paginated).
+    /// </summary>
+    /// <remarks>
+    /// US-9.1 View Brands List.
+    /// <para>Request: <c>GET /api/v1/brands?PageNumber=1&amp;PageSize=20</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Response: paginated list of brands.</para>
+    /// </remarks>
+    /// <param name="pagination">Pagination parameters: <c>PageNumber</c> and <c>PageSize</c>.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<BrandResponse>>), StatusCodes.Status200OK)]

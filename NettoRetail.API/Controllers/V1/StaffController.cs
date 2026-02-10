@@ -272,6 +272,18 @@ public class StaffController(
         return NoContent();
     }
 
+    /// <summary>
+    /// Deletes a staff member from the current shop.
+    /// </summary>
+    /// <remarks>
+    /// US-6.4 Delete staff member.
+    /// <para>Request: <c>DELETE /api/v1/staff/{id}</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Response: 204 No Content on success.</para>
+    /// </remarks>
+    /// <param name="id">Staff member identifier (GUID) from the route.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>204 on success.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
