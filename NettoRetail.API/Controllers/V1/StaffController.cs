@@ -279,7 +279,16 @@ public class StaffController(
     /// US-6.4 Delete staff member.
     /// <para>Request: <c>DELETE /api/v1/staff/{id}</c></para>
     /// <para>Auth: Bearer token with shop claim is required.</para>
-    /// <para>Response: 204 No Content on success.</para>
+    /// <para>Request body: none.</para>
+    /// <para>Success response: 204 No Content (empty body).</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>id</c> must be a valid GUID of a staff member in the current shop.</para>
     /// </remarks>
     /// <param name="id">Staff member identifier (GUID) from the route.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>

@@ -24,7 +24,33 @@ public class ContentController(IMediator mediator) : Controller
     /// US-3.10 View content management.
     /// <para>Request: <c>GET /api/v1/content/{shopId}</c></para>
     /// <para>Auth: Bearer token with shop claim is required.</para>
-    /// <para>Response: list of content blocks for the shop.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": [
+    ///     {
+    ///       "id": 10,
+    ///       "sectionType": "OurShop",
+    ///       "content": "Some text or HTML",
+    ///       "isVisible": true,
+    ///       "lastUpdated": "2026-02-10T13:05:00Z",
+    ///       "updatedBy": "admin@shop.com"
+    ///     }
+    ///   ]
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>sectionType</c> is a string identifier of the block section.</para>
+    /// <para>- <c>content</c> can be null.</para>
+    /// <para>- <c>lastUpdated</c> is serialized as an ISO 8601 string by default.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
     /// </remarks>
     /// <param name="shopId">Shop identifier from the route.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
@@ -51,7 +77,30 @@ public class ContentController(IMediator mediator) : Controller
     /// US-3.10 View content management.
     /// <para>Request: <c>GET /api/v1/content/block/{id}?shopId=123</c></para>
     /// <para>Auth: Bearer token with shop claim is required.</para>
-    /// <para>Response: one content block.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": {
+    ///     "id": 10,
+    ///     "sectionType": "OurShop",
+    ///     "content": "Some text or HTML",
+    ///     "isVisible": true,
+    ///     "lastUpdated": "2026-02-10T13:05:00Z",
+    ///     "updatedBy": "admin@shop.com"
+    ///   }
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>shopId</c> is required in query string.</para>
+    /// <para>- <c>content</c> can be null.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
     /// </remarks>
     /// <param name="id">Content block identifier from the route.</param>
     /// <param name="shopId">Shop identifier from the query string.</param>

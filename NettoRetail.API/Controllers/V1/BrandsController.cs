@@ -27,7 +27,34 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// US-9.1 View Brands List.
     /// <para>Request: <c>GET /api/v1/brands?PageNumber=1&amp;PageSize=20</c></para>
     /// <para>Auth: Bearer token with shop claim is required.</para>
-    /// <para>Response: paginated list of brands.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": {
+    ///     "items": [
+    ///       {
+    ///         "id": 5,
+    ///         "name": "Acme",
+    ///         "description": "Brand description",
+    ///         "websiteUrl": "https://acme.example",
+    ///         "logoImageUrl": "https://cdn.example/brand/acme.png"
+    ///       }
+    ///     ],
+    ///     "totalAmount": 42
+    ///   }
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- Pagination is 1-based: <c>PageNumber</c> starts from 1.</para>
+    /// <para>- <c>logoImageUrl</c> can be null.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
     /// </remarks>
     /// <param name="pagination">Pagination parameters: <c>PageNumber</c> and <c>PageSize</c>.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
