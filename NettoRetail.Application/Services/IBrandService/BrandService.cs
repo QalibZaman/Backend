@@ -65,8 +65,7 @@ public class BrandService(IShopRepository shopRepository, IBrandRepository brand
 
     public async Task EnsureBrandCanBeCreatedAsync(int shopId, string name, string? websiteUrl, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(
-            new GetShopByIdSpecification(shopId), cancellationToken);
+        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(shopId), cancellationToken);
 
         if (!shopExists)
             throw new BadRequestException($"Shop with id '{shopId}' does not exist.");
