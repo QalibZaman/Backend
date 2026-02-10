@@ -3,9 +3,9 @@ using NettoRetail.Application.Models.Request.Category;
 
 namespace NettoRetail.API.Infrastructure.Validators
 {
-    public class GetCategoriesSectionForEditQueryValidator : AbstractValidator<GetCategoriesSectionForEditRequest>
+    public class GetCategoriesSectionQueryValidator : AbstractValidator<GetCategoriesSectionRequest>
     {
-        public GetCategoriesSectionForEditQueryValidator()
+        public GetCategoriesSectionQueryValidator()
         {
             RuleFor(x => x.ShopId)
                 .GreaterThan(0)
