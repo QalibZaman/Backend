@@ -144,16 +144,16 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("history/{customerId:guid}")]
+    [HttpGet("history/{orderId:int}")]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderHistoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrdersHistory(int orderId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId, shopId);
+        var getOrderHistoryQuery = new GetOrderHistoryQuery(orderId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
 
