@@ -2,7 +2,7 @@
 
 public class OrderHistoryResponse
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public required DateTime UpdatedAt { get; set; }
     public required string UpdatedBy { get; set; }
     public required string OrderStatus { get; set; }
