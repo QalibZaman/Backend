@@ -34,26 +34,19 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
         AccountEntity account,
         CancellationToken cancellationToken)
     {
-        var wasOnline = account.Status == StaffStatusEnum.Online;
+        var isOnline = account.Status == StaffStatusEnum.Online;
 
         using var transaction = unitOfWork.BeginTransaction();
-        try
-        {
-            if (wasOnline)
+        
+        if (isOnline)
             {
                 await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
             }
 
-            await accountRepository.DeleteAsync(account, cancellationToken);
-            transaction.Commit();
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
+        await accountRepository.DeleteAsync(account, cancellationToken);
+        transaction.Commit();
 
-        if (wasOnline)
+        if (isOnline)
         {
             try
             {
@@ -63,7 +56,7 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
             }
             catch
             {
-                // Notification is best-effort; deletion and session termination already completed.
+                throw new BadRequestException("There is problem happend during the Notifing user");
             }
         }
     }
