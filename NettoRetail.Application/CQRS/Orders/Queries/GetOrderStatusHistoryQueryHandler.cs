@@ -12,7 +12,7 @@ public class GetOrderStatusHistoryQueryHandler(IOrderStatusHistoryRepository ord
 {
     public async Task<IEnumerable<OrderStatusHistoryResponse>> Handle(GetOrderStatusHistoryQuery request, CancellationToken cancellationToken)
     {
-        var history = await orderStatusHistoryRepository.GetOrderHistoryIncludingAccount(request.OrderId);
+        var history = await orderStatusHistoryRepository.GetOrderHistoryIncludingAccount(request.OrderId, cancellationToken);
 
         var response = history.Adapt<IEnumerable<OrderStatusHistoryResponse>>();
 

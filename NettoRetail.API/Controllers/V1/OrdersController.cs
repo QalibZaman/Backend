@@ -171,8 +171,8 @@ public class OrdersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetOrderStatusHistory(int orderId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var getOrderHistoryQuery = new GetOrderStatusHistoryQuery(orderId, shopId);
-        var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
+        var query = new GetOrderStatusHistoryQuery(orderId, shopId);
+        var data = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderStatusHistoryResponse>>(data);
 
         return Ok(response);
