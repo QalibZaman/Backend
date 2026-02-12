@@ -145,7 +145,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("history/{customerId:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusHistoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -155,14 +155,14 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var shopId = HttpContext.GetUserShopId();
         var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
-        var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+        var response = new ApiResponse<IEnumerable<OrderStatusHistoryResponse>>(data);
 
         return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("history/{orderId:int}")]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderHistoryResponse>>), StatusCodes.Status200OK)]
+    [HttpGet("status/{orderId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusHistoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -172,7 +172,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
         var shopId = HttpContext.GetUserShopId();
         var getOrderHistoryQuery = new GetOrderStatusHistoryQuery(orderId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
-        var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+        var response = new ApiResponse<IEnumerable<OrderStatusHistoryResponse>>(data);
 
         return Ok(response);
     }

@@ -5,16 +5,16 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
-public record GetOrderStatusHistoryQuery(int OrderId, int ShopId) : IRequest<IEnumerable<OrderHistoryResponse>>;
+public record GetOrderStatusHistoryQuery(int OrderId, int ShopId) : IRequest<IEnumerable<OrderStatusHistoryResponse>>;
 
 public class GetOrderStatusHistoryQueryHandler(IOrderStatusHistoryRepository orderStatusHistoryRepository)
-    : IRequestHandler<GetOrderStatusHistoryQuery, IEnumerable<OrderHistoryResponse>>
+    : IRequestHandler<GetOrderStatusHistoryQuery, IEnumerable<OrderStatusHistoryResponse>>
 {
-    public async Task<IEnumerable<OrderHistoryResponse>> Handle(GetOrderStatusHistoryQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<OrderStatusHistoryResponse>> Handle(GetOrderStatusHistoryQuery request, CancellationToken cancellationToken)
     {
         var history = await orderStatusHistoryRepository.GetOrderHistoryIncludingAccount(request.OrderId);
 
-        var response = history.Adapt<IEnumerable<OrderHistoryResponse>>();
+        var response = history.Adapt<IEnumerable<OrderStatusHistoryResponse>>();
 
         return response;
     }

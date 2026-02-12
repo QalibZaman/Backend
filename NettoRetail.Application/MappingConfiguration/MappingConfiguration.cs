@@ -154,7 +154,7 @@ public class MappingConfiguration : IRegister
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
 
-        config.NewConfig<OrderStatusHistoryEntity, OrderHistoryResponse>()
+        config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
             .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy.FullName);
 

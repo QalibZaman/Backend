@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Order;
 
-public class OrderHistoryResponse
+public class OrderStatusHistoryResponse
 {
     public Guid Id { get; set; }
     public required DateTime UpdatedAt { get; set; }
