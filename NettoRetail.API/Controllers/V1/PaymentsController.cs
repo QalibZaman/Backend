@@ -100,7 +100,9 @@ namespace NettoRetail.API.Controllers.V1
         [Authorize]
         [HttpPut("{paymentMethodId}/set-default")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();

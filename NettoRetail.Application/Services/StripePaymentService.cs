@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using Stripe;
@@ -6,7 +6,7 @@ using Stripe;
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
-        CustomerService stripeCustomerService,
+        CustomerService customerService,
         PaymentMethodService paymentMethodService,
         ILogger<StripePaymentService> logger) : IStripePaymentService
     {
@@ -25,7 +25,7 @@ namespace NettoRetail.Application.Services
                 Email = email
             };
 
-            var customer = await stripeCustomerService.CreateAsync(options, cancellationToken: cancellationToken);
+            var customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
             return customer.Id;
         }
 
@@ -72,7 +72,15 @@ namespace NettoRetail.Application.Services
                 }
             };
 
-            await stripeCustomerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            try
+            {
+                await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while changing default payment method to {paymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
         }
 
         public async Task DetachPaymentMethodAsync(string paymentMethodId)
