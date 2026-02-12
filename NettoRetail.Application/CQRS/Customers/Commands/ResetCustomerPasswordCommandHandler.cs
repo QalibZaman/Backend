@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -24,10 +25,26 @@ public class ResetCustomerPasswordCommandHandler(IJwtManager jwtManager,
         var account = await accountRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Customer not found.");
 
+        var issuedAtSeconds = GetIssuedAtSeconds(token);
+        if (account.PasswordUpdatedAt.HasValue)
+        {
+            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
+            if (issuedAtSeconds <= passwordUpdatedAtSeconds)
+                throw new NotFoundException("Invalid token.");
+        }
         account.PasswordHash = PasswordHasher.HashPassword(request.model.Password);
+        account.PasswordUpdatedAt = DateTime.UtcNow;
 
         await accountRepository.UpdateAsync(account, cancellationToken);
 
         return Unit.Value;
+    }
+
+    private static long GetIssuedAtSeconds(ClaimsPrincipal principal)
+    {
+        var issuedAt = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
+        if (!long.TryParse(issuedAt, out var issuedAtSeconds))
+            throw new NotFoundException("Invalid token.");
+        return issuedAtSeconds;
     }
 }
