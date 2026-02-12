@@ -75,5 +75,17 @@ namespace NettoRetail.Application.Services
             await stripeCustomerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
         }
 
+        public async Task DetachPaymentMethodAsync(string paymentMethodId)
+        {
+            try
+            {
+                await paymentMethodService.DetachAsync(paymentMethodId);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while detaching payment method {PaymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
+        }
     }
 }
