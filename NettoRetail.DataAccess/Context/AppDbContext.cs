@@ -46,6 +46,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<ProductDetailEntity> ProductDetails { get; set; }
     public DbSet<ItemComparisonEntity> ItemComparison { get; set; }
     public DbSet<InvitationTokenEntity> InvitationTokens { get; set; }
+    public DbSet<EntityLock> EntityLocks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

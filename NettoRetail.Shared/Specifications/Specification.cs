@@ -82,6 +82,11 @@ public class Specification<TEntity>
         _orderings.Add((orderByExpression, descending));
         return this;
     }
+    public Specification<TEntity> AddOrderByDescending(Expression<Func<TEntity, object>> orderByExpression, bool descending = true)
+    {
+        _orderings.Add((orderByExpression, descending));
+        return this;
+    }
 
     public Specification<TEntity> AddSelectExpression(Expression<Func<TEntity, object>> selectExpression)
     {

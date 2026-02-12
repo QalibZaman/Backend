@@ -20,32 +20,27 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
             specification.AddInclude(x => x.Order);
             specification.AddInclude(x => x.Account);
 
-            var customer = await customerRepository.GetAsync(specification, cancellationToken) ??
-                throw new NotFoundException("Customer not found");
+            var customer = await customerRepository.GetAsync(specification, cancellationToken)
+                ?? throw new NotFoundException("Customer not found");
 
-            if (customer.Account?.ShopId != request.ShopId)
+            var account = customer.Account ?? throw new NotFoundException("Customer account not found");
+
+            if (account.ShopId != request.ShopId)
                 throw new ForbiddenException("Cannot delete customer from another shop");
 
-            if (customer.Order.Any(order =>
-                                    order.OrderStatus != OrderStatusEnum.Done
-                                    && order.OrderStatus != OrderStatusEnum.Cancelled))
-            {
+            var hasActiveOrders = customer.Order?.Any(o =>
+                o.OrderStatus != OrderStatusEnum.Done &&
+                o.OrderStatus != OrderStatusEnum.Cancelled) == true;
+
+            if (hasActiveOrders)
                 throw new BadRequestException("Cannot delete, customer has active orders");
-            }
 
-            var transaction = unitOfWork.BeginTransaction();
-            try
-            {
-                await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
-                await customerRepository.DeleteAsync(customer, cancellationToken);
+            using var transaction = unitOfWork.BeginTransaction();
 
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
+            await customerRepository.DeleteAsync(customer, cancellationToken);
+
+            transaction.Commit();
         }
     }
 }

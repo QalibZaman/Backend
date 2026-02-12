@@ -33,4 +33,11 @@ public static class HttpContextExtensions
     {
         return context.User.IsTempToken();
     }
+
+    public static string GetUpdatedByName(this HttpContext context)
+    {
+        return context?.User?.Identity?.Name ?? "system";
+    }
+    
+    
 }

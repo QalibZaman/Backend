@@ -392,7 +392,8 @@ namespace NettoRetail.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasMaxLength(50000)
+                        .HasColumnType("character varying(50000)");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("boolean");
@@ -701,6 +702,36 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("AccountId");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.Property<string>("ResourceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ResourceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LockedAtUtc")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid>("LockedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ResourceType", "ResourceId", "ShopId");
+
+                    b.HasIndex("LockedByUserId");
+
+                    b.HasIndex("ResourceType", "ResourceId", "ShopId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_EntityLocks_Resource");
+
+                    b.ToTable("EntityLocks");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
@@ -1192,10 +1223,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Preview")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("SelectionType")
                         .HasColumnType("integer");
@@ -2110,6 +2137,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
+                        .WithMany("Locks")
+                        .HasForeignKey("LockedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LockedByUser");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
@@ -2469,6 +2507,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Feedbacks");
 
                     b.Navigation("InvitationTokens");
+
+                    b.Navigation("Locks");
 
                     b.Navigation("PasswordHistories");
 

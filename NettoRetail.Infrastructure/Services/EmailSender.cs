@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
@@ -7,9 +8,10 @@ using NettoRetail.Infrastructure.Options;
 
 namespace NettoRetail.Infrastructure.Services;
 
-public class EmailSender(IOptions<EmailOptions> emailOptions) : IEmailSender
+public class EmailSender(IOptions<EmailOptions> emailOptions,
+    ILogger<EmailSender> logger) : IEmailSender
 {
-    public async Task SendAsync(EmailModel model)
+    public async Task SendAsync(EmailModel model, Guid userId)
     {
         using var client = new SmtpClient(
             emailOptions.Value.Host,
@@ -32,7 +34,16 @@ public class EmailSender(IOptions<EmailOptions> emailOptions) : IEmailSender
 
         message.To.Add(model.Email);
 
-        await client.SendMailAsync(message);
+        try
+        {
+            await client.SendMailAsync(message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Failed to send email. User id = {userId}");
+        }
+
+        logger.LogInformation($"Email succesfully sent! User id = {userId}");
     }
 
     public async Task SendBulkAsync(BulkEmailModel model)

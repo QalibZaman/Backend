@@ -24,6 +24,6 @@ public class ResetStaffPasswordCommandHandler(
             throw new BadRequestException("You are not allowed to access this staff member.");
 
         var emailModel = await emailBuilderService.BuildResetPasswordEmailAsync(staff.Email, staff.FirstName);
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, staff.Id);
     }
 }

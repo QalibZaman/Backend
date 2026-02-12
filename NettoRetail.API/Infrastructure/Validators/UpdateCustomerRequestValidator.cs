@@ -32,9 +32,9 @@ public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRe
             .NotEmpty()
                 .When(x => x.CountryId > 0)
                 .WithMessage("Phone number can't be empty when CountryId is provided.")
-            .Matches(@"^[0-9]+$")
+            .Matches(@"^(?=.*\d)[0-9 ]+$")
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
-                .WithMessage("Phone number must contain digits only.")
+                .WithMessage("Phone number must contain digits and spaces only.")
             .Length(4, 14)
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
                 .WithMessage("Phone number length must be between 4 and 14 digits.")
@@ -51,7 +51,5 @@ public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRe
             .NotEmpty().WithMessage("Remarks cannot be empty.")
             .Length(2, 100).WithMessage("Remarks length must be between 2 and 100 characters.")
             .Matches(@"^[\x20-\x7E]+$").WithMessage("Remarks must contain only Latin letters, digits, and allowed special characters.");
-
-
     }
 }

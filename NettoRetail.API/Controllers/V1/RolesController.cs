@@ -11,6 +11,7 @@ using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -70,7 +71,7 @@ public class RolesController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
         return Ok(response);
     }
-    
+
     [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{roleId:int}")]
@@ -86,5 +87,26 @@ public class RolesController(IMediator mediator) : ControllerBase
         var roleUpdateCommand = new RoleUpdateCommand(roleId, shopId, model);
         await mediator.Send(roleUpdateCommand, cancellationToken);
         return NoContent();
+    }
+
+    // This endpoint exists to give all needed information for US-3.4 Edit role.
+    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("get-roles-with-permissions")]
+    [ProducesResponseType(typeof(ApiResponse<List<GetRolePermissionsResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> GetRolesWithPermissions(CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        var command = new GetRolePermissionQuery(shopId);
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<List<GetRolePermissionsResponse>>(result);
+
+        return Ok(response);
     }
 }

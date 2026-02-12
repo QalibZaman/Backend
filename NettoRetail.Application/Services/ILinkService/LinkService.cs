@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -11,6 +11,7 @@ namespace NettoRetail.Application.Services.ILinkService;
 
 public class LinkService(IJwtManager jwtManager,
     IOptions<EmailVerificationOptions> emailVerificationOptions,
+    IOptions<CustomerPasswordResetOptions> customerResetPasswordOptions,
     IOptions<NewsletterOptions> newsletterOptions) : ILinkService
 {
     // Creates a verification link for customer account activation in swagger.
@@ -25,6 +26,21 @@ public class LinkService(IJwtManager jwtManager,
         var verificationToken = jwtManager.Generate(claims, TimeSpan.FromHours(emailVerificationOptions.Value.TokenExpirationHours));
 
         var link = string.Format(emailVerificationOptions.Value.VerificationLink, Uri.EscapeDataString(verificationToken));
+
+        return link;
+    }
+
+    public string CreateCustomerResetPasswordLink(string email)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Email, email),
+            new(AuthClaims.TokenType, AuthTokenTypes.CustomerResetPassword)
+        };
+
+        var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(customerResetPasswordOptions.Value.TokenExpirationHours));
+
+        var link = string.Format(customerResetPasswordOptions.Value.ResetPasswordLink, Uri.EscapeDataString(resetToken));
 
         return link;
     }
@@ -44,5 +60,4 @@ public class LinkService(IJwtManager jwtManager,
 
         return link;
     }
-
 }
