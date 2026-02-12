@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Request.Category;
 
-public class GetCategoriesSectionForEditRequest
+public class GetCategoriesSectionRequest
 {
     public int ShopId { get; set; }
 }
