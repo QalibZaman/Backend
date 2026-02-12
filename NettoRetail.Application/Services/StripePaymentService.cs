@@ -74,7 +74,7 @@ namespace NettoRetail.Application.Services
 
             try
             {
-                await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+                await stripeCustomerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
             }
             catch (StripeException ex)
             {
