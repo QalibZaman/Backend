@@ -6,7 +6,7 @@ using Stripe;
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
-        CustomerService stripeCustomerService,
+        CustomerService customerService,
         PaymentMethodService paymentMethodService,
         ILogger<StripePaymentService> logger) : IStripePaymentService
     {
@@ -25,7 +25,7 @@ namespace NettoRetail.Application.Services
                 Email = email
             };
 
-            var customer = await stripeCustomerService.CreateAsync(options, cancellationToken: cancellationToken);
+            var customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
             return customer.Id;
         }
 
@@ -74,7 +74,7 @@ namespace NettoRetail.Application.Services
 
             try
             {
-                await stripeCustomerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+                await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
             }
             catch (StripeException ex)
             {
