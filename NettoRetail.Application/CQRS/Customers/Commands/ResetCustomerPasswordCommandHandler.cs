@@ -32,6 +32,10 @@ public class ResetCustomerPasswordCommandHandler(IJwtManager jwtManager,
             if (issuedAtSeconds <= passwordUpdatedAtSeconds)
                 throw new NotFoundException("Invalid token.");
         }
+
+        var oldhash = account.PasswordHash;
+        if (PasswordHasher.VerifyPassword(request.model.Password, oldhash))
+            throw new BadRequestException("You can not use the old password");
         account.PasswordHash = PasswordHasher.HashPassword(request.model.Password);
         account.PasswordUpdatedAt = DateTime.UtcNow;
 
