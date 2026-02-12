@@ -82,6 +82,12 @@ public class Specification<TEntity>
         _orderings.Add((orderByExpression, descending));
         return this;
     }
+    protected void ApplyPaging(int pageIndex, int pageSize)
+    {
+        Skip = (pageIndex - 1) * pageSize;
+        Take = pageSize;
+    }
+
     public Specification<TEntity> AddOrderByDescending(Expression<Func<TEntity, object>> orderByExpression, bool descending = true)
     {
         _orderings.Add((orderByExpression, descending));
