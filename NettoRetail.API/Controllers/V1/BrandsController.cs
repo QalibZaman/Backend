@@ -107,15 +107,11 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json", "multipart/form-data")]
-    public async Task<IActionResult> UpdateBrand(
-        int brandId,
-        [FromForm] UpdateBrandRequest model,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateBrand(int brandId, [FromForm] UpdateBrandRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var command = model.Adapt<UpdateBrandCommand>();
-        command = command with { Id = brandId, ShopId = shopId };
+        var command = new UpdateBrandCommand(brandId, model, shopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
