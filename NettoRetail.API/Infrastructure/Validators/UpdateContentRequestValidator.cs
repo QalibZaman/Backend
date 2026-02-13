@@ -1,20 +1,23 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Content;
 
-namespace NettoRetail.API.Infrastructure.Validators
-{
-    public class UpdateContentRequestValidator : AbstractValidator<UpdateContentRequest>
-    {
-        public UpdateContentRequestValidator()
-        {
-            RuleFor(x => x.Content)
-            .MaximumLength(50000)
-                .WithMessage("Content must not exceed 50,000 characters.");
+namespace NettoRetail.API.Infrastructure.Validators;
 
-            RuleFor(x => x.IsVisible)
-           .Must((content, isVisible) =>
-               (!string.IsNullOrWhiteSpace(content.Content)) || isVisible == false)
-           .WithMessage("Visibility must be false when content is empty or whitespace.");
-        }
+public class UpdateContentRequestValidator : AbstractValidator<UpdateContentRequest>
+{
+    private const int MaxContentLength = 50 * 1024; // 50 KB
+
+    public UpdateContentRequestValidator()
+    {
+        RuleFor(x => x.Content)
+            .NotEmpty()
+            .WithMessage("Content is required.")
+            .MaximumLength(MaxContentLength)
+            .WithMessage($"Content cannot exceed {MaxContentLength} characters.");
+        RuleFor(x => x.IsVisible)
+            .Must((content, isVisible) =>
+                (!string.IsNullOrWhiteSpace(content.Content)) || isVisible == false)
+            .WithMessage("Visibility must be false when content is empty or whitespace.");
+
     }
 }

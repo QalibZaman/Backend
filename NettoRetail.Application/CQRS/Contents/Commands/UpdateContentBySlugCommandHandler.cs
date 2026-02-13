@@ -18,16 +18,18 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
     IAccountRepository accountRepository)
     : IRequestHandler<UpdateContentBySlugCommand>
 {
+    private static readonly HtmlSanitizer Sanitizer = new();
+
     public async Task Handle(UpdateContentBySlugCommand request, CancellationToken cancellationToken)
     {
         var accountSpecification = new GetAccountByIdSpecification(request.UpdateAuthor);
         var updateAuthor = await accountRepository.GetAsync(accountSpecification, cancellationToken)
             ?? throw new BadRequestException("Couldn't find account record with given user identifier");
 
-        var slugTuple = ContentSlugParser.ParseContentSlug(request.Slug);
+        var slug = ContentSlugParser.ParseContentSlug(request.Slug);
+        request.Model.Content = SanitizeContent(request.Model.Content);
 
-        var spec = new GetContentByShopSpecification(slugTuple!.Value.ShopId);
-        spec.And(new GetContentBySectionTypeSpecification(slugTuple!.Value.SectionType));
+        var spec = new GetContentByShopAndSectionSpecification(slug.ShopId, slug.SectionType);
 
         var contentBlock = await contentRepo.GetAsync(spec, cancellationToken);
         var sanitizer = new HtmlSanitizer();
@@ -37,10 +39,9 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         {
             var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
 
-            contentBlockToCreate.LastUpdated = DateTime.UtcNow;
-            contentBlockToCreate.UpdatedBy = updateAuthor.FullName;
-            contentBlockToCreate.SectionType = slugTuple!.Value.SectionType;
-            contentBlockToCreate.ShopId = slugTuple!.Value.ShopId;
+            ApplyAuditFields(contentBlockToCreate, updateAuthor.FullName);
+            contentBlockToCreate.SectionType = slug.SectionType;
+            contentBlockToCreate.ShopId = slug.ShopId;
 
             await contentRepo.AddAsync(contentBlockToCreate, cancellationToken);
             return;
@@ -48,9 +49,19 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
 
         request.Model.Adapt(contentBlock);
 
-        contentBlock.LastUpdated = DateTime.UtcNow;
-        contentBlock.UpdatedBy = updateAuthor.FullName;
+        ApplyAuditFields(contentBlock, updateAuthor.FullName);
 
         await contentRepo.UpdateAsync(contentBlock, cancellationToken);
+    }
+
+    private static string SanitizeContent(string content)
+    {
+        return Sanitizer.Sanitize(content);
+    }
+
+    private static void ApplyAuditFields(ContentEntity contentEntity, string updatedBy)
+    {
+        contentEntity.LastUpdated = DateTime.UtcNow;
+        contentEntity.UpdatedBy = updatedBy;
     }
 }
