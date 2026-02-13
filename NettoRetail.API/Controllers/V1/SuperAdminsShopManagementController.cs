@@ -304,6 +304,24 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         return NoContent();
     }
 
+    /// <summary>
+    /// Returns a list of all platform administrators.
+    /// </summary>
+    /// <remarks>
+    /// Requires authentication and the <b>Admins management</b> permission.
+    ///
+    /// Permission codes:
+    /// 1 - Inventory management
+    /// 2 - Customers management
+    /// 3 - Orders management
+    /// 4 - Admins management
+    /// 5 - System settings
+    /// 6 - SuperAdmins management
+    /// </remarks>
+    /// <response code="200">List of platform administrators returned successfully.</response>
+    /// <response code="401">User is not authenticated.</response>
+    /// <response code="403">User does not have required permissions.</response>
+    /// <response code="500">Unexpected server error.</response>
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
     [HttpGet("platform-admins")]
