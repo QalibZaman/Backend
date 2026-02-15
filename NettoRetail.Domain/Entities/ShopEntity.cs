@@ -21,7 +21,6 @@ public class ShopEntity
     public required int SubscriptionPlanId { get; set; }
 
     public bool CategoriesSectionVisibility { get; set; }
-    public string? CategoriesSectionPreview { get; set; }
     public string? CategoriesSectionName { get; set; }
 
     public SubscriptionPlanEntity? SubscriptionPlan { get; set; }
