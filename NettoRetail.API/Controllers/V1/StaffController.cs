@@ -29,6 +29,7 @@ using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
+
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:ApiVersion}/[controller]")]
@@ -97,7 +98,7 @@ public class StaffController(
 
         await mediator.Send(changePasswordCommand);
 
-        return NoContent(); 
+        return NoContent();
     }
 
     [HttpPost("forgot-password")]
@@ -302,16 +303,8 @@ public class StaffController(
     public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        var absoluteUrl = Url.Action(
-            nameof(UnsubscribeToNewsletter),
-            nameof(StaffController).Replace("Controller", string.Empty),
-            null,
-            Request.Scheme);
-
-        var command = new SubscribeToNewsletterCommand(userId, absoluteUrl!);
-
+        var command = new SubscribeToNewsletterCommand(userId);
         await mediator.Send(command, cancellationToken);
-
         return NoContent();
     }
 
@@ -345,7 +338,7 @@ public class StaffController(
 
     [Authorize]
     [HttpPut("{id:guid}/profile-image")]
-    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileImage([FromRoute] Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (userId != id) throw new BadRequestException("You are not able to change data of another user");
@@ -437,8 +430,7 @@ public class StaffController(
 
         await mediator.Send(command, cancellationToken);
     }
-    
-        
+
     [HttpPost("activate-by-invitation")]
     [AllowAnonymous]
     public async Task<IActionResult> ActivateByInvitation([FromBody] SetPasswordByInvitationRequest model)
@@ -465,10 +457,11 @@ public class StaffController(
         await mediator.Send(new ValidateInvitationTokenCommand(Token));
         return NoContent();
     }
-    
+
     [HttpPost("resend-invitation")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResendInvitation([FromBody]ResendInvitationRequest request) {
+    public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationRequest request)
+    {
         await mediator.Send(new ResendInvitationByTokenCommand(request.Token));
         return Ok(new ApiResponse("A new invitation link was sent"));
     }

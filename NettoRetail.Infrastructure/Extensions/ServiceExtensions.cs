@@ -6,6 +6,7 @@ using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Interfaces.Services;
+using NettoRetail.Shared.Options;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -16,6 +17,7 @@ public static class ServiceExtensions
     {
         services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
+        services.AddScoped<ILockProvider, HardLockWithTtlProviderService>();
 
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {
@@ -25,7 +27,9 @@ public static class ServiceExtensions
         services.Configure<FrontendOptions>(configuration.GetSection(nameof(FrontendOptions)));
         services.Configure<InvitationOptions>(configuration.GetSection(nameof(InvitationOptions)));
         services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
-
+        services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
+        services.Configure<CustomerPasswordResetOptions>(configuration.GetSection(nameof(CustomerPasswordResetOptions)));
+        services.Configure<CorsOptions>(configuration.GetSection(nameof(CorsOptions)));
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
         services.Configure<ResetPasswordOptions>(configuration.GetSection(nameof(ResetPasswordOptions)));
         services.Configure<EmailVerificationOptions>(configuration.GetSection(nameof(EmailVerificationOptions)));

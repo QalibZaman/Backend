@@ -2,15 +2,19 @@ using Mapster;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
@@ -21,6 +25,14 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
+            .Map(dest => dest.AccountId, src => src.AccountId)
+            .Map(dest => dest.CustomerName, src => src.Account.FirstName + " " + src.Account.LastName)
+            .Map(dest => dest.Email, src => src.Account.Email)
+            .Map(dest => dest.Phone, src => src.Account.PhoneNumber)
+            .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
+            .Map(dest => dest.Remarks, src => src.Remarks);
+
         config.NewConfig<AdminSignUpModel, AccountEntity>()
             .Map(dest => dest.PasswordHash, src => src.Password);
 
@@ -38,8 +50,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
 
-        config.NewConfig<UpdateInventoryItemModel, InventoryItemUpdateData>();
-
         config.NewConfig<AccountEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
@@ -54,7 +64,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<ProductDetailsModel, ProductDetailsEntity>()
             .Map(dest => dest.TypeEnum, src => Enum.Parse<ProductDetailTypeEnum>(src.Type))
             .Map(dest => dest.Unit, src =>
-                string.IsNullOrEmpty(src.Unit) ? null : (ProductDetailUnitEnum?)Enum.Parse<ProductDetailUnitEnum>(src.Unit));
+                string.IsNullOrEmpty(src.Unit)
+                    ? null
+                    : (ProductDetailUnitEnum?)Enum.Parse<ProductDetailUnitEnum>(src.Unit));
 
         config.NewConfig<ProductDetailsEntity, ProductDetailsResponse>()
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
@@ -81,7 +93,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CanEditData, src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
+            .Map(dest => dest.CanEditData,
+                src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
 
         config.NewConfig<UpdateStaffRequest, AccountEntity>()
             .IgnoreNullValues(true);
@@ -121,9 +134,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
 
         config.NewConfig<OrderEntity, OrderResponse>()
-           .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-           .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-           .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
@@ -134,7 +147,10 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<AccountEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
-            .Map(dest => dest.Status, src => src.Status.ToString());
+            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName);
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
@@ -168,13 +184,13 @@ public class MappingConfiguration : IRegister
             .Map(
                 dest => dest.LastActivityTime,
                 src => src.Sessions != null && src.Sessions.Any()
-                ? src.Sessions.Max(s => s.LastActivityTime)
-                : (DateTime?)null)
+                    ? src.Sessions.Max(s => s.LastActivityTime)
+                    : (DateTime?)null)
             .Map(
                 dest => dest.Permissions,
                 src => src.Role != null && src.Role.PermissionRoles != null
-                ? src.Role.PermissionRoles.Select(p => p.PermissionId).ToList()
-                : new List<int>());
+                    ? src.Role.PermissionRoles.Select(p => p.PermissionId).ToList()
+                    : new List<int>());
 
         config.NewConfig<FavouriteListItemEntity, AddToFavouritesResponse>();
 
@@ -182,22 +198,22 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductId, src => src.InventoryItemId);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
-                 .Map(dest => dest.ProductUpc, src => src.ProductUpc)
-                 .Map(dest => dest.ProductName, src => src.ProductName)
-                 .Map(dest => dest.ProductLocation, src => src.ProductLocation)
-                 .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
-                 .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
-                 .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
-                 .Map(dest => dest.Price, src => src.Price)
-                 .Map(dest => dest.Status, src => src.Status)
-                 .Map(dest => dest.Description, src => src.Description)
-                 .Ignore(dest => dest.CategoryId)
-                 .Ignore(dest => dest.ShopId)
-                 .Ignore(dest => dest.Brand);
+            .Map(dest => dest.ProductUpc, src => src.ProductUpc)
+            .Map(dest => dest.ProductName, src => src.ProductName)
+            .Map(dest => dest.ProductLocation, src => src.ProductLocation)
+            .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
+            .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
+            .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
+            .Map(dest => dest.Price, src => src.Price)
+            .Map(dest => dest.Status, src => src.Status)
+            .Map(dest => dest.Description, src => src.Description)
+            .Ignore(dest => dest.CategoryId)
+            .Ignore(dest => dest.ShopId)
+            .Ignore(dest => dest.Brand);
 
         config.NewConfig<InventoryItemCsvModel, InventoryItemEntity>()
-                .Ignore(dest => dest.Brand)
-                .Ignore(dest => dest.Category);
+            .Ignore(dest => dest.Brand)
+            .Ignore(dest => dest.Category);
 
         config.NewConfig<AddInventoryItemModel, InventoryItemEntity>()
             .Ignore(nameof(InventoryItemEntity.ProductDetails));
@@ -218,7 +234,10 @@ public class MappingConfiguration : IRegister
             .Map(d => d.Id, s => s.Id)
             .Map(d => d.ProductName, s => s.ProductName)
             .Map(d => d.CategoryName, s => s.Category != null ? s.Category.Name : string.Empty)
-            .Map(d => d.ThumbnailUrl, s => s.Images != null ? s.Images.OrderBy(i => i.Order).Select(i => i.BlobUrl).FirstOrDefault() ?? string.Empty : string.Empty)
+            .Map(d => d.ThumbnailUrl, s =>
+                s.Images != null
+                    ? s.Images.OrderBy(i => i.Order).Select(i => i.BlobUrl).FirstOrDefault() ?? string.Empty
+                    : string.Empty)
             .Map(d => d.Price, s => s.Price)
             .Map(d => d.PromotionPrice, s => s.PromotionPrice)
             .Map(d => d.AvailableAmount, s => s.AvailableAmount)
@@ -269,8 +288,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
-            .Map(dest => dest.PhoneNumber,
-                 src => src.PhoneNumber == null ? null : src.PhoneNumber.Trim())
+            .Map(dest => dest.PhoneNumber, src => src.PhoneNumber == null ? null : src.PhoneNumber.Trim())
             .AfterMapping(dest =>
             {
                 dest.Status = StaffStatusEnum.CreatePassword;
@@ -280,5 +298,42 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
             .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+
+        // ===== MERGED CONFLICT PART (KEEP BOTH) =====
+
+        config.NewConfig<AccountEntity, ClientsShopInfoResponse>()
+            .Map(dest => dest.AdminsEmail, src => src.Email)
+            .Map(dest => dest.AdminsFullName, src =>
+                string.Join(
+                    " ",
+                    new[] { src.FirstName, src.LastName }
+                        .Where(x => !string.IsNullOrWhiteSpace(x))));
+
+        config.NewConfig<CategoryEntity, GetCategoryProductStatusesResponse>()
+            .Map(dest => dest.Available, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.Available))
+            .Map(dest => dest.Committed, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.Committed))
+            .Map(dest => dest.Unavailable, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.Unavailable))
+            .Map(dest => dest.Incoming, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.Incoming));
+
+        config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
+            .Map(dest => dest.RoleId, src => src.Id)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.RoleName, src => src.Name)
+            .AfterMapping((src, dest) =>
+            {
+                var rolePermissionTitles = src.PermissionRoles
+                    .Where(pr => pr.Permission != null)
+                    .Select(pr => pr.Permission!.Title)
+                    .ToHashSet();
+
+                foreach (var permission in PermissionProvider.All)
+                {
+                    dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
+                }
+            });
     }
 }

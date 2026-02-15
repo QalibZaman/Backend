@@ -3,6 +3,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Services;
+using Stripe;
 
 namespace NettoRetail.Application.Services;
 
@@ -30,10 +31,19 @@ public class ShopSubscriptionService(
 
         if (string.IsNullOrWhiteSpace(shop.StripeCustomerId))
         {
-            shop.StripeCustomerId = await stripeService.CreateCustomerAsync(
-                shop.Email,
-                paymentMethodId,
-                cancellationToken);
+            try
+            {
+                shop.StripeCustomerId = await stripeService.CreateCustomerAsync(
+                    shop.Email,
+                    paymentMethodId,
+                    cancellationToken);
+            }
+            catch (StripeException e)
+            {
+                var msg = e.StripeError?.Message ?? e.Message;
+                var code = e.StripeError?.Code;
+                throw new BadRequestException($"Stripe error ({code}): {msg}");
+            }
         }
 
         var subscriptionId = await stripeService.CreateSubscriptionAsync(

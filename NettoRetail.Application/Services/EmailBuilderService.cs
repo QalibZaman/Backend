@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Infrastructure.EmailTemplates;
@@ -13,7 +13,9 @@ public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
     IOptions<EmailVerificationOptions> verificationOptions,
-    IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
+    IOptions<ResetPasswordOptions> passwordOptions,
+    IOptions<CustomerPasswordResetOptions> customerPasswordResetOptions,
+    ILinkService.ILinkService linkService) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
     {
@@ -52,11 +54,13 @@ public class EmailBuilderService(
         };
     }
 
-    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, string unsubscribeUrl)
+    public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, Guid accountId)
     {
-        var model = new { full_name = fullName, unsubscribe_url = unsubscribeUrl };
+        var url = linkService.BuildNewsletterUnsubscribeUrl(accountId);
 
-        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.SubscriptionConfirmation, model);
+        var model = new { full_name = fullName, unsubscribe_url = url };
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.SubscriptionConfirmation, model);
 
         return new EmailModel
         {
@@ -65,6 +69,7 @@ public class EmailBuilderService(
             Message = emailBody
         };
     }
+
 
     public async Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason)
     {
@@ -150,7 +155,6 @@ public class EmailBuilderService(
         };
     }
 
-
     public async Task<EmailModel> BuildCustomerAccountActivationEmailAsync(string email, string firstName, string link)
     {
         var model = new
@@ -166,6 +170,24 @@ public class EmailBuilderService(
         {
             Email = email,
             Subject = EmailSubjects.ActivateCustomerAccount,
+            Message = emailBody
+        };
+    }
+
+    public async Task<EmailModel> BuildCustomerPasswordResetEmailAsync(string email, string link)
+    {
+        var model = new
+        {
+            reset_link = link,
+            token_expiration_hours = customerPasswordResetOptions.Value.TokenExpirationHours
+        };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.CustomerPasswordReset, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.ResetPassword,
             Message = emailBody
         };
     }

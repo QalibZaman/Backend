@@ -9,7 +9,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Shops.Commands;
 
-public record DeactivateShopEventCommand(int ShopId, string Reason, DateTime? DeactivationDate) : INotification;
+public record DeactivateShopEventCommand(int ShopId, string Reason, DateTime? DeactivationDate, Guid AccountId) : INotification;
 
 public class DeactivateShopEventCommandHandler(
     IShopRepository shopRepository,
@@ -31,7 +31,7 @@ public class DeactivateShopEventCommandHandler(
         var email = await emailBuilder.BuildShopDeactivationWarningEmailAsync(
             shop.Email, shop.Name, deactivationDate, request.Reason);
 
-        await emailSender.SendAsync(email);
+        await emailSender.SendAsync(email, request.AccountId);
 
         var sessions = await sessionRepo.GetManyBySpecAsync(
             new GetSessionsByShopIdSpecification(request.ShopId),

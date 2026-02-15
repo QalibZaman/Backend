@@ -7,29 +7,27 @@ using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.Services.IRoleService
 {
-    public class RoleService : IRoleService
+    public class RoleService(
+        IAccountRepository accountRepository,
+        IPermissionRepository permissionRepository,
+        IRoleRepository roleRepository) : IRoleService
     {
-        private readonly IAccountRepository _accountRepository;
-        private readonly IPermissionRepository _permissionRepository;
-        private readonly IRoleRepository _roleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public RoleService(
-            IAccountRepository accountRepository,
-            IPermissionRepository permissionRepository,
-            IRoleRepository roleRepository,
-            IUnitOfWork unitOfWork)
+        public bool ArePermissionsEqual(ICollection<PermissionRoleEntity> existingPermissions, ICollection<PermissionRoleEntity> newPermissions)
         {
-            _accountRepository = accountRepository;
-            _permissionRepository = permissionRepository;
-            _roleRepository = roleRepository;
-            _unitOfWork = unitOfWork;
+            if (existingPermissions is null || newPermissions is null)
+                return false;
+
+            var existingPermissionIds = existingPermissions
+            .Select(pr => pr.PermissionId)
+            .ToHashSet();
+
+            return existingPermissionIds.SetEquals(newPermissions.Select(pr => pr.PermissionId));
         }
 
         public async Task<RoleEntity> CreatePlatformAdminRole(
@@ -39,23 +37,32 @@ namespace NettoRetail.Application.Services.IRoleService
             model.Normalize();
 
             var emailSpec = new GetAccountByEmailSpecification(model.Email);
-            if (await _accountRepository.Exists(emailSpec, cancellationToken))
+            if (await accountRepository.Exists(emailSpec, cancellationToken))
                 throw new ValidationException("Email is already in use");
 
             if (model.Permissions == null || !model.Permissions.Any())
                 throw new BadRequestException("At least one permission must be selected.");
 
-            var permissionTitles = model.Permissions
+            var newRole = await GetOrCreatePlatformAdminRole(model.Permissions, cancellationToken);
+
+            return newRole;
+        }
+
+        public async Task<RoleEntity> GetOrCreatePlatformAdminRole(
+            ICollection<PlatformAdminPermission> adminPermissions,
+            CancellationToken cancellationToken)
+        {
+            var permissionTitles = adminPermissions
                 .Select(p => p.GetEnumMemberValue()?.Trim().ToLowerInvariant())
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .Distinct()
                 .ToList();
 
-            var permissionIDs = await _permissionRepository.GetIdsBySpecAsync(
+            var permissionIDs = await permissionRepository.GetIdsBySpecAsync(
                 new GetPermissionsByTitlesSpecification(permissionTitles), cancellationToken);
 
             var spec = new GetRoleByExactPermissionsSpecification(permissionIDs);
-            var existingRoles = await _roleRepository.GetAllBySpecAsync(spec, cancellationToken);
+            var existingRoles = await roleRepository.GetAllBySpecAsync(spec, cancellationToken);
             var existingRole = existingRoles?.FirstOrDefault();
 
             if (existingRole != null)
@@ -63,8 +70,8 @@ namespace NettoRetail.Application.Services.IRoleService
 
             var newRole = new RoleEntity
             {
-                Name = $"{CreatePlatformAdminConstants.PlatformAdminPrefix}_{Guid.NewGuid():N}",
-                Description = CreatePlatformAdminConstants.PlatformAdminDescription,
+                Name = $"{PlatformAdminConstants.PlatformAdminPrefix}_{Guid.NewGuid():N}",
+                Description = PlatformAdminConstants.PlatformAdminDescription,
                 ShopId = null,
                 PermissionRoles = permissionIDs
                     .Select(id => new PermissionRoleEntity { PermissionId = id })
@@ -73,6 +80,5 @@ namespace NettoRetail.Application.Services.IRoleService
 
             return newRole;
         }
-
     }
 }

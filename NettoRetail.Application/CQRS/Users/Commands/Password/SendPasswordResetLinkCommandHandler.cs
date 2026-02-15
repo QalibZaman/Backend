@@ -55,7 +55,7 @@ public class SendPasswordResetLinkCommandHandler(
 
         var emailModel = await emailBuilder
             .BuildPlatformAdminActivationEmailAsync(email, account.FirstName, link);
-        await emailSender.SendAsync(emailModel);
+        await emailSender.SendAsync(emailModel, account.Id);
     }
 
 }
