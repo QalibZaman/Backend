@@ -2,19 +2,20 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Category;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Categories.Queries;
 
-public record GetCategoriesSectionForEditQuery(int ShopId) : IRequest<EditCategoriesSectionRequest>;
+public record GetCategoriesSectionQuery(int ShopId) : IRequest<GetCategoriesSectionResponse>;
 
 public class GetCategoriesSectionForEditQueryHandler(
     ICategoryRepository categoryRepository,
     IShopRepository shopRepository)
-    : IRequestHandler<GetCategoriesSectionForEditQuery, EditCategoriesSectionRequest>
+    : IRequestHandler<GetCategoriesSectionQuery, GetCategoriesSectionResponse>
 {
-    public async Task<EditCategoriesSectionRequest> Handle(GetCategoriesSectionForEditQuery request, CancellationToken cancellationToken)
+    public async Task<GetCategoriesSectionResponse> Handle(GetCategoriesSectionQuery request, CancellationToken cancellationToken)
     {
         var shop = await shopRepository.GetByIdAsync(request.ShopId, cancellationToken);
         if (shop is null)
@@ -25,23 +26,22 @@ public class GetCategoriesSectionForEditQueryHandler(
         var specification = new GetCategoriesByIdsSpecification(request.ShopId);
         specification.AddOrderBy(c => c.Name);
 
-        var categories = await categoryRepository.GetAllNestedAsync(specification, cancellationToken);
+        var countCategory = await categoryRepository.GetAmountBySpecAsync(specification, cancellationToken);
 
-        if (categories.Count == 0)
+        if (countCategory == 0)
         {
             throw new NotFoundException(
                 "Your shop does not have any categories yet. Please, add categories to continue");
         }
 
-        const int maxVisibleCategories = 6;
+        const int MaxVisibleCategories = 6;
 
-        var dto = new EditCategoriesSectionRequest
+        var dto = new GetCategoriesSectionResponse
         {
             ShopId = shop.Id,
             Visibility = shop.CategoriesSectionVisibility,
-            Preview = shop.CategoriesSectionPreview ?? string.Empty,
             Name = shop.CategoriesSectionName ?? string.Empty,
-            NumberOfCategories = categories.Count >= maxVisibleCategories ? maxVisibleCategories : categories.Count
+            NumberOfCategories = Math.Min(countCategory, MaxVisibleCategories)
         };
 
         return dto;

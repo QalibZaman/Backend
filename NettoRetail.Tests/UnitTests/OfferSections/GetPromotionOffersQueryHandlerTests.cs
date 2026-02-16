@@ -26,7 +26,6 @@ public class GetPromotionOffersQueryHandlerTests
             Id = 1,
             ShopId = 5,
             Name = "Hot offers",
-            Preview = "Top picks",
             IsVisible = true,
             SelectionType = SelectionTypeEnum.Static,
             LastUpdated = DateTime.UtcNow,

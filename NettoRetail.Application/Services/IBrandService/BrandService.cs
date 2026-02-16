@@ -1,8 +1,8 @@
-﻿using Mapster;
-﻿using NettoRetail.Application.Exceptions;
+using Mapster;
+using NettoRetail.Application.Models.Response.Brand;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -16,27 +16,24 @@ public class BrandService(IShopRepository shopRepository, IBrandRepository brand
     public async Task<PaginatedResponse<BrandResponse>> GetShopBrandsBySearchAsync(
          string query, int shopId, PaginationRequest pageModel, CancellationToken cancellationToken)
     {
-
-        var brandSpecBuilder = new SpecificationBuilder<BrandEntity>();
-        brandSpecBuilder
+        var skip = (pageModel.PageNumber - 1) * pageModel.PageSize;
+        var brandSpec = new SpecificationBuilder<BrandEntity>()
             .Add<GetBrandsByPartialNameSpecification>(query)
-            .Add<GetBrandsByShopIdSpecification>(shopId);
-
-        var brandSpec = brandSpecBuilder.Build();
-
-        var brands = await brandRepository.GetAllBySpecAsync(brandSpec, cancellationToken);
-
-        var pagedBrands = brands
-            .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+            .Add<GetBrandsByShopIdSpecification>(shopId)
+            .AddOrderBy(b => b.Name)
+            .AddOrderBy(b => b.Id)
+            .Skip(skip)
             .Take(pageModel.PageSize)
-            .ToList();
+            .Build();
 
-        var brandResponses = pagedBrands.Adapt<List<BrandResponse>>();
+        var (items, totalCount) = await brandRepository.GetAllPaginatedAsync(brandSpec, cancellationToken);
+
+        var brandResponses = items.Adapt<List<BrandResponse>>();
 
         var response = new PaginatedResponse<BrandResponse>
         {
             Items = brandResponses,
-            TotalAmount = brands.Count(),
+            TotalAmount = totalCount,
         };
         return response;
     }

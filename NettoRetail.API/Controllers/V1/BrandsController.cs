@@ -22,7 +22,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BrandResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<BrandResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,15 +107,11 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json", "multipart/form-data")]
-    public async Task<IActionResult> UpdateBrand(
-        int brandId,
-        [FromForm] UpdateBrandRequest model,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateBrand(int brandId, [FromForm] UpdateBrandRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var command = model.Adapt<UpdateBrandCommand>();
-        command = command with { Id = brandId, ShopId = shopId };
+        var command = new UpdateBrandCommand(brandId, model, shopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();

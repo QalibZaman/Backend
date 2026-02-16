@@ -73,7 +73,7 @@ public class PermissionMiddleware
                 var failedPermissions = requiredPermissionsAny
                     .Where(group => group.Permissions == null ||
                                     group.Permissions.Length == 0 ||
-                                    !group.Permissions.Any(p=>permissionsHashSet.Contains(p)))
+                                    !group.Permissions.Any(p => permissionsHashSet.Contains(p)))
                     .ToList();
 
                 if (failedPermissions.Any())

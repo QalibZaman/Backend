@@ -102,6 +102,16 @@ public static class AuthenticationExtensions
 
                         return context.User.HasClaim(c => c.Type == AuthClaims.ShopId);
                     }));
+
+            options.AddPolicy(PolicyNames.AdminOnlyPolicy, policy =>
+                 policy.RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(AuthSchemes.Default)
+                    .RequireAssertion(context =>
+                    {
+                        var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
+                        return roleId == RoleConstants.Admin.ToString() ||
+                               roleId == SuperAdminConstants.SuperAdminRoleId;
+                    }));
         });
 
         return services;

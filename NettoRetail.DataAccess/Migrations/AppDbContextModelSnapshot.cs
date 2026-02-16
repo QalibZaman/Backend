@@ -1186,10 +1186,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<string>("Preview")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<int>("SelectionType")
                         .HasColumnType("integer");
 
@@ -1223,10 +1219,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Preview")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("SelectionType")
                         .HasColumnType("integer");
@@ -1821,9 +1813,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(90)");
 
                     b.Property<string>("CategoriesSectionName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CategoriesSectionPreview")
                         .HasColumnType("text");
 
                     b.Property<bool>("CategoriesSectionVisibility")
