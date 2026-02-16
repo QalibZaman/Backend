@@ -16,10 +16,6 @@ namespace NettoRetail.DataAccess.Migrations
 
             migrationBuilder.DropColumn(
                 name: "Preview",
-                table: "OfferSections");
-
-            migrationBuilder.DropColumn(
-                name: "Preview",
                 table: "NewProductsSections");
         }
 
@@ -30,13 +26,6 @@ namespace NettoRetail.DataAccess.Migrations
                 name: "CategoriesSectionPreview",
                 table: "Shops",
                 type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Preview",
-                table: "OfferSections",
-                type: "character varying(1000)",
-                maxLength: 1000,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
