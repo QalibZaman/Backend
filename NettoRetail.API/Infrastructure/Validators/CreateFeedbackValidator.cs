@@ -13,7 +13,6 @@ public class CreateFeedbackValidator : AbstractValidator<CreateFeedbackModel>
 
         RuleFor(x => x.Title)
           .Cascade(CascadeMode.Stop)
-          .NotEmpty().WithMessage("Title is required.")
            .Matches(@"^(?!\s)[A-Za-z0-9!@#$%^&*()_\-+={}[\]:;""'<>?,./\\|`~ ]+(?<!\s)$")
               .WithMessage("In title allowed: Latin letters, digits, special characters. No leading/trailing spaces.")
            .MaximumLength(60)
@@ -21,7 +20,6 @@ public class CreateFeedbackValidator : AbstractValidator<CreateFeedbackModel>
 
         RuleFor(x => x.Text)
           .Cascade(CascadeMode.Stop)
-          .NotEmpty().WithMessage("Text is required.")
           .Matches(@"^(?!\s)[A-Za-z0-9!@#$%^&*()_\-+={}[\]:;""'<>?,./\\|`~ ]+(?<!\s)$")
               .WithMessage("In Text allowed: Latin letters, digits, special characters. No leading/trailing spaces.")
           .MaximumLength(500)

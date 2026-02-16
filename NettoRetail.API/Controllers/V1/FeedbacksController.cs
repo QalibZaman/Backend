@@ -31,7 +31,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateFeedback([FromBody]CreateFeedbackModel model, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         var command = new CreateFeedbackCommand(model, userId);
