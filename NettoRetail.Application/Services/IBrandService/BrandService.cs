@@ -55,8 +55,7 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
 
         var spec = specBuilder.Build();
         var brand = await brandRepository.GetAsync(spec, cancellationToken)
-            ?? throw new NotFoundException($"Brand '{brandName}' not found.");
-
+                    ?? throw new NotFoundException($"Brand '{brandName}' not found.");
         cache[brandName] = brand;
         return brand;
     }

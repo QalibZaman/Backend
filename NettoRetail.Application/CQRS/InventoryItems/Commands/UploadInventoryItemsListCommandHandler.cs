@@ -55,10 +55,7 @@ public class UploadInventoryItemsListCommandHandler(
 
             var brand = await brandService.GetBrandByNameWithCacheAsync(
                 brandCache, item.Brand, request.UserShopId, cancellationToken);
-
-            if (category is null) throw new NotFoundException($"Category '{item.ProductCategory}' not found.");
-            if (brand is null) throw new NotFoundException($"Brand '{item.Brand}' not found.");
-
+            
             var entity = item.Adapt<InventoryItemEntity>();
 
             entity.ShopId = request.UserShopId;
