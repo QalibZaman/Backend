@@ -30,8 +30,7 @@ public class CreateOrderCommandHandler(
         var inventoryItemsIds = products.Keys;
 
         var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
-        var inventoryItems = inventoryItemRepository.GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken)
-            ?? throw new NotFoundException("There are no such items.");
+        var inventoryItems = inventoryItemRepository.GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken);
 
         var itemsList = new List<InventoryItemEntity>();
 
@@ -39,9 +38,6 @@ public class CreateOrderCommandHandler(
 
         await foreach (var item in inventoryItems)
         {
-            if (inventoryItemsIds.Contains(item.Id))
-                throw new NotFoundException($"The product with ID {item.Id} were not found.");
-
             if (products.TryGetValue(item.Id, out var requestedQuantity))
             {
                 if (item.AvailableAmount < requestedQuantity)
@@ -56,6 +52,8 @@ public class CreateOrderCommandHandler(
             itemsList.Add(item);
         }
 
+        if (itemsList.Count != inventoryItemsIds.Count)
+            throw new NotFoundException("Some products were not found.Please enter correct product IDs.");
         var account = await GetAccountAsync(request.UserId, cancellationToken);
 
         var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
