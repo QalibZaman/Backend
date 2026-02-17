@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
@@ -93,7 +93,7 @@ public class CreateOrderCommandHandler(
     {
         var specification = new GetAccountByIdSpecification(userId);
         return await accountRepository.GetAsync(specification, cancellationToken)
-            ?? throw new MyUnauthorizedException("Account no found.");
+            ?? throw new MyUnauthorizedException("Account not found.");
     }
 
     private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, CancellationToken cancellationToken)
