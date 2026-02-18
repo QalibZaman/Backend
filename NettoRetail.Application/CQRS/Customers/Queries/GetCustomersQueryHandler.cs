@@ -36,7 +36,9 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
 
         specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
                 .Add<GetCustomerByNameSpecification>(request.Model?.Name)
-                .Add<GetCustomerByLoyaltyIdSpecification>(request.Model?.LoyaltyId);
+                .Add<GetCustomerByLoyaltyIdSpecification>(request.Model?.LoyaltyId)
+                .Add<GetCustomerByPhoneNumberSpecification>(request.Model?.PhoneNumber)
+                .Add<GetCustomerByRemarksSpecification>(request.Model?.Remarks);
 
         specificationBuilder.AddInclude(x => x.Account)
             .Skip(skip)
