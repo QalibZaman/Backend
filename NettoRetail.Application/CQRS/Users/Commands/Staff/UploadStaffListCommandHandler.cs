@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Services.IStaffService;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
@@ -17,9 +18,9 @@ public class UploadStaffListCommandHandler
     public async Task Handle(UploadStaffListCommand request, CancellationToken cancellationToken)
     {
         if (request.File == null || request.File.Length == 0)
-            throw new BadHttpRequestException("CSV file cannot be null. Please Upload CSV file.");
+            throw new BadHttpRequestException(CsvUploadErrors.InvalidFileFormat);
         if (!string.Equals(Path.GetExtension(request.File.FileName), ".csv", StringComparison.OrdinalIgnoreCase))
-            throw new BadHttpRequestException("Invalid file Format. Please Upload CSV file.");
+            throw new BadHttpRequestException(CsvUploadErrors.InvalidFileFormat);
         var records = new List<StaffCsvModel>();
 
         await foreach (var item in csvFileService.ConvertEntitiesCsvFileToEntityData<StaffCsvModel>(request.File))

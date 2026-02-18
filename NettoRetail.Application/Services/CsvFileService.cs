@@ -7,11 +7,28 @@ using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.Services;
 
 public class CsvFileService : ICsvFileService
 {
+    private static readonly string[] InventoryItemHeaders =
+    [
+        "Product UPC",
+        "Product Name",
+        "Product Location",
+        "Brand",
+        "Product Category",
+        "Available Amount",
+        "Reserved Amount",
+        "On-hand Amount",
+        "Price",
+        "Status",
+        "Description"
+    ];
+
     public async Task<byte[]> GetEntitiesCsvData<T, TEntity>(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
     {
         var mappedEntities = entities.Adapt<IEnumerable<T>>();
@@ -30,45 +47,122 @@ public class CsvFileService : ICsvFileService
 
     public async IAsyncEnumerable<T> ConvertEntitiesCsvFileToEntityData<T>(IFormFile csvItemsFile)
     {
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            Delimiter = ";",
-            BadDataFound = null,
-            MissingFieldFound = null
-        };
+        if (csvItemsFile == null)
+            yield break;
 
-        using var streamReader = new StreamReader(csvItemsFile.OpenReadStream(), Encoding.UTF8);
+        using var stream = csvItemsFile.OpenReadStream();
+        using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+        var delimiter = DetectDelimiter(streamReader);
+
+        stream.Position = 0;
+        streamReader.DiscardBufferedData();
+
+        var config = CreateCsvConfiguration(delimiter);
+
         using var csvReader = new CsvReader(streamReader, config);
-
-        var entitiesData = csvReader.GetRecordsAsync<T>();
-
-        await foreach (var entityData in entitiesData)
-        {
+        await foreach (var entityData in csvReader.GetRecordsAsync<T>())
             yield return entityData;
-        }
     }
 
     public async Task<List<InventoryItemCsvModel>> ReadCsvItemsAsync(
         IFormFile csvFile, CancellationToken cancellationToken)
     {
         if (csvFile == null)
-            throw new BadRequestException("CSV file cannot be null.");
+            throw new BadRequestException(CsvUploadErrors.InvalidFileFormat);
 
         if (!csvFile.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-            throw new BadRequestException("The uploaded file must be a CSV file type.");
+            throw new BadRequestException(CsvUploadErrors.InvalidFileFormat);
 
-        var inventoryItemsData = ConvertEntitiesCsvFileToEntityData<InventoryItemCsvModel>(csvFile);
+        if (csvFile.Length == 0)
+            throw new BadRequestException(CsvUploadErrors.ItemsListEmpty);
 
-        var list = new List<InventoryItemCsvModel>();
-        await foreach (var item in inventoryItemsData.WithCancellation(cancellationToken))
+        try
         {
-            list.Add(item);
+            using var stream = csvFile.OpenReadStream();
+            using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+            var delimiter = DetectDelimiter(streamReader);
+
+            stream.Position = 0;
+            streamReader.DiscardBufferedData();
+
+            var config = CreateCsvConfiguration(delimiter);
+            using var csvReader = new CsvReader(streamReader, config);
+
+            if (!await csvReader.ReadAsync() || !csvReader.ReadHeader())
+                throw new BadRequestException(BuildItemsListErrorMessage("CSV header is missing or invalid."));
+
+            ValidateInventoryHeaders(csvReader.HeaderRecord);
+
+            csvReader.Context.TypeConverterOptionsCache.GetOptions<InventoryItemStatusEnum>().EnumIgnoreCase = true;
+
+            var list = new List<InventoryItemCsvModel>();
+            await foreach (var item in csvReader.GetRecordsAsync<InventoryItemCsvModel>().WithCancellation(cancellationToken))
+            {
+                list.Add(item);
+            }
+
+            if (list.Count == 0)
+                throw new BadRequestException(CsvUploadErrors.ItemsListEmpty);
+
+            return list;
         }
-
-        if (list.Count == 0)
-            throw new BadRequestException("The CSV file is empty. Please provide at least one row of data.");
-
-        return list;
+        catch (CsvHelperException ex)
+        {
+            throw new BadRequestException(BuildItemsListErrorMessage(DescribeCsvHelperError(ex)));
+        }
     }
 
+    private static CsvConfiguration CreateCsvConfiguration(string delimiter)
+        => new(CultureInfo.InvariantCulture)
+        {
+            Delimiter = delimiter,
+            BadDataFound = null,
+            MissingFieldFound = null,
+            PrepareHeaderForMatch = args => NormalizeHeader(args.Header ?? string.Empty)
+        };
+
+    private static string DetectDelimiter(StreamReader reader)
+    {
+        var headerLine = reader.ReadLine();
+        if (string.IsNullOrEmpty(headerLine))
+            return ",";
+
+        var commaCount = headerLine.Count(c => c == ',');
+        var semicolonCount = headerLine.Count(c => c == ';');
+
+        return semicolonCount > commaCount ? ";" : ",";
+    }
+
+    private static void ValidateInventoryHeaders(string[]? headerRecord)
+    {
+        if (headerRecord == null || headerRecord.Length == 0)
+            throw new BadRequestException(BuildItemsListErrorMessage("CSV header is missing or invalid."));
+
+        var headerSet = headerRecord
+            .Select(NormalizeHeader)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var missingHeaders = InventoryItemHeaders
+            .Where(required => !headerSet.Contains(required))
+            .ToList();
+
+        if (missingHeaders.Count > 0)
+        {
+            var missingText = string.Join(", ", missingHeaders);
+            throw new BadRequestException(BuildItemsListErrorMessage($"Missing required headers: {missingText}."));
+        }
+    }
+
+    private static string BuildItemsListErrorMessage(string details)
+        => $"{CsvUploadErrors.ItemsListValidationFailed} {details}".Trim();
+
+    private static string NormalizeHeader(string header)
+        => header.Trim().TrimStart('\uFEFF');
+
+    private static string DescribeCsvHelperError(CsvHelperException ex)
+    {
+        var row = ex.Context?.Parser?.Row;
+        var rowInfo = row.HasValue ? $"Row {row.Value}: " : string.Empty;
+        return $"{rowInfo}{ex.Message}";
+    }
 }

@@ -1,29 +1,43 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.CsvFileModel;
 using System.Text.RegularExpressions;
-public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel> 
+
+namespace NettoRetail.API.Infrastructure.Validators;
+
+public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel>
 {
-    public InventoryItemCsvValidator() {
+    public InventoryItemCsvValidator()
+    {
         RuleFor(x => x.ProductUpc)
-            .GreaterThan(0)
-            .WithMessage("UPC must be numeric and positive."); 
+            .Must(upc => upc >= 100000000000 && upc <= 999999999999)
+            .WithMessage("Product UPC must be exactly 12 digits.");
 
         RuleFor(x => x.ProductName)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("Product name is required.")
             .Length(2, 50)
-            .Matches(@"^[A-Za-z0-9\s\-_]+$")
-            .WithMessage("Product name contains invalid characters."); 
-        
+            .Matches(@"^[A-Za-z0-9\-_]+$")
+            .WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+
+        RuleFor(x => x.ProductCategory)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithMessage("Product category is required.")
+            .Must(category => !category.StartsWith(" ") && !category.EndsWith(" "))
+            .WithMessage("Product category must not have leading or trailing spaces.");
+
         RuleFor(x => x.ProductLocation)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .Length(2, 100)
             .Matches(@"^[A-Za-z0-9\s\-,]+$")
             .WithMessage("Location contains invalid characters.")
             .Must(l => !l.StartsWith(" ") && !l.EndsWith(" "))
-            .WithMessage("No leading/trailing spaces."); 
+            .WithMessage("No leading/trailing spaces.");
 
         RuleFor(x => x.Brand)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("Brand is required.")
             .Length(2, 90)
@@ -53,13 +67,15 @@ public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0)
-            .ScalePrecision(2, 18); 
-        
+            .ScalePrecision(2, 18)
+            .WithMessage("Price must have up to 2 decimal places.");
+
         RuleFor(x => x.Status)
             .IsInEnum()
-            .WithMessage("Status must be a valid enum value."); 
-        
+            .WithMessage("Status must be a valid enum value.");
+
         RuleFor(x => x.Description)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .MaximumLength(500)
             .Matches(@"^[A-Za-z0-9\s.,;:!?\-_'""()]+$")
@@ -67,5 +83,5 @@ public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel
             .Must(desc => !desc.StartsWith(" ") && !desc.EndsWith(" "))
             .Must(desc => !Regex.IsMatch(desc, @"<[^>]+>"))
             .WithMessage("No HTML tags allowed.");
-    } 
+    }
 }
