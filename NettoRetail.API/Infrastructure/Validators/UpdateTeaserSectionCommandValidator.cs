@@ -17,7 +17,7 @@ public class UpdateTeaserSectionCommandValidator : AbstractValidator<TeaserSecti
 
         RuleFor(x => x.AdditionalText)
                 .MinimumLength(2).WithMessage("Additional text must be at least 2 characters")
-                .MaximumLength(60).WithMessage("Additional text must be less than or equal to 60 characters")
+                .MaximumLength(100).WithMessage("Additional text must be less than or equal to 100 characters")
                 .Matches(@"^[A-Za-z0-9_-](?:[A-Za-z0-9 _-]*[A-Za-z0-9_-])?$").WithMessage("Additional text can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input");
 
         RuleFor(x => x.Link)
