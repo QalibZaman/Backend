@@ -19,7 +19,7 @@ public class GetNewProductsSectionByShopIdQueryHandler(
         var spec = new GetNewProductsSectionByShopIdSpecification(request.ShopId);
         var entity = await repository.GetAsync(spec, cancellationToken);
 
-    if (entity is null) return null;
+        if (entity is null) return null;
 
         return entity.Adapt<GetNewProductsSectionResponse>();
     }

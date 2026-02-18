@@ -20,9 +20,48 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class BrandsController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Returns the brands list for the current shop (paginated).
+    /// </summary>
+    /// <remarks>
+    /// US-9.1 View Brands List.
+    /// <para>Request: <c>GET /api/v1/brands?PageNumber=1&amp;PageSize=20</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": {
+    ///     "items": [
+    ///       {
+    ///         "id": 5,
+    ///         "name": "Acme",
+    ///         "description": "Brand description",
+    ///         "websiteUrl": "https://acme.example",
+    ///         "logoImageUrl": "https://cdn.example/brand/acme.png"
+    ///       }
+    ///     ],
+    ///     "totalAmount": 42
+    ///   }
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- Pagination is 1-based: <c>PageNumber</c> starts from 1.</para>
+    /// <para>- <c>logoImageUrl</c> can be null.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
+    /// </remarks>
+    /// <param name="pagination">Pagination parameters: <c>PageNumber</c> and <c>PageSize</c>.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BrandResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<BrandResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,15 +146,11 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json", "multipart/form-data")]
-    public async Task<IActionResult> UpdateBrand(
-        int brandId,
-        [FromForm] UpdateBrandRequest model,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateBrand(int brandId, [FromForm] UpdateBrandRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var command = model.Adapt<UpdateBrandCommand>();
-        command = command with { Id = brandId, ShopId = shopId };
+        var command = new UpdateBrandCommand(brandId, model, shopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();

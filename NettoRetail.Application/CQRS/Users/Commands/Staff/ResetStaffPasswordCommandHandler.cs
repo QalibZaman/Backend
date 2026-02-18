@@ -3,6 +3,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
@@ -18,10 +19,10 @@ public class ResetStaffPasswordCommandHandler(
     {
         var spec = new GetAccountByIdSpecification(request.Id);
         var staff = await accountRepository.GetAsync(spec, cancellationToken)
-            ?? throw new NotFoundException("Staff member not found.");
+            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 
         if (staff.ShopId != request.ShopId)
-            throw new BadRequestException("You are not allowed to access this staff member.");
+            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
         var emailModel = await emailBuilderService.BuildResetPasswordEmailAsync(staff.Email, staff.FirstName);
         await emailSender.SendAsync(emailModel, staff.Id);

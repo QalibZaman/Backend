@@ -28,11 +28,7 @@ public class UpdateOffersSectionCommandHandler(
         var spec = new GetOfferSectionByShopIdSpecification(request.ShopId);
         var offer = await offerRepo.GetAsync(spec, cancellationToken);
 
-        foreach (var item in request.Model.InventoryItemIds)
-        {
-            if (!await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, request.ShopId), cancellationToken))
-                throw new BadRequestException("This item is not in your shop.");
-        }
+        await ValidateItemIds(request.Model.InventoryItemIds, request.ShopId, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -95,5 +91,19 @@ public class UpdateOffersSectionCommandHandler(
             ?? throw new NotFoundException("User not found");
 
         return user.FullName;
+    }
+
+    private async Task ValidateItemIds(List<Guid> itemIds, int shopId, CancellationToken cancellationToken)
+    {
+        if (itemIds.Count != itemIds.Distinct().Count())
+        {
+            throw new BadRequestException("Duplicate inventory items are not allowed.");
+        }
+
+        foreach (var item in itemIds)
+        {
+            if (!await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, shopId), cancellationToken))
+                throw new BadRequestException("This item is not in your shop.");
+        }
     }
 }

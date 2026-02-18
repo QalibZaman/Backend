@@ -1,5 +1,8 @@
 ﻿using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
+using NettoRetail.Application.Models.Request.Brand;
+
+namespace NettoRetail.API.Infrastructure.Validators;
 
 public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest>
 {
@@ -16,13 +19,13 @@ public class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandRequest>
 
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Brand description cannot exceed 500 characters")
-            .Matches(@"^[a-zA-Z0-9 .,!?\-_'""()]+$").When(x => !string.IsNullOrEmpty(x.Description))
+            .Matches(@"^[a-zA-Z0-9 .,!?:;\-_'""()/&]+$").When(x => !string.IsNullOrWhiteSpace(x.Description))
                 .WithMessage("Brand description contains invalid characters");
 
         RuleFor(x => x.WebsiteUrl)
-            .MustBeAValidUrl().When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
+            .MustBeAValidUrl().When(x => !string.IsNullOrWhiteSpace(x.WebsiteUrl))
                 .WithMessage("Website URL must be a valid URL including protocol (e.g., https://)")
-            .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
+            .MaximumLength(100).When(x => !string.IsNullOrWhiteSpace(x.WebsiteUrl))
                 .WithMessage("Website URL cannot exceed 100 characters");
 
         When(x => x.Logo != null, () =>

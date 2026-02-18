@@ -95,7 +95,6 @@ namespace NettoRetail.Application.Services
             var spec = new GetCategoriesByNameOrUrlSpecification(categoryName, null, shopId);
             var category = await categoryRepository.GetAsync(spec, cancellationToken)
                 ?? throw new NotFoundException($"Category '{categoryName}' not found.");
-
             cache[categoryName] = category;
             return category;
         }

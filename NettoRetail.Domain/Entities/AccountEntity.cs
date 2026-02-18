@@ -44,4 +44,11 @@ public class AccountEntity
     public ItemComparisonEntity? ComparedItems { get; set; }
     public ICollection<EntityLock> Locks { get; set; } = [];
     public string FullName => FirstName + " " + LastName;
+
+    public bool IsOnline()
+    {
+        if (Status == StaffStatusEnum.Online) return true;
+        return false;
+
+    }
 }

@@ -17,6 +17,44 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class ContentController(IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Returns all content blocks for the specified shop (CMS overview screen).
+    /// </summary>
+    /// <remarks>
+    /// US-3.10 View content management.
+    /// <para>Request: <c>GET /api/v1/content/{shopId}</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": [
+    ///     {
+    ///       "id": 10,
+    ///       "sectionType": "OurShop",
+    ///       "content": "Some text or HTML",
+    ///       "isVisible": true,
+    ///       "lastUpdated": "2026-02-10T13:05:00Z",
+    ///       "updatedBy": "admin@shop.com"
+    ///     }
+    ///   ]
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>sectionType</c> is a string identifier of the block section.</para>
+    /// <para>- <c>content</c> can be null.</para>
+    /// <para>- <c>lastUpdated</c> is serialized as an ISO 8601 string by default.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
+    /// </remarks>
+    /// <param name="shopId">Shop identifier from the route.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>200 with a list of content blocks.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{shopId:int}")]
     [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status200OK)]
@@ -32,6 +70,42 @@ public class ContentController(IMediator mediator) : Controller
         return Ok(response);
     }
 
+    /// <summary>
+    /// Returns a single content block by id for the given shop.
+    /// </summary>
+    /// <remarks>
+    /// US-3.10 View content management.
+    /// <para>Request: <c>GET /api/v1/content/block/{id}?shopId=123</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Success response (200):</para>
+    /// <para>
+    /// <code>
+    /// {
+    ///   "data": {
+    ///     "id": 10,
+    ///     "sectionType": "OurShop",
+    ///     "content": "Some text or HTML",
+    ///     "isVisible": true,
+    ///     "lastUpdated": "2026-02-10T13:05:00Z",
+    ///     "updatedBy": "admin@shop.com"
+    ///   }
+    /// }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>shopId</c> is required in query string.</para>
+    /// <para>- <c>content</c> can be null.</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
+    /// </remarks>
+    /// <param name="id">Content block identifier from the route.</param>
+    /// <param name="shopId">Shop identifier from the query string.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>200 with a single content block.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("block/{id}")]
     [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status200OK)]
@@ -40,7 +114,6 @@ public class ContentController(IMediator mediator) : Controller
     [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status500InternalServerError)]
     [MapToApiVersion("1.0")]
-
     public async Task<IActionResult> GetContentBlockById(int id, [FromQuery] int shopId, CancellationToken cancellationToken)
     {
         var query = new GetContentBlockByIdQuery(id, shopId);
