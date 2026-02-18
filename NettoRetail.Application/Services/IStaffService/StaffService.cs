@@ -64,6 +64,19 @@ public class StaffService(
         request.Adapt(staff);
     }
 
+    public StaffStatusEnum? ParseStaffStatus(string? statusString)
+    {
+        if (string.IsNullOrWhiteSpace(statusString))
+            return null;
+
+        if (Enum.TryParse<StaffStatusEnum>(statusString.Replace(" ", ""), true, out var status))
+        {
+            return status;
+        }
+
+        return null;
+    }
+
     private async Task UpdateActiveStatusAsync(
         UpdateStaffRequest request,
         AccountEntity staff,
