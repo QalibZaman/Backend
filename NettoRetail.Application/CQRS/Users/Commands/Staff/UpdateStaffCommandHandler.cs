@@ -4,9 +4,9 @@ using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Role;
-using NettoRetail.DataAccess.UOW;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
@@ -22,14 +22,14 @@ public class UpdateStaffCommandHandler(
     {
         var staffSpecification = new GetAccountByIdSpecification(request.Id);
         var staff = await accountRepository.GetAsync(staffSpecification, cancellationToken)
-            ?? throw new NotFoundException("There is no staff member item with such id.");
+            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 
         if (staff.ShopId != request.ShopId)
-            throw new BadRequestException("You are not allowed to access this staff member.");
+            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
         await CheckRoleExistenceAsync(request.Model, request.ShopId, cancellationToken);
 
-        var transaction = unitOfWork.BeginTransaction();
+        using var transaction = unitOfWork.BeginTransaction();
         try
         {
             await staffService.UpdateStaffAsync(request.Model, staff, cancellationToken);
