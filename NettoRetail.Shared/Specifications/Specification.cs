@@ -30,7 +30,7 @@ public class Specification<TEntity>
     // Pagination
     public int? Skip { get; set; }
     public int? Take { get; set; }
-	public Specification(Expression<Func<TEntity, bool>> criteria)
+    public Specification(Expression<Func<TEntity, bool>> criteria)
     {
         Criteria = criteria;
         _obsoleteIncludes = new List<Expression<Func<TEntity, object>>>();
@@ -82,11 +82,6 @@ public class Specification<TEntity>
         _orderings.Add((orderByExpression, descending));
         return this;
     }
-    protected void ApplyPaging(int pageIndex, int pageSize)
-    {
-        Skip = (pageIndex - 1) * pageSize;
-        Take = pageSize;
-    }
 
     public Specification<TEntity> AddOrderByDescending(Expression<Func<TEntity, object>> orderByExpression, bool descending = true)
     {
@@ -111,4 +106,11 @@ public class Specification<TEntity>
         Criteria = combined;
         return this;
     }
+
+    protected void ApplyPaging(int pageIndex, int pageSize)
+    {
+        Skip = (pageIndex - 1) * pageSize;
+        Take = pageSize;
+    }
+
 }

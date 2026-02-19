@@ -2,8 +2,6 @@
 using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
-
-
 public class InventoryItemEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -45,6 +43,7 @@ public class InventoryItemEntity
         Status = IsActive ? InventoryItemStatusEnum.Available : InventoryItemStatusEnum.Unavailable;
         LastUpdatedDate = DateTime.UtcNow;
     }
+
     public void ApplyUpdate(InventoryItemUpdateData data)
     {
         if (string.IsNullOrWhiteSpace(data.ProductName))
@@ -67,8 +66,4 @@ public class InventoryItemEntity
 
         UpdateStatus();
     }
-
-
-
-
 }
