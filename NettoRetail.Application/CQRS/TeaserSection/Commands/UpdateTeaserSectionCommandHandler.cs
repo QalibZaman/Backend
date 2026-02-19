@@ -34,6 +34,8 @@ public class UpdateTeaserSectionCommandHandler(
 
         request.Model.Adapt(teaser);
 
+        await ValidateUrlUniquenessAsync(teaser.Link, teaser.Id, cancellationToken);
+
         await UploadTeaserImageAsync(request, teaser, cancellationToken);
 
         if (isNew)
@@ -42,7 +44,6 @@ public class UpdateTeaserSectionCommandHandler(
         }
         else
         {
-            await ValidateUrlUniquenessAsync(teaser.Link, teaser.Id, cancellationToken);
             await teaserSectionRepository.UpdateAsync(teaser, cancellationToken);
         }
 
