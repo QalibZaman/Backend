@@ -1,4 +1,4 @@
-using Mapster;
+﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
@@ -28,40 +28,55 @@ public class CreateOrderCommandHandler(
         var inventoryItemsIds = products.Keys;
 
         var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
-        var inventoryItems = inventoryItemRepository.GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken);
+        var inventoryItems = inventoryItemRepository
+            .GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken)
+                             ?? throw new NotFoundException("There are no such items.");
 
         var itemsList = new List<InventoryItemEntity>();
 
-        using var transaction = unitOfWork.BeginTransaction();
+        var transaction = unitOfWork.BeginTransaction();
 
-        await foreach (var item in inventoryItems)
+        try
         {
-            if (products.TryGetValue(item.Id, out var requestedQuantity))
+            await foreach (var item in inventoryItems)
             {
-                if (item.AvailableAmount < requestedQuantity)
+                if (products.TryGetValue(item.Id, out var requestedQuantity))
                 {
-                    throw new ConflictException("Available amount of items is less then requested.");
+                    if (item.AvailableAmount < requestedQuantity)
+                    {
+                        throw new ConflictException("Available amount of items is less then requested.");
+                    }
+
+                    item.AvailableAmount -= requestedQuantity;
+                    item.ReservedAmount += requestedQuantity;
                 }
 
-                item.AvailableAmount -= requestedQuantity;
-                item.ReservedAmount += requestedQuantity;
+                itemsList.Add(item);
             }
+            
+            if (itemsList.Count != inventoryItemsIds.Count)
+                throw new NotFoundException("Some products were not found.Please enter correct product IDs.");
+            var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
+            var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken)
+                          ?? throw new MyUnauthorizedException("Account no found.");
 
-            itemsList.Add(item);
+            var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
+            var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken)
+                           ?? throw new NotFoundException("There is no customer with such id.");
+
+            await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
+            var data = await AddOrderAsync(request, customer, account, products,
+                cancellationToken);
+
+            transaction.Commit();
+
+            return data;
         }
-
-        if (itemsList.Count != inventoryItemsIds.Count)
-            throw new NotFoundException("Some products were not found.Please enter correct product IDs.");
-        var account = await GetAccountAsync(request.UserId, cancellationToken);
-
-        var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
-
-        await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
-        var data = await AddOrderAsync(request, customer, account, products, cancellationToken);
-
-        transaction.Commit();
-
-        return data;
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     private async Task<OrderResponse> AddOrderAsync(
@@ -75,7 +90,8 @@ public class CreateOrderCommandHandler(
         order.ShopId = request.ShopId;
         order.Creator = $"{account.FirstName} {account.LastName}";
 
-        var orderItems = products.Select(x => new OrderItemEntity { OrderId = order.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
+        var orderItems = products.Select(x =>
+            new OrderItemEntity { OrderId = order.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
         order.OrderItems = orderItems;
 
         var result = await orderRepository.AddAsync(order, cancellationToken);
