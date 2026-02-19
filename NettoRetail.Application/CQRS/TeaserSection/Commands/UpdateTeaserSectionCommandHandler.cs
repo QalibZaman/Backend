@@ -1,5 +1,6 @@
 using Mapster;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Requests.TeaserSection;
 using NettoRetail.Application.Responses.TeaserSection;
@@ -68,7 +69,7 @@ public class UpdateTeaserSectionCommandHandler(
 
     private async Task ValidateUrlUniquenessAsync(string? url, Guid id, CancellationToken cancellationToken)
     {
-        if (url == null)
+        if (url.IsNullOrEmpty())
             return;
 
         var spec = new GetTeaserSectionByUrlExcludingCurrentSpecification(url, id);
