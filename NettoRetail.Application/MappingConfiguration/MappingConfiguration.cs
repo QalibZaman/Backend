@@ -108,7 +108,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.OrderItems, src => src.OrderItems);
 
         config.NewConfig<OrderItemEntity, OrderItemResponse>()
             .Map(dest => dest.Quantity, src => src.Quantity)
