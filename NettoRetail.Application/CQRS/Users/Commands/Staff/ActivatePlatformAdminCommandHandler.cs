@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Enums;
@@ -6,15 +7,17 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
-public record ActivatePlatfromAdminCommand(Guid Id, Guid CurrentAdminId) : IRequest;
+public record ActivatePlatfromAdminCommand(Guid accountId, Guid CurrentAdminId) : IRequest;
 
 public class ActivatePlatformAdminCommandHandler(IAccountRepository accountRepository) : IRequestHandler<ActivatePlatfromAdminCommand>
 {
     public async Task Handle(ActivatePlatfromAdminCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Id);
-        specification.AddInclude(adm => adm.Role);
-        specification.AddCriteria(adm => adm.Role.Name.StartsWith("PlatformAdmin"));
+        var specification = new GetAccountByIdSpecification(request.accountId);
+
+        specification.AddInclude(adm => adm.Include(account => account.Role))
+            .AddCriteria(adm => adm.Role.Name.StartsWith("PlatformAdmin"));
+
         var admin = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("Platform admin not found.");
 
         if (admin.Id == request.CurrentAdminId)
