@@ -24,49 +24,20 @@ public class CreateOrderCommandHandler(
 {
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
-        var products = request.Model.Products;
-        var inventoryItemsIds = products.Keys;
+        var requestedQuantities = BuildRequestedQuantities(request.Model.Products);
+        var inventoryItems = await GetInventoryItemsAsync(requestedQuantities.Keys, cancellationToken);
 
-        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemsIds);
-        var inventoryItems = inventoryItemRepository
-            .GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken)
-                             ?? throw new NotFoundException("There are no such items.");
-
-        var itemsList = new List<InventoryItemEntity>();
-
-        var transaction = unitOfWork.BeginTransaction();
+        using var transaction = unitOfWork.BeginTransaction();
 
         try
         {
-            await foreach (var item in inventoryItems)
-            {
-                if (products.TryGetValue(item.Id, out var requestedQuantity))
-                {
-                    if (item.AvailableAmount < requestedQuantity)
-                    {
-                        throw new ConflictException("Available amount of items is less then requested.");
-                    }
+            ReserveInventory(inventoryItems, requestedQuantities);
 
-                    item.AvailableAmount -= requestedQuantity;
-                    item.ReservedAmount += requestedQuantity;
-                }
+            var account = await GetAccountAsync(request.UserId, cancellationToken);
+            var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
 
-                itemsList.Add(item);
-            }
-            
-            if (itemsList.Count != inventoryItemsIds.Count)
-                throw new NotFoundException("Some products were not found.Please enter correct product IDs.");
-            var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
-            var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken)
-                          ?? throw new MyUnauthorizedException("Account no found.");
-
-            var customerByIdSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-            var customer = await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken)
-                           ?? throw new NotFoundException("There is no customer with such id.");
-
-            await inventoryItemRepository.UpdateManyAsync(itemsList, cancellationToken);
-            var data = await AddOrderAsync(request, customer, account, products,
-                cancellationToken);
+            await inventoryItemRepository.UpdateManyAsync(inventoryItems, cancellationToken);
+            var data = await AddOrderAsync(request, customer, account, requestedQuantities, cancellationToken);
 
             transaction.Commit();
 
@@ -79,19 +50,84 @@ public class CreateOrderCommandHandler(
         }
     }
 
+    private static IReadOnlyDictionary<Guid, int> BuildRequestedQuantities(ICollection<OrderProductDto> products) =>
+        products
+            .GroupBy(product => product.InventoryItemId)
+            .ToDictionary(group => group.Key, group => group.Sum(x => x.Amount));
+
+    private async Task<List<InventoryItemEntity>> GetInventoryItemsAsync(
+        IEnumerable<Guid> itemIds,
+        CancellationToken cancellationToken)
+    {
+        var ids = itemIds.ToArray();
+
+        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(ids);
+        var inventoryItemsAsync = inventoryItemRepository
+            .GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken)
+            ?? throw new NotFoundException("There are no such item.");
+
+        var inventoryItems = new List<InventoryItemEntity>();
+        await foreach (var item in inventoryItemsAsync)
+        {
+            inventoryItems.Add(item);
+        }
+
+        if (inventoryItems.Count == 0 || inventoryItems.Count != ids.Length)
+        {
+            throw new NotFoundException("There are no such item.");
+        }
+
+        return inventoryItems;
+    }
+
+    private static void ReserveInventory(
+        IEnumerable<InventoryItemEntity> inventoryItems,
+        IReadOnlyDictionary<Guid, int> requestedQuantities)
+    {
+        foreach (var item in inventoryItems)
+        {
+            if (!requestedQuantities.TryGetValue(item.Id, out var requestedQuantity))
+            {
+                continue;
+            }
+
+            if (item.AvailableAmount < requestedQuantity)
+            {
+                throw new ConflictException("Available amount of items is less then requested.");
+            }
+
+            item.AvailableAmount -= requestedQuantity;
+            item.ReservedAmount += requestedQuantity;
+        }
+    }
+
+    private async Task<AccountEntity> GetAccountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var accountByIdSpecification = new GetAccountByIdSpecification(userId);
+        return await accountRepository.GetAsync(accountByIdSpecification, cancellationToken)
+               ?? throw new MyUnauthorizedException("Account no found.");
+    }
+
+    private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, CancellationToken cancellationToken)
+    {
+        var customerByIdSpecification = new GetCustomerByIdSpecification(customerId);
+        return await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken)
+               ?? throw new NotFoundException("There is no customer with such id.");
+    }
+
     private async Task<OrderResponse> AddOrderAsync(
         CreateOrderCommand request,
         CustomerEntity customer,
         AccountEntity account,
-        IDictionary<Guid, int> products,
+        IReadOnlyDictionary<Guid, int> requestedQuantities,
         CancellationToken cancellationToken)
     {
         var order = request.Model.Adapt<OrderEntity>();
         order.ShopId = request.ShopId;
         order.Creator = $"{account.FirstName} {account.LastName}";
 
-        var orderItems = products.Select(x =>
-            new OrderItemEntity { OrderId = order.Id, ItemId = x.Key, Quantity = x.Value }).ToList();
+        var orderItems = requestedQuantities.Select(item =>
+            new OrderItemEntity { OrderId = order.Id, ItemId = item.Key, Quantity = item.Value }).ToList();
         order.OrderItems = orderItems;
 
         var result = await orderRepository.AddAsync(order, cancellationToken);
@@ -101,19 +137,5 @@ public class CreateOrderCommandHandler(
         data.CustomerLastName = customer.Account.LastName;
 
         return data;
-    }
-
-    private async Task<AccountEntity> GetAccountAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var specification = new GetAccountByIdSpecification(userId);
-        return await accountRepository.GetAsync(specification, cancellationToken)
-            ?? throw new MyUnauthorizedException("Account not found.");
-    }
-
-    private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, CancellationToken cancellationToken)
-    {
-        var specification = new GetCustomerByIdSpecification(customerId);
-        return await customerRepository.GetWithRelatedDataAsync(specification, cancellationToken)
-            ?? throw new NotFoundException($"There is no customer with  such ID:{customerId}");
     }
 }
