@@ -3,13 +3,15 @@
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
+using System.Text.RegularExpressions;
 
-public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryItemsSearchModel>
+public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryItemsSearchModel>
 {
-    public GetFilteredInventoryItemsValidator()
+    public InventoryItemsSearchModelValidator()
     {
         RuleFor(x => x.UpcOrName)
-            .MustBeAValidPartOfProductUpcOrName()
+            .NotEmpty().WithMessage("Please enter upc or name.")
+            .Matches(@"^[a-zA-Z0-9\-_]{1,50}$")
             .WithMessage("Input must be either a valid UPC (up to 12 digits) or a valid product name (up to 50 characters, only letters, digits, '-' and '_').")
             .When(x => !string.IsNullOrWhiteSpace(x.UpcOrName));
 
@@ -59,7 +61,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
             .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
         RuleFor(x => x.BrandName)
-            .MaximumLength(50).WithMessage("Brand name length must be less than 50 characters long.")
+            .MaximumLength(90).WithMessage("Brand name length must be less than 90 characters long.")
             .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Brand name must only contain letters, digits, '-' and '_'.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
