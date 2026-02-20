@@ -241,10 +241,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("parent/toggleLink")]
-    public async Task<IActionResult> ToggleLinkProducts(Guid parentId, [FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleLinkProducts([FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
     {
-        var data = await mediator.Send(new ToggleLinkProductsCommand(parentId, request.ChildId), cancellationToken);
-        var response = new ApiResponse<ToggleLinkProductsResponse>(data);
-        return Ok(response);
+        var data = await mediator.Send(new ToggleLinkProductsCommand(request.ParentId, request.ChildId), cancellationToken);
+        return Ok(data);
     }
 }

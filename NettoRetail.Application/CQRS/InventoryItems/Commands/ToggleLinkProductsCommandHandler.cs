@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using NettoRetail.Application.Models.Request.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -11,11 +10,11 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Commands
 
         public async Task<ToggleLinkProductsResponse> Handle(ToggleLinkProductsCommand request, CancellationToken cancellationToken)
         {
-            using var trx = unitOfWork.BeginTransaction();
+            using var transaction = unitOfWork.BeginTransaction();
 
             var result = await service.ToggleLinkProductsAsync(request.ParentId, request.ChildId, cancellationToken);
 
-            trx.Commit();
+            transaction.Commit();
             return result;
         }
     }
