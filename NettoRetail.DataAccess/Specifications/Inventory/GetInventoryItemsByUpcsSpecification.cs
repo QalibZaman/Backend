@@ -5,7 +5,7 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 
 public class GetInventoryItemsByUpcsSpecification : Specification<InventoryItemEntity>
 {
-    public GetInventoryItemsByUpcsSpecification(IEnumerable<long> upcs, int? shopId = null)
+    public GetInventoryItemsByUpcsSpecification(IEnumerable<string> upcs, int? shopId = null)
         : base(x => upcs.Contains(x.ProductUpc) && (!shopId.HasValue || x.ShopId == shopId.Value))
     {
     }

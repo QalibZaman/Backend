@@ -9,7 +9,8 @@ public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel
     public InventoryItemCsvValidator()
     {
         RuleFor(x => x.ProductUpc)
-            .Must(upc => upc >= 100000000000 && upc <= 999999999999)
+            .NotEmpty().WithMessage("Product UPC must be exactly 12 digits.")
+            .Matches(@"^\d{12}$")
             .WithMessage("Product UPC must be exactly 12 digits.");
 
         RuleFor(x => x.ProductName)

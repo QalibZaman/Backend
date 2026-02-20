@@ -10,7 +10,7 @@ public class InventoryItemCsvValidatorTests
     private static InventoryItemCsvModel CreateValidModel()
         => new()
         {
-            ProductUpc = 123456789012,
+            ProductUpc = "123456789012",
             ProductName = "Valid_Name-123",
             ProductCategory = "Electronics & Gadgets",
             ProductLocation = "A-01",
@@ -40,7 +40,7 @@ public class InventoryItemCsvValidatorTests
     {
         var validator = new InventoryItemCsvValidator();
         var model = CreateValidModel();
-        model.ProductUpc = 12345;
+        model.ProductUpc = "12345";
 
         var result = validator.Validate(model);
 

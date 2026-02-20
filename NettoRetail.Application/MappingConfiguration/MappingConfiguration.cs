@@ -115,7 +115,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Quantity, src => src.Quantity)
             .Map(dest => dest.Price, src => src.InventoryItem.Price)
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
-            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc.ToString())
+            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
             .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
             .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
             .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
