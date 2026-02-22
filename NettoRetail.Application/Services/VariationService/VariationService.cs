@@ -12,6 +12,7 @@ namespace NettoRetail.Application.Services.VariationService
 {
     public class VariationService(
         IInventoryItemRepository inventoryItemRepository,
+        IProductDetailRepository detailRepository,
         IImageUploadService imageUploadService)
         : IVariationService
     {
@@ -28,27 +29,22 @@ namespace NettoRetail.Application.Services.VariationService
             {
                 InheritImagesFromParent(variation, parent);
             }
-
-            var hasExisting = model.ImageIds?.Any() == true;
-            var hasUploads = model.NewImages?.Any() == true;
-
-            if (hasExisting)
-                ReplaceWithExistingImages(variation, model.ImageIds!);
-
-            if (hasUploads)
+            else
             {
-                var prefix = $"shops/{shopId}/products/{variation.Id}";
-                await AddUploadedImagesAsync(variation, model.NewImages!, prefix, cancellationToken);
+                var hasExisting = model.ImageIds?.Any() == true;
+                var hasUploads = model.NewImages?.Any() == true;
+
+                if (hasExisting)
+                    FilterExistingImages(variation, model.ImageIds!);
+
+                if (hasUploads)
+                {
+                    var prefix = $"shops/{shopId}/products/{variation.Id}";
+                    await AddUploadedImagesAsync(variation, model.NewImages!, prefix, cancellationToken);
+                }
             }
 
-            if (model.ApplyDetailsFromParent)
-            {
-                InheritDetails(variation, parent);
-            }
-
-            if (model.CustomParameters == null || !model.CustomParameters.Any())
-                throw new BadRequestException("Custom parameters are required when not inheriting from parent.");
-            ApplyCustomDetails(variation, model.CustomParameters);
+            await UpdateDetailsAsync(variation, parent, model, cancellationToken);
 
             UpdateStatusAndAmounts(variation, model);
 
@@ -62,13 +58,12 @@ namespace NettoRetail.Application.Services.VariationService
             InventoryItemEntity variation,
             InventoryItemEntity parent)
         {
-            variation.Images.Clear();
+            //variation.Images.Clear();
 
             foreach (var parentImage in parent.Images)
             {
                 variation.Images.Add(new InventoryItemImageEntity
                 {
-                    Id = Guid.NewGuid(),
                     InventoryItemId = variation.Id,
                     BlobUrl = parentImage.BlobUrl,
                     Order = parentImage.Order
@@ -76,25 +71,25 @@ namespace NettoRetail.Application.Services.VariationService
             }
         }
 
-        private void ReplaceWithExistingImages(
+        private void FilterExistingImages(
             InventoryItemEntity variation,
-            List<Guid> existingImageIds)
+            List<Guid> imageIds)
         {
-            var matched = variation.Images
-                .Where(x => existingImageIds.Contains(x.Id))
+            var existingIds = variation.Images.Select(x => x.Id).ToList();
+            var invalidIds = imageIds.Except(existingIds).ToList();
+
+            if (invalidIds.Any())
+            {
+                throw new BadRequestException($"The following Image IDs do not belong to this product: {string.Join(", ", invalidIds)}");
+            }
+
+            var toRemove = variation.Images
+                .Where(img => !imageIds.Contains(img.Id))
                 .ToList();
 
-            variation.Images.Clear();
-
-            foreach (var img in matched)
+            foreach (var img in toRemove)
             {
-                variation.Images.Add(new InventoryItemImageEntity
-                {
-                    Id = Guid.NewGuid(),
-                    InventoryItemId = variation.Id,
-                    BlobUrl = img.BlobUrl,
-                    Order = img.Order
-                });
+                variation.Images.Remove(img);
             }
         }
 
@@ -110,7 +105,6 @@ namespace NettoRetail.Application.Services.VariationService
 
                 variation.Images.Add(new InventoryItemImageEntity
                 {
-                    Id = Guid.NewGuid(),
                     InventoryItemId = variation.Id,
                     BlobUrl = blobUrl,
                     Order = variation.Images.Count
@@ -123,16 +117,17 @@ namespace NettoRetail.Application.Services.VariationService
             InventoryItemEntity parent,
             UpdateVariationRequest model)
         {
+            if (string.IsNullOrWhiteSpace(model.Description))
+                throw new BadRequestException("Description is required when not applying from parent.");
             if (model.ApplyDescriptionFromParent)
             {
                 variation.Description = parent.Description;
                 return;
             }
-
-            if (string.IsNullOrWhiteSpace(model.Description))
-                throw new BadRequestException("Description is required when not applying from parent.");
-
-            variation.Description = model.Description.Trim();
+            else
+            {
+                variation.Description = model.Description.Trim();
+            }
         }
 
         private void UpdatePrice(InventoryItemEntity variation, UpdateVariationRequest model)
@@ -151,46 +146,56 @@ namespace NettoRetail.Application.Services.VariationService
             variation.PromotionPrice = model.PromotionPrice.Value;
         }
 
-        private void InheritDetails(
-            InventoryItemEntity variation,
-            InventoryItemEntity parent)
+        private async Task UpdateDetailsAsync(
+             InventoryItemEntity variation,
+             InventoryItemEntity parent,
+             UpdateVariationRequest model,
+             CancellationToken cancellationToken)
         {
-            variation.ProductDetails.Clear();
+            var deleteIds = variation.ProductDetails
+                .Select(x => x.Id)
+                .ToList();
 
-            foreach (var parentDetail in parent.ProductDetails.OrderBy(x => x.OrderIndex))
+            List<ProductDetailEntity> upsertedDetails;
+
+            if (model.ApplyDetailsFromParent)
             {
-                variation.ProductDetails.Add(new ProductDetailEntity
-                {
-                    Id = Guid.NewGuid(),
-                    InventoryItemId = variation.Id,
-                    Name = parentDetail.Name,
-                    TypeEnum = parentDetail.TypeEnum,
-                    Unit = parentDetail.Unit,
-                    Value = parentDetail.Value,
-                    OrderIndex = parentDetail.OrderIndex
-                });
+                upsertedDetails = parent.ProductDetails
+                    .OrderBy(x => x.OrderIndex)
+                    .Select(x => new ProductDetailEntity
+                    {
+                        InventoryItemId = variation.Id,
+                        Name = x.Name,
+                        TypeEnum = x.TypeEnum,
+                        Unit = x.Unit,
+                        Value = x.Value,
+                        OrderIndex = x.OrderIndex
+                    })
+                    .ToList();
             }
-        }
-
-        private void ApplyCustomDetails(
-            InventoryItemEntity variation,
-            List<CustomDetailModel> customDetails)
-        {
-            variation.ProductDetails.Clear();
-
-            foreach (var detail in customDetails.OrderBy(x => x.OrderIndex))
+            else
             {
-                variation.ProductDetails.Add(new ProductDetailEntity
-                {
-                    Id = Guid.NewGuid(),
-                    InventoryItemId = variation.Id,
-                    Name = detail.Name,
-                    TypeEnum = detail.TypeEnum,
-                    Unit = detail.Unit,
-                    Value = ConvertToString(detail.Value),
-                    OrderIndex = detail.OrderIndex
-                });
+                if (model.CustomParameters == null || !model.CustomParameters.Any())
+                    throw new BadRequestException("Custom parameters are required when not inheriting from parent.");
+
+                upsertedDetails = model.CustomParameters
+                    .OrderBy(x => x.OrderIndex)
+                    .Select(x => new ProductDetailEntity
+                    {
+                        InventoryItemId = variation.Id,
+                        Name = x.Name,
+                        TypeEnum = x.TypeEnum,
+                        Unit = x.Unit,
+                        Value = ConvertToString(x.Value),
+                        OrderIndex = x.OrderIndex
+                    })
+                    .ToList();
             }
+
+            await detailRepository.UpdateDetailsAsync(
+                upsertedDetails,
+                deleteIds,
+                cancellationToken);
         }
 
         private string ConvertToString(object value)

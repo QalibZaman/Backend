@@ -3,7 +3,6 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Domain.Entities;
 
-
 public class InventoryItemEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();

@@ -9,8 +9,7 @@ namespace NettoRetail.Application.Services.ImageUploadService
     public class ImageUploadService(
         IAzureBlobService azureBlobService,
         IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
-        IImageValidatorService imageValidatorService
-    ) : IImageUploadService
+        IImageValidatorService imageValidatorService) : IImageUploadService
     {
         public async Task<string> UploadImageAsync(
             IFormFile file,
@@ -41,6 +40,7 @@ namespace NettoRetail.Application.Services.ImageUploadService
                 {
                     await azureBlobService.DeleteByUrlAsync(blobUrl);
                 }
+
                 throw new ApplicationException("Unable to upload image");
             }
         }
