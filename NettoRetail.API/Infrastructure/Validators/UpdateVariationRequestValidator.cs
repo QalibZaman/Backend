@@ -38,9 +38,11 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             When(x => !x.ApplyImagesFromParent, () =>
             {
-                RuleFor(x => x.NewImages)
-                    .NotNull().WithMessage("New images are required when not inherited from parent.")
-                    .Must(list => list!.Count > 0).WithMessage("At least one image must be provided.");
+                RuleFor(x => x)
+                    .Must(x => (x.NewImages != null && x.NewImages.Count > 0) ||
+                               (x.ImageIds != null && x.ImageIds.Count > 0))
+                    .WithMessage("You must either upload new images or select existing images when not inheriting from parent.")
+                    .WithName("Images");
             });
 
             RuleFor(x => x.AvailableAmount)
@@ -55,6 +57,7 @@ namespace NettoRetail.API.Infrastructure.Validators
             When(x => !x.ApplyDetailsFromParent, () =>
             {
                 RuleFor(x => x.CustomParameters)
+                    .Cascade(CascadeMode.Stop)
                     .NotNull().WithMessage("Custom parameters are required when not inherited from parent.")
                     .Must(list => list!.Count > 0).WithMessage("Custom parameters cannot be empty.");
             });
