@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -35,7 +36,8 @@ public class LinkService(IJwtManager jwtManager,
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, email),
-            new(AuthClaims.TokenType, AuthTokenTypes.CustomerResetPassword)
+            new(AuthClaims.TokenType, AuthTokenTypes.CustomerResetPassword),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };
 
         var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(customerResetPasswordOptions.Value.TokenExpirationHours));

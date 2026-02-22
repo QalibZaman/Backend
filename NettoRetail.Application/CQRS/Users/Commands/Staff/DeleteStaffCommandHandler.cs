@@ -3,13 +3,17 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services.INotificationService;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record DeleteStaffCommand(Guid Id, int ShopId) : IRequest;
-public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
+
+public class DeleteStaffCommandHandler(
+    IAccountRepository accountRepository,
     ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork,
     INotificationService notificationService)
@@ -17,27 +21,64 @@ public class DeleteStaffCommandHandler(IAccountRepository accountRepository,
 {
     public async Task Handle(DeleteStaffCommand request, CancellationToken cancellationToken)
     {
+        var account = await GetAccountAsync(request, cancellationToken);
+
+        await DeleteStaffAsync(account, cancellationToken);
+    }
+
+    private async Task<AccountEntity> GetAccountAsync(
+        DeleteStaffCommand request,
+        CancellationToken cancellationToken)
+    {
         var specification = new GetAccountByIdSpecification(request.Id);
+
         var account = await accountRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("Account not found");
+            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 
         if (account.ShopId != request.ShopId)
-            throw new BadRequestException("You are not allowed to access this staff member.");
+            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
-        // begin transaction to ensure atomicity between session termination and account deletion.
-        // this prevents partial updates in case of failure for example if sessions are terminated but account deletion fails.
-        var transaction = unitOfWork.BeginTransaction();
-        try
-        {
-            await sessionTerminationService.TerminateSessionsAsync(account.Id, cancellationToken);
-            await notificationService.NotifyUserAsync(account.Id.ToString(), "Your session has been terminated for security reasons");
-            await accountRepository.DeleteAsync(specification, cancellationToken);
-            transaction.Commit();
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
+        return account;
+    }
+
+    private async Task DeleteStaffAsync(
+        AccountEntity account,
+        CancellationToken cancellationToken)
+    {
+        var isOnline = account.IsOnline();
+
+        using var transaction = unitOfWork.BeginTransaction();
+
+        await TerminateSessionsIfOnlineAsync(isOnline, account.Id, cancellationToken);
+
+        await accountRepository.DeleteAsync(account, cancellationToken);
+
+        transaction.Commit();
+
+        await NotifyIfOnlineAsync(isOnline, account.Id, cancellationToken);
+    }
+
+    private Task TerminateSessionsIfOnlineAsync(
+        bool isOnline,
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        if (!isOnline)
+            return Task.CompletedTask;
+
+        return sessionTerminationService.TerminateSessionsAsync(accountId, cancellationToken);
+    }
+
+    private Task NotifyIfOnlineAsync(
+        bool isOnline,
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        if (!isOnline)
+            return Task.CompletedTask;
+
+        return notificationService.NotifyUserAsync(
+            accountId.ToString(),
+            StaffConstants.AccountDeletedNotification);
     }
 }

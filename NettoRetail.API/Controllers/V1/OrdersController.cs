@@ -10,6 +10,7 @@ using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Order;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -153,12 +154,29 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCustomerOrdersHistory(Guid customerId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("status/{orderId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrderStatusHistory(int orderId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetOrderStatusHistoryQuery(orderId, shopId);
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<IEnumerable<OrderStatusHistoryResponse>>(data);
 
         return Ok(response);
     }

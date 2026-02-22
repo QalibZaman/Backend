@@ -108,7 +108,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.OrderItems, src => src.OrderItems);
 
         config.NewConfig<OrderItemEntity, OrderItemResponse>()
             .Map(dest => dest.Quantity, src => src.Quantity)
@@ -155,9 +156,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
 
-        config.NewConfig<OrderEntity, OrderHistoryResponse>()
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
+        config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
+            .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
+            .Map(dest => dest.UpdatedBy, src => src.UpdatedBy.FullName);
 
         config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
