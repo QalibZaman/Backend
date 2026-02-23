@@ -40,7 +40,7 @@ public class InventoryItemRepository(AppDbContext dbContext)
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken)
+    public async Task<HashSet<string>> GetAllUpcHashAsync(CancellationToken cancellationToken)
     {
         var result = await _dbSet.Select(x => x.ProductUpc).ToHashSetAsync(cancellationToken);
 

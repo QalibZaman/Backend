@@ -230,7 +230,7 @@ public class UploadInventoryItemsListTests
     public void Validator_Should_Fail_When_ProductUpcIsNot12Digits()
     {
         var validator = new UpdateInventoryItemValidator();
-        var model = new UpdateInventoryItemModel { ProductUpc = 12345 };
+        var model = new UpdateInventoryItemModel { ProductUpc = "12345" };
 
         var result = validator.Validate(model);
 

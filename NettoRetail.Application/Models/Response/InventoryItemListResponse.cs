@@ -6,7 +6,7 @@ public class InventoryItemListResponse
     public required string ProductName { get; set; }
     public required string ProductCategory { get; set; }
     public required string ProductLocation { get; set; }
-    public long ProductUpc { get; set; }
+    public string ProductUpc { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public bool IsPromoted { get; set; }
     public decimal? PromotionPrice { get; set; }

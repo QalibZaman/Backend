@@ -38,7 +38,7 @@ internal class OrderedItemListComponent(PrintOrderDetailsModel model) : ICompone
 
                     var cultureInfo = CultureInfo.GetCultureInfo("en-US");
                     (string Header, string Value)[] headerValuePairs = [
-                        ("UPC", item.ProductUpc.ToString()),
+                        ("UPC", item.ProductUpc),
                         ("Availability", $"In stock ({item.AvailableAmount})"),
                         ("Each", item.Price.ToString("C", cultureInfo)),
                         ("Quantity", item.ReservedAmount.ToString()),

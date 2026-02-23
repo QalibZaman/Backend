@@ -8,8 +8,8 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
     public UpdateInventoryItemValidator()
     {
         RuleFor(x => x.ProductUpc)
-            .NotNull().WithMessage("UPC must be exactly 12 digits (0-9)")
-            .Must(upc => upc!.Value.ToString().Length == 12).WithMessage("UPC must be exactly 12 digits (0-9)");
+            .NotEmpty().WithMessage("Product UPC must be exactly 12 digits long.")
+            .Matches(@"^\d{12}$").WithMessage("Product UPC must be exactly 12 digits long.");
 
         RuleFor(x => x.ProductName)
             .NotEmpty().WithMessage("Invalid item name. Please check format or length.")
@@ -38,7 +38,7 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
         RuleFor(x => x.Price)
             .NotNull().WithMessage("Price is required.")
             .GreaterThan(0).WithMessage("Price must be greater than 0.")
-            .Must(p => decimal.Round(p!.Value, 2) == p.Value)
+            .Must(p => p == null || decimal.Round(p.Value, 2) == p.Value)
             .WithMessage("Price must not have more than two decimal places.");
 
         RuleFor(x => x.IsPromoted)

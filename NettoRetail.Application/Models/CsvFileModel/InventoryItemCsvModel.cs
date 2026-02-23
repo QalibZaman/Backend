@@ -7,8 +7,8 @@ namespace NettoRetail.Application.Models.CsvFileModel;
 public class InventoryItemCsvModel
 {
     [Name("Product UPC")]
-    [TypeConverter(typeof(ExactScientificLongConverter))]
-    public required long ProductUpc { get; set; }
+    [TypeConverter(typeof(ExactScientificUpcConverter))]
+    public required string ProductUpc { get; set; }
 
     [Name("Product Name")]
     public required string ProductName { get; set; }
