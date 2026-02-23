@@ -3,6 +3,7 @@
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Utilities;
 
 public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryItemsSearchModel>
 {
@@ -67,5 +68,15 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
             sorting.RuleFor(x => x.Field)
                 .NotEmpty().WithMessage("Sorting field is required.");
         });
+
+        RuleFor(x => x.PageNumber)
+            .GreaterThanOrEqualTo(1).WithMessage("Page number must be greater than or equal to 1.");
+
+        RuleFor(x => x.PageSize)
+            .GreaterThanOrEqualTo(1).WithMessage("Page size must be greater than or equal to 1.");
+
+        RuleFor(x => x)
+            .Must(x => PaginationHelper.IsSkipWithinIntRange(x.PageNumber, x.PageSize))
+            .WithMessage("Pagination parameters are too large.");
     }
 }

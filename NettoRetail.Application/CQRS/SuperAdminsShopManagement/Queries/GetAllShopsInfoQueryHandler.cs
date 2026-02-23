@@ -2,6 +2,7 @@ using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
@@ -19,7 +20,7 @@ public class GetAllShopsInfoQueryHandler(
 {
     public async Task<PaginatedResponse<AllShopsInfoResponse>> Handle(GetAllShopsInfoQuery request, CancellationToken cancellationToken)
     {
-        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
         var specificationBuilder = new SpecificationBuilder<ShopEntity>();
         var specification = specificationBuilder

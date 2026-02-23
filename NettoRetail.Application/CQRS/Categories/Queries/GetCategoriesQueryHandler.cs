@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -16,7 +17,7 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) :
 {
     public async Task<GetCategoriesResponse> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
 
         var specification = new SpecificationBuilder<CategoryEntity>()
             .Add<GetCategoriesByShopIdSpecification>(request.ShopId)

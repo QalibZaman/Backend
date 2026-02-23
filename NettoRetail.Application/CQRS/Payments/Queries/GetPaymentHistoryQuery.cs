@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -24,7 +25,7 @@ public class GetPaymentHistoryQueryHandler(IAccountRepository accountRepository,
         var target = await accountRepository.GetAsync(new GetAccountByIdSpecification(request.AccountId), cancellationToken) ??
             throw new NotFoundException("Target account not found.");
 
-        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
         var take = request.PageModel.PageSize;
 
         bool sortDesc = request.SortDescending ?? true;

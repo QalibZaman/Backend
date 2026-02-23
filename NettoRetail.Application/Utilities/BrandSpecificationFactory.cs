@@ -20,7 +20,7 @@ public static class BrandSpecificationFactory
             builder.Add<GetBrandsByPartialNameSpecification>(searchTerm.Trim());
         }
 
-        var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+        var skip = PaginationHelper.CalculateSkip(pagination.PageNumber, pagination.PageSize);
 
         builder.AddOrderBy(b => b.Name)
             .AddOrderBy(b => b.Id)
