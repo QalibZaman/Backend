@@ -102,6 +102,10 @@ public class InventoryItemQueryService(
                     option.IsDescending);
             }
         }
+        else
+        {
+            specBuilder.AddOrderBy(i => i.Id, false);
+        }
 
         var finalSpec = specBuilder.Skip(skip).Take(model.PageSize).Build();
 
