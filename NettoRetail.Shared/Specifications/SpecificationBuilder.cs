@@ -111,11 +111,11 @@ public class SpecificationBuilder<TEntity>
 
         if (matchingConstructor == null) return false;
 
-        var matchingConstructorParameters = matchingConstructor.GetParameters();
+        var parameters = matchingConstructor.GetParameters();
 
         for (var i = 0; i < argsCount; i++)
         {
-            var specParameter = matchingConstructorParameters[i].ParameterType;
+            var specParameter = parameters[i].ParameterType;
             var argParam = args[i]!.GetType();
 
             if (!specParameter.IsAssignableFrom(argParam)) return false;
