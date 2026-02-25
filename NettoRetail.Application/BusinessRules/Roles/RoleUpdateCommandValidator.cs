@@ -6,7 +6,7 @@ using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Security;
 
-namespace NettoRetail.Application.BuisnessRules.Roles;
+namespace NettoRetail.Application.BusinessRules.Roles;
 
 public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
 {
