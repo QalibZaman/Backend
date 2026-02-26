@@ -8,6 +8,7 @@ using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
@@ -55,7 +56,7 @@ public class InventoryService(
         var total = inventoryItemEntities.Count();
 
         var pagedProduct = inventoryItemEntities
-            .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+            .Skip(PaginationHelper.CalculateSkip(pageModel.PageNumber, pageModel.PageSize))
             .Take(pageModel.PageSize)
             .ToList();
 

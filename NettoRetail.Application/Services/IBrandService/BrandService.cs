@@ -3,6 +3,7 @@ using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -16,7 +17,7 @@ public class BrandService(IShopRepository shopRepository, IBrandRepository brand
     public async Task<PaginatedResponse<BrandResponse>> GetShopBrandsBySearchAsync(
          string query, int shopId, PaginationRequest pageModel, CancellationToken cancellationToken)
     {
-        var skip = (pageModel.PageNumber - 1) * pageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(pageModel.PageNumber, pageModel.PageSize);
         var brandSpec = new SpecificationBuilder<BrandEntity>()
             .Add<GetBrandsByPartialNameSpecification>(query)
             .Add<GetBrandsByShopIdSpecification>(shopId)
