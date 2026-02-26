@@ -76,11 +76,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.LastName, src => src.Account.LastName)
             .Map(dest => dest.Email, src => src.Account.Email);
 
-        config.NewConfig<OrderEntity, OrderResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
-
         config.NewConfig<UpdateCustomerRequest, CustomerEntity>()
             .IgnoreNullValues(true);
 
@@ -133,11 +128,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
-
-        config.NewConfig<OrderEntity, OrderResponse>()
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
