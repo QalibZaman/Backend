@@ -9,7 +9,6 @@ namespace NettoRetail.API.Infrastructure.Validators
         {
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
-                .NotNull().WithMessage("Role name must be provided.")
                 .NotEmpty().WithMessage("Role name must be provided.")
                 .Length(2, 50)
                     .WithMessage("Role name must be between 2 and 50 characters long.")
