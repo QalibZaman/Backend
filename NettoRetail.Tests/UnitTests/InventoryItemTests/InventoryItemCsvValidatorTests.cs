@@ -24,11 +24,11 @@ public class InventoryItemCsvValidatorTests
         };
 
     [Fact]
-    public void Validator_Should_Fail_When_ProductName_HasSpaces()
+    public void Validator_Should_Fail_When_ProductName_HasInvalidCharacters()
     {
         var validator = new InventoryItemCsvValidator();
         var model = CreateValidModel();
-        model.ProductName = "Invalid Name";
+        model.ProductName = "Invalid#Name";
 
         var result = validator.Validate(model);
 

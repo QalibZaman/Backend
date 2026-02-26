@@ -206,12 +206,12 @@ public class UploadInventoryItemsListTests
     public void Validator_Should_Fail_When_ProductNameContainsInvalidCharacters()
     {
         var validator = new UpdateInventoryItemValidator();
-        var model = new UpdateInventoryItemModel { ProductName = "Invalid Name With Spaces" };
+        var model = new UpdateInventoryItemModel { ProductName = "Invalid#Name" };
 
         var result = validator.Validate(model);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("Product name must only contain letters, digits, '-' and '_'"));
+        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("Invalid item name"));
     }
 
     [Fact]

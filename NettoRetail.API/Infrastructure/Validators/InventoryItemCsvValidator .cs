@@ -18,8 +18,8 @@ public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel
             .NotEmpty()
             .WithMessage("Product name is required.")
             .Length(2, 50)
-            .Matches(@"^[A-Za-z0-9\-_]+$")
-            .WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+            .Matches(@"^[A-Za-z0-9\-_ ]+$")
+            .WithMessage("Product name must only contain letters, digits, spaces, '-' and '_'.");
 
         RuleFor(x => x.ProductCategory)
             .Cascade(CascadeMode.Stop)

@@ -15,7 +15,7 @@ public class UpdateInventoryItemValidator : AbstractValidator<UpdateInventoryIte
             .NotEmpty().WithMessage("Invalid item name. Please check format or length.")
             .MinimumLength(2).WithMessage("Invalid item name. Please check format or length.")
             .MaximumLength(50).WithMessage("Invalid item name. Please check format or length.")
-            .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Invalid item name. Please check format or length.");
+            .Matches("^[a-zA-Z0-9-_ ]+$").WithMessage("Invalid item name. Please check format or length.");
 
         RuleFor(x => x.CategoryId)
             .NotNull().WithMessage("Please select a category.")
