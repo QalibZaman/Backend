@@ -3,6 +3,7 @@ using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Brands.Commands;
@@ -60,6 +61,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// <param name="cancellationToken">Request cancellation token.</param>
     /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [RequiresAnyPermission]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<BrandResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -80,6 +82,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [RequiresAnyPermission]
     [HttpGet("{brandId:int}")]
     [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
