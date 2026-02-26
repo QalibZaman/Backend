@@ -1,6 +1,7 @@
 using System.Reflection;
 using Asp.Versioning;
 using Microsoft.OpenApi.Models;
+using NettoRetail.API.Infrastructure.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
@@ -52,6 +53,8 @@ public static class SwaggerExtensions
                     new string[] { }
                 },
             });
+
+            options.OperationFilter<CreateOrderExampleOperationFilter>();
         });
 
         services.AddControllers();

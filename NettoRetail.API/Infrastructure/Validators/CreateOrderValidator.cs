@@ -8,17 +8,26 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderModel>
     public CreateOrderValidator()
     {
         RuleFor(x => x.CustomerId)
-            .NotNull().WithMessage("Customer ID is required.")
             .NotEmpty().WithMessage("Customer ID is required.");
-
+        
         RuleFor(x => x.DeliveryType)
-            .NotNull().WithMessage("DeliveryType is required.")
             .IsInEnum().WithMessage("DeliveryType must be a valid type.");
+        
+        RuleFor(x => x.Products)
+            .NotEmpty().WithMessage("Products data is required.");
 
         RuleFor(x => x.Products)
-            .NotEmpty().WithMessage("Products data is required.")
-            .NotNull().WithMessage("Products data is required.")
-            .Must(x => x.Keys.All(k => k != Guid.Empty)).WithMessage("Product IDs must not be empty.")
-            .Must(x => x.Values.All(v => v > 0)).WithMessage("Product quantities must be greater than 0.");
+            .Must(products => products.Select(p => p.InventoryItemId).Distinct().Count() == products.Count)
+            .When(x => x.Products is { Count: > 0 })
+            .WithMessage("Products must contain unique inventory item IDs.");
+
+        RuleForEach(x => x.Products).ChildRules(product =>
+        {
+            product.RuleFor(p => p.InventoryItemId).NotEmpty()
+                .WithMessage("Product ID must not be empty.");
+
+            product.RuleFor(p => p.Amount).GreaterThan(0)
+                .WithMessage("Product quantity must be greater than 0.");
+        });
     }
 }

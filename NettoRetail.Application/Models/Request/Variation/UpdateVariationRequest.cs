@@ -5,7 +5,7 @@ namespace NettoRetail.Application.Models.Request.Variation
     public class UpdateVariationRequest
     {
         public Guid InventoryItemId { get; set; }
-        public long ProductUpc { get; set; }
+        public string ProductUpc { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public bool ApplyDescriptionFromParent { get; set; }
         public string? Description { get; set; }

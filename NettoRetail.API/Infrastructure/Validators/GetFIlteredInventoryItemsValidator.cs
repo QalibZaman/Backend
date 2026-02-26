@@ -3,6 +3,7 @@
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Utilities;
 
 public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryItemsSearchModel>
 {
@@ -16,7 +17,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
         RuleFor(x => x.ProductName)
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
+            .Matches("^[a-zA-Z0-9-_ ]*$").WithMessage("Product name must only contain letters, digits, spaces, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
 
         RuleFor(x => x.ProductLocation)
             .NotEmpty().WithMessage("Product location is required.")
@@ -67,5 +68,15 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
             sorting.RuleFor(x => x.Field)
                 .NotEmpty().WithMessage("Sorting field is required.");
         });
+
+        RuleFor(x => x.PageNumber)
+            .GreaterThanOrEqualTo(1).WithMessage("Page number must be greater than or equal to 1.");
+
+        RuleFor(x => x.PageSize)
+            .GreaterThanOrEqualTo(1).WithMessage("Page size must be greater than or equal to 1.");
+
+        RuleFor(x => x)
+            .Must(x => PaginationHelper.IsSkipWithinIntRange(x.PageNumber, x.PageSize))
+            .WithMessage("Pagination parameters are too large.");
     }
 }

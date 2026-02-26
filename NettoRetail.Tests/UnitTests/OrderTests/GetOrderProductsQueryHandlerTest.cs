@@ -68,7 +68,7 @@ public class GetOrderProductsQueryHandlerTest
         {
             Id = Guid.NewGuid(),
             ProductName = "Test Product",
-            ProductUpc = 123456789000,
+            ProductUpc = "123456789000",
             Description = "Test product description",
             CategoryId = 1,
             LastUpdatedDate = DateTime.UtcNow,

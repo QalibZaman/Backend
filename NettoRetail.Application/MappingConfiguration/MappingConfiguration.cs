@@ -47,10 +47,6 @@ public class MappingConfiguration : IRegister
         config.NewConfig<RoleEntity, RoleResponse>()
             .Map(dest => dest.UserCount, src => src.Accounts.Count());
 
-        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
-            .Map(dest => dest.ProductCategory, src => src.Category.Name)
-            .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
-
         config.NewConfig<AccountEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
@@ -76,11 +72,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.Account.FirstName)
             .Map(dest => dest.LastName, src => src.Account.LastName)
             .Map(dest => dest.Email, src => src.Account.Email);
-
-        config.NewConfig<OrderEntity, OrderResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email);
 
         config.NewConfig<UpdateCustomerRequest, CustomerEntity>()
             .IgnoreNullValues(true);
@@ -116,7 +107,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Quantity, src => src.Quantity)
             .Map(dest => dest.Price, src => src.InventoryItem.Price)
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
-            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc.ToString())
+            .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
             .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
             .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
             .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
@@ -134,11 +125,6 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
-
-        config.NewConfig<OrderEntity, OrderResponse>()
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName);
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
@@ -202,7 +188,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
             .Map(dest => dest.ProductUpc, src => src.ProductUpc)
             .Map(dest => dest.ProductName, src => src.ProductName)
+            .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.ProductLocation, src => src.ProductLocation)
+            .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null)
             .Map(dest => dest.AvailableAmount, src => src.AvailableAmount)
             .Map(dest => dest.ReservedAmount, src => src.ReservedAmount)
             .Map(dest => dest.OnHandAmount, src => src.OnHandAmount)
@@ -210,8 +198,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Status, src => src.Status)
             .Map(dest => dest.Description, src => src.Description)
             .Ignore(dest => dest.CategoryId)
-            .Ignore(dest => dest.ShopId)
-            .Ignore(dest => dest.Brand);
+            .Ignore(dest => dest.ShopId);
 
         config.NewConfig<InventoryItemCsvModel, InventoryItemEntity>()
             .Ignore(dest => dest.Brand)

@@ -3,6 +3,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
@@ -29,8 +30,9 @@ public class GetOrdersForTheCustomeQueryHandler(
         var customer = await customerRepository.GetAsync(new GetCustomerByIdSpecification(request.customerId), cancellationToken)
                        ?? throw new NotFoundException("There is no such customer");
 
-        var skip = (request.PaginationRequest.PageNumber - 1) * request.PaginationRequest.PageSize;
-        
+        var skip = PaginationHelper.CalculateSkip(
+            request.PaginationRequest.PageNumber,
+            request.PaginationRequest.PageSize);
 
         var (items, totalCount) =
             await orderRepository.

@@ -37,7 +37,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
             Id = id,
             ShopId = 1,
             ProductName = "Cola 330",
-            ProductUpc = 123456789012,
+            ProductUpc = "123456789012",
             Description = "Canned drink",
             Price = 1.99m,
             PromotionPrice = null,
