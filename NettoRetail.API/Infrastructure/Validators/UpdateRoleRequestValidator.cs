@@ -23,6 +23,7 @@ namespace NettoRetail.API.Infrastructure.Validators
                 .WithMessage("Description must not start or end with spaces.");
 
             RuleFor(x => x.PermissionIds)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty().WithMessage("At least one permission must be provided.")
                 .Must(ids => ids.Distinct().Count() == ids.Length)
                 .WithMessage("PermissionIds must contain unique values.");
