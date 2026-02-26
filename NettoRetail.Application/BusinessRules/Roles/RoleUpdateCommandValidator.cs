@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.CQRS.Roles.Commands;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
@@ -14,52 +15,67 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
     {
         // Shop existence validation
         RuleFor(x => x.ShopId)
-            .MustAsync(async (shopId, ct) => await shopRepository.Exists(new GetShopByIdSpecification(shopId), ct))
-            .WithMessage("Shop does not exist.");
+            .CustomAsync(async (shopId, context, ct) =>
+            {
+                var exists = await shopRepository.Exists(new GetShopByIdSpecification(shopId), ct);
+
+                if (!exists)
+                    throw new NotFoundException($"Shop with id {shopId} does not exist.");
+            });
 
         // Role existence validation
         RuleFor(x => x)
-            .MustAsync(async (command, ct) => await roleRepository.Exists(
+            .CustomAsync(async (command, context, ct) =>
+            {
+                var exists = await roleRepository.Exists(
                     new GetRoleByShopIdSpecification(
                         command.Id,
                         command.ShopId),
-                    ct))
-            .WithMessage("Role does not exist.");
+                    ct);
+
+                if (!exists)
+                    throw new NotFoundException($"Role with Id {command.Id} and ShopId {command.ShopId} does not exist.");
+            });
 
         // Unique role name validation
         RuleFor(x => x)
-            .MustAsync(async (command, ct) =>
-                !await roleRepository.Exists(
+            .CustomAsync(async (command, context, ct) =>
+            {
+                var exists = await roleRepository.Exists(
                     new GetRoleByNameExcludingCurrentSpecification(
                         command.Model.Name,
                         command.Id),
-                    ct))
-            .WithMessage("Role with such name already exists.");
+                    ct);
+
+                if (exists)
+                    throw new ConflictException("Role with such name already exists.");
+            });
 
         // Permission existence batch validation
         RuleFor(x => x.Model.PermissionIds)
-            .MustAsync(async (ids, ct) =>
+            .CustomAsync(async (ids, context, ct) =>
             {
                 var distinctIds = ids.Distinct().ToArray();
 
-                var existingPermissionIds = await permissionRepository.GetIdsBySpecAsync(
-                    new GetValidPermissionsSpecification(distinctIds),
-                    ct);
+                var existingPermissionIds = await permissionRepository
+                    .GetIdsBySpecAsync(
+                        new GetValidPermissionsSpecification(distinctIds),
+                        ct);
 
-                return existingPermissionIds.Count() == distinctIds.Length;
-            })
-            .WithMessage("One or more PermissionIds do not exist.");
+                if (existingPermissionIds.Count() != distinctIds.Length)
+                    throw new BadRequestException("One or more PermissionIds do not exist.");
+            });
 
         RuleFor(x => x.Model.PermissionIds)
-            .Must(ids =>
+            .Custom((ids, context) =>
             {
                 var systemPermissionIds = PermissionRegistry.All
                     .Values
                     .Where(p => p.IsSystemPermission)
                     .Select(p => p.Id);
 
-                return !ids.Intersect(systemPermissionIds).Any();
-            })
-            .WithMessage("System permissions cannot be assigned.");
+                if (ids.Intersect(systemPermissionIds).Any())
+                    throw new ForbiddenException("System permissions cannot be assigned.");
+            });
     }
 }
