@@ -28,7 +28,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
         private static InventoryItemEntity CreateItem(
             string name = "Item",
-            long upc = 123,
+            string upc = "123",
             decimal price = 10,
             int categoryId = 1,
             int shopId = 1)
@@ -68,7 +68,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         {
             var model = new InventoryItemsSearchModel { UpcOrName = "1234567890", PageNumber = 1, PageSize = 10 };
 
-            var expectedItems = new List<InventoryItemEntity> { CreateItem("Item1", 1234567890) };
+            var expectedItems = new List<InventoryItemEntity> { CreateItem("Item1", "1234567890") };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)expectedItems, expectedItems.Count)));
@@ -103,7 +103,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 SortingOptions = null
             };
 
-            var items = new List<InventoryItemEntity> { CreateItem("Item", 123, 15) };
+            var items = new List<InventoryItemEntity> { CreateItem("Item", "123", 15) };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(((ICollection<InventoryItemEntity>)items, items.Count));
@@ -132,7 +132,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 new() { Id = 5, Name = "Test", URL = "x", Visibility = true, ShopId = 1 }
             };
 
-            var items = new List<InventoryItemEntity> { CreateItem("Item", 111, 5, 5) };
+            var items = new List<InventoryItemEntity> { CreateItem("Item", "111", 5, 5) };
 
             _categoryRepo.GetCategorySubtreeAsync(5, Arg.Any<CancellationToken>()).Returns(Task.FromResult(categories));
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -159,8 +159,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("ItemA", 1, 10),
-                CreateItem("ItemB", 2, 20)
+                CreateItem("ItemA", "1", 10),
+                CreateItem("ItemB", "2", 20)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -195,7 +195,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         public async Task GetInventoryItemsAsync_ShouldTrimAndSearch_WhenUpcOrNameHasSpaces()
         {
             var model = new InventoryItemsSearchModel { UpcOrName = "   Laptop   " };
-            var items = new List<InventoryItemEntity> { CreateItem("Laptop", 321, 100) };
+            var items = new List<InventoryItemEntity> { CreateItem("Laptop", "321", 100) };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
@@ -256,7 +256,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 SortingOptions = new List<SortingOption> { new() { Field = "price", IsDescending = false } }
             };
 
-            var items = new List<InventoryItemEntity> { CreateItem("Safe", 999, 30) };
+            var items = new List<InventoryItemEntity> { CreateItem("Safe", "999", 30) };
 
             _categoryRepo.GetCategorySubtreeAsync(9, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(new List<CategoryEntity>()));
@@ -283,9 +283,9 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("Item1", 1, 10),
-                CreateItem("Item2", 2, 20),
-                CreateItem("Item3", 3, 30)
+                CreateItem("Item1", "1", 10),
+                CreateItem("Item2", "2", 20),
+                CreateItem("Item3", "3", 30)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -332,8 +332,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("BrandA", 1, 100),
-                CreateItem("BrandB", 2, 200)
+                CreateItem("BrandA", "1", 100),
+                CreateItem("BrandB", "2", 200)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -360,8 +360,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("Filtered1", 11, 20),
-                CreateItem("Filtered2", 22, 40)
+                CreateItem("Filtered1", "11", 20),
+                CreateItem("Filtered2", "22", 40)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -383,7 +383,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("DefaultSorted", 999, 50)
+                CreateItem("DefaultSorted", "999", 50)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -407,8 +407,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("Shoe", 1, 120),
-                CreateItem("Sneaker", 2, 90)
+                CreateItem("Shoe", "1", 120),
+                CreateItem("Sneaker", "2", 90)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -436,8 +436,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("ItemA", 1, 50),
-                CreateItem("ItemB", 2, 70)
+                CreateItem("ItemA", "1", 50),
+                CreateItem("ItemB", "2", 70)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -467,8 +467,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("Expensive", 1, 300, 3),
-                CreateItem("Cheap", 2, 50, 3)
+                CreateItem("Expensive", "1", 300, 3),
+                CreateItem("Cheap", "2", 50, 3)
             };
 
             _categoryRepo.GetCategorySubtreeAsync(3, Arg.Any<CancellationToken>())
@@ -493,7 +493,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("Phone", 123, 200)
+                CreateItem("Phone", "123", 200)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -516,7 +516,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity>
             {
-                CreateItem("PartialA", 1, 10)
+                CreateItem("PartialA", "1", 10)
             };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())

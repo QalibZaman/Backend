@@ -270,8 +270,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("ProductUpc")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ProductUpc")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasColumnType("numeric");
@@ -950,8 +951,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ProductUpc")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)

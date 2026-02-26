@@ -25,7 +25,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
                 Id = id,
                 ShopId = shopId,
                 ProductName = name,
-                ProductUpc = 123456789012,
+                ProductUpc = "123456789012",
                 Price = price,
                 Description = "smartphone",
                 CategoryId = 1,

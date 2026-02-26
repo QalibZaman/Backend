@@ -17,7 +17,7 @@ public class GetFilteredInventoryItemsValidator : AbstractValidator<InventoryIte
         RuleFor(x => x.ProductName)
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Product name must only contain letters, digits, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
+            .Matches("^[a-zA-Z0-9-_ ]*$").WithMessage("Product name must only contain letters, digits, spaces, '-' and '_'.").When(x => !string.IsNullOrWhiteSpace(x.ProductName));
 
         RuleFor(x => x.ProductLocation)
             .NotEmpty().WithMessage("Product location is required.")

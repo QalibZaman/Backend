@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using System.Text.RegularExpressions;
+using Mapster;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
@@ -46,8 +47,8 @@ public class InventoryItemQueryService(
         var builder = new SpecificationBuilder<InventoryItemEntity>()
             .Add<GetInventoryItemsByShopIdSpecification>(shopId);
 
-        if (long.TryParse(model.UpcOrName, out var upc))
-            builder.Add<GetInventoryItemsByPartialUpcSpecification>(upc);
+        if (Regex.IsMatch(model.UpcOrName, @"^\d{1,12}$"))
+            builder.Add<GetInventoryItemsByPartialUpcSpecification>(model.UpcOrName);
         else
             builder.Add<GetInventoryItemsByPartialNameSpecification>(model.UpcOrName);
 
