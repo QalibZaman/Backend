@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Services.ImageUploadService;
@@ -58,7 +58,7 @@ namespace NettoRetail.Application.Services.VariationService
             InventoryItemEntity variation,
             InventoryItemEntity parent)
         {
-            //variation.Images.Clear();
+            variation.Images.Clear();
 
             foreach (var parentImage in parent.Images)
             {
