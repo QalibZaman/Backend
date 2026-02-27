@@ -1,7 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Models.Request.Review;
+using NettoRetail.DataAccess.Specifications.Reviews;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Interfaces.Repositories;
 

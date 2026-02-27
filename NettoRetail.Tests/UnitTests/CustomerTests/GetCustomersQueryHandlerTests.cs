@@ -44,7 +44,7 @@ public class GetCustomersQueryHandlerTests
 
         var request = new GetCustomersQuery(
             new PaginationRequest { PageNumber = 1, PageSize = 10 },
-            new GetCustomersRequest { Email = "test@example.com" });
+            new GetCustomersRequest { Search = "test" });
 
         // Act
         var result = await _handler.Handle(request, CancellationToken.None);
