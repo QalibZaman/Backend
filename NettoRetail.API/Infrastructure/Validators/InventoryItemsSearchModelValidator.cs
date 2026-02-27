@@ -3,7 +3,6 @@
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
-using System.Text.RegularExpressions;
 
 public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryItemsSearchModel>
 {
