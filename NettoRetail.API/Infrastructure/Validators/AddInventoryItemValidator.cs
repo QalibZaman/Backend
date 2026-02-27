@@ -12,16 +12,15 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
             .NotNull().WithMessage("Product name is required.")
             .MinimumLength(2).WithMessage("Product name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Product name length must be less than 50 characters long.")
-            .Matches("^[a-zA-Z0-9-_]+$").WithMessage("Product name must only contain letters, digits, '-' and '_'.");
+            .Matches("^[a-zA-Z0-9-_ ]+$").WithMessage("Product name must only contain letters, digits, spaces, '-' and '_'.");
 
         RuleFor(x => x.CategoryId).GreaterThan(0);
 
         RuleFor(x => x.BrandId).GreaterThan(0);
 
-        RuleFor(x => x.ProductUpc.ToString())
+        RuleFor(x => x.ProductUpc)
             .NotEmpty().WithMessage("Product UPC is required.")
-            .Matches("^[0-9]+$").WithMessage("Product UPC must contain only numeric characters.")
-            .Length(12).WithMessage("Product UPC must be exactly 12 digits long.");
+            .Matches(@"^\d{12}$").WithMessage("Product UPC must be exactly 12 digits long.");
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0).WithMessage("Price must be greater or equal to 0.")

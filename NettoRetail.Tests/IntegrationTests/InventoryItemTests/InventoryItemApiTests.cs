@@ -55,7 +55,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             CategoryId = 1,
             BrandId = 1,
             Price = 123,
-            ProductUpc = 123456789123,
+            ProductUpc = "123456789123",
             ProductDetails = new List<ProductDetailModel> { }
         };
 
@@ -85,7 +85,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             CategoryId = 1,
             BrandId = 1,
             Price = 123,
-            ProductUpc = 123456789123
+            ProductUpc = "123456789123"
         };
 
         var response = await _client.PostAsJsonAsync("api/v1/inventory-items", request);
@@ -135,7 +135,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
             CategoryId = 1,
             BrandId = 1,
             Price = 123,
-            ProductUpc = 123456789123,
+            ProductUpc = "123456789123",
             ProductDetails = new List<ProductDetailModel> { }
         };
 
@@ -143,7 +143,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
 
         var item = await response.Content.ReadFromJsonAsync<ApiResponse<InventoryItemResponse>>();
 
-        var model = new UpdateInventoryItemModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = 123456789123 };
+        var model = new UpdateInventoryItemModel { CategoryId = 1, Description = "dwdwdw", ProductName = "dwwddw", IsActive = true, ProductUpc = "123456789123" };
 
         var itemsResponse = await _client.PatchAsJsonAsync($"api/v1/inventory-items/{item.Data.Id}", model);
 
@@ -295,7 +295,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         // Arrange
         var email = "stringaaaa@gmail.com";
         var password = "Stringaaaa1234!";
-        var upc = 123456789012;
+        var upc = "123456789012";
 
         // Act
         var tokenResponse = await GetTokenResponseAsync(email, password);
@@ -341,7 +341,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
         Assert.NotNull(itemsResponse);
         Assert.Single(itemsResponse.Data.Items);
         Assert.Equal(name, itemsResponse.Data.Items.First().ProductName);
-        Assert.Equal(123456789012, itemsResponse.Data.Items.First().ProductUpc);
+        Assert.Equal("123456789012", itemsResponse.Data.Items.First().ProductUpc);
     }
 
     public void Dispose()
@@ -762,7 +762,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "MacBook-Pro-16",
-                    ProductUpc = 123456789012,
+                    ProductUpc = "123456789012",
                     Price = 2499.99m,
                     Description = "16-inch MacBook Pro with M2 Pro chip",
                     CategoryId = 1,
@@ -782,7 +782,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "iPhone-15-Pro",
-                    ProductUpc = 987654321098,
+                    ProductUpc = "987654321098",
                     Price = 999.00m,
                     Description = "Latest iPhone with A16 Bionic chip",
                     CategoryId = 2,
@@ -802,7 +802,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "AirPods-Pro-(2nd-Gen)",
-                    ProductUpc = 567890123456,
+                    ProductUpc = "567890123456",
                     Price = 249.00m,
                     Description = "Premium wireless earbuds with ANC",
                     CategoryId = 4,
@@ -824,7 +824,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "Samsung-Galaxy-S23-Ultra",
-                    ProductUpc = 345678901234,
+                    ProductUpc = "345678901234",
                     Price = 1199.99m,
                     Description = "Flagship Android smartphone with S Pen",
                     CategoryId = 23,
@@ -844,7 +844,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "PlayStation-5",
-                    ProductUpc = 789012345678,
+                    ProductUpc = "789012345678",
                     Price = 499.99m,
                     Description = "Next-gen gaming console",
                     CategoryId = 19,
@@ -864,7 +864,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 new InventoryItemEntity
                 {
                     ProductName = "iPad-Air-(5th-Gen)",
-                    ProductUpc = 901234567890,
+                    ProductUpc = "901234567890",
                     Price = 599.00m,
                     Description = "Powerful tablet with M1 chip",
                     CategoryId = 17,

@@ -1,7 +1,7 @@
 namespace NettoRetail.Domain.Entities.JunctionEntities;
 
 public record InventoryItemUpdateData(
-    long ProductUpc,
+    string ProductUpc,
     string ProductName,
     int CategoryId,
     int BrandId,

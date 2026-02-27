@@ -3,6 +3,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -25,7 +26,7 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepositor
         }
 
         var specificationBuilder = new SpecificationBuilder<RoleEntity>();
-        var skip = (request.Model.PageNumber - 1) * request.Model.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
         var getSpecification = specificationBuilder
             .Add<GetRolesByShopIdSpecification>(request.ShopId)
             .Skip(skip)

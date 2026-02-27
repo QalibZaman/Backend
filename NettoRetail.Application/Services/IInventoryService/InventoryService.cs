@@ -8,6 +8,7 @@ using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
@@ -55,7 +56,7 @@ public class InventoryService(
         var total = inventoryItemEntities.Count();
 
         var pagedProduct = inventoryItemEntities
-            .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+            .Skip(PaginationHelper.CalculateSkip(pageModel.PageNumber, pageModel.PageSize))
             .Take(pageModel.PageSize)
             .ToList();
 
@@ -97,7 +98,7 @@ public class InventoryService(
         await ValidateBrand(model, shopId, id, inventoryItem, cancellationToken);
         ValidatePromotionPrice(model, shopId, id, inventoryItem, cancellationToken);
 
-        var newUpc = model.ProductUpc!.Value;
+        var newUpc = model.ProductUpc!;
         if (inventoryItem.ProductUpc != newUpc)
         {
             await ValidateUpcUnique(newUpc, shopId, inventoryItem.Id, cancellationToken);
@@ -218,9 +219,9 @@ public class InventoryService(
 
     private async Task ValidateUpc(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
     {
-        if (model.ProductUpc.HasValue && inventoryItem.ProductUpc != model.ProductUpc)
+        if (!string.IsNullOrWhiteSpace(model.ProductUpc) && inventoryItem.ProductUpc != model.ProductUpc)
         {
-            var spec = new GetProductByUpcSpecification(model.ProductUpc.Value);
+            var spec = new GetProductByUpcSpecification(model.ProductUpc);
             if (await inventoryItemRepository.Exists(spec, cancellationToken))
                 throw new ConflictException("This product UPC is already registered.");
         }
@@ -254,7 +255,7 @@ public class InventoryService(
             throw new BadRequestException("Promotion price must be less than the regular price.");
     }
     
-    private async Task ValidateUpcUnique(long upc, int shopId, Guid currentItemId, CancellationToken ct)
+    private async Task ValidateUpcUnique(string upc, int shopId, Guid currentItemId, CancellationToken ct)
     {
         var spec = new GetProductByUpcSpecification(upc);
         var existing = await inventoryItemRepository.GetAsync(spec, ct);

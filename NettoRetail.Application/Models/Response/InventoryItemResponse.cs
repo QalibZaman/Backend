@@ -9,7 +9,7 @@ public class InventoryItemResponse
     public required string ProductName { get; set; }
     public required string ProductBrand { get; set; }
     public required string ProductCategory { get; set; }
-    public long ProductUpc { get; set; }
+    public string ProductUpc { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public required string Description { get; set; }
     public List<ProductDetailModel> ProductDetails { get; set; }

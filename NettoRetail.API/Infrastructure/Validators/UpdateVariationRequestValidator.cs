@@ -7,10 +7,9 @@ namespace NettoRetail.API.Infrastructure.Validators
     {
         public UpdateVariationRequestValidator()
         {
-            RuleFor(x => x.ProductUpc.ToString())
+            RuleFor(x => x.ProductUpc)
                 .NotEmpty().WithMessage("Product UPC is required.")
-                .Matches("^[0-9]+$").WithMessage("Product UPC must contain only numeric characters.")
-                .Length(12).WithMessage("Product UPC must be exactly 12 digits long.");
+                .Matches(@"^\d{12}$").WithMessage("Product UPC must be exactly 12 digits long.");
 
             RuleFor(x => x.Price)
                 .GreaterThanOrEqualTo(0).WithMessage("Price must be greater or equal to 0.")

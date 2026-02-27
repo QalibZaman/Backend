@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -47,7 +48,7 @@ public class FilteredOrderService : IFilteredOrderService
 
         specBuilder.AddInclude(x => x.Customer.Account);
 
-        var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+        var skip = PaginationHelper.CalculateSkip(pagination.PageNumber, pagination.PageSize);
         specBuilder.Skip(skip).Take(pagination.PageSize);
 
         return specBuilder.Build();
