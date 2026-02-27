@@ -14,12 +14,13 @@ public class ApproveFeedbackCommandHandler(IFeedbackRepository feedbackRepositor
     {
         var specification = new GetFeedbackByIdSpecification(request.Id);
         var feedback = await feedbackRepository.GetAsync(specification, cancellationToken)
-                      ?? throw new NotFoundException("Pending feedback not found.");
+                      ?? throw new NotFoundException("Feedback not found.");
 
         if (feedback.Status != FeedbackStatusEnum.Pending)
             throw new BadRequestException("Only pending feedbacks can be approved.");
 
         feedback.Status = FeedbackStatusEnum.Approved;
+        feedback.IsVisible = false;
         await feedbackRepository.UpdateAsync(feedback, cancellationToken);
     }
 }
