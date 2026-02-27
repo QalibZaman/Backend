@@ -5,7 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Feedback;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Feedback.Queries;
+namespace NettoRetail.Application.CQRS.Feedbacks.Queries;
 
 public record GetFeedbackDetailQuery(Guid FeedbackId) : IRequest<FeedbackDetailResponse>;
 
@@ -21,7 +21,7 @@ public class GetFeedbackDetailQueryHandler(IFeedbackRepository feedbackRepositor
 
         var feedbackDetail = feedback.Adapt<FeedbackDetailResponse>();
 
-        feedbackDetail.Email = feedback.Account.Email;
+        feedbackDetail.Email = feedback.Account?.Email;
         return feedbackDetail;
 
     }
