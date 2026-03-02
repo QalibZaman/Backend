@@ -11,7 +11,7 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services.IPasswordService;
 public class PasswordService(
-       IAccountRepository accountRepository,
+       IStaffRepository accountRepository,
        IPasswordHistoryRepository passwordHistoryRepository,
        ISessionTerminationService sessionTerminationService,
        IEmailSender emailSender,
@@ -31,14 +31,14 @@ public class PasswordService(
         await SendConfirmationEmailAsync(user.Email, user.FirstName, userId);
     }
 
-    private async Task<AccountEntity> GetUserAsync(Guid userId, CancellationToken cancellationToken)
+    private async Task<StaffEntity> GetUserAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var spec = new GetAccountByIdSpecification(userId);
+        var spec = new GetStaffByIdSpecification(userId);
         return await accountRepository.GetAsync(spec, cancellationToken)
                ?? throw new NotFoundException("User not found.");
     }
 
-    private async Task ValidatePasswordsAsync(AccountEntity user, string currentPassword, string newPassword, CancellationToken cancellationToken)
+    private async Task ValidatePasswordsAsync(StaffEntity user, string currentPassword, string newPassword, CancellationToken cancellationToken)
     {
         if (!PasswordHasher.VerifyPassword(currentPassword, user.PasswordHash))
             throw new BadRequestException("Current password is incorrect.");
@@ -53,7 +53,7 @@ public class PasswordService(
             throw new BadRequestException("New password cannot match any previously used passwords.");
     }
 
-    private async Task ChangeAndCommitAsync(AccountEntity user, string newPassword, CancellationToken cancellationToken)
+    private async Task ChangeAndCommitAsync(StaffEntity user, string newPassword, CancellationToken cancellationToken)
     {
         var transaction = unitOfWork.BeginTransaction();
         try

@@ -17,14 +17,14 @@ namespace NettoRetail.Application.CQRS.SuperAdminsShopManagement.Commands;
 public record CreateShopForClientCommand(ClientsShopModel Model) : IRequest<ShopResponse>;
 
 public class CreateShopForClientCommandHandler(IShopRepository shopRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IUnitOfWork unitOfWork,
     ICountryDetailsValidationService countryDetailsValidator,
     IShopValidationService shopValidator) : IRequestHandler<CreateShopForClientCommand, ShopResponse>
 {
     public async Task<ShopResponse> Handle(CreateShopForClientCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Model.AccountId);
+        var specification = new GetStaffByIdSpecification(request.Model.AccountId);
         var account = await accountRepository.GetAsync(specification, cancellationToken) 
             ?? throw new NotFoundException("Account with such Id not found.");
 

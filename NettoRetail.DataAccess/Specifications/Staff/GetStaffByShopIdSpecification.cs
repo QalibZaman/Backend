@@ -2,8 +2,8 @@
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
-public class GetAccountsByShopIdSpecification : Specification<AccountEntity>
+public class GetStaffByShopIdSpecification : Specification<StaffEntity>
 {
-    public GetAccountsByShopIdSpecification(int shopId)
+    public GetStaffByShopIdSpecification(int shopId)
         : base(model => model.ShopId == shopId) { }
 }

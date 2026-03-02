@@ -17,7 +17,7 @@ public record ResendInvitationBySuperAdminCommand(Guid AccountId) : IRequest;
 
 public class ResendInvitationBySuperAdminHandler(
     IInvitationTokenRepository invitationTokenRepo,
-    IAccountRepository accountRepo,
+    IStaffRepository accountRepo,
     IInvitationTokenService invitationTokenService,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
@@ -28,7 +28,7 @@ public class ResendInvitationBySuperAdminHandler(
     public async Task Handle(ResendInvitationBySuperAdminCommand request, CancellationToken cancellationToken)
     {
         var account = await accountRepo
-                          .GetAsync(new GetAccountByIdSpecification(request.AccountId), cancellationToken)
+                          .GetAsync(new GetStaffByIdSpecification(request.AccountId), cancellationToken)
                       ?? throw new NotFoundException("Account not found");
 
         var rawToken = invitationTokenService.GenerateRawToken();

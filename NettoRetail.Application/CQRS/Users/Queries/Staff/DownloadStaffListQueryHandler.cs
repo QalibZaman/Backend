@@ -11,7 +11,7 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record DownloadStaffListQuery(int UserShopId, GetFilteredStaffCsvRequest Model) : IRequest<byte[]>;
 
-public class DownloadStaffListQueryHandler(IAccountRepository accountRepository,
+public class DownloadStaffListQueryHandler(IStaffRepository accountRepository,
     IStaffService staffService,
     ICsvFileService csvFileService)
     : IRequestHandler<DownloadStaffListQuery, byte[]>
@@ -30,7 +30,7 @@ public class DownloadStaffListQueryHandler(IAccountRepository accountRepository,
 
         var staff = await accountRepository.GetStaffAccounts(spec, cancellationToken);
 
-        var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, AccountEntity>(staff, cancellationToken);
+        var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, StaffEntity>(staff, cancellationToken);
 
         return staffData;
     }

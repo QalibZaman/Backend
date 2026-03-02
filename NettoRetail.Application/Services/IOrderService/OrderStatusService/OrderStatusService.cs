@@ -14,7 +14,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
         IInventoryItemRepository itemRepository,
         IUnitOfWork unitOfWork,
         IOrderRepository orderRepository,
-        IAccountRepository accountRepository) : IOrderStatusService
+        IStaffRepository accountRepository) : IOrderStatusService
     {
         public async Task UpdateOrderStatusAsync(OrderEntity order, UpdateOrderRequest model, Guid updatedBy, CancellationToken cancellation)
         {
@@ -51,7 +51,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
         private static OrderStatusHistoryEntity CreateStatusHistory(
         OrderEntity order,
         UpdateOrderRequest model,
-        AccountEntity updatedBy)
+        StaffEntity updatedBy)
         {
             return new OrderStatusHistoryEntity
             {
@@ -93,9 +93,9 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
             }
         }
 
-        private async Task<AccountEntity> GetUpdatedByAccount(Guid accountId, CancellationToken cancellationToken)
+        private async Task<StaffEntity> GetUpdatedByAccount(Guid accountId, CancellationToken cancellationToken)
         {
-            return await accountRepository.GetAsync(new GetAccountByIdSpecification(accountId), cancellationToken) ?? throw new NotFoundException("The account does not exist.");
+            return await accountRepository.GetAsync(new GetStaffByIdSpecification(accountId), cancellationToken) ?? throw new NotFoundException("The account does not exist.");
         }
 
         private void EnforceOrderStatusRules(OrderStatusEnum currentStatus, OrderStatusEnum newStatus, string? comment)

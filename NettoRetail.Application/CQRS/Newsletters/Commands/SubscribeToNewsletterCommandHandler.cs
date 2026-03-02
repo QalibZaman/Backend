@@ -13,14 +13,14 @@ namespace NettoRetail.Application.CQRS.Newsletters.Commands;
 
 public record SubscribeToNewsletterCommand(Guid AccountId) : IRequest<Unit>;
 
-public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepository,
+public class SubscribeToNewsletterCommandHandler(IStaffRepository accountRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
     ILogger<SubscribeToNewsletterCommandHandler> logger) : IRequestHandler<SubscribeToNewsletterCommand,Unit>
 {
     public async Task<Unit> Handle(SubscribeToNewsletterCommand request, CancellationToken cancellationToken)
     {
-        var account = await accountRepository.GetAsync(new GetAccountByIdSpecification(request.AccountId), cancellationToken);
+        var account = await accountRepository.GetAsync(new GetStaffByIdSpecification(request.AccountId), cancellationToken);
         ValidateCanSubscribe(account);
         account.IsSubscribedToNewsletter = true;
         await accountRepository.UpdateAsync(account, cancellationToken);
@@ -44,7 +44,7 @@ public class SubscribeToNewsletterCommandHandler(IAccountRepository accountRepos
         return Unit.Value;
     }
 
-    private static void ValidateCanSubscribe(AccountEntity account)
+    private static void ValidateCanSubscribe(StaffEntity account)
     {
         if (account is null)
             throw new NotFoundException("There is no account with such Id");

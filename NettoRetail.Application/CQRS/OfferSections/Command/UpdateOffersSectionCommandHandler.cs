@@ -19,7 +19,7 @@ public class UpdateOffersSectionCommandHandler(
     IOfferRepository offerRepo,
     IOffersProductRepository productRepo,
     IInventoryItemRepository inventoryItemRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IUnitOfWork unitOfWork
 ) : IRequestHandler<UpdateOffersSectionCommand>
 {
@@ -86,7 +86,7 @@ public class UpdateOffersSectionCommandHandler(
 
     private async Task<string> GetUpdatedBy(Guid userId, CancellationToken cancellationToken)
     {
-        var spec = new GetAccountByIdSpecification(userId);
+        var spec = new GetStaffByIdSpecification(userId);
         var user = await accountRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("User not found");
 

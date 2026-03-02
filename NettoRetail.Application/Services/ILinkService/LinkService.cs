@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -16,11 +15,12 @@ public class LinkService(IJwtManager jwtManager,
     IOptions<NewsletterOptions> newsletterOptions) : ILinkService
 {
     // Creates a verification link for customer account activation in swagger.
-    public string CreateCustomerAccountVerificationLink(string email)
+    public string CreateCustomerAccountVerificationLink(string email, int shopId)
     {
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, email),
+            new(AuthClaims.ShopId, shopId.ToString()),
             new(AuthClaims.TokenType, AuthTokenTypes.EmailVerification)
         };
 
@@ -31,11 +31,12 @@ public class LinkService(IJwtManager jwtManager,
         return link;
     }
 
-    public string CreateCustomerResetPasswordLink(string email)
+    public string CreateCustomerResetPasswordLink(string email, int shopId)
     {
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, email),
+            new(AuthClaims.ShopId, shopId.ToString()),
             new(AuthClaims.TokenType, AuthTokenTypes.CustomerResetPassword),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };

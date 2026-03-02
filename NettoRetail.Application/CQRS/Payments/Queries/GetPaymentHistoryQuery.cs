@@ -17,12 +17,12 @@ public record GetPaymentHistoryQuery(
     bool? SortDescending)
     : IRequest<PaginatedResponse<PaymentHistoryResponse>>;
 
-public class GetPaymentHistoryQueryHandler(IAccountRepository accountRepository, IPaymentHistoryRepository paymentHistoryRepository)
+public class GetPaymentHistoryQueryHandler(IStaffRepository accountRepository, IPaymentHistoryRepository paymentHistoryRepository)
     : IRequestHandler<GetPaymentHistoryQuery, PaginatedResponse<PaymentHistoryResponse>>
 {
     public async Task<PaginatedResponse<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
     {
-        var target = await accountRepository.GetAsync(new GetAccountByIdSpecification(request.AccountId), cancellationToken) ??
+        var target = await accountRepository.GetAsync(new GetStaffByIdSpecification(request.AccountId), cancellationToken) ??
             throw new NotFoundException("Target account not found.");
 
         var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);

@@ -3,7 +3,6 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
@@ -18,7 +17,6 @@ public record CreateOrderCommand(CreateOrderModel Model, int ShopId, Guid UserId
 public class CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
-        IAccountRepository accountRepository,
         IInventoryItemRepository inventoryItemRepository,
         IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand, OrderResponse>
 {
@@ -33,11 +31,10 @@ public class CreateOrderCommandHandler(
         {
             ReserveInventory(inventoryItems, requestedQuantities);
 
-            var account = await GetAccountAsync(request.UserId, cancellationToken);
             var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
 
             await inventoryItemRepository.UpdateManyAsync(inventoryItems, cancellationToken);
-            var data = await AddOrderAsync(request, customer, account, requestedQuantities, cancellationToken);
+            var data = await AddOrderAsync(request, customer, requestedQuantities, cancellationToken);
 
             transaction.Commit();
 
@@ -101,12 +98,7 @@ public class CreateOrderCommandHandler(
         }
     }
 
-    private async Task<AccountEntity> GetAccountAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var accountByIdSpecification = new GetAccountByIdSpecification(userId);
-        return await accountRepository.GetAsync(accountByIdSpecification, cancellationToken)
-               ?? throw new MyUnauthorizedException("Account no found.");
-    }
+
 
     private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, CancellationToken cancellationToken)
     {
@@ -118,13 +110,12 @@ public class CreateOrderCommandHandler(
     private async Task<OrderResponse> AddOrderAsync(
         CreateOrderCommand request,
         CustomerEntity customer,
-        AccountEntity account,
         IReadOnlyDictionary<Guid, int> requestedQuantities,
         CancellationToken cancellationToken)
     {
         var order = request.Model.Adapt<OrderEntity>();
         order.ShopId = request.ShopId;
-        order.Creator = $"{account.FirstName} {account.LastName}";
+        order.Creator = $"{customer.FirstName} {customer.LastName}";
 
         var orderItems = requestedQuantities.Select(item =>
             new OrderItemEntity { OrderId = order.Id, ItemId = item.Key, Quantity = item.Value }).ToList();
@@ -132,9 +123,9 @@ public class CreateOrderCommandHandler(
 
         var result = await orderRepository.AddAsync(order, cancellationToken);
         var data = result.Adapt<OrderResponse>();
-        data.CustomerEmail = customer.Account.Email;
-        data.CustomerFirstName = customer.Account.FirstName;
-        data.CustomerLastName = customer.Account.LastName;
+        data.CustomerEmail = customer.Email;
+        data.CustomerFirstName = customer.FirstName;
+        data.CustomerLastName = customer.LastName;
 
         return data;
     }

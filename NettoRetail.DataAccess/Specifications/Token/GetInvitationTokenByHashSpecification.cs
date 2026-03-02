@@ -8,6 +8,6 @@ public class GetInvitationTokenByHashSpecification : Specification<InvitationTok
     public GetInvitationTokenByHashSpecification(string tokenHash)
         : base(t => t.TokenHash == tokenHash)
     {
-        AddInclude(t => t.AccountEntity);
+        AddInclude(t => t.StaffEntity);
     }
 }

@@ -352,7 +352,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
 
             dbContext.InventoryItems.RemoveRange(dbContext.InventoryItems);
             dbContext.Categories.RemoveRange(dbContext.Categories);
-            dbContext.Accounts.RemoveRange(dbContext.Accounts);
+            dbContext.Staff.RemoveRange(dbContext.Staff);
             dbContext.Shops.RemoveRange(dbContext.Shops);
 
             dbContext.SaveChanges();
@@ -883,9 +883,9 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 }
             };
 
-            var accounts = new List<AccountEntity>()
+            var accounts = new List<StaffEntity>()
             {
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("5cdb181b-fe81-4c82-bd8e-21362fdd5688"),
                     FirstName = "Stringa",
@@ -898,7 +898,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     ShopId = 1,
                 },
 
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("ccb75bc3-13a1-423a-b04b-e5d16953587c"),
                     FirstName = "Stringaa",
@@ -910,7 +910,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     EncryptedTotpSecret = null,
                 },
 
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("60e9867e-2f60-401d-acdd-5144e375143b"),
                     FirstName = "Stringaaa",
@@ -923,7 +923,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     ShopId = 1,
                 },
 
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("fea6c13b-0524-4c16-a6ac-81781ba6dde2"),
                     FirstName = "Stringaaaa",
@@ -936,7 +936,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                     ShopId = 1,
                 },
 
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("81910d65-35cf-4662-88fa-9c9ade55d3af"),
                     FirstName = "Stringaaaaa",
@@ -950,7 +950,7 @@ public class InventoryItemApiTests : IClassFixture<CustomWebApplicationFactory>,
                 },
             };
 
-            dbContext.Accounts.AddRange(accounts);
+            dbContext.Staff.AddRange(accounts);
             dbContext.Shops.AddRange(shops);
             dbContext.Brands.AddRange(brands);
             dbContext.InventoryItems.AddRange(inventoryItems);

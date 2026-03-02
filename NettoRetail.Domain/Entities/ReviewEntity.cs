@@ -13,7 +13,7 @@ public class ReviewEntity
     public string? RejectionReason { get; set; }
     public required DateTime DateSubmitted { get; set; }
     public required ReviewStatusEnum Status { get; set; }
-    public Guid AccountId { get; set; }
-    public AccountEntity Account { get; set; } = null!;
+    public Guid StaffId { get; set; }
+    public StaffEntity Staff { get; set; } = null!;
 
 }

@@ -15,7 +15,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 public record SendPasswordResetLinkCommand(string Email) : IRequest;
 
 public class SendPasswordResetLinkCommandHandler(
-    IAccountRepository accountRepo,
+    IStaffRepository accountRepo,
     IJwtManager jwtManager,
     IEmailBuilderService emailBuilder,
     IEmailSender emailSender,
@@ -30,7 +30,7 @@ public class SendPasswordResetLinkCommandHandler(
     {
         var email = request.Email.Trim().ToLowerInvariant();
         var account = await accountRepo.GetAsync(
-            new GetAccountByEmailSpecification(email),
+            new GetStaffByEmailSpecification(email),
             cancellationToken);
 
         if (account is null)
