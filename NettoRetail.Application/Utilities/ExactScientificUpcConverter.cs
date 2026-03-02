@@ -1,12 +1,11 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 
 namespace NettoRetail.Application.Utilities;
 
-public class ExactScientificLongConverter : ITypeConverter
+public class ExactScientificUpcConverter : ITypeConverter
 {
     private static readonly Regex ScientificRegex =
         new(@"^([\+\-]?[0-9]+)[\.,]?([0-9]*)[eE]\+?([0-9]+)$");
@@ -18,9 +17,9 @@ public class ExactScientificLongConverter : ITypeConverter
 
         string s = text.Trim().Replace("\"", "");
 
-        // 1) Try normal long parse first
-        if (long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out long normal))
-            return normal;
+        // 1) If already digits, keep as-is (preserve leading zeros)
+        if (Regex.IsMatch(s, @"^\d+$"))
+            return s;
 
         // 2) Try scientific notation WITHOUT using double
         var match = ScientificRegex.Match(s.Replace(",", "."));
@@ -39,13 +38,10 @@ public class ExactScientificLongConverter : ITypeConverter
 
             digits += new string('0', zerosToAdd);
 
-            if (long.TryParse(digits, out long finalValue))
-                return finalValue;
-
-            throw new CsvHelperException(row.Context, $"UPC is too large for long: {digits}");
+            return digits;
         }
 
-        throw new CsvHelperException(row.Context, $"Cannot convert '{text}' to a valid long integer.");
+        throw new CsvHelperException(row.Context, $"Cannot convert '{text}' to a valid UPC.");
     }
 
     public string ConvertToString(object? value, IWriterRow row, MemberMapData memberMapData)

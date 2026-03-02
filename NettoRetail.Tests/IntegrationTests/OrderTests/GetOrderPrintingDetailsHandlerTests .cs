@@ -78,7 +78,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
             BrandId = 1,
             Brand = new BrandEntity { Id = 1, Name = "TestBrand", ShopId = 1 },
             ProductName = "Test Product",
-            ProductUpc = 123456789000,
+            ProductUpc = "123456789000",
             Price = 10.5m,
             Description = "desc",
             CategoryId = 1,
@@ -164,6 +164,11 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
         public Task UpdateManyAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task<OrderEntity> GetWithRelatedDataAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

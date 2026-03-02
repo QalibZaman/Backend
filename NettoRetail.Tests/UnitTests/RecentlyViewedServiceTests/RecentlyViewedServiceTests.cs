@@ -324,7 +324,7 @@ public class RecentlyViewedServiceTests
                 {
                     Id = Guid.NewGuid(),
                     ProductName = "Old",
-                    ProductUpc = 123456,
+                    ProductUpc = "123456",
                     Price = 10,
                     Description = "Test",
                     CategoryId = 1,
@@ -349,7 +349,7 @@ public class RecentlyViewedServiceTests
                 {
                     Id = Guid.NewGuid(),
                     ProductName = "New",
-                    ProductUpc = 654321,
+                    ProductUpc = "654321",
                     Price = 15,
                     Description = "Test",
                     CategoryId = 1,

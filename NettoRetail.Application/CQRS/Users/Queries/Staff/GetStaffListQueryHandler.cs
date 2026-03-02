@@ -4,6 +4,7 @@ using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -41,7 +42,9 @@ public class GetStaffListQueryHandler(IAccountRepository accountRepository)
             }
         }
 
-        specificationBuilder.Skip((request.PaginationModel.PageNumber - 1) * request.PaginationModel.PageSize)
+        specificationBuilder.Skip(PaginationHelper.CalculateSkip(
+                request.PaginationModel.PageNumber,
+                request.PaginationModel.PageSize))
             .Take(request.PaginationModel.PageSize);
 
         var staffEntitiesTuple = await accountRepository.GetStaffAccountsPaginated(specificationBuilder.Build(), cancellationToken);

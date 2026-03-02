@@ -18,11 +18,9 @@ public class ProductDetailRepository(AppDbContext dbContext)
         if (deleteIds != null)
         {
             await _dbSet.Where(d => deleteIds.Contains(d.Id))
-            .ExecuteDeleteAsync();
+            .ExecuteDeleteAsync(cancellationToken);
         }
 
-        await _dbContext.SaveChangesAsync();
-
-
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

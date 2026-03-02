@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Brand;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -15,7 +16,11 @@ public class GetShopBrandsQueryHandler(IBrandRepository brandRepository) : IRequ
 {
     public async Task<PaginatedResponse<BrandResponse>> Handle(GetShopBrandsQuery request, CancellationToken cancellationToken)
     {
-        var specification = new GetBrandsByShopIdSpecificationWithPagination(request.ShopId, request.Pagination.PageNumber, request.Pagination.PageSize);
+        var skip = PaginationHelper.CalculateSkip(request.Pagination.PageNumber, request.Pagination.PageSize);
+        var specification = new GetBrandsByShopIdSpecificationWithPagination(
+            request.ShopId,
+            skip,
+            request.Pagination.PageSize);
 
         var (items, totalCount) = await brandRepository.GetAllPaginatedAsync(specification, cancellationToken);
 

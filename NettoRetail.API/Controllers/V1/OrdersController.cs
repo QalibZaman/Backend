@@ -37,6 +37,29 @@ public class OrdersController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Creates a new order for a customer in the current shop.
+    /// </summary>
+    /// <remarks>
+    /// <para>Request body fields:</para>
+    /// <list type="bullet">
+    ///   <item><description><c>customerId</c> — customer GUID.</description></item>
+    ///   <item><description><c>deliveryType</c> — enum value: 0 = Courier, 1 = SelfDelivery, 2 = InShop.</description></item>
+    ///   <item><description><c>products</c> — array of items with <c>inventoryItemId</c> and <c>amount</c>.</description></item>
+    /// </list>
+    /// Example request:
+    /// <code>
+    /// POST /api/v1/orders
+    /// {
+    ///   "customerId": "11111111-1111-1111-1111-111111111111",
+    ///   "deliveryType": 0,
+    ///   "products": [
+    ///     { "inventoryItemId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "amount": 2 },
+    ///     { "inventoryItemId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "amount": 1 }
+    ///   ]
+    /// }
+    /// </code>
+    /// </remarks>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status201Created)]

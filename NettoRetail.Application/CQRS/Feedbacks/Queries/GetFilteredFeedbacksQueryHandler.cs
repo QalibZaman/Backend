@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Feedback;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Feedback;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -18,7 +19,7 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
   public async Task<PaginatedResponse<FeedbackResponse>> Handle(GetFilteredFeedbacksQuery request, CancellationToken cancellationToken)
   {
     var specBuilder = new SpecificationBuilder<FeedbackEntity>();
-    var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+    var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
     specBuilder.Add<GetFeedbacksByStatusesSpecification>(request.Model.Statuses);
     specBuilder.Add<GetFeedbacksByDateRangeSpecification>(request.Model.StartDate, request.Model.EndDate);

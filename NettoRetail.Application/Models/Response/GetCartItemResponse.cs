@@ -1,7 +1,7 @@
 ﻿namespace NettoRetail.Application.Models.Response;
 public class GetCartItemResponse
 {
-    public long ProductUpc { get; set; }
+    public string ProductUpc { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public decimal? PromotionPrice { get; set; }

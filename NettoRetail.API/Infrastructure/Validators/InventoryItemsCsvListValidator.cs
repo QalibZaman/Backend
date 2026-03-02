@@ -1,6 +1,7 @@
 using FluentValidation;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.CsvFileModel;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -20,7 +21,18 @@ public class InventoryItemsCsvListValidator : AbstractValidator<List<InventoryIt
     {
         var validationErrors = new List<string>();
 
-        foreach (var (item, index) in items.Select((x, i) => (x, i + 1)))
+        var duplicateRows = items
+            .Select((item, index) => new { item.ProductUpc, Row = index + 2 })
+            .GroupBy(x => x.ProductUpc)
+            .Where(group => group.Count() > 1);
+
+        foreach (var duplicate in duplicateRows)
+        {
+            var rows = string.Join(", ", duplicate.Select(x => x.Row));
+            validationErrors.Add($"Duplicate Product UPC {duplicate.Key} at rows {rows}.");
+        }
+
+        foreach (var (item, index) in items.Select((x, i) => (x, i + 2)))
         {
             var result = await _rowValidator.ValidateAsync(item, cancellationToken);
             if (!result.IsValid)
@@ -31,8 +43,9 @@ public class InventoryItemsCsvListValidator : AbstractValidator<List<InventoryIt
         }
 
         if (validationErrors.Any())
-        {
-            throw new BadRequestException($"Validation failed:\n{string.Join("\n", validationErrors)}");
-        }
+            throw new BadRequestException(BuildItemsListErrorMessage(validationErrors));
     }
+
+    private static string BuildItemsListErrorMessage(IEnumerable<string> errors)
+        => $"{CsvUploadErrors.ItemsListValidationFailed}\n{string.Join("\n", errors)}";
 }
