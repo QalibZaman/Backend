@@ -35,8 +35,7 @@ public class FilteredOrderService : IFilteredOrderService
 
         ApplyOrderFilters(specBuilder, model);
 
-        if (model.StartDate != null || model.EndDate != null)
-            ApplyDateRangeFilter(specBuilder, model);
+        ApplyDateRangeFilter(specBuilder, model);
 
         ApplyEnumFilters(specBuilder, model);
 
@@ -73,30 +72,42 @@ public class FilteredOrderService : IFilteredOrderService
     {
         if (model.OrderStatuses?.Any() == true)
         {
-            var enums = ParseEnums<OrderStatusEnum>(model.OrderStatuses);
-            if (enums.Any()) builder.Add<GetOrdersByStatusEnumSpecification>(enums);
+            var enums = model.OrderStatuses
+                .Select(s => (IsValid: Enum.TryParse<OrderStatusEnum>(s, true, out var parsed), Value: parsed))
+                .Where(x => x.IsValid)
+                .Select(x => x.Value)
+                .ToList();
+
+            if (enums.Any())
+            {
+                builder.Add<GetOrdersByStatusEnumSpecification>(enums);
+            }
         }
 
         if (model.DeliveryTypes?.Any() == true)
         {
-            var enums = ParseEnums<OrderDeliveryTypeEnum>(model.DeliveryTypes);
-            if (enums.Any()) builder.Add<GetOrdersByDeliveryTypeEnumSpecification>(enums);
+            var enums = model.DeliveryTypes
+                .Select(t => (IsValid: Enum.TryParse<OrderDeliveryTypeEnum>(t, true, out var parsed), Value: parsed))
+                .Where(x => x.IsValid)
+                .Select(x => x.Value)
+                .ToList();
+
+            if (enums.Any())
+            {
+                builder.Add<GetOrdersByDeliveryTypeEnumSpecification>(enums);
+            }
         }
     }
 
     private static void ApplyDateRangeFilter(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
         var startDate = model.StartDate.HasValue
-
-          ? DateTime.SpecifyKind(model.StartDate.Value, DateTimeKind.Utc)
-
-          : DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            ? DateTime.SpecifyKind(model.StartDate.Value, DateTimeKind.Utc)
+            : (DateTime?)null;
 
         var endDate = model.EndDate.HasValue
-
             ? DateTime.SpecifyKind(model.EndDate.Value, DateTimeKind.Utc)
-
-            : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+            : (DateTime?)null;
 
         builder.Add<GetOrdersByDateRangeSpecification>(startDate, endDate);
     }
@@ -118,17 +129,5 @@ public class FilteredOrderService : IFilteredOrderService
         {
             builder.AddOrderBy(o => o.CreationDate, isDesc: true);
         }
-    }
-
-    private static List<TEnum> ParseEnums<TEnum>(List<string>? source)
-        where TEnum : struct, Enum
-    {
-        if (source == null || !source.Any()) return new List<TEnum>();
-
-        return source
-            .Select(s => Enum.TryParse<TEnum>(s, true, out var parsed) ? (TEnum?)parsed : null)
-            .Where(x => x.HasValue)
-            .Select(x => x!.Value)
-            .ToList();
     }
 }
