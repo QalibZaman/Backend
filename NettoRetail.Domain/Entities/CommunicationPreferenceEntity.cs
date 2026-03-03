@@ -26,7 +26,7 @@ public class CommunicationPreferenceEntity
     public bool ShipmentUpdateSms { get; set; } = true;
     public bool ShipmentUpdatePush { get; set; } = true;
 
-    public AccountEntity? User { get; set; }
+    public BaseUserEntity? User { get; set; }
 
     public CommunicationPreferenceEntity(Guid userId)
     {

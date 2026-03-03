@@ -9,10 +9,10 @@ public class GetOrderSearchSpecification : Specification<OrderEntity>
     public GetOrderSearchSpecification(string searchTerm)
         : base(x => (
                     EF.Functions.Like(x.Id.ToString(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Customer.Account.Email.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Customer.Email.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.CustomerId.ToString(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Customer.Account.FirstName.ToLower(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Customer.Account.LastName.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Customer.FirstName.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Customer.LastName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.OrderStatus.ToString().ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.DeliveryType.ToString().ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.CreationDate.ToString().ToLower(), $"%{searchTerm}%") ||

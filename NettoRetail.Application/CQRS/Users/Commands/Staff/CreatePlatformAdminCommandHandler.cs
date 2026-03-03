@@ -22,7 +22,7 @@ public record CreatePlatformAdminCommand(
     Guid SuperAdminId) : IRequest<CreatePlatformAdminResponse>;
 
 public class CreatePlatformAdminCommandHandler (
-    IAccountRepository accountRepo,
+    IStaffRepository accountRepo,
     IRoleRepository roleRepo,
     IUnitOfWork unitOfWork,
     IInvitationTokenRepository invitationTokenRepo,
@@ -46,7 +46,7 @@ public class CreatePlatformAdminCommandHandler (
 
             var role = await roleService.CreatePlatformAdminRole(model, cancellationToken);
 
-            var account = model.Adapt<AccountEntity>();
+            var account = model.Adapt<StaffEntity>();
             if (account.Id == Guid.Empty)
                 account.Id = Guid.NewGuid();
 

@@ -307,7 +307,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                 dbContext.Brands.RemoveRange(dbContext.Brands);
                 dbContext.InventoryItems.RemoveRange(dbContext.InventoryItems);
                 dbContext.Categories.RemoveRange(dbContext.Categories);
-                dbContext.Accounts.RemoveRange(dbContext.Accounts);
+                dbContext.Staff.RemoveRange(dbContext.Staff);
                 dbContext.Shops.RemoveRange(dbContext.Shops);
 
                 dbContext.SaveChanges();

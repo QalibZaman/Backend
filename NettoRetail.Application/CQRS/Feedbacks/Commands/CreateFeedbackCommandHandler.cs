@@ -14,11 +14,11 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
 public record CreateFeedbackCommand(CreateFeedbackModel Model, Guid UserId) : IRequest<FeedbackResponse>;
 public class CreateFeedbackCommandHandler(
   IFeedbackRepository feedbackRepository,
-  IAccountRepository accountRepository) : IRequestHandler<CreateFeedbackCommand, FeedbackResponse>
+  IStaffRepository accountRepository) : IRequestHandler<CreateFeedbackCommand, FeedbackResponse>
 {
   public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)
   {
-    var accountByIdSpecification = new GetAccountByIdSpecification(request.UserId);
+    var accountByIdSpecification = new GetStaffByIdSpecification(request.UserId);
     accountByIdSpecification.AddInclude(x => x.Shop!);
     var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
 

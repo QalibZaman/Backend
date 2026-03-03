@@ -13,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
 public record RefreshTokenCommand(string RefreshToken) : IRequest<TokenResponse>;
 
-public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions, IBlacklistTokenService blacklistTokenService)
+public class RefreshTokenCommandHandler(IStaffRepository repository, IJwtManager jwtManager, IOptions<JwtOptions> jwtOptions, IBlacklistTokenService blacklistTokenService)
     : IRequestHandler<RefreshTokenCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ public class RefreshTokenCommandHandler(IAccountRepository repository, IJwtManag
             throw new MyUnauthorizedException("The refresh token is invalid.");
         }
 
-        var specification = new GetAccountByIdSpecification(parsedUserId);
+        var specification = new GetStaffByIdSpecification(parsedUserId);
         var user = await repository.GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User not found.");
 

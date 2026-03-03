@@ -15,7 +15,7 @@ public record EnableTwoFactorAuthCommand(Guid UserId, EnableTwoFactorAuthRequest
     : IRequest<EnableTwoFactorAuthResponse>;
 
 public class EnableTwoFactorAuthCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     ITotpService totpService,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService,
@@ -29,7 +29,7 @@ public class EnableTwoFactorAuthCommandHandler(
     public async Task<EnableTwoFactorAuthResponse> Handle(
         EnableTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.UserId);
+        var specification = new GetStaffByIdSpecification(request.UserId);
         var user = await accountRepository.GetAsync(specification, cancellationToken)
                    ?? throw new NotFoundException("User not found.");
 

@@ -19,17 +19,17 @@ public record UpdatePersonalInformationCommand(Guid Id,
     string ZipCode,
     int CountryId) : IRequest;
 
-public class UpdatePersonalInformationCommandHandler(IAccountRepository accountRepository,
+public class UpdatePersonalInformationCommandHandler(IStaffRepository accountRepository,
     ICountryDetailsValidationService countryDetailsValidator) : IRequestHandler<UpdatePersonalInformationCommand>
 {
     public async Task Handle(UpdatePersonalInformationCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Id);
+        var specification = new GetStaffByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No user with such id");
 
         if (request.Email != account.Email)
         {
-            var emailSpecification = new GetAccountByEmailSpecification(request.Email);
+            var emailSpecification = new GetStaffByEmailSpecification(request.Email);
             var existedAccount = await accountRepository.GetAsync(emailSpecification, cancellationToken);
 
             if(existedAccount != null)

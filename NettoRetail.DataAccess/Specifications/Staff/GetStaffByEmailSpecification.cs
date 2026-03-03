@@ -2,8 +2,8 @@
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
-public class GetAccountByEmailSpecification : Specification<AccountEntity>
+public class GetStaffByEmailSpecification : Specification<StaffEntity>
 {
-    public GetAccountByEmailSpecification(string email)
+    public GetStaffByEmailSpecification(string email)
     : base(x => x.Email == email) { }
 }

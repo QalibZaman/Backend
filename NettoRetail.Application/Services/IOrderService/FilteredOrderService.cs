@@ -46,7 +46,7 @@ public class FilteredOrderService : IFilteredOrderService
 
         ApplySorting(specBuilder, model);
 
-        specBuilder.AddInclude(x => x.Customer.Account);
+        specBuilder.AddInclude(x => x.Customer);
 
         var skip = PaginationHelper.CalculateSkip(pagination.PageNumber, pagination.PageSize);
         specBuilder.Skip(skip).Take(pagination.PageSize);

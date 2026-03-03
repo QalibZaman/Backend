@@ -4,8 +4,8 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
 
-public class GetAccountsByStatusSpecification : Specification<AccountEntity>
+public class GetStaffByStatusSpecification : Specification<StaffEntity>
 {
-    public GetAccountsByStatusSpecification(StaffStatusEnum status) : base(x => x.Status == status)
+    public GetStaffByStatusSpecification(StaffStatusEnum status) : base(x => x.Status == status)
     { }
 }

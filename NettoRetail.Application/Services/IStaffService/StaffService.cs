@@ -15,7 +15,7 @@ using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.Services.IStaffService;
 
 public class StaffService(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IRoleRepository roleRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
@@ -23,7 +23,7 @@ public class StaffService(
 {
     public async Task CreateStaffAsync(StaffCsvModel staffCsvModel, int shopId, CancellationToken cancelletionToken = default)
     {
-        var accountSpecification = new GetAccountByEmailSpecification(staffCsvModel.Email);
+        var accountSpecification = new GetStaffByEmailSpecification(staffCsvModel.Email);
         var existingAccount = await accountRepository
             .GetAsync(accountSpecification, cancelletionToken);
 
@@ -34,7 +34,7 @@ public class StaffService(
         var role = await roleRepository.GetAsync(roleSpecification, cancelletionToken)
             ?? throw new NotFoundException("Role not found");
 
-        var account = staffCsvModel.Adapt<AccountEntity>();
+        var account = staffCsvModel.Adapt<StaffEntity>();
         account.ShopId = shopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;
@@ -52,7 +52,7 @@ public class StaffService(
 
     public async Task UpdateStaffAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
+        StaffEntity staff,
         CancellationToken cancellationToken)
     {
         CheckIfDeactivated(request, staff);
@@ -79,7 +79,7 @@ public class StaffService(
 
     private async Task UpdateActiveStatusAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
+        StaffEntity staff,
         CancellationToken cancellationToken)
     {
         if (!request.IsActive.HasValue)
@@ -102,13 +102,13 @@ public class StaffService(
 
     private async Task UpdateEmailAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
+        StaffEntity staff,
         CancellationToken cancellationToken)
     {
         if (request.Email == null || staff.Email == request.Email || staff.PasswordUpdatedAt == null)
             return;
 
-        var emailConflictSpec = new GetAccountByEmailSpecification(request.Email);
+        var emailConflictSpec = new GetStaffByEmailSpecification(request.Email);
         var existingWithEmail = await accountRepository.Exists(emailConflictSpec, cancellationToken);
         if (existingWithEmail)
             throw new ConflictException("Another account with this email already exists.");
@@ -120,7 +120,7 @@ public class StaffService(
 
     private void CheckIfDeactivated(
         UpdateStaffRequest request,
-        AccountEntity staff)
+        StaffEntity staff)
     {
         if (staff.Status == StaffStatusEnum.Deactivated &&
                 (!request.IsActive.HasValue || request.IsActive.Value == false))

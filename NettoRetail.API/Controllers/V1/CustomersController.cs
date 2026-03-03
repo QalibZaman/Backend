@@ -49,18 +49,18 @@ public class CustomersController(IMediator mediator) : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("log-in")]
+    [HttpPost("log-in/{shopId:int}")]
     [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> LogInCustomer([FromBody] LoginModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> LogInCustomer([FromBody] LoginModel model, int shopId, CancellationToken cancellationToken)
     {
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        ip = ip.Trim(); 
+        ip = ip.Trim();
         var userAgent = Request.Headers.UserAgent.ToString();
 
-        var command = new LogInCustomerCommand(model, ip, userAgent);
+        var command = new LogInCustomerCommand(model, ip, userAgent, shopId);
 
         var data = await mediator.Send(command, cancellationToken);
         if (data == null)
@@ -106,8 +106,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<CustomerInfoResponse>(result);
         return Ok(response);
     }
-    
-    
+
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{accountId:guid}/contact-info")]
     [ProducesResponseType(typeof(ApiResponse<CustomerContactInfoResponse>), StatusCodes.Status200OK)]
@@ -115,13 +114,12 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerContactInfo([FromRoute] Guid accountId,CancellationToken cancellationToken)
     {
-        var shopId = HttpContext.GetUserShopId(); 
+        var shopId = HttpContext.GetUserShopId();
         var query = new GetCustomerContactInfoQuery(accountId,shopId);
         var result = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<CustomerContactInfoResponse>(result);
         return Ok(response);
     }
-    
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{customerId:guid}/orders")]

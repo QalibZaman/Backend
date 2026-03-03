@@ -41,9 +41,9 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
                 .Add<GetCustomerByPhoneNumberSpecification>(request.Model?.PhoneNumber)
                 .Add<GetCustomerByRemarksSpecification>(request.Model?.Remarks);
 
-        specificationBuilder.AddInclude(x => x.Account)
-            .Skip(skip)
+        specificationBuilder.Skip(skip)
             .Take(request.PageModel.PageSize);
+
 
         return specificationBuilder.Build();
     }

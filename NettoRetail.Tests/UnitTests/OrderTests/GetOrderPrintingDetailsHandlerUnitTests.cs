@@ -111,7 +111,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
 
         private static OrderEntity BuildTestOrder(int id)
         {
-            var account = new AccountEntity
+            var staff = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "John",
@@ -120,14 +120,15 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 PasswordHash = "irrelevant",
                 RoleId = 1
             };
-
-            var customer = new CustomerEntity
+            var customer = new CustomerEntity()
             {
-                AccountId = account.Id,
-                Account = account,
-                IsActive = true
+                Id = Guid.NewGuid(),
+                FirstName = "Customer",
+                LastName = "Customer",
+                Email = "custo.mer@example.com",
+                PasswordHash = "irrelevant",
+                RoleId = 2
             };
-
             var inventoryItem = new InventoryItemEntity
             {
                 Id = Guid.NewGuid(),
@@ -168,7 +169,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                     OldStatus = OrderStatusEnum.New,
                     NewStatus = OrderStatusEnum.Processing,
                     Comment = "",
-                    UpdatedBy = account
+                    UpdatedBy = staff
                 }
             };
 
@@ -179,7 +180,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 Creator = "Tester",
                 OrderStatus = OrderStatusEnum.Processing,
                 DeliveryType = OrderDeliveryTypeEnum.Courier,
-                CustomerId = customer.AccountId,
+                CustomerId = customer.Id,
                 Customer = customer,
                 ShopId = 1,
                 OrderItems = new List<OrderItemEntity> { orderItem },
@@ -197,9 +198,9 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 Id = order.Id,
                 CreationDate = order.CreationDate,
                 CustomerId = order.CustomerId,
-                CustomerFirstName = order.Customer.Account.FirstName,
-                CustomerLastName = order.Customer.Account.LastName,
-                CustomerEmail = order.Customer.Account.Email,
+                CustomerFirstName = order.Customer.FirstName,
+                CustomerLastName = order.Customer.LastName,
+                CustomerEmail = order.Customer.Email,
                 OrderStatus = order.OrderStatus.ToString(),
                 DeliveryType = order.DeliveryType.ToString(),
                 TotalProducts = order.OrderItems.Count,

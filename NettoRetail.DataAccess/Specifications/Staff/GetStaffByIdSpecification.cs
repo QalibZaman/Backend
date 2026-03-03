@@ -2,8 +2,8 @@
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
-public class GetAccountByIdSpecification : Specification<AccountEntity>
+public class GetStaffByIdSpecification : Specification<StaffEntity>
 {
-    public GetAccountByIdSpecification(Guid id)
+    public GetStaffByIdSpecification(Guid id)
     : base(x => x.Id == id) { }
 }

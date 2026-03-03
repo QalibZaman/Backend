@@ -16,7 +16,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 
 public record ResetPasswordCommand(ResetPasswordRequest Model) : IRequest;
 public class ResetPasswordCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IPasswordHistoryRepository passwordHistoryRepository,
     ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork,
@@ -31,7 +31,7 @@ public class ResetPasswordCommandHandler(
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ??
             throw new BadRequestException("Invalid token payload.");
 
-        var specification = new GetAccountByEmailSpecification(email);
+        var specification = new GetStaffByEmailSpecification(email);
         var user = await accountRepository.GetAsync(specification, cancellationToken) ??
             throw new NotFoundException("User not found.");
 
