@@ -90,6 +90,10 @@ namespace NettoRetail.DataAccess.Migrations
                 name: "FK_Sessions_Accounts_AccountId",
                 table: "Sessions");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_ComparisonLists_Customers_CustomerId",
+                table: "ComparisonLists");
+
             migrationBuilder.DropTable(
                 name: "Accounts");
 
