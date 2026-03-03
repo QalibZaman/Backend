@@ -80,6 +80,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("{brandId:int}")]
     [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
