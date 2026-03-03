@@ -7,7 +7,7 @@ public interface IAzureBlobService
 {
     Task<string> UploadAsync(string fileName, Stream stream, string containerName, BlobContentCategoryEnum category,  bool overwrite = true, string? contentType = null);
 
-    Task DeleteByUrlAsync(string blobUrl);
+    Task DeleteByUrlAsync(string blobUrl, CancellationToken cancellationToken = default);
 
     Task DeleteBlobAsync(string blobName);
 

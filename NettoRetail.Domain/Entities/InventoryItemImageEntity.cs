@@ -2,7 +2,7 @@ using NettoRetail.Domain.Entities;
 
 public class InventoryItemImageEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     public required string BlobUrl { get; set; }
 

@@ -4,7 +4,7 @@ namespace NettoRetail.Domain.Entities;
 
 public class ProductDetailEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
     public required string Name { get; set; }
     public ProductDetailTypeEnum TypeEnum { get; set; }
     public ProductDetailUnitEnum? Unit { get; set; }

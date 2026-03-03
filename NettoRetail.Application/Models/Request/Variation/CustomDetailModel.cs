@@ -7,7 +7,7 @@ namespace NettoRetail.Application.Models.Request.Variation
         public required string Name { get; set; }
         public ProductDetailTypeEnum TypeEnum { get; set; }
         public ProductDetailUnitEnum? Unit { get; set; }
-        public required object Value { get; set; }
+        public required string Value { get; set; }
         public required int OrderIndex { get; set; }
     }
 }
