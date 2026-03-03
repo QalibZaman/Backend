@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Constants;
@@ -35,13 +34,13 @@ public class ResetCustomerPasswordVerirficationCommandHandler(
             throw new BadRequestException("Shop ID in token is invalid.");
 
         var spec = new GetCustomerByEmailAndShopIdSpecification(email, shopId);
-        if (await customerRepository.Exists(spec, cancellationToken))
-            throw new NotFoundException("Customer not found.");
+        var customer = await customerRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException("Customer not found.");
 
         var issuedAtSeconds = GetIssuedAtSeconds(principal);
-        if (account.PasswordUpdatedAt.HasValue)
+        if (customer.PasswordUpdatedAt.HasValue)
         {
-            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
+            var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
             if (issuedAtSeconds <= passwordUpdatedAtSeconds)
                 throw new NotFoundException("Invalid token.");
         }

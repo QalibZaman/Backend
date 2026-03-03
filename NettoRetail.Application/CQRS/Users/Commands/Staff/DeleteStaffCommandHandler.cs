@@ -26,9 +26,7 @@ public class DeleteStaffCommandHandler(IStaffRepository staffRepository,
         if (account.ShopId != request.ShopId)
             throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
-        DeleteStaffAsync(account, cancellationToken);
-
-        return account;
+        await DeleteStaffAsync(account, cancellationToken);
     }
 
     private async Task DeleteStaffAsync(
