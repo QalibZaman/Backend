@@ -9,13 +9,13 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record DeleteProfileImageCommand(Guid Id) : IRequest;
 
-public class DeleteProfileImageCommandHandler(IAccountRepository accountRepository,
+public class DeleteProfileImageCommandHandler(IStaffRepository accountRepository,
     IUnitOfWork unitOfWork,
     IAzureBlobService azureBlobService) : IRequestHandler<DeleteProfileImageCommand>
 {
     public async Task Handle(DeleteProfileImageCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Id);
+        var specification = new GetStaffByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No user with such id");
 
         if (string.IsNullOrEmpty(account.ProfileImageUrl))

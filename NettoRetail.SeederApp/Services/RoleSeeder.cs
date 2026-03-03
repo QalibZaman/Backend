@@ -8,7 +8,7 @@ using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.SeederApp.Services;
 
-public class RoleSeeder(IConfiguration config, IAccountRepository repository)
+public class RoleSeeder(IConfiguration config, IStaffRepository repository)
 {
     public async Task SeedAsync()
     {
@@ -25,7 +25,7 @@ public class RoleSeeder(IConfiguration config, IAccountRepository repository)
         foreach (var acc in accounts)
         {
             var exists = await repository.GetAsync(
-                new GetAccountByEmailSpecification(acc.Email),
+                new GetStaffByEmailSpecification(acc.Email),
                 CancellationToken.None);
 
             if (exists != null)
@@ -34,7 +34,7 @@ public class RoleSeeder(IConfiguration config, IAccountRepository repository)
                 continue;
             }
 
-            var account = acc.Adapt<AccountEntity>();
+            var account = acc.Adapt<StaffEntity>();
             account.PasswordHash = PasswordHasher.HashPassword(acc.Password);
 
             await repository.AddAsync(account, CancellationToken.None);

@@ -14,7 +14,7 @@ public record AddToFavouriteListCommand(Guid UserId, Guid InventoryItemId) : IRe
 public class AddToFavouriteListCommandHandler(
         IFavouriteListItemRepository favouriteListItemRepository,
         IInventoryItemRepository inventoryItemRepository,
-        IAccountRepository accountRepository) : IRequestHandler<AddToFavouriteListCommand, AddToFavouritesResponse>
+        IStaffRepository accountRepository) : IRequestHandler<AddToFavouriteListCommand, AddToFavouritesResponse>
 {
     public async Task<AddToFavouritesResponse> Handle(AddToFavouriteListCommand request, CancellationToken cancellationToken)
     {

@@ -4,8 +4,8 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
 
-public class GetAccountsByPartialFirstNameSpecification : Specification<AccountEntity>
+public class GetStaffByPartialFirstNameSpecification : Specification<StaffEntity>
 {
-    public GetAccountsByPartialFirstNameSpecification(string partialName)
+    public GetStaffByPartialFirstNameSpecification(string partialName)
         : base(x => EF.Functions.ILike(x.FirstName == null ? "" : x.FirstName, $"%{partialName}%")) { }
 }

@@ -10,6 +10,7 @@ using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
+using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -34,7 +35,7 @@ public class AdminsController(IMediator mediator) : ControllerBase
 
         // Creating a session
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         var response = new ApiResponse<TokenResponse>(data);

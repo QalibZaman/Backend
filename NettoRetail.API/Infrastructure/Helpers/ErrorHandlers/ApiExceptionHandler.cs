@@ -17,6 +17,7 @@ public static class ApiExceptionHandler
             MyUnauthorizedException e => HandleMyUnauthorizedException(e),
             ForbiddenException e => HandleForbiddenException(e),
             PaymentExceptions e => HandlePaymentExceptions(e),
+            InvalidTokenCredentialsException e => HandleTokenCredentialsException(e),
             FluentValidation.ValidationException e => HandleFluentValidationException(e),
             System.ComponentModel.DataAnnotations.ValidationException e => HandleDataAnnotationsValidationException(e),
 
@@ -91,6 +92,11 @@ public static class ApiExceptionHandler
         var response = new ApiResponse("Validation failed", errors);
 
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, response);
+    }
+
+    private static ApiExceptionHandlerResponse HandleTokenCredentialsException(InvalidTokenCredentialsException ex)
+    {
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
     }
 
     private static ApiResponse GenerateResponse(string message) => new(message);

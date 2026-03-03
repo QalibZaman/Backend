@@ -27,14 +27,14 @@ public class MappingConfiguration : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
-            .Map(dest => dest.AccountId, src => src.AccountId)
-            .Map(dest => dest.CustomerName, src => src.Account.FirstName + " " + src.Account.LastName)
-            .Map(dest => dest.Email, src => src.Account.Email)
-            .Map(dest => dest.Phone, src => src.Account.PhoneNumber)
+            .Map(dest => dest.AccountId, src => src.Id)
+            .Map(dest => dest.CustomerName, src => src.FirstName + " " + src.LastName)
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.Phone, src => src.PhoneNumber)
             .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
             .Map(dest => dest.Remarks, src => src.Remarks);
 
-        config.NewConfig<AdminSignUpModel, AccountEntity>()
+        config.NewConfig<AdminSignUpModel, StaffEntity>()
             .Map(dest => dest.PasswordHash, src => src.Password);
 
         config.NewConfig<CategoryEntity, CategoryResponse>()
@@ -47,13 +47,17 @@ public class MappingConfiguration : IRegister
         config.NewConfig<RoleEntity, RoleResponse>()
             .Map(dest => dest.UserCount, src => src.Accounts.Count());
 
-        config.NewConfig<AccountEntity, StaffListResponse>()
+        config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
+            .Map(dest => dest.ProductCategory, src => src.Category.Name)
+            .Map(dest => dest.Brand, src => src.Brand != null ? src.Brand.Name : null);
+
+        config.NewConfig<StaffEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
         config.NewConfig<CustomerEntity, CustomerResponse>()
-            .Map(dest => dest.FirstName, src => src.Account.FirstName)
-            .Map(dest => dest.LastName, src => src.Account.LastName)
-            .Map(dest => dest.Email, src => src.Account.Email);
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName)
+            .Map(dest => dest.Email, src => src.Email);
 
         config.NewConfig<UpdateInventoryItemModel, InventoryItemEntity>()
             .IgnoreNullValues(true);
@@ -69,38 +73,43 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
 
         config.NewConfig<CustomerEntity, CustomerInfoResponse>()
-            .Map(dest => dest.FirstName, src => src.Account.FirstName)
-            .Map(dest => dest.LastName, src => src.Account.LastName)
-            .Map(dest => dest.Email, src => src.Account.Email);
+            .Map(dest => dest.FirstName, src => src.FirstName)
+            .Map(dest => dest.LastName, src => src.LastName)
+            .Map(dest => dest.Email, src => src.Email);
+
+        config.NewConfig<OrderEntity, OrderResponse>()
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email);
 
         config.NewConfig<UpdateCustomerRequest, CustomerEntity>()
             .IgnoreNullValues(true);
 
-        config.NewConfig<UpdateCustomerRequest, AccountEntity>()
+        config.NewConfig<UpdateCustomerRequest, StaffEntity>()
             .IgnoreNullValues(true);
 
         config.NewConfig<OrderEntity, OrderListResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
             .Map(dest => dest.CanEditData,
                 src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
 
-        config.NewConfig<UpdateStaffRequest, AccountEntity>()
+        config.NewConfig<UpdateStaffRequest, StaffEntity>()
             .IgnoreNullValues(true);
 
         config.NewConfig<UpdateOrderModel, OrderEntity>()
             .IgnoreNullValues(true);
 
         config.NewConfig<OrderEntity, OrderResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderItems, src => src.OrderItems);
 
         config.NewConfig<OrderItemEntity, OrderItemResponse>()
@@ -119,12 +128,17 @@ public class MappingConfiguration : IRegister
             });
 
         config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.Account.LastName)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+
+        config.NewConfig<OrderEntity, OrderResponse>()
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
+            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName);
 
         config.NewConfig<UpdateBrandRequest, BrandEntity>()
             .IgnoreNullValues(true);
@@ -133,7 +147,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ShopEmail, src => src.Email)
             .Map(dest => dest.Country, src => src.Country.Name);
 
-        config.NewConfig<AccountEntity, StaffCsvModel>()
+        config.NewConfig<StaffEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
             .Map(dest => dest.Status, src => src.Status.ToString())
             .Map(dest => dest.Email, src => src.Email)
@@ -152,7 +166,7 @@ public class MappingConfiguration : IRegister
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
 
-        config.NewConfig<StaffCsvModel, AccountEntity>()
+        config.NewConfig<StaffCsvModel, StaffEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
@@ -168,7 +182,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.SelectionType, src => src.SelectionType.ToString())
             .Map(dest => dest.Products, src => src.Products.Select(p => p.InventoryItemId).ToList());
 
-        config.NewConfig<AccountEntity, PlatformAdminResponse>()
+        config.NewConfig<StaffEntity, PlatformAdminResponse>()
             .Map(
                 dest => dest.LastActivityTime,
                 src => src.Sessions != null && src.Sessions.Any()
@@ -250,12 +264,12 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderEntity, OrderGeneralInfoResponse>()
             .Map(dest => dest.Creator, src => src.Creator)
             .Map(dest => dest.OrderId, src => src.Id)
-            .Map(dest => dest.CustomerEmail, src => src.Customer.Account.Email)
+            .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.DeliveryType, src => src.DeliveryType)
             .Map(dest => dest.DateCreated, src => src.CreationDate)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus)
-            .Map(dest => dest.FirstName, src => src.Customer.Account.FirstName)
-            .Map(dest => dest.LastName, src => src.Customer.Account.LastName);
+            .Map(dest => dest.FirstName, src => src.Customer.FirstName)
+            .Map(dest => dest.LastName, src => src.Customer.LastName);
 
         config.NewConfig<CartEntity, GetCartItemsResponse>()
             .Map(dest => dest.Items, src => src.Items)
@@ -273,7 +287,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
             .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
 
-        config.NewConfig<CreatePlatformAdminModel, AccountEntity>()
+        config.NewConfig<CreatePlatformAdminModel, StaffEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
@@ -290,7 +304,7 @@ public class MappingConfiguration : IRegister
 
         // ===== MERGED CONFLICT PART (KEEP BOTH) =====
 
-        config.NewConfig<AccountEntity, ClientsShopInfoResponse>()
+        config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)
             .Map(dest => dest.AdminsFullName, src =>
                 string.Join(

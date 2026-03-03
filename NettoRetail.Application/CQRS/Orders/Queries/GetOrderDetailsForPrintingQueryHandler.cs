@@ -29,11 +29,9 @@ public class GetOrderDetailsForPrintingQueryHandler(
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
             .AddInclude(q => q
-                .Include(o => o.Customer)
-                    .ThenInclude(c => c.Account))
+                .Include(o => o.Customer))
             .AddInclude(q => q
-                .Include(o => o.StatusHistory)
-                    .ThenInclude(sh => sh.UpdatedBy))
+                .Include(o => o.StatusHistory))
             .AddInclude(q => q
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.InventoryItem))

@@ -1,19 +1,26 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
 
-public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
+public class BaseUserConfiguration : IEntityTypeConfiguration<BaseUserEntity>
 {
-    public void Configure(EntityTypeBuilder<AccountEntity> builder)
+    public void Configure(EntityTypeBuilder<BaseUserEntity> builder)
     {
+        builder.ToTable("Users");
+
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.FirstName).HasMaxLength(30);
         builder.Property(p => p.LastName).HasMaxLength(30);
         builder.Property(p => p.Email).HasMaxLength(256);
-        builder.HasIndex(p => p.Email).IsUnique();
+
+        builder.HasIndex(u => u.Email)
+                   .IsUnique()
+                   .HasFilter("\"Discriminator\" = 'StaffEntity'")
+                   .HasDatabaseName("IX_Users_Email_StaffOnly");
+
         builder.Property(p => p.PasswordHash).HasMaxLength(100);
 
         builder.Property(p => p.City).HasMaxLength(50);
@@ -65,9 +72,8 @@ public class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
         builder.Property(f => f.DateCreated)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        builder.HasMany(a => a.Locks)
-            .WithOne(l => l.LockedByUser)
-            .HasForeignKey(l => l.LockedByUserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasDiscriminator<string>("Discriminator")
+            .HasValue<StaffEntity>("Admin")
+            .HasValue<CustomerEntity>("Customer");
     }
 }

@@ -10,12 +10,12 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 public record GetStaffByIdQuery(Guid Id, int ShopId) : IRequest<StaffDetailsResponse>;
 
 public class GetStaffByIdQueryHandler(
-    IAccountRepository accountRepository)
+    IStaffRepository accountRepository)
     : IRequestHandler<GetStaffByIdQuery, StaffDetailsResponse>
 {
     public async Task<StaffDetailsResponse> Handle(GetStaffByIdQuery request, CancellationToken cancellationToken)
     {
-        var spec = new GetAccountByIdSpecification(request.Id);
+        var spec = new GetStaffByIdSpecification(request.Id);
         var staff = await accountRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 

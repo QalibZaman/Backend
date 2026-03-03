@@ -29,7 +29,7 @@ public class InvitationTokenConfiguration : IEntityTypeConfiguration<InvitationT
         builder.Property(t => t.CreatedAt)
             .IsRequired();
 
-        builder.HasOne(t => t.AccountEntity)
+        builder.HasOne(t => t.StaffEntity)
             .WithMany(a => a.InvitationTokens)
             .HasForeignKey(t => t.AccountId)
             .IsRequired()

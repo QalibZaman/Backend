@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NettoRetail.Domain.Entities;
+﻿namespace NettoRetail.Domain.Entities;
 
 public class FailedAuthAttemptEntity
 {
@@ -15,5 +9,5 @@ public class FailedAuthAttemptEntity
     public DateTime? LockoutEndTime { get; set; }
     public DateTime LastFailedTime { get; set; } = DateTime.UtcNow;
 
-    public AccountEntity Account { get; set; } = null!;
+    public BaseUserEntity Account { get; set; } = null!;
 }
