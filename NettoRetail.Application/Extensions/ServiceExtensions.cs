@@ -1,11 +1,14 @@
 using System.Reflection;
 using EntityFramework.Exceptions.PostgreSQL;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.FavouriteListItems;
@@ -57,6 +60,12 @@ public static class ServiceExtensions
 
         // Mediator
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+        // FluentValidation
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), includeInternalTypes: true);
+
+        // Validation pipeline
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         //Mapping
         services.AddMapster();

@@ -18,6 +18,7 @@ using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -318,7 +319,8 @@ public class MappingConfiguration : IRegister
                     .Select(pr => pr.Permission!.Title)
                     .ToHashSet();
 
-                foreach (var permission in PermissionProvider.All)
+                foreach (var permission in PermissionProvider.All
+                             .Where(p => p != Permissions.SUPERADMINS_MANAGEMENT))
                 {
                     dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
                 }

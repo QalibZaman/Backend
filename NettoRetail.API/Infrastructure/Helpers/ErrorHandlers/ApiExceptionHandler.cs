@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using NettoRetail.API.Models.Error;
 using NettoRetail.API.Models.Response;
@@ -8,23 +7,21 @@ namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
 public static class ApiExceptionHandler
 {
-    private static readonly Dictionary<Type, Func<Exception, ApiExceptionHandlerResponse>> Handlers =
-        new()
-        {
-            { typeof(NotFoundException), ex => HandleNotFoundException((NotFoundException)ex) },
-            { typeof(BadRequestException), ex => HandleBadRequestException((BadRequestException)ex) },
-            { typeof(ConflictException), ex => HandleConflictException((ConflictException)ex) },
-            { typeof(MyUnauthorizedException), ex => HandleMyUnauthorizedException((MyUnauthorizedException)ex) },
-            { typeof(ForbiddenException), ex => HandleForbiddenException((ForbiddenException)ex) },
-            { typeof(PaymentExceptions), ex => HandlePaymentExceptions((PaymentExceptions)ex) },
-            { typeof(ValidationException), ex => HandleValidationException((ValidationException)ex) }
-        };
-
     public static ApiExceptionHandlerResponse Handle(Exception ex)
     {
-        return Handlers.TryGetValue(ex.GetType(), out var handler)
-            ? handler(ex)
-            : HandleDefault(ex);
+        return ex switch
+        {
+            NotFoundException e => HandleNotFoundException(e),
+            BadRequestException e => HandleBadRequestException(e),
+            ConflictException e => HandleConflictException(e),
+            MyUnauthorizedException e => HandleMyUnauthorizedException(e),
+            ForbiddenException e => HandleForbiddenException(e),
+            PaymentExceptions e => HandlePaymentExceptions(e),
+            FluentValidation.ValidationException e => HandleFluentValidationException(e),
+            System.ComponentModel.DataAnnotations.ValidationException e => HandleDataAnnotationsValidationException(e),
+
+            _ => HandleDefault(ex)
+        };
     }
 
     private static ApiExceptionHandlerResponse HandleDefault(Exception ex)
@@ -64,9 +61,36 @@ public static class ApiExceptionHandler
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
     }
 
-    private static ApiExceptionHandlerResponse HandleValidationException(ValidationException ex)
+    private static ApiExceptionHandlerResponse HandleDataAnnotationsValidationException(System.ComponentModel.DataAnnotations.ValidationException ex)
     {
-        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
+        var key = ex.ValidationResult?.MemberNames?.FirstOrDefault()?.ToLowerInvariant()
+                  ?? "model";
+
+        var errors = new Dictionary<string, string[]>
+        {
+            { key, new[] { ex.ValidationResult?.ErrorMessage ?? ex.Message } }
+        };
+
+        return BuildValidationResponse(errors);
+    }
+
+    private static ApiExceptionHandlerResponse HandleFluentValidationException(FluentValidation.ValidationException ex)
+    {
+        var errors = ex.Errors
+            .GroupBy(e => e.PropertyName.ToLowerInvariant())
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray());
+
+        return BuildValidationResponse(errors);
+    }
+
+    private static ApiExceptionHandlerResponse BuildValidationResponse(
+    Dictionary<string, string[]> errors)
+    {
+        var response = new ApiResponse("Validation failed", errors);
+
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, response);
     }
 
     private static ApiResponse GenerateResponse(string message) => new(message);
