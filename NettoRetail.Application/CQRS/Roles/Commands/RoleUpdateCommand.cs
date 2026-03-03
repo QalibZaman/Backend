@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Permissions;
@@ -21,34 +20,65 @@ public class RoleUpdateCommandHandler(
 {
     public async Task Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
-        if (!shopExists) throw new NotFoundException($"No shop with Id: {request.ShopId}");
+        var shopExists = await shopRepository.Exists(
+            new GetShopByIdSpecification(request.ShopId),
+            cancellationToken);
 
-        var roleByIdSpecification = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
-        var role = await roleRepository.GetAsync(roleByIdSpecification, cancellationToken)
+        if (!shopExists)
+            throw new NotFoundException($"No shop with Id: {request.ShopId}");
+
+        var roleSpec = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
+        roleSpec.AddInclude(r => r.PermissionRoles);
+
+        var role = await roleRepository.GetAsync(roleSpec, cancellationToken)
             ?? throw new NotFoundException("The role with such id doesn't exist.");
 
-        if (await roleRepository.Exists(new GetRoleByNameExcludingCurrentSpecification(request.Model.Name, request.Id), cancellationToken))
+        if (await roleRepository.Exists(
+                new GetRoleByNameExcludingCurrentSpecification(request.Model.Name, request.Id),
+                cancellationToken))
+        {
             throw new ConflictException("Role with such name already exists");
+        }
 
-        request.Model.Adapt(role);
-        var permissionsIds = request.Model.PermissionIds?.Distinct().ToArray()
-                               ?? Array.Empty<int>();
-        if (permissionsIds.Length == 0)
-        {
+        var permissionIds = request.Model.PermissionIds?.Distinct().ToArray() ?? Array.Empty<int>();
+        if (permissionIds.Length == 0)
             throw new BadRequestException("At least one permission must be selected.");
-        }
 
-        var validPermissions = await permissionRepository.GetIdsBySpecAsync(
-            new GetValidPermissionsSpecification(permissionsIds), cancellationToken);
+        if (permissionIds.Any(id => id <= 0))
+            throw new BadRequestException("PermissionId must be greater than 0.");
 
-        if ( permissionsIds.Length != validPermissions.Count())
+        var validPermissionIds = (await permissionRepository.GetIdsBySpecAsync(
+                new GetValidPermissionsSpecification(permissionIds),
+                cancellationToken))
+            .ToHashSet();
+
+        if (permissionIds.Any(id => !validPermissionIds.Contains(id)))
+            throw new BadRequestException("Some permissions don't exist. Please provide valid permission ids.");
+
+        role.Name = request.Model.Name;
+        role.Description = request.Model.Description;
+
+        role.PermissionRoles ??= new List<PermissionRoleEntity>();
+
+        var toRemove = role.PermissionRoles
+            .Where(pr => !validPermissionIds.Contains(pr.PermissionId))
+            .ToList();
+
+        foreach (var pr in toRemove)
+            role.PermissionRoles.Remove(pr);
+
+        var existing = role.PermissionRoles.Select(pr => pr.PermissionId).ToHashSet();
+        foreach (var pid in validPermissionIds)
         {
-            throw new BadRequestException("Some of the permissions doesn't exist, please provide right permissions");
+            if (existing.Contains(pid)) continue;
+
+            role.PermissionRoles.Add(new PermissionRoleEntity
+            {
+                RoleId = role.Id,
+                PermissionId = pid
+            });
         }
 
-        var permissionRoles = permissionsIds.Select(value => new PermissionRoleEntity { PermissionId = value, RoleId = role.Id }).ToList();
-        role.PermissionRoles = permissionRoles;
         await roleRepository.UpdateAsync(role, cancellationToken);
     }
 }
