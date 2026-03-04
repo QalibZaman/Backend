@@ -4,7 +4,7 @@ using NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
 
-public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
+public class GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlingMiddleware> logger)
 {
     private static readonly JsonSerializerOptions SerializerOptions =
         new()
@@ -21,6 +21,8 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
+            logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.StackTrace);
             await HandleException(ex, ctx);
         }
     }
