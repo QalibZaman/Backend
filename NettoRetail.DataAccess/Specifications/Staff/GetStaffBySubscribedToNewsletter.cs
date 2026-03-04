@@ -3,8 +3,8 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
 
-public class GetAccountBySubscribedToNewsletter : Specification<AccountEntity>
+public class GetStaffBySubscribedToNewsletter : Specification<StaffEntity>
 {
-    public GetAccountBySubscribedToNewsletter(bool isSubscribed)
+    public GetStaffBySubscribedToNewsletter(bool isSubscribed)
     : base(x => x.IsSubscribedToNewsletter == isSubscribed) { }
 }

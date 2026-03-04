@@ -17,14 +17,14 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
 public class UpdateStaffCommandHandlerTests
 {
     private readonly IStaffService _staffService;
-    private readonly IAccountRepository _accountRepository;
+    private readonly IStaffRepository _accountRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateStaffCommandHandlerTests()
     {
         _staffService = Substitute.For<IStaffService>();
-        _accountRepository = Substitute.For<IAccountRepository>();
+        _accountRepository = Substitute.For<IStaffRepository>();
         _roleRepository = Substitute.For<IRoleRepository>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
     }
@@ -37,7 +37,7 @@ public class UpdateStaffCommandHandlerTests
             RoleId = 1,
         };
 
-        var user = new AccountEntity()
+        var user = new StaffEntity()
         {
             FirstName = "Name",
             LastName = "Lastname",
@@ -52,7 +52,7 @@ public class UpdateStaffCommandHandlerTests
         var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
         var command = new UpdateStaffCommand(id, request, shopId);
 
-        _accountRepository.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(user);
 
         _roleRepository.Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
@@ -68,7 +68,7 @@ public class UpdateStaffCommandHandlerTests
 
         var id = Guid.NewGuid();
         var shopId = 1;
-        var user = new AccountEntity()
+        var user = new StaffEntity()
         {
             FirstName = "Name",
             LastName = "Lastname",
@@ -80,7 +80,7 @@ public class UpdateStaffCommandHandlerTests
         var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
         var command = new UpdateStaffCommand(id, request, shopId);
 
-        _accountRepository.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(user);
 
         await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
@@ -97,8 +97,8 @@ public class UpdateStaffCommandHandlerTests
         var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
         var command = new UpdateStaffCommand(id, request, shopId);
 
-        _accountRepository.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<AccountEntity?>(null));
+        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<StaffEntity?>(null));
 
         await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
     }

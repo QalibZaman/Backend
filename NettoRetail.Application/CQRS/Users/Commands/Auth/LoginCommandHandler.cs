@@ -11,7 +11,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
 
 public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
-public class LoginCommandHandler(IAccountRepository repository,
+public class LoginCommandHandler(IStaffRepository staffRepository,
     IJwtManager jwtManager,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService)
@@ -19,9 +19,9 @@ public class LoginCommandHandler(IAccountRepository repository,
 {
     public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByEmailSpecification(request.Model.Email);
-        var user = await repository.GetAsync(specification, cancellationToken) ??
-            throw new MyUnauthorizedException("User was not found");
+        var specification = new GetStaffByEmailSpecification(request.Model.Email);
+        var user = await staffRepository.GetAsync(specification, cancellationToken)
+            ?? throw new MyUnauthorizedException("User was not found");
 
         var loginSpecification = new GetFailedAuthAttemptByAccountIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
@@ -63,7 +63,7 @@ public class LoginCommandHandler(IAccountRepository repository,
         if (user.Status != StaffStatusEnum.Online)
         {
             user.Status = StaffStatusEnum.Online;
-            await repository.UpdateAsync(user, cancellationToken);
+            await staffRepository.UpdateAsync(user, cancellationToken);
         }
 
         return tokenResponse;

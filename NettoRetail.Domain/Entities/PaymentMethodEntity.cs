@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public required Guid AccountId { get; set; }
-        public AccountEntity Account { get; set; }
+        public BaseUserEntity Account { get; set; }
         public required string StripePaymentMethodId { get; set; }
         public string FourLastCardNumbers { get; set; }
         public string CardBrand { get; set; }

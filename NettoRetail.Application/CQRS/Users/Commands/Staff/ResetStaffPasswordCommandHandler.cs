@@ -10,14 +10,14 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 public record ResetStaffPasswordCommand(Guid Id, int ShopId) : IRequest;
 
 public class ResetStaffPasswordCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService)
     : IRequestHandler<ResetStaffPasswordCommand>
 {
     public async Task Handle(ResetStaffPasswordCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetAccountByIdSpecification(request.Id);
+        var spec = new GetStaffByIdSpecification(request.Id);
         var staff = await accountRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 

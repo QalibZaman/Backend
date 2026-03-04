@@ -11,9 +11,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record DeleteStaffCommand(Guid Id, int ShopId) : IRequest;
-
-public class DeleteStaffCommandHandler(
-    IAccountRepository accountRepository,
+public class DeleteStaffCommandHandler(IStaffRepository staffRepository,
     ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork,
     INotificationService notificationService)
@@ -21,28 +19,18 @@ public class DeleteStaffCommandHandler(
 {
     public async Task Handle(DeleteStaffCommand request, CancellationToken cancellationToken)
     {
-        var account = await GetAccountAsync(request, cancellationToken);
-
-        await DeleteStaffAsync(account, cancellationToken);
-    }
-
-    private async Task<AccountEntity> GetAccountAsync(
-        DeleteStaffCommand request,
-        CancellationToken cancellationToken)
-    {
-        var specification = new GetAccountByIdSpecification(request.Id);
-
-        var account = await accountRepository.GetAsync(specification, cancellationToken)
+        var specification = new GetStaffByIdSpecification(request.Id);
+        var account = await staffRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 
         if (account.ShopId != request.ShopId)
             throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
-        return account;
+        await DeleteStaffAsync(account, cancellationToken);
     }
 
     private async Task DeleteStaffAsync(
-        AccountEntity account,
+        StaffEntity account,
         CancellationToken cancellationToken)
     {
         var isOnline = account.IsOnline();
@@ -51,7 +39,7 @@ public class DeleteStaffCommandHandler(
 
         await TerminateSessionsIfOnlineAsync(isOnline, account.Id, cancellationToken);
 
-        await accountRepository.DeleteAsync(account, cancellationToken);
+        await staffRepository.DeleteAsync(account, cancellationToken);
 
         transaction.Commit();
 

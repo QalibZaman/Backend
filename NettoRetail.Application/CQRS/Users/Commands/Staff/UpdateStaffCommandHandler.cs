@@ -12,7 +12,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record UpdateStaffCommand(Guid Id, UpdateStaffRequest Model, int ShopId) : IRequest;
 public class UpdateStaffCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IRoleRepository roleRepository,
     IStaffService staffService,
     IUnitOfWork unitOfWork)
@@ -20,7 +20,7 @@ public class UpdateStaffCommandHandler(
 {
     public async Task Handle(UpdateStaffCommand request, CancellationToken cancellationToken)
     {
-        var staffSpecification = new GetAccountByIdSpecification(request.Id);
+        var staffSpecification = new GetStaffByIdSpecification(request.Id);
         var staff = await accountRepository.GetAsync(staffSpecification, cancellationToken)
             ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
 

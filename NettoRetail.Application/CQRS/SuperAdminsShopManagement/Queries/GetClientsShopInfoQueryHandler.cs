@@ -16,7 +16,7 @@ public record GetClientsShopInfoQuery(int ShopId) : IRequest<ClientsShopInfoResp
 
 public class GetClientsShopInfoQueryHandler(
     IShopRepository shopRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IOptions<AdminRoleOptions> adminOptions) : IRequestHandler<GetClientsShopInfoQuery, ClientsShopInfoResponse>
 {
     public async Task<ClientsShopInfoResponse> Handle(GetClientsShopInfoQuery request, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public class GetClientsShopInfoQueryHandler(
         var shop = await shopRepository.GetAsync(specificationBuilder, cancellationToken)
             ?? throw new NotFoundException($"Shop with id {request.ShopId} was not found.");
 
-        var getClientAccountByIdSpecification = new GetAccountByShopIdAndRoleSpecification(request.ShopId, adminOptions.Value.RoleId);
+        var getClientAccountByIdSpecification = new GetStaffByShopIdAndRoleSpecification(request.ShopId, adminOptions.Value.RoleId);
         var clientsAccount = await accountRepository.GetAsync(getClientAccountByIdSpecification, cancellationToken)
             ?? throw new NotFoundException("Admin account for this shop was not found.");
 

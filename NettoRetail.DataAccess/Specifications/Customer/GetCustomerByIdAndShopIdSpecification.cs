@@ -6,8 +6,7 @@ namespace NettoRetail.DataAccess.Specifications.Customer;
 public class GetCustomerByIdAndShopIdSpecification:Specification<CustomerEntity>
 {
     public GetCustomerByIdAndShopIdSpecification(Guid id,int shopId)
-        : base(customer => customer.AccountId == id && customer.Account.ShopId == shopId)
+        : base(customer => customer.Id == id && customer.ShopId == shopId)
     {
-        AddInclude(x => x.Account);
     }
 }

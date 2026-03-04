@@ -72,6 +72,44 @@ public class RolesController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Updates an existing role in the system for the current shop.
+    /// </summary>
+    /// <param name="roleId">Identifier of the role to be updated. Must be a positive integer representing an existing role.</param>
+    /// <param name="model">
+    /// Request model containing role update data.
+    ///
+    /// <para><b>Name</b>:</para>
+    /// Role name is required, must be between 2 and 50 characters long.
+    /// Allowed characters are Latin letters (A-Z, a-z), digits (0-9), hyphen (-) and underscore (_).
+    /// Whitespaces are not allowed.
+    ///
+    /// <para><b>Description</b>:</para>
+    /// Optional field. Maximum length is 500 characters.
+    /// Allowed characters are Latin letters, digits, spaces, and common punctuation.
+    /// Leading and trailing spaces are not allowed.
+    ///
+    /// <para><b>PermissionIds</b>:</para>
+    /// Must contain a list of permission identifiers.
+    /// The list must not be empty and must contain unique values only.
+    ///
+    /// Allowed permission identifiers are:
+    /// 1 — Inventory management
+    /// 2 — Customers management
+    /// 3 — Orders management
+    /// 4 — Admins management
+    /// 5 — System settings
+    ///
+    /// Any other permission identifier values are considered invalid.
+    /// </param>
+    /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
+    /// <returns>
+    /// Returns <see cref="IActionResult"/> representing the result of the operation.
+    /// The method returns NoContent (204) if the role is successfully updated.
+    /// </returns>
+    /// <remarks>
+    /// The endpoint requires authorization based on system permissions and shop claim policy.
+    /// </remarks>
     [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{roleId:int}")]

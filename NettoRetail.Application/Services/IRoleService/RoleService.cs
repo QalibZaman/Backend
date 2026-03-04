@@ -14,7 +14,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.Services.IRoleService
 {
     public class RoleService(
-        IAccountRepository accountRepository,
+        IStaffRepository accountRepository,
         IPermissionRepository permissionRepository,
         IRoleRepository roleRepository) : IRoleService
     {
@@ -36,7 +36,7 @@ namespace NettoRetail.Application.Services.IRoleService
         {
             model.Normalize();
 
-            var emailSpec = new GetAccountByEmailSpecification(model.Email);
+            var emailSpec = new GetStaffByEmailSpecification(model.Email);
             if (await accountRepository.Exists(emailSpec, cancellationToken))
                 throw new ValidationException("Email is already in use");
 

@@ -27,7 +27,7 @@ public class ShopEntity
     public ICollection<RoleEntity>? Roles { get; set; }
     public ICollection<CategoryEntity>? Categories { get; set; }
     public CountryEntity? Country { get; set; }
-    public ICollection<AccountEntity>? Account { get; set; }
+    public ICollection<BaseUserEntity>? Account { get; set; }
     public ICollection<InventoryItemEntity>? InventoryItems { get; set; }
     public ICollection<BrandEntity>? Brands { get; set; }
     public void Activate()

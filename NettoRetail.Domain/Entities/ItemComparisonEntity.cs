@@ -7,7 +7,7 @@ public class ItemComparisonEntity
     public Guid Id { get; set; }
     public required Guid UserId { get; set; }
     public ICollection<ItemComparisonItemEntity> ComparisonItems { get; set; } = null!;
-    public AccountEntity? User { get; set; }
+    public BaseUserEntity? User { get; set; }
 
     public void AddItem(Guid itemId)
     {

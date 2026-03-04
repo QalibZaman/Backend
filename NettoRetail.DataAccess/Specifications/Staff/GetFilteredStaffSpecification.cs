@@ -5,7 +5,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Account;
 
-public class GetFilteredStaffSpecification : Specification<AccountEntity>
+public class GetFilteredStaffSpecification : Specification<StaffEntity>
 {
     public GetFilteredStaffSpecification(
         int shopId,

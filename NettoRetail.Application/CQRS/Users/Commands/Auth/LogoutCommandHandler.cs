@@ -14,7 +14,7 @@ public record LogoutCommand(string AccessToken, Guid UserId) : IRequest;
 
 public class LogoutCommandHandler(
     IBlacklistTokenService blacklistTokenService,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     ISessionRepository sessionRepository,
     IPermissionCacheService permissionCacheService,
     IUnitOfWork unitOfWork) : IRequestHandler<LogoutCommand>
@@ -45,7 +45,7 @@ public class LogoutCommandHandler(
             var refreshTokenExpiresAt = session.ExpiresAt;
             await blacklistTokenService.BlacklistTokenAsync(refreshToken, refreshTokenExpiresAt, cancellationToken);
 
-            var accountSpecification = new GetAccountByIdSpecification(request.UserId);
+            var accountSpecification = new GetStaffByIdSpecification(request.UserId);
             var account = await accountRepository.GetAsync(accountSpecification, cancellationToken);
 
             if (account is not null && account.Status == StaffStatusEnum.Online)

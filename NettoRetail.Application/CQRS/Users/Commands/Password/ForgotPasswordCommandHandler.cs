@@ -10,13 +10,13 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 public record ForgotPasswordCommand(string Email) : IRequest;
 
 public class ForgotPasswordCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService) : IRequestHandler<ForgotPasswordCommand>
 {
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByEmailSpecification(request.Email);
+        var specification = new GetStaffByEmailSpecification(request.Email);
 
         var user = await accountRepository
             .GetAsync(specification, cancellationToken) ??

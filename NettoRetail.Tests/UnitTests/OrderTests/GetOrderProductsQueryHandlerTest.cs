@@ -97,21 +97,15 @@ public class GetOrderProductsQueryHandlerTest
 
         List<OrderItemEntity> itemsList = [orderItem];
 
-        var account = new AccountEntity
+        var customer = new CustomerEntity
         {
             Id = Guid.NewGuid(),
             FirstName = "John",
             LastName = "Doe",
             Email = "john.doe@example.com",
             PasswordHash = "irrelevant",
+            IsActive = true,
             RoleId = 1
-        };
-
-        var customer = new CustomerEntity
-        {
-            AccountId = account.Id,
-            Account = account,
-            IsActive = true
         };
 
         var order = new OrderEntity
@@ -121,7 +115,7 @@ public class GetOrderProductsQueryHandlerTest
             Creator = "Tester",
             OrderStatus = OrderStatusEnum.Processing,
             DeliveryType = OrderDeliveryTypeEnum.Courier,
-            CustomerId = customer.AccountId,
+            CustomerId = customer.Id,
             Customer = customer,
             ShopId = 1,
             OrderItems = itemsList

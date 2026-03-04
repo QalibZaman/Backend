@@ -8,6 +8,7 @@ using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Country;
+using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
@@ -20,12 +21,10 @@ namespace NettoRetail.Application.CQRS.Customers.Commands;
 public record CreateCustomerCommand(int ShopId, CreateCustomerRequest Model) : IRequest<CreateCustomerResponse>;
 
 public class CreateCustomerCommandHandler(
-    IAccountRepository accountRepository,
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
     ICountryRepository countryRepository,
-    IRoleRepository roleRepository,
-    IUnitOfWork unitOfWork)
+    IRoleRepository roleRepository)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
@@ -43,26 +42,25 @@ public class CreateCustomerCommandHandler(
             await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
         }
 
-        var emailSpecification = new GetAccountByEmailSpecification(request.Model.Email);
-        var account = await accountRepository.Exists(emailSpecification, cancellationToken);
-        if (account)
-            throw new ConflictException("Account with this email already exists");
+        var emailSpecification = new GetCustomerByEmailAndShopIdSpecification(request.Model.Email, request.ShopId);
+        var customerExists = await customerRepository.Exists(emailSpecification, cancellationToken);
+        if (customerExists)
+            throw new ConflictException("Account with this email already exists within current shop");
 
         var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
-        var accountEntity = request.Model.Adapt<AccountEntity>();
         var customerEntity = request.Model.Adapt<CustomerEntity>();
 
-        accountEntity.RoleId = role!.Id;
-        accountEntity.ShopId = request.ShopId;
+        customerEntity.RoleId = role!.Id;
+        customerEntity.ShopId = request.ShopId;
 
         // Every customer is registered with a random password - in future, they'll be able to reset and set theirs when they'll be registered
         // Right now, customers shouldn't be able to log in - and in the future, when they get the activation link, they'll be able to reset their password
         var initialPassword = Guid.NewGuid().ToString();
-        accountEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
+        customerEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
-        customerEntity.AccountId = accountEntity.Id;
+        customerEntity.Id = customerEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
         customerEntity.IsActive = true;
 
@@ -74,21 +72,9 @@ public class CreateCustomerCommandHandler(
             customerEntity.PhoneNumber = $"{country!.PhoneCode} {request.Model.PhoneNumber}";
         }
 
-        var transaction = unitOfWork.BeginTransaction();
+        await customerRepository.AddAsync(customerEntity, cancellationToken);
 
-        try
-        {
-            await accountRepository.AddAsync(accountEntity, cancellationToken);
-            await customerRepository.AddAsync(customerEntity, cancellationToken);
-            transaction.Commit();
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
-
-        var response = accountEntity.Adapt<CreateCustomerResponse>();
+        var response = customerEntity.Adapt<CreateCustomerResponse>();
 
         customerEntity.Adapt(response);
         response.Country = country?.Adapt<CountryResponse>() ?? null;

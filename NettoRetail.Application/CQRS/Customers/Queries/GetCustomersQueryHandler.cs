@@ -35,15 +35,11 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
         var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
-        specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
-                .Add<GetCustomerByNameSpecification>(request.Model?.Name)
-                .Add<GetCustomerByLoyaltyIdSpecification>(request.Model?.LoyaltyId)
-                .Add<GetCustomerByPhoneNumberSpecification>(request.Model?.PhoneNumber)
-                .Add<GetCustomerByRemarksSpecification>(request.Model?.Remarks);
+        specificationBuilder.Add<GetCustomerBySearchSpecification>(request.Model?.Search);
 
-        specificationBuilder.AddInclude(x => x.Account)
-            .Skip(skip)
+        specificationBuilder.Skip(skip)
             .Take(request.PageModel.PageSize);
+
 
         return specificationBuilder.Build();
     }

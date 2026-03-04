@@ -43,9 +43,9 @@ public class ReviewConfiguration : IEntityTypeConfiguration<ReviewEntity>
             .IsRequired()
             .HasConversion<string>();
 
-        builder.HasOne(r => r.Account)
+        builder.HasOne(r => r.Staff)
                .WithMany(a => a.Reviews)
-               .HasForeignKey(r => r.AccountId)
+               .HasForeignKey(r => r.StaffId)
                .OnDelete(DeleteBehavior.Restrict);
     }
 }

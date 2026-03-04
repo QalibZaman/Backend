@@ -1,29 +1,27 @@
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Extensions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class AccountRepository : BaseRepository<AccountEntity>,
-    IAccountRepository
+public class StaffRepository : BaseRepository<StaffEntity>,
+    IStaffRepository
 {
-    public AccountRepository(AppDbContext dbContext)
+    public StaffRepository(AppDbContext dbContext)
         : base(dbContext)
     { }
 
-    public async Task<IEnumerable<string>> GetAccountEmailsAsync(Specification<AccountEntity> specification, CancellationToken cancellationToken)
+    public async Task<IEnumerable<string>> GetAccountEmailsAsync(Specification<StaffEntity> specification, CancellationToken cancellationToken)
     {
         var emails = await _dbSet.Where(specification.Criteria).Select(x => x.Email).ToListAsync(cancellationToken);
 
         return emails;
     }
 
-    public async Task<IEnumerable<AccountEntity>> GetStaffAccounts(Specification<AccountEntity> specification, CancellationToken cancellationToken)
+    public async Task<IEnumerable<StaffEntity>> GetStaffAccounts(Specification<StaffEntity> specification, CancellationToken cancellationToken)
     {
         var accountsWithoutCustomers = _dbSet.Where(specification.Criteria);
 
@@ -36,7 +34,7 @@ public class AccountRepository : BaseRepository<AccountEntity>,
             .GroupJoin(
                 _dbContext.Customers,
                 account => account.Id,
-                customer => customer.AccountId,
+                customer => customer.Id,
                 (account, customers) => new { account, customers })
             .SelectMany(
                 ac => ac.customers.DefaultIfEmpty(),
@@ -47,8 +45,8 @@ public class AccountRepository : BaseRepository<AccountEntity>,
         return await accountsWithoutCustomers.ToListAsync(cancellationToken);
     }
 
-    public async Task<(ICollection<AccountEntity> Items, int TotalCount)> GetStaffAccountsPaginated(
-        Specification<AccountEntity> specification,
+    public async Task<(ICollection<StaffEntity> Items, int TotalCount)> GetStaffAccountsPaginated(
+        Specification<StaffEntity> specification,
         CancellationToken cancellationToken)
     {
         var query = _dbSet.AsQueryable();
@@ -62,7 +60,7 @@ public class AccountRepository : BaseRepository<AccountEntity>,
             .GroupJoin(
                 _dbContext.Customers,
                 account => account.Id,
-                customer => customer.AccountId,
+                customer => customer.Id,
                 (account, customers) => new { account, customers })
             .SelectMany(
                 ac => ac.customers.DefaultIfEmpty(),

@@ -14,7 +14,7 @@ public class FeedbackEntity
     public bool IsPublic { get; set; } = false;
     public bool IsVisible { get; set; } = false;
     public Guid? AccountId { get; set; }
-    public AccountEntity Account { get; set; } = null!;
+    public BaseUserEntity Account { get; set; } = null!;
     public DateTime DateSubmitted { get; set; } = DateTime.UtcNow;
     public FeedbackStatusEnum Status { get; set; } = FeedbackStatusEnum.Pending;
 }

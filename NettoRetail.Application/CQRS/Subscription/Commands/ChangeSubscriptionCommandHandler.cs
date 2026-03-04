@@ -20,7 +20,7 @@ public record ChangeSubscriptionCommand(
 
 public class ChangeSubscriptionCommandHandler(
     IShopRepository shopRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     ISubscriptionPlanRepository subscriptionPlanRepository,
     IShopSubscriptionService subscriptionService) : IRequestHandler<ChangeSubscriptionCommand>
 {
@@ -30,7 +30,7 @@ public class ChangeSubscriptionCommandHandler(
         var shop = await shopRepository.GetAsync(shopSpec, cancellationToken)
             ?? throw new NotFoundException($"Shop with ID {request.ShopId} not found.");
 
-        var adminSpec = new GetAccountByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
+        var adminSpec = new GetStaffByShopIdAndRoleSpecification(request.ShopId, RoleConstants.Admin);
         var admin = await accountRepository.GetAsync(adminSpec, cancellationToken)
             ?? throw new ForbiddenException("Shop has no admin.");
 

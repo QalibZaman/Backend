@@ -24,17 +24,17 @@ public sealed class GetCustomerByNameSpecification(string? name) : Specification
             var term = parts[0];
 
             return c =>
-                c.Account.FirstName.ToLower().Contains(term) ||
-                c.Account.LastName.ToLower().Contains(term);
+                c.FirstName.ToLower().Contains(term) ||
+                c.LastName.ToLower().Contains(term);
         }
 
         var firstPart = parts[0];
         var secondPart = parts[1];
 
         return c =>
-            (c.Account.FirstName.ToLower().Contains(firstPart) ||
-             c.Account.LastName.ToLower().Contains(firstPart)) &&
-            (c.Account.FirstName.ToLower().Contains(secondPart) ||
-             c.Account.LastName.ToLower().Contains(secondPart));
+            (c.FirstName.ToLower().Contains(firstPart) ||
+             c.LastName.ToLower().Contains(firstPart)) &&
+            (c.FirstName.ToLower().Contains(secondPart) ||
+             c.LastName.ToLower().Contains(secondPart));
     }
 }

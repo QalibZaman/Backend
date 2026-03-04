@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.Payments.Commands;
 public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<Unit>;
 
 public sealed class AddPaymentCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
 {
@@ -20,7 +20,7 @@ public sealed class AddPaymentCommandHandler(
             throw new ArgumentException("AccountId is empty.", nameof(request.AccountId));
 
         var account = await accountRepository.GetAsync(
-            new GetAccountByIdSpecification(request.AccountId),
+            new GetStaffByIdSpecification(request.AccountId),
             cancellationToken)
             ?? throw new NotFoundException($"Account {request.AccountId} not found");
 

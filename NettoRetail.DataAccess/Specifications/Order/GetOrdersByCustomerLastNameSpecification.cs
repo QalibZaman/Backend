@@ -6,8 +6,8 @@ namespace NettoRetail.DataAccess.Specifications.Order;
 public class GetOrdersByLastNamesSpecification : Specification<OrderEntity>
 {
     public GetOrdersByLastNamesSpecification(List<string> lastNames)
-        : base(x => lastNames.Contains(x.Customer.Account.LastName))
+        : base(x => lastNames.Contains(x.Customer.LastName))
     {
-        AddInclude(x => x.Customer.Account);
+        AddInclude(x => x.Customer);
     }
 }

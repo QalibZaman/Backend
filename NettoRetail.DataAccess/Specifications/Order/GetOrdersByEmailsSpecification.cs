@@ -6,8 +6,8 @@ namespace NettoRetail.DataAccess.Specifications.Order;
 public class GetOrdersByEmailsSpecification : Specification<OrderEntity>
 {
     public GetOrdersByEmailsSpecification(List<string> emails)
-        : base(x => emails.Contains(x.Customer.Account.Email))
+        : base(x => emails.Contains(x.Customer.Email))
     {
-        AddInclude(x => x.Customer.Account);
+        AddInclude(x => x.Customer);
     }
 }

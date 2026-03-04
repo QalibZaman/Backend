@@ -15,14 +15,14 @@ public record UpdateContentBySlugCommand(string Slug, Guid UpdateAuthor, UpdateC
     : IRequest;
 
 public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
-    IAccountRepository accountRepository)
+    IStaffRepository accountRepository)
     : IRequestHandler<UpdateContentBySlugCommand>
 {
     private static readonly HtmlSanitizer Sanitizer = new();
 
     public async Task Handle(UpdateContentBySlugCommand request, CancellationToken cancellationToken)
     {
-        var accountSpecification = new GetAccountByIdSpecification(request.UpdateAuthor);
+        var accountSpecification = new GetStaffByIdSpecification(request.UpdateAuthor);
         var updateAuthor = await accountRepository.GetAsync(accountSpecification, cancellationToken)
             ?? throw new BadRequestException("Couldn't find account record with given user identifier");
 

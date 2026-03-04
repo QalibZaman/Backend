@@ -26,21 +26,18 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 Customer = Substitute.For<CustomerEntity>()
             };
 
-        private readonly AccountEntity _account;
         private readonly CustomerEntity _customer;
         private readonly OrderEntity _orderEntity;
         public GetSearchOptionsQueryHandlerTest() 
         {
             _orderEntity = Order(id: 1, DateTime.Now, creator: "Hleb Malusheu", OrderStatusEnum.InProgress,
             OrderDeliveryTypeEnum.SelfDelivery, Guid.NewGuid(), shopId: 1);
-            _account = Substitute.For<AccountEntity>();
             _customer = Substitute.For<CustomerEntity>();
-            _customer.AccountId = Guid.NewGuid();
-            _customer.Account = _account;
+            _customer.Id = Guid.NewGuid();
             _orderEntity.Customer = _customer;
-            _account.FirstName = "Hleb";
-            _account.LastName = "Malusheu";
-            _account.Email = "hlebMal@gmail.com";
+            _customer.FirstName = "Hleb";
+            _customer.LastName = "Malusheu";
+            _customer.Email = "hlebMal@gmail.com";
         }
         [Fact]
         public async Task Handle_ShouldReturnEmptyList()
@@ -82,8 +79,8 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             //Assert
             Assert.Equal(_orderEntity.Id, result.First().Id);
             Assert.Equal(_orderEntity.Creator, result.First().Creator);
-            Assert.Equal(_orderEntity.Customer.Account.Email, result.First().Email);
-            Assert.Equal(_orderEntity.Customer.Account.FullName, result.First().FullName);
+            Assert.Equal(_orderEntity.Customer.Email, result.First().Email);
+            Assert.Equal(_orderEntity.Customer.FullName, result.First().FullName);
             Assert.Equal(_orderEntity.CreationDate, result.First().CreationDate);
             Assert.Equal(_orderEntity.OrderStatus, result.First().OrderStatus);
         }
@@ -109,8 +106,8 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             //Assert
             Assert.Equal(_orderEntity.Id, result.First().Id);
             Assert.Equal(_orderEntity.Creator, result.First().Creator);
-            Assert.Equal(_orderEntity.Customer.Account.Email, result.First().Email);
-            Assert.Equal(_orderEntity.Customer.Account.FullName, result.First().FullName);
+            Assert.Equal(_orderEntity.Customer.Email, result.First().Email);
+            Assert.Equal(_orderEntity.Customer.FullName, result.First().FullName);
             Assert.Equal(_orderEntity.CreationDate, result.First().CreationDate);
             Assert.Equal(_orderEntity.OrderStatus, result.First().OrderStatus);
         }

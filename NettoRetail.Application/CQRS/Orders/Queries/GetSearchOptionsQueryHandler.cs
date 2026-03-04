@@ -31,8 +31,8 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
         {
             case SearchFieldModel.SearchCriteria.CustomerEmail:
                 builder
-                    .AddInclude(x => x.Customer.Account)
-                    .AddCriteria(x => EF.Functions.ILike(x.Customer.Account.Email, $"%{term}%"));
+                    .AddInclude(x => x.Customer)
+                    .AddCriteria(x => EF.Functions.ILike(x.Customer.Email, $"%{term}%"));
                 break;
 
             case SearchFieldModel.SearchCriteria.OrderId:
