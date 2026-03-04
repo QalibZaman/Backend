@@ -14,10 +14,10 @@ public sealed class GetCustomerBySearchSpecification(string? search) : Specifica
         var term = rawSearch.Trim().ToLower();
 
         return c =>
-            (c.Account.FirstName != null && c.Account.FirstName.ToLower().Contains(term)) ||
-            (c.Account.LastName != null && c.Account.LastName.ToLower().Contains(term)) ||
-            (((c.Account.FirstName ?? string.Empty) + " " + (c.Account.LastName ?? string.Empty)).ToLower().Contains(term)) ||
-            (c.Account.Email != null && c.Account.Email.ToLower().Contains(term)) ||
+            (c.FirstName != null && c.FirstName.ToLower().Contains(term)) ||
+            (c.LastName != null && c.LastName.ToLower().Contains(term)) ||
+            (((c.FirstName ?? string.Empty) + " " + (c.LastName ?? string.Empty)).ToLower().Contains(term)) ||
+            (c.Email != null && c.Email.ToLower().Contains(term)) ||
             (c.LoyaltyId != null && c.LoyaltyId.ToLower().Contains(term));
     }
 }
