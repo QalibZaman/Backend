@@ -1,7 +1,7 @@
 ﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Models.Request;
-using NettoRetail.Application.Models.Request.Feedback;
+using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Feedback;
@@ -21,11 +21,23 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
     var specBuilder = new SpecificationBuilder<FeedbackEntity>();
     var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
-    specBuilder.Add<GetFeedbacksByStatusesSpecification>(request.Model.Statuses);
-    specBuilder.Add<GetFeedbacksByDateRangeSpecification>(request.Model.StartDate, request.Model.EndDate);
-    specBuilder.Add<GetFeedbacksByRatingsSpecification>(request.Model.Ratings);
-    specBuilder.Add<GetFeedbacksByShopNamesSpecification>(request.Model.ShopName);
-    specBuilder.Add<GetFeedbacksByPublicitySpecification>(request.Model.IsPublic);
+    var statuses = request.Model.Statuses?.ToList();
+    if (statuses is { Count: > 0 })
+        specBuilder.Add<GetFeedbacksByStatusesSpecification>(statuses);
+
+    if (request.Model.StartDate.HasValue && request.Model.EndDate.HasValue)
+        specBuilder.Add<GetFeedbacksByDateRangeSpecification>(request.Model.StartDate.Value, request.Model.EndDate.Value);
+
+    var ratings = request.Model.Ratings?.ToList();
+    if (ratings is { Count: > 0 })
+        specBuilder.Add<GetFeedbacksByRatingsSpecification>(ratings);
+
+    if (!string.IsNullOrWhiteSpace(request.Model.ShopName))
+        specBuilder.Add<GetFeedbacksByShopNamesSpecification>(request.Model.ShopName.Trim());
+
+    var isPublic = request.Model.IsPublic?.ToList();
+    if (isPublic is { Count: > 0 })
+        specBuilder.Add<GetFeedbacksByPublicitySpecification>(isPublic);
     specBuilder.AddInclude(f => f.Account);
     specBuilder.AddInclude(f => f.Account.Shop!);
 

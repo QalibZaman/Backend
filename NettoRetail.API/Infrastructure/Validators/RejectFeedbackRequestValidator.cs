@@ -9,6 +9,7 @@ public class RejectFeedbackRequestValidator : AbstractValidator<RejectFeedbackRe
     {
         RuleFor(x => x.Reason)
             .NotEmpty().WithMessage("Please provide a reason for rejection.")
+            .Must(reason => !string.IsNullOrWhiteSpace(reason)).WithMessage("Please provide a reason for rejection.")
             .MaximumLength(500).WithMessage("Reason must be less than 500 characters.");
     }
 }
