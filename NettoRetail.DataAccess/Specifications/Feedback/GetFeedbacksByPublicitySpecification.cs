@@ -5,7 +5,7 @@ namespace NettoRetail.DataAccess.Specifications.Feedback;
 
 public class GetFeedbacksByPublicitySpecification : Specification<FeedbackEntity>
 {
-  public GetFeedbacksByPublicitySpecification(List<bool> isPublicList)
+  public GetFeedbacksByPublicitySpecification(IReadOnlyCollection<bool> isPublicList)
       : base(x => isPublicList.Contains(x.IsPublic))
 {
 }

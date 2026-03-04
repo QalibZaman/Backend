@@ -5,7 +5,7 @@ namespace NettoRetail.DataAccess.Specifications.Feedback;
 
 public class GetFeedbacksByRatingsSpecification : Specification<FeedbackEntity>
 {
-  public GetFeedbacksByRatingsSpecification(List<int> ratings)
+  public GetFeedbacksByRatingsSpecification(IReadOnlyCollection<int> ratings)
       : base(x => ratings.Contains(x.Rating))
 {
 }

@@ -6,7 +6,7 @@ namespace NettoRetail.DataAccess.Specifications.Feedback;
 
 public class GetFeedbacksByStatusesSpecification : Specification<FeedbackEntity>
 {
-  public GetFeedbacksByStatusesSpecification(List<FeedbackStatusEnum> statuses)
+  public GetFeedbacksByStatusesSpecification(IReadOnlyCollection<FeedbackStatusEnum> statuses)
       : base(x => statuses.Contains(x.Status))
 {
 }

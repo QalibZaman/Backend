@@ -6,6 +6,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Feedback;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -21,23 +22,45 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
     var specBuilder = new SpecificationBuilder<FeedbackEntity>();
     var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
-    var statuses = request.Model.Statuses?.ToList();
-    if (statuses is { Count: > 0 })
-        specBuilder.Add<GetFeedbacksByStatusesSpecification>(statuses);
+    var shopName = string.IsNullOrWhiteSpace(request.Model.ShopName)
+      ? null
+      : request.Model.ShopName.Trim();
+    if (!string.IsNullOrWhiteSpace(shopName))
+    {
+      specBuilder.Add<GetFeedbacksByShopNamesSpecification>(shopName);
+    }
 
-    if (request.Model.StartDate.HasValue && request.Model.EndDate.HasValue)
-        specBuilder.Add<GetFeedbacksByDateRangeSpecification>(request.Model.StartDate.Value, request.Model.EndDate.Value);
+    var ratings = request.Model.Ratings?
+      .Where(r => r is >= 1 and <= 5)
+      .Distinct()
+      .ToList();
+    if (ratings?.Any() == true)
+    {
+      specBuilder.Add<GetFeedbacksByRatingsSpecification>(ratings);
+    }
 
-    var ratings = request.Model.Ratings?.ToList();
-    if (ratings is { Count: > 0 })
-        specBuilder.Add<GetFeedbacksByRatingsSpecification>(ratings);
+    var statuses = request.Model.Statuses?
+      .Where(s => Enum.IsDefined(typeof(FeedbackStatusEnum), s))
+      .Distinct()
+      .ToList();
+    if (statuses?.Any() == true)
+    {
+      specBuilder.Add<GetFeedbacksByStatusesSpecification>(statuses);
+    }
 
-    if (!string.IsNullOrWhiteSpace(request.Model.ShopName))
-        specBuilder.Add<GetFeedbacksByShopNamesSpecification>(request.Model.ShopName.Trim());
+    var visibilityTypes = request.Model.IsPublic?
+      .Distinct()
+      .ToList();
+    if (visibilityTypes?.Any() == true)
+    {
+      specBuilder.Add<GetFeedbacksByPublicitySpecification>(visibilityTypes);
+    }
 
-    var isPublic = request.Model.IsPublic?.ToList();
-    if (isPublic is { Count: > 0 })
-        specBuilder.Add<GetFeedbacksByPublicitySpecification>(isPublic);
+    var (startDate, endDate) = ResolveDateRange(request.Model);
+    if (startDate.HasValue && endDate.HasValue)
+    {
+      specBuilder.Add<GetFeedbacksByDateRangeSpecification>(startDate.Value, endDate.Value);
+    }
     specBuilder.AddInclude(f => f.Account);
     specBuilder.AddInclude(f => f.Account.Shop!);
 
@@ -57,5 +80,31 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
     };
 
     return responseModel;
+  }
+
+  private static (DateTime? StartDate, DateTime? EndDate) ResolveDateRange(GetFilteredFeedbacksModel model)
+  {
+    if (model.StartDate.HasValue && model.EndDate.HasValue)
+    {
+      var start = DateTime.SpecifyKind(model.StartDate.Value, DateTimeKind.Utc);
+      var end = DateTime.SpecifyKind(model.EndDate.Value, DateTimeKind.Utc);
+      return (start, end);
+    }
+
+    if (model.DateRange == DateRangeFilterEnum.All)
+    {
+      return (null, null);
+    }
+
+    var todayUtc = DateTime.UtcNow.Date;
+    var startDate = model.DateRange switch
+    {
+      DateRangeFilterEnum.Today => todayUtc,
+      DateRangeFilterEnum.Last7Days => todayUtc.AddDays(-6),
+      DateRangeFilterEnum.LastMonth => todayUtc.AddDays(-29),
+      _ => (DateTime?)null
+    };
+
+    return startDate.HasValue ? (startDate, DateTime.UtcNow) : (null, null);
   }
 }
