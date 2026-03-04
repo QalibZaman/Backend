@@ -48,13 +48,6 @@ namespace NettoRetail.DataAccess.Migrations
                 table: "InvitationTokens");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_UserCommunicationPreferences_Accounts_UserId",
-                table: "UserCommunicationPreferences");
-
-            migrationBuilder.DropTable(
-                name: "UserCommunicationPreferences");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_ItemComparison_Accounts_UserId",
                 table: "ItemComparison");
 
@@ -89,10 +82,6 @@ namespace NettoRetail.DataAccess.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Sessions_Accounts_AccountId",
                 table: "Sessions");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_ComparisonLists_Customers_CustomerId",
-                table: "ComparisonLists");
 
             migrationBuilder.DropTable(
                 name: "Accounts");
