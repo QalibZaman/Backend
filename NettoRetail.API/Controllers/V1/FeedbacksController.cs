@@ -7,6 +7,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Feedbacks.Queries;
 using NettoRetail.Application.CQRS.Feedbacks.Commands;
+using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
