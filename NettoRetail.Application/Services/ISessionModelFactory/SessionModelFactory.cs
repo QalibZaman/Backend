@@ -23,7 +23,6 @@ public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRe
         CancellationToken cancellationToken)
     {
         var accountEmail = GetEmailFromJwt(jwt);
-        var shopId = GetShopIdFromJwt(jwt);
         var deviceType = GetDeviceType(userAgentString);
         var browser = GetBrowser(userAgentString);
 
@@ -51,7 +50,7 @@ public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRe
         }
         else
         {
-            var specification = new GetCustomerByEmailAndShopIdSpecification(accountEmail, shopId);
+            var specification = new GetCustomerByEmailAndShopIdSpecification(accountEmail, GetShopIdFromJwt(jwt));
             account = await customerRepository.GetAsync(specification, cancellationToken)
                 ?? throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials"); ;
         }
