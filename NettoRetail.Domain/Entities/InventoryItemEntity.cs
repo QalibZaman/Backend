@@ -38,6 +38,8 @@ public class InventoryItemEntity
     public ICollection<ItemComparisonItemEntity> ComparisonItems { get; set; } = null!;
     public InventoryItemEntity? ParentItem { get; set; }
     public ICollection<InventoryItemEntity>? ChildItems { get; set; } = [];
+    public DateOnly? PromotionStartDate { get; set; }
+    public DateOnly? PromotionEndDate { get; set; }
 
     public void UpdateStatus()
     {

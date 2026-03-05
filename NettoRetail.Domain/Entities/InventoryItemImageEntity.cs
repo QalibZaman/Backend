@@ -11,4 +11,6 @@ public class InventoryItemImageEntity
     public Guid InventoryItemId { get; set; }
 
     public InventoryItemEntity InventoryItem { get; set; } = null!;
+
+    public string Description { get; set; } = null!;
 }

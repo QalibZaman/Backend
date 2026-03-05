@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Bogus.DataSets;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -101,6 +100,24 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         await mediator.Send(inventoryItemsListUploadCommand, cancellationToken);
 
         return Ok();
+    }
+
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPatch("full-info/{id:guid}")]
+    public async Task<IActionResult> EditInventoryItem(Guid id, [FromBody] UpdateProductModel model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        await mediator.Send(new UpdateProductCommand(id, shopId, model), cancellationToken);
+
+        return NoContent();
     }
 
     [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]

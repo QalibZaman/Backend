@@ -19,8 +19,6 @@ namespace NettoRetail.Application.Services.ImageUploadService
             if (file == null)
                 throw new ArgumentException("No image provided");
 
-            await imageValidatorService.ValidateBannerImageAsync(file, cancellationToken);
-
             var fileName = $"{pathPrefix}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var container = azureBlobStorageOptions.Value.ContainerName;
             var category = Shared.Enums.BlobContentCategoryEnum.Image;
@@ -34,7 +32,7 @@ namespace NettoRetail.Application.Services.ImageUploadService
                 blobUrl = await azureBlobService.UploadAsync(fileName, stream, container, category);
                 return blobUrl;
             }
-            catch
+            catch (Exception ex)
             {
                 if (blobUrl != null)
                 {
