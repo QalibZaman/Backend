@@ -302,8 +302,6 @@ public class MappingConfiguration : IRegister
         config.NewConfig<ContentEntity, ContentBlockResponse>()
             .Map(dest => dest.SectionType, src => src.SectionType.ToString());
 
-        // ===== MERGED CONFLICT PART (KEEP BOTH) =====
-
         config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)
             .Map(dest => dest.AdminsFullName, src =>
@@ -339,5 +337,17 @@ public class MappingConfiguration : IRegister
                     dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
                 }
             });
+
+        config.NewConfig<GeneralInfoModel, InventoryItemEntity>()
+            .IgnoreNullValues(true);
+
+        config.NewConfig<PriceModel, InventoryItemEntity>()
+            .IgnoreNullValues(true)
+            .Map(dest => dest.PromotionStartDate, src => src.StartDate)
+            .Map(dest => dest.PromotionEndDate, src => src.EndDate);
+
+        config.NewConfig<DetailModel, ProductDetailEntity>()
+            .IgnoreNullValues(true)
+            .Map(dest => dest.Unit, src => src.TypeEnum == ProductDetailTypeEnum.Number ? src.Unit : null);
     }
 }

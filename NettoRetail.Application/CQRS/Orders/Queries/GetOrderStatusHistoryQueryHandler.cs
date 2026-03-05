@@ -7,8 +7,8 @@ namespace NettoRetail.Application.CQRS.Orders.Queries;
 
 public record GetOrderStatusHistoryQuery(int OrderId, int ShopId) : IRequest<IEnumerable<OrderStatusHistoryResponse>>;
 
-public class GetOrderStatusHistoryQueryHandler(IOrderStatusHistoryRepository orderStatusHistoryRepository)
-    : IRequestHandler<GetOrderStatusHistoryQuery, IEnumerable<OrderStatusHistoryResponse>>
+public class GetOrderStatusHistoryQueryHandler(
+    IOrderStatusHistoryRepository orderStatusHistoryRepository) : IRequestHandler<GetOrderStatusHistoryQuery, IEnumerable<OrderStatusHistoryResponse>>
 {
     public async Task<IEnumerable<OrderStatusHistoryResponse>> Handle(GetOrderStatusHistoryQuery request, CancellationToken cancellationToken)
     {

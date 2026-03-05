@@ -47,6 +47,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
@@ -925,9 +929,15 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("character varying(12)");
 
+                    b.Property<DateOnly?>("PromotionEndDate")
+                        .HasColumnType("date");
+
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateOnly?>("PromotionStartDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("ReservedAmount")
                         .HasColumnType("integer");
