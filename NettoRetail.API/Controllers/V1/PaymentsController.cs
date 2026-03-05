@@ -96,7 +96,6 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<PaymentMethodDeleteResponse>(response));
         }
 
-
         [Authorize]
         [HttpPut("{paymentMethodId}/set-default")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
