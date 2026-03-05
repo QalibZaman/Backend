@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NettoRetail.DataAccess.Context;
+﻿using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -9,17 +8,19 @@ public class ProductDetailRepository(AppDbContext dbContext)
     : BaseRepository<ProductDetailEntity>(dbContext), IProductDetailRepository
 {
     public async Task UpdateDetailsAsync(
-        ICollection<ProductDetailEntity> upsertedDetails,
-        ICollection<Guid> deleteIds,
+        IEnumerable<ProductDetailEntity> upsertedDetails,
         CancellationToken cancellationToken)
     {
         _dbSet.UpdateRange(upsertedDetails);
 
-        if (deleteIds != null)
-        {
-            await _dbSet.Where(d => deleteIds.Contains(d.Id))
-            .ExecuteDeleteAsync(cancellationToken);
-        }
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteRangeAsync(
+        IEnumerable<ProductDetailEntity> detailsToDelete,
+        CancellationToken cancellationToken)
+    {
+        _dbContext.RemoveRange(detailsToDelete);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

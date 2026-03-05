@@ -5,6 +5,7 @@ using NettoRetail.Application.Services.ImageUploadService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Interfaces.Repositories;
 using System.Globalization;
 
@@ -13,7 +14,8 @@ namespace NettoRetail.Application.Services.VariationService
     public class VariationService(
         IInventoryItemRepository inventoryItemRepository,
         IProductDetailRepository detailRepository,
-        IImageUploadService imageUploadService)
+        IImageUploadService imageUploadService,
+        IImageValidatorService imageValidatorService)
         : IVariationService
     {
         public async Task UpdateVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken cancellationToken)
@@ -101,6 +103,8 @@ namespace NettoRetail.Application.Services.VariationService
         {
             foreach (var file in newImages)
             {
+                await imageValidatorService.ValidateBannerImageAsync(file, cancellationToken);
+
                 var blobUrl = await imageUploadService.UploadImageAsync(file, pathPrefix, cancellationToken);
 
                 variation.Images.Add(new InventoryItemImageEntity
@@ -194,7 +198,6 @@ namespace NettoRetail.Application.Services.VariationService
 
             await detailRepository.UpdateDetailsAsync(
                 upsertedDetails,
-                deleteIds,
                 cancellationToken);
         }
 

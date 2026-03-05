@@ -61,6 +61,8 @@ public class UpdateTeaserSectionCommandHandler(
         if (entity.TeaserImageUrl != null)
             await azureBlobService.DeleteByUrlAsync(entity.TeaserImageUrl);
 
+        await imageValidatorService.ValidateBannerImageAsync(request.Model.TeaserImage, cancellationToken);
+
         entity.TeaserImageUrl = await imageUploadService.UploadImageAsync(
             request.Model.TeaserImage,
             $"teaser-section-images/{request.ShopId}",
