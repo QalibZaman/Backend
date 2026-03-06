@@ -12,5 +12,5 @@ public class PaymentHistoryEntity
     public string Status { get; set; }
     public string TransactionId { get; set; }
 
-    public AccountEntity Account { get; set; }
+    public BaseUserEntity Account { get; set; }
 }

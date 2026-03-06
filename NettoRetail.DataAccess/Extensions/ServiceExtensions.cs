@@ -55,7 +55,7 @@ public static class ServiceExtensions
 
         // Repositories
         services.AddScoped<IInvitationTokenRepository, InvitationTokenRepository>();
-        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IInventoryItemBannerRepository, InventoryItemBannerRepository>();
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();

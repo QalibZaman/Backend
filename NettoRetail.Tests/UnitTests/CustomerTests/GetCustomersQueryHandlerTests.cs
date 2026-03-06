@@ -23,14 +23,16 @@ public class GetCustomersQueryHandlerTests
     public async Task ReturnsPaginatedResponse_ForValidRequest()
     {
         // Arrange
-        var account = CreateAccount("John", "Doe", "john@test.com");
         var customers = new List<CustomerEntity>
         {
             new()
             {
-                AccountId = account.Id,
-                Account = account,
-                IsActive = true
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
             }
         };
 
@@ -42,7 +44,7 @@ public class GetCustomersQueryHandlerTests
 
         var request = new GetCustomersQuery(
             new PaginationRequest { PageNumber = 1, PageSize = 10 },
-            new GetCustomersRequest { Email = "test@example.com" });
+            new GetCustomersRequest { Search = "test" });
 
         // Act
         var result = await _handler.Handle(request, CancellationToken.None);
@@ -59,11 +61,11 @@ public class GetCustomersQueryHandlerTests
                 Arg.Any<CancellationToken>());
     }
 
-    private static AccountEntity CreateAccount(string firstName, string lastName, string email)
+    private static StaffEntity CreateAccount(string firstName, string lastName, string email)
     {
         var accountId = Guid.NewGuid();
 
-        var account = new AccountEntity
+        var account = new StaffEntity
         {
             Id = accountId,
             FirstName = firstName,

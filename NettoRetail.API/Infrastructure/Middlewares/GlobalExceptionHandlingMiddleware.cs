@@ -4,8 +4,15 @@ using NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
 namespace NettoRetail.API.Infrastructure.Middlewares;
 
-public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
+public class GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlingMiddleware> logger)
 {
+    private static readonly JsonSerializerOptions SerializerOptions =
+        new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+
     public async Task Invoke(HttpContext ctx)
     {
         try
@@ -14,6 +21,8 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
+            logger.LogCritical(ex.Message);
+            logger.LogCritical(ex.StackTrace);
             await HandleException(ex, ctx);
         }
     }
@@ -21,13 +30,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next)
     private static async Task HandleException(Exception ex, HttpContext ctx)
     {
         var error = ApiExceptionHandler.Handle(ex);
-        var serializedError = JsonSerializer.Serialize(
-            error.Result,
-            new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        });
+        var serializedError = JsonSerializer.Serialize(error.Result, SerializerOptions);
 
         ctx.Response.StatusCode = error.Status;
         ctx.Response.ContentType = "application/json";

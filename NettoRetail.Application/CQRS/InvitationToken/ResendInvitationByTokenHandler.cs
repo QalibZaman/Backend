@@ -19,7 +19,7 @@ public record ResendInvitationByTokenCommand(string Token):IRequest
 
 public class ResendInvitationByTokenHandler(
     IInvitationTokenRepository invitationTokenRepo,
-    IAccountRepository accountRepo,
+    IStaffRepository accountRepo,
     IInvitationTokenService invitationTokenService,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
@@ -39,7 +39,7 @@ public class ResendInvitationByTokenHandler(
             ?? throw new ConflictException("Your invitation link is invalid or expired.");
         
         var account = await accountRepo
-            .GetAsync(new GetAccountByIdSpecification(oldtoken.AccountId),cancellationToken)
+            .GetAsync(new GetStaffByIdSpecification(oldtoken.AccountId),cancellationToken)
                       ?? throw new NotFoundException("This account no longer exists. Contact your administrator.");
 
         var rawToken = invitationTokenService.GenerateRawToken();

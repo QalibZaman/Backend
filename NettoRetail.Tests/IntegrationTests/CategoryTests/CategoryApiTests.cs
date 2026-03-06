@@ -384,9 +384,9 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                     }
                 };
 
-                var accounts = new List<AccountEntity>()
+                var accounts = new List<StaffEntity>()
             {
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("5cdb181b-fe81-4c82-bd8e-21362fdd5688"),
                     FirstName = "Stringa",
@@ -398,7 +398,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                     EncryptedTotpSecret = null,
                     ShopId = 1,
                 },
-                new AccountEntity
+                new StaffEntity
                 {
                     Id = Guid.Parse("5cdb182b-fe81-4c82-bd8e-21362fdd5688"),
                     FirstName = "Stringaa",
@@ -413,7 +413,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                };
 
                 dbContext.Categories.AddRange(categories);
-                dbContext.Accounts.AddRange(accounts);
+                dbContext.Staff.AddRange(accounts);
                 dbContext.Shops.AddRange(shops);
 
                 dbContext.SaveChanges();
@@ -427,7 +427,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 dbContext.Categories.RemoveRange(dbContext.Categories);
-                dbContext.Accounts.RemoveRange(dbContext.Accounts);
+                dbContext.Staff.RemoveRange(dbContext.Staff);
                 dbContext.Shops.RemoveRange(dbContext.Shops);
 
                 dbContext.SaveChanges();

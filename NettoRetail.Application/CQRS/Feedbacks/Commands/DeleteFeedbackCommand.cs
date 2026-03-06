@@ -1,7 +1,5 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Feedback;
 using NettoRetail.Shared.Interfaces.Repositories;
 

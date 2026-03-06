@@ -12,7 +12,7 @@ public class CustomerRepository(AppDbContext dbContext) : BaseRepository<Custome
     {
         return await (
             from c in _dbContext.Customers
-            join a in _dbContext.Accounts on c.AccountId equals a.Id
+            join a in _dbContext.Staff on c.Id equals a.Id
             where c.IsActive && a.Email == email
                 && a.RoleId == RoleConstants.Customer
             select 1)

@@ -4,6 +4,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.IInventoryService;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -115,7 +116,7 @@ public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsReposit
             .AddInclude(x => x.Category)
             .AddInclude(x => x.Images);
 
-        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
         specBuilder.Skip(skip).Take(request.PageModel.PageSize);
 

@@ -16,7 +16,7 @@ public record SetPasswordByInvitationTokenCommand(SetPasswordByInvitationRequest
 
 public class SetPasswordByInvitationTokenHandler(
     IInvitationTokenRepository invitationTokenRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IInvitationTokenService invitationTokenService,
     IJwtManager jwtManager,
     IEmailSender emailSender,
@@ -46,7 +46,7 @@ public class SetPasswordByInvitationTokenHandler(
         }
 
         var account = await accountRepository.GetAsync(
-            new GetAccountByIdSpecification(token.AccountId),
+            new GetStaffByIdSpecification(token.AccountId),
             cancellationToken) 
                       ?? throw new NotFoundException("This account no longer exists. Contact your administrator.");
 

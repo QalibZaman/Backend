@@ -24,11 +24,8 @@ public class GetCustomerContactInfoQueryHandler(
         var customer = await customerRepository.GetAsync(spec, ct)
                        ?? throw new NotFoundException("Customer not found.");
 
-        if (customer.Account is null)
-            throw new InvalidOperationException("Customer contact information is unavailable.");
-
-        if (string.IsNullOrWhiteSpace(customer.Account.FirstName) ||
-            string.IsNullOrWhiteSpace(customer.Account.LastName))
+        if (string.IsNullOrWhiteSpace(customer.FirstName) ||
+            string.IsNullOrWhiteSpace(customer.LastName))
             throw new InvalidOperationException("Customer contact information is incomplete.");
 
         return customer.Adapt<CustomerContactInfoResponse>(config);

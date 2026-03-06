@@ -9,6 +9,6 @@ namespace NettoRetail.Application.Models.Response
     public record ToggleLinkProductsResponse(
      Guid Id,
      string Name,
-     long Upc,
+     string Upc,
      bool IsLinked);
 }

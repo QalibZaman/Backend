@@ -17,30 +17,25 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Admin;
 
 public record CreateAdminCommand(AdminSignUpModel Model) : IRequest<TokenResponse>;
 
-public class CreateAdminCommandHandler(IAccountRepository accountRepository,
-    IRoleRepository roleRepository,
+public class CreateAdminCommandHandler(IStaffRepository staffRepository,
     IJwtManager jwtManager,
     IOptions<AdminRoleOptions> adminOptions)
     : IRequestHandler<CreateAdminCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByEmailSpecification(request.Model.Email);
-        var staff = await accountRepository.GetAsync(specification, cancellationToken);
-
-        if (staff != null)
-        {
+        var specification = new GetStaffByEmailSpecification(request.Model.Email);
+        if (await staffRepository.Exists(specification, cancellationToken))
             throw new ConflictException("This user is already registered.");
-        }
 
-        var admin = request.Model.Adapt<AccountEntity>();
+        var admin = request.Model.Adapt<StaffEntity>();
         admin.RoleId = adminOptions.Value.RoleId;
         admin.Status = StaffStatusEnum.Online;
 
         admin.CommunicationPreference = CommunicationPreferencesSetter.SetCommunicationPreferences(admin);
 
         admin.PasswordHash = PasswordHasher.HashPassword(admin.PasswordHash);
-        var user = await accountRepository.AddAsync(admin, cancellationToken);
+        var user = await staffRepository.AddAsync(admin, cancellationToken);
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 

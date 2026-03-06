@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 public record ConfirmTwoFactorAuthCommand(Guid UserId, string TotpCode) : IRequest;
 
 public class ConfirmTwoFactorAuthCommandHandler(
-    IAccountRepository userRepository,
+    IStaffRepository userRepository,
     ITotpService totpService)
     : IRequestHandler<ConfirmTwoFactorAuthCommand>
 {
@@ -18,7 +18,7 @@ public class ConfirmTwoFactorAuthCommandHandler(
         if (string.IsNullOrWhiteSpace(request.TotpCode))
             throw new BadRequestException("2FA code must not be empty.");
 
-        var specification = new GetAccountByIdSpecification(request.UserId);
+        var specification = new GetStaffByIdSpecification(request.UserId);
         var user = await userRepository.GetAsync(specification, cancellationToken);
 
         if (user == null)

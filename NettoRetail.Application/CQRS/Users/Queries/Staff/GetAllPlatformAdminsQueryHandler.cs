@@ -10,12 +10,12 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record GetAllPlatformAdminsQuery() : IRequest<List<PlatformAdminResponse>>;
 
-public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
+public class GetAllPlatformAdminsQueryHandler(IStaffRepository accountRepo)
     : IRequestHandler<GetAllPlatformAdminsQuery, List<PlatformAdminResponse>>
 {
     public async Task<List<PlatformAdminResponse>> Handle(GetAllPlatformAdminsQuery request, CancellationToken cancellationToken)
     {
-        var specification = new SpecificationBuilder<AccountEntity>()
+        var specification = new SpecificationBuilder<StaffEntity>()
             .AddOrderBy(a => a.DateCreated, isDesc: true)
             .AddCriteria(
                 a => a.Role.Name.StartsWith(PlatformAdminConstants.PlatformAdminPrefix))

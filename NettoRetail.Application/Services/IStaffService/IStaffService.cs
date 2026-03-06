@@ -15,7 +15,7 @@ public interface IStaffService
 
     Task UpdateStaffAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
+        StaffEntity staff,
         CancellationToken token = default);
 
     public StaffStatusEnum? ParseStaffStatus(string? statusString);

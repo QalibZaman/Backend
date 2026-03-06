@@ -12,18 +12,18 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 {
     public class ActivateDeactivatePlatformAdminTests
     {
-        private readonly IAccountRepository _accRepo;
+        private readonly IStaffRepository _accRepo;
         private readonly ISessionTerminationService _sessionTerminationService;
 
-        private readonly AccountEntity admin;
+        private readonly StaffEntity admin;
 
 
         public ActivateDeactivatePlatformAdminTests()
         {
-            _accRepo = Substitute.For<IAccountRepository>();
+            _accRepo = Substitute.For<IStaffRepository>();
             _sessionTerminationService = Substitute.For<ISessionTerminationService>();
 
-            admin = new AccountEntity
+            admin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -38,7 +38,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task ActivateAdmin_ShouldUpdateStatusToActive_WhenAdminIsDeactivated()
         {
             // Arrange
-            var inactiveAdmin = new AccountEntity
+            var inactiveAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -50,7 +50,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
             var command = new ActivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);
@@ -70,7 +70,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new ActivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
@@ -86,7 +86,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task ActivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
         {
             // Arrange
-            var notAdmin = new AccountEntity
+            var notAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Not",
@@ -103,7 +103,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new ActivatePlatfromAdminCommand(notAdmin.Id, admin.Id);
@@ -121,7 +121,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(admin);
 
             var command = new ActivatePlatfromAdminCommand(admin.Id, admin.Id);
@@ -137,7 +137,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task ActivateAdmin_ShouldReturnBadRequestException_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var pendingAdmin = new AccountEntity
+            var pendingAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -149,7 +149,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(pendingAdmin);
 
             var command = new ActivatePlatfromAdminCommand(pendingAdmin.Id, admin.Id);
@@ -165,7 +165,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task ActivateAdmin_ShouldReturnBadRequestException_WhenAdminHasActiveStatus()
         {
             // Arrange
-            var activeAdmin = new AccountEntity
+            var activeAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -177,7 +177,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new ActivatePlatformAdminCommandHandler(_accRepo);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
             var command = new ActivatePlatfromAdminCommand(activeAdmin.Id, admin.Id);
@@ -193,7 +193,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeactivateAdmin_ShouldUpdateStatusToDeactivated_WhenAdminIsActive()
         {
             // Arrange
-            var activeAdmin = new AccountEntity
+            var activeAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -205,7 +205,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
             var command = new DeactivatePlatfromAdminCommand(activeAdmin.Id, admin.Id);
@@ -226,7 +226,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new DeactivatePlatfromAdminCommand(Guid.NewGuid(), admin.Id);
@@ -242,7 +242,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeactivateAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
         {
             // Arrange
-            var notAdmin = new AccountEntity
+            var notAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Not",
@@ -259,7 +259,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new DeactivatePlatfromAdminCommand(notAdmin.Id, admin.Id);
@@ -277,7 +277,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(admin);
 
             var command = new DeactivatePlatfromAdminCommand(admin.Id, admin.Id);
@@ -293,7 +293,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var pendingAdmin = new AccountEntity
+            var pendingAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -305,7 +305,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(pendingAdmin);
 
             var command = new DeactivatePlatfromAdminCommand(pendingAdmin.Id, admin.Id);
@@ -321,7 +321,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasCreatePasswordStaffStatus()
         {
             // Arrange
-            var inactiveAdmin = new AccountEntity
+            var inactiveAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -333,7 +333,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
             var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);
@@ -349,7 +349,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeactivateAdmin_ShouldReturnBadRequestException_WhenAdminHasDeactivatedStatus()
         {
             // Arrange
-            var inactiveAdmin = new AccountEntity
+            var inactiveAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -361,7 +361,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeactivatePlatformAdminCommandHandler(_accRepo, _sessionTerminationService);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
             var command = new DeactivatePlatfromAdminCommand(inactiveAdmin.Id, admin.Id);

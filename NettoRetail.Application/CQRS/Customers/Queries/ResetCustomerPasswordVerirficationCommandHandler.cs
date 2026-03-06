@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -14,7 +14,7 @@ namespace NettoRetail.Application.CQRS.Customers.Queries;
 public record ResetCustomerPasswordVerificationCommand(string Token) : IRequest<string>;
 public class ResetCustomerPasswordVerirficationCommandHandler(
     IOptions<CustomerPasswordResetOptions> customerResetPasswordOptions,
-    IAccountRepository accountRepository,
+    ICustomerRepository customerRepository,
     IJwtManager jwtManager) : IRequestHandler<ResetCustomerPasswordVerificationCommand, string>
 {
     public async Task<string> Handle(ResetCustomerPasswordVerificationCommand command, CancellationToken cancellationToken)
@@ -24,24 +24,31 @@ public class ResetCustomerPasswordVerirficationCommandHandler(
 
         var principal = jwtManager.ValidateCustomerResetPasswordToken(command.Token);
 
-        var emailClaim = principal.FindFirst(ClaimTypes.Email)
+        var email = principal.FindFirstValue(ClaimTypes.Email)
             ?? throw new BadRequestException("Reset password token does not contain an email claim.");
 
-        var spec = new GetAccountByEmailSpecification(emailClaim!.Value);
-        var account = await accountRepository.GetAsync(spec, cancellationToken)
+        var shopIdString = principal.FindFirstValue(AuthClaims.ShopId)
+            ?? throw new BadRequestException("Reset password token does not contain a shop ID claim.");
+
+        if (!int.TryParse(shopIdString, out var shopId) || shopId <= 0)
+            throw new BadRequestException("Shop ID in token is invalid.");
+
+        var spec = new GetCustomerByEmailAndShopIdSpecification(email, shopId);
+        var customer = await customerRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Customer not found.");
 
         var issuedAtSeconds = GetIssuedAtSeconds(principal);
-        if (account.PasswordUpdatedAt.HasValue)
+        if (customer.PasswordUpdatedAt.HasValue)
         {
-            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
+            var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
             if (issuedAtSeconds <= passwordUpdatedAtSeconds)
                 throw new NotFoundException("Invalid token.");
         }
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Email, account.Email),
+            new(ClaimTypes.Email, email),
+            new(AuthClaims.ShopId, shopIdString),
             new(AuthClaims.TokenType, AuthTokenTypes.CustomerResetPassword),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };

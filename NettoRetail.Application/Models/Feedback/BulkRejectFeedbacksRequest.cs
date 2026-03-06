@@ -1,8 +1,10 @@
-﻿
-namespace NettoRetail.Application.Models.Request.Review;
+﻿using System.Text.Json.Serialization;
+
+namespace NettoRetail.Application.Models.Feedback;
 
 public class BulkRejectFeedbacksRequest
 {
-    public required List<Guid> FeedBackIds { get; set; }
+    [JsonPropertyName("feedBackIds")]
+    public required List<Guid> FeedbackIds { get; set; }
     public required string Reason { get; set; }
 }

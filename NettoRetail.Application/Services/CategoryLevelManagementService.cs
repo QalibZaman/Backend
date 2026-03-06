@@ -5,6 +5,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -69,7 +70,7 @@ namespace NettoRetail.Application.Services
 
             var categories = await _categoryRepository.GetAllBySpecAsync(categorySpec, cancellationToken);
             var pagedCategories = categories
-                .Skip((pageModel.PageNumber - 1) * pageModel.PageSize)
+                .Skip(PaginationHelper.CalculateSkip(pageModel.PageNumber, pageModel.PageSize))
                 .Take(pageModel.PageSize)
                 .ToList();
 

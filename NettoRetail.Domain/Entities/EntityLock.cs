@@ -7,5 +7,5 @@ public class EntityLock
     public required int ShopId { get; set; }
     public required Guid LockedByUserId { get; set; }
     public required DateTimeOffset LockedAtUtc { get; set; }
-    public required AccountEntity LockedByUser { get; set; }
+    public required StaffEntity LockedByUser { get; set; }
 }

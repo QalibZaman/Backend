@@ -9,6 +9,6 @@ public class GetOrderStatusHistoryByIdSpecification : Specification<OrderStatusH
     public GetOrderStatusHistoryByIdSpecification(int orderId)
         : base(o => o.OrderId == orderId)
     {
-        AddInclude(o => o.Include(o => o.UpdatedBy));
+        AddChaninedInclude(o => o.Include(o => o.UpdatedBy));
     }
 }

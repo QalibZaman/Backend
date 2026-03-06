@@ -20,7 +20,7 @@ public record UpdateSubscriptionPlanCommand(
 
 public class UpdateSubscriptionPlanCommandHandler(
     ISubscriptionPlanRepository planRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IFeatureRepository featureRepository,
     IPriceHistoryService priceHistoryService,
     ISubscriptionNotificationService subscriptionNotificationService
@@ -29,7 +29,7 @@ public class UpdateSubscriptionPlanCommandHandler(
     public async Task Handle(UpdateSubscriptionPlanCommand request, CancellationToken cancellationToken)
     {
         var superAdmin = await accountRepository.GetAsync(
-            new GetAccountByIdSpecification(request.UserId), cancellationToken)
+            new GetStaffByIdSpecification(request.UserId), cancellationToken)
             ?? throw new NotFoundException("This account was not found");
 
         if (superAdmin.RoleId != RoleConstants.SuperAdmin)

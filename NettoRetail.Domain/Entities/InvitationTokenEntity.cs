@@ -6,7 +6,7 @@ public class InvitationTokenEntity
 
     public Guid AccountId;
 
-    public AccountEntity AccountEntity;
+    public StaffEntity StaffEntity;
 
     public required string TokenHash;
     public DateTimeOffset ExpiresAt { get; set; }

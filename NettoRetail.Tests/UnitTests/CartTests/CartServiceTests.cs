@@ -367,7 +367,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             return new InventoryItemEntity
             {
                 Id = Guid.NewGuid(),
-                ProductUpc = 123456,
+                ProductUpc = "123456",
                 ProductName = "Test",
                 Price = 10m,
                 Description = "desc",

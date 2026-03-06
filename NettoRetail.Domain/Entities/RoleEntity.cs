@@ -10,5 +10,5 @@ public class RoleEntity
     public int? ShopId { get; set; }
     public ShopEntity? Shop { get; set; }
     public ICollection<PermissionRoleEntity> PermissionRoles { get; set; } = null!;
-    public ICollection<AccountEntity> Accounts { get; set; } = null!;
+    public ICollection<BaseUserEntity> Accounts { get; set; } = null!;
 }

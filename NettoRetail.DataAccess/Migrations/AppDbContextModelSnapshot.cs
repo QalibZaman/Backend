@@ -47,6 +47,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
@@ -60,7 +64,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItemImages");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,21 +82,20 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<string>("EncryptedTotpSecret")
-                        .HasColumnType("text");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
-
-                    b.Property<bool>("IsOnboardingCompleted")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsSubscribedToNewsletter")
                         .HasColumnType("boolean");
@@ -137,9 +140,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeCustomerId")
                         .HasColumnType("text");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("ZipCode")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
@@ -149,13 +149,19 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("CountryId");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_Users_Email_StaffOnly")
+                        .HasFilter("\"Discriminator\" = 'StaffEntity'");
 
                     b.HasIndex("RoleId");
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Users", (string)null);
+
+                    b.HasDiscriminator().HasValue("BaseUserEntity");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
@@ -270,8 +276,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("ProductUpc")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ProductUpc")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasColumnType("numeric");
@@ -678,32 +685,6 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
-                {
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LoyaltyId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.HasKey("AccountId");
-
-                    b.ToTable("Customers");
-                });
-
             modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
                 {
                     b.Property<string>("ResourceType")
@@ -803,9 +784,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AccountEntityId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("AccountId")
                         .HasColumnType("uuid");
 
@@ -852,8 +830,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("character varying(60)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountEntityId");
 
                     b.HasIndex("AccountId");
 
@@ -950,12 +926,18 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("ProductUpc")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<DateOnly?>("PromotionEndDate")
+                        .HasColumnType("date");
 
                     b.Property<decimal?>("PromotionPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateOnly?>("PromotionStartDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("ReservedAmount")
                         .HasColumnType("integer");
@@ -1397,7 +1379,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<Guid>("UpdatedById")
+                    b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -1643,9 +1625,6 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("DateSubmitted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -1675,6 +1654,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("StaffName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1686,7 +1668,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Reviews", (string)null);
                 });
@@ -2002,6 +1984,41 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("PriceHistories");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.HasBaseType("NettoRetail.Domain.Entities.BaseUserEntity");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LoyaltyId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("Customer");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                {
+                    b.HasBaseType("NettoRetail.Domain.Entities.BaseUserEntity");
+
+                    b.Property<string>("EncryptedTotpSecret")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsOnboardingCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.HasDiscriminator().HasValue("Admin");
+                });
+
             modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.FeatureEntity", null)
@@ -2028,7 +2045,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("InventoryItem");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
                         .WithMany("Accounts")
@@ -2110,7 +2127,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
                         .WithOne("CommunicationPreference")
                         .HasForeignKey("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2119,23 +2136,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
-                        .WithOne()
-                        .HasForeignKey("NettoRetail.Domain.Entities.CustomerEntity", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "LockedByUser")
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "LockedByUser")
                         .WithMany("Locks")
                         .HasForeignKey("LockedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("LockedByUser");
@@ -2143,7 +2149,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithOne("FailedAuthAttempt")
                         .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2154,7 +2160,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FavouriteListItemEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("FavouriteListItems")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2173,12 +2179,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", null)
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("Feedbacks")
-                        .HasForeignKey("AccountEntityId");
-
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
-                        .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -2220,18 +2222,18 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InvitationTokenEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "AccountEntity")
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "StaffEntity")
                         .WithMany("InvitationTokens")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AccountEntity");
+                    b.Navigation("StaffEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "User")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
                         .WithOne("ComparedItems")
                         .HasForeignKey("NettoRetail.Domain.Entities.ItemComparisonEntity", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2354,11 +2356,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "UpdatedBy")
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Order");
 
@@ -2367,7 +2368,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("PasswordHistories")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2378,7 +2379,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentHistoryEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2389,7 +2390,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("PaymentMethods")
                         .HasForeignKey("AccountId");
 
@@ -2409,7 +2410,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("RecentlyViewedProducts")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2428,13 +2429,13 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
                         .WithMany("Reviews")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
@@ -2448,7 +2449,7 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.AccountEntity", "Account")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("Sessions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2486,7 +2487,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AccountEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.Navigation("CommunicationPreference");
 
@@ -2499,17 +2500,11 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Navigation("Feedbacks");
 
-                    b.Navigation("InvitationTokens");
-
-                    b.Navigation("Locks");
-
                     b.Navigation("PasswordHistories");
 
                     b.Navigation("PaymentMethods");
 
                     b.Navigation("RecentlyViewedProducts");
-
-                    b.Navigation("Reviews");
 
                     b.Navigation("Sessions");
                 });
@@ -2534,14 +2529,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Accounts");
 
                     b.Navigation("Shops");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
-                {
-                    b.Navigation("Cart")
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
@@ -2611,6 +2598,23 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
                 {
                     b.Navigation("Shops");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
+                {
+                    b.Navigation("Cart")
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
+                {
+                    b.Navigation("InvitationTokens");
+
+                    b.Navigation("Locks");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

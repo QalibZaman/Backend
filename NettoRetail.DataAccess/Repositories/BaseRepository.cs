@@ -203,4 +203,9 @@ public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRep
 
         return response!;
     }
+
+    public async Task CommitAsync(CancellationToken cancellationToken = default)
+    {
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

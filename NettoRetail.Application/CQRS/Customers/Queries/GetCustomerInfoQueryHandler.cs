@@ -17,10 +17,8 @@ public class GetCustomerInfoQueryHandler(
 {
     public async Task<CustomerInfoResponse> Handle(GetCustomerInfoQuery request, CancellationToken cancellationToken)
     {
-        var spec = new SpecificationBuilder<CustomerEntity>()
-            .Add<GetCustomerByLoyaltyIdSpecification>(request.LoyaltyId)
-            .AddInclude(c => c.Account)
-            .Build();
+        var spec = new GetCustomerByLoyaltyIdSpecification(request.LoyaltyId);
+
         var customer = await customerRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("There is no customer with such loyalty id.");
 

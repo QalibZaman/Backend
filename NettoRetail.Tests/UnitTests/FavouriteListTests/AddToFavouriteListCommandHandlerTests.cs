@@ -13,13 +13,13 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
     {
         private readonly IFavouriteListItemRepository _favouriteListItemRepository;
         private readonly IInventoryItemRepository _inventoryItemRepository;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IStaffRepository _accountRepository;
 
         public AddToFavouriteListCommandHandlerTests()
         {
             _favouriteListItemRepository = Substitute.For<IFavouriteListItemRepository>();
             _inventoryItemRepository = Substitute.For<IInventoryItemRepository>();
-            _accountRepository = Substitute.For<IAccountRepository>();
+            _accountRepository = Substitute.For<IStaffRepository>();
         }
 
         [Fact]

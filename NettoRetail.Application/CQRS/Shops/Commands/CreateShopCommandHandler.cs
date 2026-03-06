@@ -18,7 +18,7 @@ public record CreateShopCommand(Guid AccountId, ShopModel Model) : IRequest<Shop
 
 public class CreateShopCommandHandler(
     IShopRepository shopRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IUnitOfWork unitOfWork,
     ICountryDetailsValidationService countryDetailsValidator,
     IShopValidationService shopValidator)
@@ -35,7 +35,7 @@ public class CreateShopCommandHandler(
         var shop = request.Model.Adapt<ShopEntity>();
         shop.SubscriptionPlanId = SubscriptionConstants.Free;
 
-        var specification = new GetAccountByIdSpecification(request.AccountId);
+        var specification = new GetStaffByIdSpecification(request.AccountId);
         var accountToUpdate = await accountRepository.GetAsync(specification, cancellationToken) ??
             throw new NotFoundException($"Staff member with ID {request.AccountId} not found.");
 

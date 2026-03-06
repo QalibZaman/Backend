@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NettoRetail.Application.Models.Request.InventoryItem
+﻿namespace NettoRetail.Application.Models.Request.InventoryItem
 {
-    public record ToggleLinkProductsRequest(Guid ChildId);
+    public record ToggleLinkProductsRequest(Guid ParentId, Guid ChildId);
 }

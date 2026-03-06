@@ -18,6 +18,7 @@ public class RejectFeedbackCommandHandler(
 {
     public async Task Handle(RejectFeedbackCommand request, CancellationToken cancellationToken)
     {
+        var reason = FeedbackRejectionReason.NormalizeOrThrow(request.Reason);
         var specification = new GetFeedbackByIdSpecification(request.Id);
         specification.AddInclude(f => f.Account);
         var feedback = await feedbackRepository.GetAsync(specification, cancellationToken)
@@ -26,11 +27,16 @@ public class RejectFeedbackCommandHandler(
         if (feedback.Status != FeedbackStatusEnum.Pending)
             throw new BadRequestException("Only pending feedbacks can be rejected.");
         feedback.Status = FeedbackStatusEnum.Rejected;
-        feedback.RejectionReason = request.Reason;
+        feedback.RejectionReason = reason;
+        feedback.IsVisible = false;
         await feedbackRepository.UpdateAsync(feedback, cancellationToken);
 
         //SmtpClient not working
-        var bulkEmailModel = await emailBuilderService.BuildFeedbackRejectedEmailsAsync([feedback.Account.Email], request.Reason);
+        var email = feedback.Account?.Email;
+        if (string.IsNullOrWhiteSpace(email))
+            return;
+
+        var bulkEmailModel = await emailBuilderService.BuildFeedbackRejectedEmailsAsync([email], reason);
         await emailSender.SendBulkAsync(bulkEmailModel);
     }
 }

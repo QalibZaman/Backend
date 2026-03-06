@@ -24,6 +24,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
@@ -48,7 +49,7 @@ public class StaffController(
         }
 
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         var response = new ApiResponse<TokenResponse>(data);
@@ -183,7 +184,7 @@ public class StaffController(
         var tokenResponse = await mediator.Send(command);
 
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), tokenResponse.AccessToken, tokenResponse.RefreshToken);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), tokenResponse.AccessToken, tokenResponse.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
@@ -337,10 +338,9 @@ public class StaffController(
         var shopId = HttpContext.GetUserShopId();
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
-
-        var response = await mediator.Send(query, cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+        var result = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<PaginatedResponse<StaffListResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize]
@@ -489,7 +489,8 @@ public class StaffController(
             ipAddress,
             Request.Headers.GetUserAgent(),
             tokenResponse.AccessToken,
-            tokenResponse.RefreshToken);
+            tokenResponse.RefreshToken,
+            UserTypeEnum.Admin);
 
         await mediator.Send(sessionCreateCommand);
 

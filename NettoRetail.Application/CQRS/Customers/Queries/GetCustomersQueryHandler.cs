@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -32,17 +33,13 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
     private Specification<CustomerEntity> BuildSpecification(GetCustomersQuery request)
     {
         var specificationBuilder = new SpecificationBuilder<CustomerEntity>();
-        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
 
-        specificationBuilder.Add<GetCustomerByEmailSpecification>(request.Model?.Email)
-                .Add<GetCustomerByNameSpecification>(request.Model?.Name)
-                .Add<GetCustomerByLoyaltyIdSpecification>(request.Model?.LoyaltyId)
-                .Add<GetCustomerByPhoneNumberSpecification>(request.Model?.PhoneNumber)
-                .Add<GetCustomerByRemarksSpecification>(request.Model?.Remarks);
+        specificationBuilder.Add<GetCustomerBySearchSpecification>(request.Model?.Search);
 
-        specificationBuilder.AddInclude(x => x.Account)
-            .Skip(skip)
+        specificationBuilder.Skip(skip)
             .Take(request.PageModel.PageSize);
+
 
         return specificationBuilder.Build();
     }

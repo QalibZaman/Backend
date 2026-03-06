@@ -14,7 +14,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 public record DisableTwoFactorAuthCommand(Guid UserId, DisableTwoFactorAuthRequest Model, string AccessToken) : IRequest;
 
 public class DisableTwoFactorAuthCommandHandler(
-    IAccountRepository userRepository,
+    IStaffRepository userRepository,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService,
     IBlacklistTokenService blacklistTokenService,
@@ -26,7 +26,7 @@ public class DisableTwoFactorAuthCommandHandler(
 
     public async Task Handle(DisableTwoFactorAuthCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.UserId);
+        var specification = new GetStaffByIdSpecification(request.UserId);
         var user = await userRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("User not found.");
 
         if (!user.TwoFactorEnabled)

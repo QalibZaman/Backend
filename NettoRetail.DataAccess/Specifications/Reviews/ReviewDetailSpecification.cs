@@ -1,7 +1,7 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.Application.Models.Request.Review;
+namespace NettoRetail.DataAccess.Specifications.Reviews;
 
 public class ReviewDetailSpecification : Specification<ReviewEntity>
 {

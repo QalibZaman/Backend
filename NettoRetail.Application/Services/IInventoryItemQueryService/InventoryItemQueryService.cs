@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using System.Text.RegularExpressions;
+using Mapster;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
@@ -13,8 +14,6 @@ public class InventoryItemQueryService(
     IInventoryItemRepository inventoryRepo,
     ICategoryRepository categoryRepo) : IInventoryItemQueryService
 {
-    private readonly IInventoryItemRepository _inventoryRepo = inventoryRepo;
-    private readonly ICategoryRepository _categoryRepo = categoryRepo;
     public async Task<PaginatedResponse<InventoryItemListResponse>> GetInventoryItemsAsync(
         int shopId,
         InventoryItemsSearchModel model,
@@ -46,15 +45,15 @@ public class InventoryItemQueryService(
         var builder = new SpecificationBuilder<InventoryItemEntity>()
             .Add<GetInventoryItemsByShopIdSpecification>(shopId);
 
-        if (long.TryParse(model.UpcOrName, out var upc))
-            builder.Add<GetInventoryItemsByPartialUpcSpecification>(upc);
+        if (Regex.IsMatch(model.UpcOrName, @"^\d{1,12}$"))
+            builder.Add<GetInventoryItemsByPartialUpcSpecification>(model.UpcOrName);
         else
             builder.Add<GetInventoryItemsByPartialNameSpecification>(model.UpcOrName);
 
-        var skip = (model.PageNumber - 1) * model.PageSize;
+        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
         var spec = builder.Skip(skip).Take(model.PageSize).Build();
 
-        var (items, total) = await _inventoryRepo.GetAllPaginatedAsync(spec, ct);
+        var (items, total) = await inventoryRepo.GetAllPaginatedAsync(spec, ct);
 
         return CreateResponse(items, total);
     }
@@ -66,10 +65,10 @@ public class InventoryItemQueryService(
     {
         var builder = new SpecificationBuilder<InventoryItemEntity>()
            .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value);
-        var skip = Math.Max(0, (model.PageNumber - 1) * model.PageSize);
+        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
         var spec = builder.Skip(skip).Take(model.PageSize).Build();
 
-        var (sortedItems, total) = await _inventoryRepo.GetAllPaginatedAsync(spec, ct);
+        var (sortedItems, total) = await inventoryRepo.GetAllPaginatedAsync(spec, ct);
 
         return CreateResponse(sortedItems, total);
     }
@@ -80,12 +79,12 @@ public class InventoryItemQueryService(
         CancellationToken ct)
     {
         var filter = model.Adapt<GetFilteredInventoryItemsModel>();
-        var skip = model.PageNumber > 0 ? (model.PageNumber - 1) * model.PageSize : 0;
+        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
 
         var categoryIds = Enumerable.Empty<int>();
         if (filter.CategoryId != 0)
         {
-            var categories = await _categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct);
+            var categories = await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct);
             categoryIds = categories.Select(c => c.Id);
         }
 
@@ -104,10 +103,14 @@ public class InventoryItemQueryService(
                     option.IsDescending);
             }
         }
+        else
+        {
+            specBuilder.AddOrderBy(i => i.Id, false);
+        }
 
         var finalSpec = specBuilder.Skip(skip).Take(model.PageSize).Build();
 
-        var (items, total) = await _inventoryRepo.GetAllPaginatedAsync(finalSpec, ct);
+        var (items, total) = await inventoryRepo.GetAllPaginatedAsync(finalSpec, ct);
 
         return CreateResponse(items, total);
     }

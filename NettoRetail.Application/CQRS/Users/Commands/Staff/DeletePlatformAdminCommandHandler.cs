@@ -10,13 +10,13 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 public record DeletePlatformAdminCommand(Guid Id, Guid CurrentAdminId) : IRequest;
 
 public class DeletePlatformAdminCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork) : IRequestHandler<DeletePlatformAdminCommand>
 {
     public async Task Handle(DeletePlatformAdminCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Id);
+        var specification = new GetStaffByIdSpecification(request.Id);
         specification.AddInclude(acc => acc.Role);
         specification.AddCriteria(acc => acc.Role.Name.StartsWith("PlatformAdmin"));
 

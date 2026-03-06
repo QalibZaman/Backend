@@ -5,11 +5,12 @@ namespace NettoRetail.DataAccess.Specifications.Brands;
 
 public class GetBrandsByShopIdSpecificationWithPagination : Specification<BrandEntity>
 {
-    public GetBrandsByShopIdSpecificationWithPagination(int shopId, int pageNumber, int pageSize)
+    public GetBrandsByShopIdSpecificationWithPagination(int shopId, int skip, int take)
         : base(b => b.ShopId == shopId)
     {
         AddOrderBy(b => b.Name);
         AddOrderBy(b => b.Id);
-        ApplyPaging(pageNumber, pageSize);
+        Skip = skip;
+        Take = take;
     }
 }
