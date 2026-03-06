@@ -89,6 +89,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Created(string.Empty, response);
     }
 
+    /// <summary>
+    ///  Uploads the list of items from the '.csv' file.
+    /// </summary>
+    /// <remarks>
+    ///     The '.csv' file should be in correct format, example of the file content:
+    ///     <code>
+    ///         Product UPC,Product Name,Product Location,Brand,Product Category,Available Amount,Reserved Amount,On-hand Amount,Price,Status,Description
+    ///         123456789012,Wireless Mouse,"Warehouse 3, Aisle 4",Gembird,ElectronicsGadgets,70,10,90,25.99,Available,Ergonomic wireless mouse with adjustable DPI.
+    ///     </code>
+    ///     **Notice these rules:**
+    ///     1. No space after a comma char.
+    ///     2. Values that need comma are enclosed in double quotes.
+    ///     3. Brand and category must exist in the database.
+    /// </remarks>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("csv-file")]
     public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
