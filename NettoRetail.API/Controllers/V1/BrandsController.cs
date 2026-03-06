@@ -58,7 +58,6 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// </para>
     /// </remarks>
     /// <param name="pagination">Pagination parameters: <c>PageNumber</c> and <c>PageSize</c>.</param>
-    /// <param name="cancellationToken">Request cancellation token.</param>
     /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [RequiresAnyPermission(
@@ -103,7 +102,6 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// - ADMINS_MANAGEMENT
     /// </remarks>
     /// <param name="brandId">The unique identifier of the brand.</param>
-    /// <param name="cancellationToken">Token used to cancel the request.</param>
     /// <returns>
     /// Returns an <see cref="ApiResponse{BrandResponse}"/> containing the brand information.
     /// </returns>
