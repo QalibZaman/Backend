@@ -4,22 +4,27 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.PermissionRole;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.CQRS.Sessions.Commands;
 
-public record CreateSessionCommand(string Ips, string UserAgent, string Jwt, string RefreshToken) : IRequest;
+public record CreateSessionCommand(string Ips,
+    string UserAgent,
+    string Jwt,
+    string RefreshToken,
+    UserTypeEnum UserType) : IRequest;
 
 public class CreateSessionCommandHandler(
     ISessionRepository sessionRepository,
-    IAccountRepository accountRepository,
+    IStaffRepository adminRepository,
+    ICustomerRepository customerRepository,
     IPermissionRoleRepository permissionRoleRepository,
     ISessionModelFactory sessionModelFactory,
     IIpInfoService ipInfoService,
@@ -37,14 +42,27 @@ public class CreateSessionCommandHandler(
             location = await ipInfoService.GetIpInfoAsync(ip);
 
         var expiresAt = JwtUtils.GetJwtExpiration(request.Jwt) ?? throw new InvalidTokenCredentialsException("Invalid JWT or missing expiration claim.");
-        var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, expiresAt, cancellationToken);
+        var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, expiresAt, request.UserType, cancellationToken);
 
         var session = sessionModel.Adapt<SessionEntity>();
 
         await sessionRepository.AddAsync(session, cancellationToken);
 
-        var accSpecification = new GetAccountByIdSpecification(session.AccountId);
-        var account = await accountRepository.GetAsync(accSpecification, cancellationToken) ?? throw new NotFoundException("Account not found");
+        BaseUserEntity account;
+
+        if (request.UserType == UserTypeEnum.Admin)
+        {
+            var accSpecification = new GetStaffByIdSpecification(session.AccountId);
+            account = await adminRepository.GetAsync(accSpecification, cancellationToken)
+                ?? throw new NotFoundException("Account not found");
+        }
+        else
+        {
+            var customerSpec = new GetCustomerByIdSpecification(session.AccountId);
+            account = await customerRepository.GetAsync(customerSpec, cancellationToken)
+                ?? throw new NotFoundException("Account not found");
+        }
+
         var roleId = account.RoleId;
 
         var permissionSpecification = new GetPermissionsByRoleIdSpecification(roleId);

@@ -27,7 +27,7 @@ public class AddItemToCartCommandHandlerTests
                     new CartItemEntity
                     {
                         InventoryItemId = productId,
-                        ProductUpc = 123456,
+                        ProductUpc = "123456",
                         ProductName = "Test Product",
                         Price = 10m,
                         Quantity = 1,
@@ -47,7 +47,7 @@ public class AddItemToCartCommandHandlerTests
         Assert.True(result.Success);
         Assert.Equal("Added to bag", result.Message);
         Assert.Equal(1, result.TotalQuantity);
-        Assert.Equal(123456, result.AddedItem.ProductUpc);
+        Assert.Equal("123456", result.AddedItem.ProductUpc);
         Assert.Equal("Test Product", result.AddedItem.ProductName);
         Assert.Equal(10m, result.AddedItem.Price);
         Assert.Equal(1, result.AddedItem.Quantity);

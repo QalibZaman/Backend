@@ -5,6 +5,9 @@ namespace NettoRetail.API.Infrastructure.Validators;
 
 public class CreateFeedbackValidator : AbstractValidator<CreateFeedbackModel>
 {
+    private const string AllowedTextRegex =
+        @"^(?!\s)[A-Za-z0-9\s!@#$%^&*()_\-+={}\[\]:;""'<>?,./\\|`~]+(?<!\s)$";
+
     public CreateFeedbackValidator()
     {
         RuleFor(x => x.Rating)
@@ -12,19 +15,17 @@ public class CreateFeedbackValidator : AbstractValidator<CreateFeedbackModel>
             .WithMessage("Rating must be between 1 and 5.");
 
         RuleFor(x => x.Title)
-          .Cascade(CascadeMode.Stop)
-          .NotEmpty().WithMessage("Title is required.")
-           .Matches(@"^(?!\s)[A-Za-z0-9!@#$%^&*()_\-+={}[\]:;""'<>?,./\\|`~ ]+(?<!\s)$")
-              .WithMessage("In title allowed: Latin letters, digits, special characters. No leading/trailing spaces.")
-           .MaximumLength(60)
-              .WithMessage("Title cannot be longer than 60 characters.");
+            .MaximumLength(60)
+            .WithMessage("Title cannot be longer than 60 characters.")
+            .Matches(AllowedTextRegex)
+            .When(x => !string.IsNullOrWhiteSpace(x.Title))
+            .WithMessage("In title allowed: Latin letters, digits, special characters. No leading/trailing spaces.");
 
         RuleFor(x => x.Text)
-          .Cascade(CascadeMode.Stop)
-          .NotEmpty().WithMessage("Text is required.")
-          .Matches(@"^(?!\s)[A-Za-z0-9!@#$%^&*()_\-+={}[\]:;""'<>?,./\\|`~ ]+(?<!\s)$")
-              .WithMessage("In Text allowed: Latin letters, digits, special characters. No leading/trailing spaces.")
-          .MaximumLength(500)
-              .WithMessage("Text cannot be longer than 500 characters.");
+            .MaximumLength(500)
+            .WithMessage("Text cannot be longer than 500 characters.")
+            .Matches(AllowedTextRegex)
+            .When(x => !string.IsNullOrWhiteSpace(x.Text))
+            .WithMessage("In Text allowed: Latin letters, digits, special characters. No leading/trailing spaces.");
     }
 }

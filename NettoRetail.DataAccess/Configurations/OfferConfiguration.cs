@@ -14,7 +14,6 @@ public class OfferConfiguration : IEntityTypeConfiguration<OfferEntity>
 
         builder.Property(x => x.ShopId).IsRequired();
         builder.Property(x => x.Name).IsRequired().HasMaxLength(150);
-        builder.Property(x => x.Preview).HasMaxLength(1000);
         builder.Property(x => x.IsVisible).IsRequired();
         builder.Property(x => x.SelectionType)
             .HasConversion<int>()

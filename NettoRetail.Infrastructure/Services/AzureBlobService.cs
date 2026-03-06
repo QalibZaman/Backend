@@ -9,29 +9,31 @@ namespace NettoRetail.Infrastructure.Services;
 public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobService
 {
     public async Task<string> UploadAsync(
-         string fileName,
-         Stream stream,
-         string containerName,
-         BlobContentCategoryEnum category,
-         bool overwrite = true,
-         string? contentType = null)
+     string fileName,
+     Stream stream,
+     string containerName,
+     BlobContentCategoryEnum category,
+     bool overwrite = true,
+     string? contentType = null)
+{
+    var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+    await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+    string prefix = category.GetDirectory();
+    var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
+
+    var headers = new BlobHttpHeaders
     {
-        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-        string prefix = category.GetDirectory();
-        var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
+        ContentType = contentType ?? "application/octet-stream"
+    };
 
-        var headers = new BlobHttpHeaders
-        {
-            ContentType = contentType ?? "application/octet-stream"
-        };
+    await blobClient.UploadAsync(
+        stream,
+        new BlobUploadOptions { HttpHeaders = headers },
+        cancellationToken: default);
 
-        await blobClient.UploadAsync(
-            stream,
-            new BlobUploadOptions { HttpHeaders = headers },
-            cancellationToken: default);
-
-        return blobClient.Uri.ToString();
-    }
+    return blobClient.Uri.ToString();
+}
 
     public string GetBlobUrl(string containerName, string blobName)
     {
@@ -40,16 +42,13 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
         return blobClient.Uri.ToString();
     }
 
-    public async Task DeleteByUrlAsync(string blobUrl)
+    public async Task DeleteByUrlAsync(string blobUrl, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(blobUrl))
             throw new ArgumentException("Blob URL cannot be null or empty.", nameof(blobUrl));
 
         var uri = new Uri(blobUrl);
-        var segments = uri.AbsolutePath.TrimStart('/').Split('/');
-
-        // Azurite URLs: [account]/[container]/[folder/...]/[filename]
-        // Azure URLs:   [container]/[folder/...]/[filename]
+        var segments = uri.AbsolutePath.TrimStart('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         bool isAzurite = uri.Host.Contains("127.0.0.1") || uri.Host.Contains("localhost");
         int containerIndex = isAzurite ? 1 : 0;
@@ -58,12 +57,12 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
             throw new InvalidOperationException("Invalid blob URL format.");
 
         string containerName = segments[containerIndex];
-        string blobName = string.Join('/', segments.Skip(containerIndex + 1));
+        string blobName = Uri.UnescapeDataString(string.Join('/', segments.Skip(containerIndex + 1)));
 
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
         var blobClient = containerClient.GetBlobClient(blobName);
 
-        await blobClient.DeleteIfExistsAsync();
+        await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
 
     public async Task DeleteBlobAsync(string blobName)

@@ -7,10 +7,9 @@ namespace NettoRetail.API.Infrastructure.Validators
     {
         public UpdateVariationRequestValidator()
         {
-            RuleFor(x => x.ProductUpc.ToString())
+            RuleFor(x => x.ProductUpc)
                 .NotEmpty().WithMessage("Product UPC is required.")
-                .Matches("^[0-9]+$").WithMessage("Product UPC must contain only numeric characters.")
-                .Length(12).WithMessage("Product UPC must be exactly 12 digits long.");
+                .Matches(@"^\d{12}$").WithMessage("Product UPC must be exactly 12 digits long.");
 
             RuleFor(x => x.Price)
                 .GreaterThanOrEqualTo(0).WithMessage("Price must be greater or equal to 0.")
@@ -38,9 +37,11 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             When(x => !x.ApplyImagesFromParent, () =>
             {
-                RuleFor(x => x.NewImages)
-                    .NotNull().WithMessage("New images are required when not inherited from parent.")
-                    .Must(list => list!.Count > 0).WithMessage("At least one image must be provided.");
+                RuleFor(x => x)
+                    .Must(x => (x.NewImages != null && x.NewImages.Count > 0) ||
+                               (x.ImageIds != null && x.ImageIds.Count > 0))
+                    .WithMessage("You must either upload new images or select existing images when not inheriting from parent.")
+                    .WithName("Images");
             });
 
             RuleFor(x => x.AvailableAmount)
@@ -55,6 +56,7 @@ namespace NettoRetail.API.Infrastructure.Validators
             When(x => !x.ApplyDetailsFromParent, () =>
             {
                 RuleFor(x => x.CustomParameters)
+                    .Cascade(CascadeMode.Stop)
                     .NotNull().WithMessage("Custom parameters are required when not inherited from parent.")
                     .Must(list => list!.Count > 0).WithMessage("Custom parameters cannot be empty.");
             });

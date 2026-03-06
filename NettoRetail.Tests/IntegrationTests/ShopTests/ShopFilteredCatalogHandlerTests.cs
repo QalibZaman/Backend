@@ -307,7 +307,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                 dbContext.Brands.RemoveRange(dbContext.Brands);
                 dbContext.InventoryItems.RemoveRange(dbContext.InventoryItems);
                 dbContext.Categories.RemoveRange(dbContext.Categories);
-                dbContext.Accounts.RemoveRange(dbContext.Accounts);
+                dbContext.Staff.RemoveRange(dbContext.Staff);
                 dbContext.Shops.RemoveRange(dbContext.Shops);
 
                 dbContext.SaveChanges();
@@ -719,7 +719,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "MacBook Pro 16",
-                        ProductUpc = 123456789012,
+                        ProductUpc = "123456789012",
                         Price = 2499.99m,
                         Description = "16-inch MacBook Pro with M2 Pro chip",
                         CategoryId = 1,
@@ -739,7 +739,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "iPhone 15 Pro",
-                        ProductUpc = 987654321098,
+                        ProductUpc = "987654321098",
                         Price = 999.00m,
                         Description = "Latest iPhone with A16 Bionic chip",
                         CategoryId = 2,
@@ -759,7 +759,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "AirPods Pro (2nd Gen)",
-                        ProductUpc = 567890123456,
+                        ProductUpc = "567890123456",
                         Price = 249.00m,
                         Description = "Premium wireless earbuds with ANC",
                         CategoryId = 4,
@@ -781,7 +781,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "Samsung Galaxy S23 Ultra",
-                        ProductUpc = 345678901234,
+                        ProductUpc = "345678901234",
                         Price = 1199.99m,
                         PromotionPrice = 799.99m,
                         IsPromoted = true,
@@ -803,7 +803,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "PlayStation 5",
-                        ProductUpc = 789012345678,
+                        ProductUpc = "789012345678",
                         Price = 499.99m,
                         Description = "Next-gen gaming console",
                         CategoryId = 19,
@@ -823,7 +823,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                     new InventoryItemEntity
                     {
                         ProductName = "iPad Air (5th Gen)",
-                        ProductUpc = 901234567890,
+                        ProductUpc = "901234567890",
                         Price = 599.00m,
                         PromotionPrice = 549.00m,
                         IsPromoted = true,

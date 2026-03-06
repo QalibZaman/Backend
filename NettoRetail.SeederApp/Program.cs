@@ -23,7 +23,7 @@ services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
-services.AddScoped<IAccountRepository, AccountRepository>();
+services.AddScoped<IStaffRepository, StaffRepository>();
 var profile = config.GetValue<string>("Profile");
 
 if (profile == "RoleSeeder")

@@ -2,12 +2,15 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Entities;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Customer;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Models;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.ISessionModelFactory;
 
-public class SessionModelFactory(IAccountRepository accountRepository) : ISessionModelFactory
+public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRepository customerRepository) : ISessionModelFactory
 {
     public async Task<SessionModel> CreateSessionModel(
         string userAgentString,
@@ -16,6 +19,7 @@ public class SessionModelFactory(IAccountRepository accountRepository) : ISessio
         string refreshToken,
         Location? location,
         DateTime expiresAt,
+        UserTypeEnum userType,
         CancellationToken cancellationToken)
     {
         var accountEmail = GetEmailFromJwt(jwt);
@@ -36,11 +40,20 @@ public class SessionModelFactory(IAccountRepository accountRepository) : ISessio
         //Ips may come in a format of string list, e.g. "0.0.0.0, 1.1.1.1, ..."
         var ip = ips.Split(',')[0].Trim();
 
-        var specification = new GetAccountByEmailSpecification(accountEmail);
-        var account = await accountRepository.GetAsync(specification, cancellationToken);
+        BaseUserEntity account;
 
-        if (account == null)
-            throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials");
+        if (userType == UserTypeEnum.Admin)
+        {
+            var specification = new GetStaffByEmailSpecification(accountEmail);
+            account = await accountRepository.GetAsync(specification, cancellationToken)
+                ?? throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials"); ;
+        }
+        else
+        {
+            var specification = new GetCustomerByEmailAndShopIdSpecification(accountEmail, GetShopIdFromJwt(jwt));
+            account = await customerRepository.GetAsync(specification, cancellationToken)
+                ?? throw new InvalidTokenCredentialsException("Error trying adding a session with token's credentials"); ;
+        }
 
         var accountGuid = account.Id;
 
@@ -85,6 +98,25 @@ public class SessionModelFactory(IAccountRepository accountRepository) : ISessio
         var emailClaim = token.Claims.FirstOrDefault(c => c.Type == "email");
 
         return emailClaim?.Value ?? "Unknown";
+    }
+
+    private static int GetShopIdFromJwt(string jwt)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        if (!handler.CanReadToken(jwt))
+        {
+            throw new ArgumentException("Invalid JWT token");
+        }
+
+        var token = handler.ReadJwtToken(jwt);
+
+        var shopIdClaim = token.Claims.FirstOrDefault(c => c.Type == "shop_id");
+
+        if (!int.TryParse(shopIdClaim.Value, out var shopId))
+            throw new InvalidTokenCredentialsException("Shop ID in token is not a valid integer.");
+
+        return shopId;
     }
 
     private static string GetBrowser(string userAgent) =>

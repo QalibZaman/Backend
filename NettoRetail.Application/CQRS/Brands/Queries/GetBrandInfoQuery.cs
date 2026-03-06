@@ -10,8 +10,7 @@ namespace NettoRetail.Application.CQRS.Brands.Queries;
 public record GetBrandInfoQuery(int BrandId, int ShopId) : IRequest<BrandResponse>;
 
 public sealed class GetBrandInfoQueryHandler(
-    IBrandRepository brandRepository,
-    TypeAdapterConfig config)
+    IBrandRepository brandRepository)
     : IRequestHandler<GetBrandInfoQuery, BrandResponse>
 {
     public async Task<BrandResponse> Handle(GetBrandInfoQuery request, CancellationToken cancellationToken)
@@ -24,6 +23,6 @@ public sealed class GetBrandInfoQueryHandler(
         if (brand.ShopId != request.ShopId)
             throw new MyUnauthorizedException("Brand does not belong to the current shop.");
 
-        return brand.Adapt<BrandResponse>(config);
+        return brand.Adapt<BrandResponse>();
     }
 }

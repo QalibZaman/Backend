@@ -3,6 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -16,15 +17,15 @@ public record GetPaymentHistoryQuery(
     bool? SortDescending)
     : IRequest<PaginatedResponse<PaymentHistoryResponse>>;
 
-public class GetPaymentHistoryQueryHandler(IAccountRepository accountRepository, IPaymentHistoryRepository paymentHistoryRepository)
+public class GetPaymentHistoryQueryHandler(IStaffRepository accountRepository, IPaymentHistoryRepository paymentHistoryRepository)
     : IRequestHandler<GetPaymentHistoryQuery, PaginatedResponse<PaymentHistoryResponse>>
 {
     public async Task<PaginatedResponse<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
     {
-        var target = await accountRepository.GetAsync(new GetAccountByIdSpecification(request.AccountId), cancellationToken) ??
+        var target = await accountRepository.GetAsync(new GetStaffByIdSpecification(request.AccountId), cancellationToken) ??
             throw new NotFoundException("Target account not found.");
 
-        var skip = (request.PageModel.PageNumber - 1) * request.PageModel.PageSize;
+        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
         var take = request.PageModel.PageSize;
 
         bool sortDesc = request.SortDescending ?? true;

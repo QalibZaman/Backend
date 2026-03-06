@@ -8,6 +8,6 @@ public class GetOrdersByIdSpecification : Specification<OrderEntity>
     public GetOrdersByIdSpecification(int id)
         : base(x => x.Id == id)
     {
-        AddInclude(x => x.Customer.Account);
+        AddInclude(x => x.Customer);
     }
 }

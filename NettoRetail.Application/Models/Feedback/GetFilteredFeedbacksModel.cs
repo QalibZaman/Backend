@@ -1,6 +1,6 @@
 ﻿using NettoRetail.Domain.Enums;
 
-namespace NettoRetail.Application.Models.Request.Feedback;
+namespace NettoRetail.Application.Models.Feedback;
 
 public class GetFilteredFeedbacksModel
 {

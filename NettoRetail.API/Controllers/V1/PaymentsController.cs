@@ -82,7 +82,9 @@ namespace NettoRetail.API.Controllers.V1
         [Authorize]
         [HttpDelete("{paymentMethodId}")]
         [ProducesResponseType(typeof(ApiResponse<PaymentMethodDeleteResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
@@ -98,7 +100,9 @@ namespace NettoRetail.API.Controllers.V1
         [Authorize]
         [HttpPut("{paymentMethodId}/set-default")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();

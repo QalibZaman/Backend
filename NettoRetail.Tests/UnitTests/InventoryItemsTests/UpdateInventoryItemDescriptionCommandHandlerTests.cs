@@ -226,7 +226,7 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
         {
             Id = id,
             ProductName = "Test Product",
-            ProductUpc = 123456789012,
+            ProductUpc = "123456789012",
             Price = 10.99m,
             Description = description,
             CategoryId = 1,

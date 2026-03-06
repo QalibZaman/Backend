@@ -6,8 +6,9 @@ namespace NettoRetail.Application.Models.Response;
 
 public class InventoryItemInfoFullResponse
 {
+    public required Guid Id { get; set; }
     public required string ProductName { get; set; }
-    public required long ProductUpc { get; set; }
+    public required string ProductUpc { get; set; }
     public required decimal Price { get; set; }
     public required bool IsPromoted { get; set; }
     public decimal? PromotionPrice { get; set; }
@@ -18,6 +19,7 @@ public class InventoryItemInfoFullResponse
     public required int AvailableAmount { get; set; }
     public required int ReservedAmount { get; set; }
     public required int OnHandAmount { get; set; }
+    public required bool HasVariations { get; set; }
     public required BrandSummaryResponse Brand { get; set; }
     public required IEnumerable<InventoryItemImageDto> Images { get; set; } = [];
     public required IEnumerable<CategorySummaryResponse> ProductCategories { get; set; } = [];

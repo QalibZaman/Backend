@@ -5,7 +5,7 @@ namespace NettoRetail.Application.Utilities;
 
 public static class ContentSlugParser
 {
-    public static (int ShopId, SectionTypeEnum SectionType)? ParseContentSlug(string slug)
+    public static (int ShopId, SectionTypeEnum SectionType) ParseContentSlug(string slug)
     {
         if (string.IsNullOrWhiteSpace(slug))
         {

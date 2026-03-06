@@ -128,7 +128,7 @@ public class GetSearchSuggestionsTests
                         ProductName = "Laptop",
                         ProductCategory = "Electronics",
                         ProductLocation = "Shelf1",
-                        ProductUpc = 12345,
+                        ProductUpc = "12345",
                         Price = 1000,
                         Status = "Available",
                         BrandName = "Brand1",

@@ -54,18 +54,14 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = new AccountEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                PasswordHash = "hash"
-
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         _customerRepository
@@ -78,7 +74,7 @@ public class GetCustomerInfoQueryHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(loyaltyId, result.LoyaltyId);
-        Assert.Equal(customer.AccountId, result.AccountId);
+        Assert.Equal(customer.Id, result.AccountId);
 
         await _customerRepository.Received(1)
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>());
@@ -101,18 +97,14 @@ public class GetCustomerInfoQueryHandlerTests
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), cancellationToken)
             .Returns(new CustomerEntity
             {
-                AccountId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 LoyaltyId = loyaltyId,
                 IsActive = true,
                 IsDeleted = false,
-                Account = new AccountEntity
-                {
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john@doe.com",
-                    PasswordHash = "hash"
-
-                }
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
             });
 
         // Act
@@ -133,10 +125,13 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
-            Account = null!
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         _customerRepository
@@ -195,18 +190,14 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = new AccountEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                PasswordHash = "hash"
-
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         _customerRepository
@@ -226,17 +217,23 @@ public class GetCustomerInfoQueryHandlerTests
         var matchingCustomer = new CustomerEntity
         {
             LoyaltyId = loyaltyId.ToLower(),
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             IsActive = true,
-            Account = null!
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         var nonMatchingCustomer = new CustomerEntity
         {
             LoyaltyId = "SOME-OTHER",
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             IsActive = true,
-            Account = null!
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         Assert.True(predicate(matchingCustomer));
@@ -259,18 +256,14 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = new AccountEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                PasswordHash = "hash"
-
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         _customerRepository
@@ -288,7 +281,7 @@ public class GetCustomerInfoQueryHandlerTests
             .Select(GetMemberName)
             .ToList();
 
-        Assert.Contains(nameof(CustomerEntity.Account), includeNames);
+        Assert.Contains(nameof(CustomerEntity), includeNames);
         Assert.DoesNotContain(nameof(CustomerEntity.Order), includeNames);
     }
 
@@ -347,16 +340,13 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = accountId,
+            Id = accountId,
             LoyaltyId = "OK",
             IsActive = true,
-            Account = new AccountEntity
-            {
-                FirstName = "Test",
-                LastName = "User",
-                Email = "test@mail.com",
-                PasswordHash = "dummy",
-            }
+            FirstName = "Test",
+            LastName = "User",
+            Email = "test@mail.com",
+            PasswordHash = "dummy",
 
         };
 
@@ -387,18 +377,14 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = loyaltyId,
             IsActive = true,
             IsDeleted = false,
-            Account = new AccountEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                PasswordHash = "hash"
-
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         _customerRepository
@@ -415,7 +401,7 @@ public class GetCustomerInfoQueryHandlerTests
         var includeNames = capturedSpec!.Includes.Select(GetMemberName).ToList();
 
         Assert.Single(includeNames);
-        Assert.Contains(nameof(CustomerEntity.Account), includeNames);
+        Assert.Contains(nameof(CustomerEntity), includeNames);
 
         Assert.DoesNotContain(nameof(CustomerEntity.Order), includeNames);
     }
@@ -433,17 +419,14 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             LoyaltyId = null,
             IsActive = true,
             IsDeleted = false,
-            Account = new AccountEntity
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@doe.com",
-                PasswordHash = "hash"
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash"
         };
 
         Specification<CustomerEntity>? capturedSpec = null;
@@ -465,10 +448,13 @@ public class GetCustomerInfoQueryHandlerTests
             predicate(new CustomerEntity
             {
                 LoyaltyId = null,
-                AccountId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 IsActive = true,
                 IsDeleted = false,
-                Account = null!
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@doe.com",
+                PasswordHash = "hash"
             })
         );
 

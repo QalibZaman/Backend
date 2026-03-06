@@ -55,7 +55,7 @@ public static class ServiceExtensions
 
         // Repositories
         services.AddScoped<IInvitationTokenRepository, InvitationTokenRepository>();
-        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IInventoryItemBannerRepository, InventoryItemBannerRepository>();
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
@@ -95,6 +95,8 @@ public static class ServiceExtensions
         services.AddScoped<ICommunicationPreferencesRepository, CommunicationPreferencesRepository>();
         services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
         services.AddScoped<IItemComparisonRepository, ItemComparisonRepository>();
+        services.AddScoped<IEntityLockRepository,  EntityLockRepository>();
+        services.AddScoped<IOrderStatusHistoryRepository, OrderStatusHistoryRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

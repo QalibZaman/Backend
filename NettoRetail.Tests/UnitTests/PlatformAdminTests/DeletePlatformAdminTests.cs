@@ -12,20 +12,20 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 {
     public class DeletePlatformAdminTests
     {
-        private readonly IAccountRepository _accRepo;
+        private readonly IStaffRepository _accRepo;
         private readonly IRoleRepository _roleRepo;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly AccountEntity admin;
+        private readonly StaffEntity admin;
 
 
         public DeletePlatformAdminTests()
         {
-            _accRepo = Substitute.For<IAccountRepository>();
+            _accRepo = Substitute.For<IStaffRepository>();
             _roleRepo = Substitute.For<IRoleRepository>();
             _unitOfWork = Substitute.For<IUnitOfWork>();
 
-            admin = new AccountEntity
+            admin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -40,7 +40,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldCallDeleteMethods_WhenAdminIsDeactivated()
         {
             // Arrange
-            var inactiveAdmin = new AccountEntity
+            var inactiveAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -57,7 +57,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
             var command = new DeletePlatformAdminCommand(inactiveAdmin.Id, admin.Id);
@@ -74,7 +74,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldCallDeleteMethods_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var inactiveAdmin = new AccountEntity
+            var inactiveAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -91,7 +91,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
             var command = new DeletePlatformAdminCommand(inactiveAdmin.Id, admin.Id);
@@ -110,7 +110,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new DeletePlatformAdminCommand(Guid.NewGuid(), admin.Id);
@@ -126,7 +126,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
         {
             // Arrange
-            var notAdmin = new AccountEntity
+            var notAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Not",
@@ -143,7 +143,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
             var command = new DeletePlatformAdminCommand(notAdmin.Id, admin.Id);
@@ -161,7 +161,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Arrange
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(admin);
 
             var command = new DeletePlatformAdminCommand(admin.Id, admin.Id);
@@ -177,7 +177,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnBadRequestException_WhenAdminHasActiveStatus()
         {
             // Arrange
-            var activeAdmin = new AccountEntity
+            var activeAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -189,7 +189,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
             var command = new DeletePlatformAdminCommand(activeAdmin.Id, admin.Id);
@@ -205,7 +205,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnBadRequestException_WhenAdminHasOnlineStatus()
         {
             // Arrange
-            var onlineAdmin = new AccountEntity
+            var onlineAdmin = new StaffEntity
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Platform",
@@ -217,7 +217,7 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 
             var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
 
-            _accRepo.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(onlineAdmin);
 
             var command = new DeletePlatformAdminCommand(onlineAdmin.Id, admin.Id);

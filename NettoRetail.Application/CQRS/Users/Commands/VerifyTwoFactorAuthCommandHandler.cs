@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands;
 public record VerifyTwoFactorAuthCommand(Guid UserId, string TotpCode) : IRequest<TokenResponse>;
 
 public class VerifyTwoFactorAuthCommandHandler(
-    IAccountRepository userRepository,
+    IStaffRepository userRepository,
     ITotpService totpService,
     IJwtManager jwtManager)
     : IRequestHandler<VerifyTwoFactorAuthCommand, TokenResponse>
@@ -20,7 +20,7 @@ public class VerifyTwoFactorAuthCommandHandler(
         if (string.IsNullOrWhiteSpace(request.TotpCode))
             throw new BadRequestException("2FA code must not be empty.");
 
-        var user = await userRepository.GetAsync(new GetAccountByIdSpecification(request.UserId), cancellationToken);
+        var user = await userRepository.GetAsync(new GetStaffByIdSpecification(request.UserId), cancellationToken);
         if (user == null)
         {
             throw new NotFoundException("User not found.");

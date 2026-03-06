@@ -1,11 +1,14 @@
 using System.Reflection;
 using EntityFramework.Exceptions.PostgreSQL;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.FavouriteListItems;
@@ -16,6 +19,7 @@ using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
+using NettoRetail.Application.Services.IEntityLockService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.ILinkService;
@@ -56,6 +60,12 @@ public static class ServiceExtensions
 
         // Mediator
         services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+        // FluentValidation
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), includeInternalTypes: true);
+
+        // Validation pipeline
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         //Mapping
         services.AddMapster();
@@ -122,6 +132,7 @@ public static class ServiceExtensions
         services.AddScoped<IStripePaymentService, StripePaymentService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IVariationService, VariationService>();
+        services.AddScoped<IEntityLockService, EntityLockService>();
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))

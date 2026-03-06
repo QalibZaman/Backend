@@ -244,5 +244,13 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         {
             throw new BadRequestException("Invalid token.");
         }
+        catch (ArgumentException)
+        {
+            throw new NotFoundException("Invalid token.");
+        }
+        catch (FormatException)
+        {
+            throw new NotFoundException("Invalid token.");
+        }
     }
 }

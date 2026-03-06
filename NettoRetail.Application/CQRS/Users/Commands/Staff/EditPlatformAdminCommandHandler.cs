@@ -14,7 +14,7 @@ public record EditPlatformAdminCommand(
     EditPlatformAdminRequest Model) : IRequest<Unit>;
 
 public class EditPlatformAdminCommandHandler(
-   IAccountRepository accountRepository,
+   IStaffRepository accountRepository,
    IRoleRepository roleRepository,
    IRoleService roleService,
    IUnitOfWork unitOfWork
@@ -27,7 +27,7 @@ public class EditPlatformAdminCommandHandler(
         if (request.EditorId == request.PlatformAdminId)
             throw new InvalidOperationException("You cannot edit your own account.");
 
-        var accountByIdSpecification = new GetAccountByIdSpecification(request.PlatformAdminId)
+        var accountByIdSpecification = new GetStaffByIdSpecification(request.PlatformAdminId)
             .AddInclude(x => x.Role)
             .AddInclude(x => x.Role.PermissionRoles);
 

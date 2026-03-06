@@ -11,7 +11,7 @@ namespace NettoRetail.API.Infrastructure.Validators
         : AbstractValidator<CreatePlatformAdminRequest>
     {
         public CreatePlatformAdminRequestValidator(
-            IAccountRepository accountRepo,
+            IStaffRepository accountRepo,
             IPermissionRepository permissionRepo)
         {
             RuleFor(x => x.FirstName)

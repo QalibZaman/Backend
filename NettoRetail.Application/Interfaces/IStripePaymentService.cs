@@ -3,11 +3,12 @@
     public interface IStripePaymentService
     {
         Task<string> EnsureCustomerAsync(string? existingCustomerId, string fullName, string email, CancellationToken cancellationToken);
-
         Task<CardSnapshot> AttachAndGetCardAsync(string paymentMethodId, string customerId, CancellationToken cancellationToken);
         Task SetDefaultPaymentMethodAsync(string customerId, string paymentMethodId, CancellationToken cancellationToken);
+        Task DetachPaymentMethodAsync(string paymentMethodId);
 
     }
+
     public sealed record CardSnapshot(
         string Brand,
         long ExpMonth,

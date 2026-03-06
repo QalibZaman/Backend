@@ -55,7 +55,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
 
     private static OrderEntity BuildTestOrder(int id)
     {
-        var account = new AccountEntity
+        var staff = new StaffEntity
         {
             Id = Guid.NewGuid(),
             FirstName = "John",
@@ -65,11 +65,14 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
             RoleId = 1
         };
 
-        var customer = new CustomerEntity
+        var customer = new CustomerEntity()
         {
-            AccountId = account.Id,
-            Account = account,
-            IsActive = true
+            Id = Guid.NewGuid(),
+            FirstName = "Customer",
+            LastName = "Customer",
+            Email = "custo.mer@example.com",
+            PasswordHash = "irrelevant",
+            RoleId = 2
         };
 
         var inventoryItem = new InventoryItemEntity
@@ -78,7 +81,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
             BrandId = 1,
             Brand = new BrandEntity { Id = 1, Name = "TestBrand", ShopId = 1 },
             ProductName = "Test Product",
-            ProductUpc = 123456789000,
+            ProductUpc = "123456789000",
             Price = 10.5m,
             Description = "desc",
             CategoryId = 1,
@@ -111,7 +114,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
                 OldStatus = OrderStatusEnum.New,
                 NewStatus = OrderStatusEnum.Processing,
                 Comment = "",
-                UpdatedBy = account
+                UpdatedBy = staff
             }
         };
 
@@ -122,7 +125,7 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
             Creator = "Tester",
             OrderStatus = OrderStatusEnum.Processing,
             DeliveryType = OrderDeliveryTypeEnum.Courier,
-            CustomerId = customer.AccountId,
+            CustomerId = customer.Id,
             Customer = customer,
             ShopId = 1,
             OrderItems = new List<OrderItemEntity> { orderItem },
@@ -164,6 +167,11 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
         public Task UpdateManyAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task<OrderEntity> GetWithRelatedDataAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
         public Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

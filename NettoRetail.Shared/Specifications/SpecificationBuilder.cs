@@ -31,7 +31,6 @@ public class SpecificationBuilder<TEntity>
         return this;
     }
 
-    [Obsolete("Use AddInclude overload that works with IQueryable, in order to get support for ThenInclude functionality.")]
     public SpecificationBuilder<TEntity> AddInclude(Expression<Func<TEntity, object>> include)
     {
         _specification.AddInclude(include);
@@ -40,7 +39,7 @@ public class SpecificationBuilder<TEntity>
 
     public SpecificationBuilder<TEntity> AddInclude(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> includeExpression)
     {
-        _specification.AddInclude(includeExpression);
+        _specification.AddChaninedInclude(includeExpression);
         return this;
     }
 
@@ -111,11 +110,11 @@ public class SpecificationBuilder<TEntity>
 
         if (matchingConstructor == null) return false;
 
-        var matchingConstructorParameters = matchingConstructor.GetParameters();
+        var parameters = matchingConstructor.GetParameters();
 
         for (var i = 0; i < argsCount; i++)
         {
-            var specParameter = matchingConstructorParameters[i].ParameterType;
+            var specParameter = parameters[i].ParameterType;
             var argParam = args[i]!.GetType();
 
             if (!specParameter.IsAssignableFrom(argParam)) return false;

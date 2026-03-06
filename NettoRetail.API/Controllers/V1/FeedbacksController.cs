@@ -5,14 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Feedback.Queries;
-using NettoRetail.Application.CQRS.Feedbacks.Commands;
 using NettoRetail.Application.CQRS.Feedbacks.Queries;
+using NettoRetail.Application.CQRS.Feedbacks.Commands;
 using NettoRetail.Application.CQRS.Reviews.Commands;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
-using NettoRetail.Application.Models.Request.Feedback;
-using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -31,7 +28,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateFeedback(CreateFeedbackModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateFeedback([FromBody]CreateFeedbackModel model, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         var command = new CreateFeedbackCommand(model, userId);
@@ -96,7 +93,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     public async Task<IActionResult> BulkDeleteFeedbacks([FromBody] BulkDeleteFeedbacksRequest request, CancellationToken cancellationToken)
     {
-        var command = new BulkDeleteFeedbacksCommand(request.feedbacksIds);
+        var command = new BulkDeleteFeedbacksCommand(request.FeedbackIds);
         await mediator.Send(command, cancellationToken);
         return NoContent();
     }
@@ -171,7 +168,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [HttpPatch("bulk-reject")]
     public async Task<IActionResult> BulkRejectFeedbacks([FromBody] BulkRejectFeedbacksRequest request, CancellationToken cancellationToken)
     {
-        var command = new BulkRejectFeedbacksCommand(request.FeedBackIds, request.Reason);
+        var command = new BulkRejectFeedbacksCommand(request.FeedbackIds, request.Reason);
         await mediator.Send(command, cancellationToken);
         return NoContent();
     }

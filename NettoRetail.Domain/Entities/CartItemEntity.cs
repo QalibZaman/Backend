@@ -7,7 +7,7 @@
         public CartEntity Cart { get; set; } = null!;
         public Guid InventoryItemId { get; set; }
         public InventoryItemEntity InventoryItem { get; set; } = null!;
-        public long ProductUpc { get; set; }
+        public string ProductUpc { get; set; } = string.Empty;
         public string ProductName { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Quantity { get; set; }

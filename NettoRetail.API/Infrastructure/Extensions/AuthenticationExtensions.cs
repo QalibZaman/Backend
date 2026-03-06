@@ -100,7 +100,20 @@ public static class AuthenticationExtensions
                         if (roleId == SuperAdminConstants.SuperAdminRoleId)
                             return true;
 
-                        return context.User.HasClaim(c => c.Type == AuthClaims.ShopId);
+                        if (roleId == AdminConstants.AdminRoleId)
+                            return context.User.HasClaim(c => c.Type == AuthClaims.ShopId);
+
+                        return false;
+                    }));
+
+            options.AddPolicy(PolicyNames.AdminOnlyPolicy, policy =>
+                 policy.RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(AuthSchemes.Default)
+                    .RequireAssertion(context =>
+                    {
+                        var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
+                        return roleId == RoleConstants.Admin.ToString() ||
+                               roleId == SuperAdminConstants.SuperAdminRoleId;
                     }));
         });
 

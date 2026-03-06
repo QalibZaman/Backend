@@ -17,8 +17,8 @@ public class SearchFieldModel
             {
                 Id = entity.Id,
                 CreationDate = entity.CreationDate,
-                FullName = entity.Customer.Account.FullName,
-                Email = entity.Customer.Account.Email,
+                FullName = entity.Customer.FullName,
+                Email = entity.Customer.Email,
                 OrderStatus = entity.OrderStatus,
                 Creator = entity.Creator
             };
