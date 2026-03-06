@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Models.CsvFileModel;
 
 namespace NettoRetail.Application.Interfaces;
