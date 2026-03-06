@@ -339,8 +339,8 @@ public class StaffController(
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
         var result = await mediator.Send(query, cancellationToken);
-
-        return Ok(result);
+        var response = new ApiResponse<PaginatedResponse<StaffListResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize]

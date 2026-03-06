@@ -229,7 +229,6 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
         return Ok(new ApiResponse<CreatePlatformAdminResponse>(response));
     }
 
-
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
     [HttpPost("platform-admins/{id:guid}/activate")]
@@ -239,11 +238,11 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ActivatePlatformAdmin(Guid id)
+    public async Task<IActionResult> ActivatePlatformAdmin(Guid accountId)
     {
         var currentAdminId = HttpContext.GetUserId();
 
-        var activatePlatformAdminCommand = new ActivatePlatfromAdminCommand(id, currentAdminId);
+        var activatePlatformAdminCommand = new ActivatePlatfromAdminCommand(accountId, currentAdminId);
         await mediator.Send(activatePlatformAdminCommand);
 
         return NoContent();
@@ -258,11 +257,11 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeactivatePlatformAdmin(Guid id)
+    public async Task<IActionResult> DeactivatePlatformAdmin(Guid accountId)
     {
         var currentAdminId = HttpContext.GetUserId();
 
-        var deactivatePlatfromAdminCommand = new DeactivatePlatfromAdminCommand(id, currentAdminId);
+        var deactivatePlatfromAdminCommand = new DeactivatePlatfromAdminCommand(accountId, currentAdminId);
         await mediator.Send(deactivatePlatfromAdminCommand);
 
         return NoContent();

@@ -2,6 +2,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
+using NettoRetail.Application.Exceptions;
 
 namespace NettoRetail.Application.Utilities;
 
@@ -13,7 +14,7 @@ public class ExactScientificUpcConverter : ITypeConverter
     public object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
     {
         if (string.IsNullOrWhiteSpace(text))
-            throw new CsvHelperException(row.Context, $"UPC value cannot be empty.");
+            throw new BadRequestException($"UPC value cannot be empty.");
 
         string s = text.Trim().Replace("\"", "");
 
@@ -34,14 +35,14 @@ public class ExactScientificUpcConverter : ITypeConverter
 
             int zerosToAdd = exponent - fractionalPart.Length;
             if (zerosToAdd < 0)
-                throw new CsvHelperException(row.Context, $"Scientific notation has too many decimals: {text}");
+                throw new BadRequestException($"Scientific notation has too many decimals: {text}");
 
             digits += new string('0', zerosToAdd);
 
             return digits;
         }
 
-        throw new CsvHelperException(row.Context, $"Cannot convert '{text}' to a valid UPC.");
+        throw new BadRequestException($"Cannot convert '{text}' to a valid UPC.");
     }
 
     public string ConvertToString(object? value, IWriterRow row, MemberMapData memberMapData)
