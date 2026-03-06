@@ -5,9 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Feedbacks.Queries;
 using NettoRetail.Application.CQRS.Feedbacks.Commands;
-using NettoRetail.Application.CQRS.Reviews.Commands;
+using NettoRetail.Application.CQRS.Feedbacks.Queries;
 using NettoRetail.Application.Models.Feedback;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -28,7 +27,7 @@ public class FeedbacksController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateFeedback([FromBody]CreateFeedbackModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateFeedback([FromBody] CreateFeedbackModel model, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         var command = new CreateFeedbackCommand(model, userId);

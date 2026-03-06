@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.IBrandService;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
