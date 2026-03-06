@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
 using NettoRetail.DataAccess.Specifications.Country;
@@ -32,8 +33,11 @@ public class CountryDetailsValidationService(ICountryRepository countryRepositor
         return Regex.IsMatch(phoneNumber, country.PhoneMask);
     }
 
-    private static bool IsZipCodeValid(CountryEntity country, string zipCode)
+    private static bool IsZipCodeValid(CountryEntity country, string? zipCode)
     {
+        if (zipCode.IsNullOrEmpty())
+            return true;
+
         return Regex.IsMatch(zipCode, country.ZipCodeMask);
     }
 }

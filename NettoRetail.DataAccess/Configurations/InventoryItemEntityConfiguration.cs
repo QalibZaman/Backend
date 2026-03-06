@@ -17,8 +17,8 @@ public void Configure(EntityTypeBuilder<InventoryItemEntity> builder)
 
     builder.Property(i => i.ProductUpc)
         .IsRequired()
-        .HasMaxLength(50)
-        .HasColumnType("character varying(50)");
+        .HasMaxLength(12)
+        .HasColumnType("character varying(12)");
 
     builder.Property(i => i.Description)
         .IsRequired()

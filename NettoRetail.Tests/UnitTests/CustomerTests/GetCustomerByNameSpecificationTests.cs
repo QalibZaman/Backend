@@ -66,8 +66,11 @@ public class GetCustomerByNameSpecificationTests
 
         var customer = new CustomerEntity
         {
-            AccountId = Guid.NewGuid(),
-            Account = null!,
+            Id = Guid.NewGuid(),
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@doe.com",
+            PasswordHash = "hash",
             IsActive = true
         };
 
@@ -163,25 +166,21 @@ public class GetCustomerByNameSpecificationTests
 
         return new CustomerEntity
         {
-            AccountId = accountId,
-            Account = new AccountEntity
+            Id = accountId,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = $"{firstName.ToLower()}.{lastName.ToLower()}@test.com",
+            PasswordHash = "hash123",
+            RoleId = 1,
+            Role = new RoleEntity { Id = 1, Name = "User", Description = "Test" },
+            CountryId = 1,
+            Country = new CountryEntity
             {
-                Id = accountId,
-                FirstName = firstName,
-                LastName = lastName,
-                Email = $"{firstName.ToLower()}.{lastName.ToLower()}@test.com",
-                PasswordHash = "hash123",
-                RoleId = 1,
-                Role = new RoleEntity { Id = 1, Name = "User", Description = "Test" },
-                CountryId = 1,
-                Country = new CountryEntity
-                {
-                    Id = 1,
-                    Name = "TestCountry",
-                    PhoneCode = "+1",
-                    PhoneMask = "###-###",
-                    ZipCodeMask = "#####"
-                }
+                Id = 1,
+                Name = "TestCountry",
+                PhoneCode = "+1",
+                PhoneMask = "###-###",
+                ZipCodeMask = "#####"
             },
             IsActive = true
         };

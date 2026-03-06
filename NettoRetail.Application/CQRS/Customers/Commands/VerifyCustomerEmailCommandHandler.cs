@@ -1,10 +1,9 @@
 ﻿using System.Security.Claims;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Customer;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
@@ -26,12 +25,18 @@ public class VerifyCustomerEmailCommandHandler(
 
         principal = jwtManager.ValidateEmailActivation(command.Token);
 
-        var emailClaim = principal.FindFirst(ClaimTypes.Email);
-        if (string.IsNullOrWhiteSpace(emailClaim?.Value))
+        var email = principal.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(email))
             throw new BadRequestException("Activation token does not contain a valid email.");
-        var email = emailClaim.Value;
 
-        var customerSpec = new GetCustomerByEmailSpecification(email);
+        var shopIdString = principal.FindFirstValue(AuthClaims.ShopId);
+        if (string.IsNullOrWhiteSpace(shopIdString))
+            throw new BadRequestException("Activation token does not contain a valid shop ID.");
+
+        if (!int.TryParse(shopIdString, out var shopId))
+            throw new BadRequestException("Shop ID in token is not a valid integer.");
+
+        var customerSpec = new GetCustomerByEmailAndShopIdSpecification(email, shopId);
         var customer = await customerRepository.GetAsync(customerSpec, cancellationToken)
             ?? throw new NotFoundException("Customer not found.");
 

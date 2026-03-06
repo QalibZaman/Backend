@@ -2,6 +2,7 @@
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Services.IStaffService;
 
@@ -14,6 +15,8 @@ public interface IStaffService
 
     Task UpdateStaffAsync(
         UpdateStaffRequest request,
-        AccountEntity staff,
+        StaffEntity staff,
         CancellationToken token = default);
+
+    public StaffStatusEnum? ParseStaffStatus(string? statusString);
 }

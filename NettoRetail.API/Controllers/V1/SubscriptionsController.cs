@@ -2,14 +2,12 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Subscription.Queries;
 using NettoRetail.Application.CQRS.Subscriptions.Commands;
 using NettoRetail.Application.Models.Request.Subscription;
 using NettoRetail.Application.Models.Subscriptions;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 

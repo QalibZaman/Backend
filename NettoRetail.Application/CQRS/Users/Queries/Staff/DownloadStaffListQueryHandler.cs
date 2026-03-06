@@ -1,39 +1,36 @@
 ﻿using MediatR;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record DownloadStaffListQuery(int UserShopId, GetFilteredStaffCsvRequest Model) : IRequest<byte[]>;
 
-public class DownloadStaffListQueryHandler(IAccountRepository accountRepository, ICsvFileService csvFileService) : IRequestHandler<DownloadStaffListQuery, byte[]>
+public class DownloadStaffListQueryHandler(IStaffRepository accountRepository,
+    IStaffService staffService,
+    ICsvFileService csvFileService)
+    : IRequestHandler<DownloadStaffListQuery, byte[]>
 {
     public async Task<byte[]> Handle(DownloadStaffListQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<AccountEntity>();
+        var staffStatus = staffService.ParseStaffStatus(request.Model.Status);
 
-        specificationBuilder.Add<GetAccountsByShopIdSpecification>(request.UserShopId)
-            .Add<GetAccountsByPartialFirstNameSpecification>(request.Model.FirstName)
-            .Add<GetAccountsByPartialLastNameSpecification>(request.Model.LastName)
-            .Add<GetAccountsByPartialEmailSpecification>(request.Model.Email)
-            .Add<GetAccountsByRoleIdSpecification>(request.Model.RoleId)
-            .AddInclude(x => x.Role);
+        var spec = new GetFilteredStaffSpecification(
+            shopId: request.UserShopId,
+            firstName: request.Model.FirstName,
+            lastName: request.Model.LastName,
+            email: request.Model.Email,
+            roleId: request.Model.RoleId,
+            status: staffStatus);
 
-        if (Enum.TryParse(request.Model.Status, true, out StaffStatusEnum status))
-        {
-            specificationBuilder.Add<GetAccountsByStatusSpecification>(status);
-        }
+        var staff = await accountRepository.GetStaffAccounts(spec, cancellationToken);
 
-        var staff = await accountRepository.GetStaffAccounts(specificationBuilder.Build(), cancellationToken) ?? throw new NotFoundException("There are no staff members in the list.");
-
-        var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, AccountEntity>(staff, cancellationToken);
+        var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, StaffEntity>(staff, cancellationToken);
 
         return staffData;
     }

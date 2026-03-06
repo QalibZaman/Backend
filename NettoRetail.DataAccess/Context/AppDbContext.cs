@@ -8,7 +8,7 @@ namespace NettoRetail.DataAccess.Context;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<ConnectionStrings> connectionStringsOptions) : DbContext(options)
 { 
-    public DbSet<AccountEntity> Accounts { get; set; }
+    public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<FailedAuthAttemptEntity> FailedAuthAttempt { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
@@ -46,6 +46,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IOptions<Conne
     public DbSet<ProductDetailEntity> ProductDetails { get; set; }
     public DbSet<ItemComparisonEntity> ItemComparison { get; set; }
     public DbSet<InvitationTokenEntity> InvitationTokens { get; set; }
+    public DbSet<EntityLock> EntityLocks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

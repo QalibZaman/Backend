@@ -14,7 +14,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
 
 public class UpdateStaffServiceTests
 {
-    private readonly IAccountRepository _accountRepository;
+    private readonly IStaffRepository _accountRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly StaffService _staffService;
     private readonly IEmailBuilderService _emailBuilderService;
@@ -23,7 +23,7 @@ public class UpdateStaffServiceTests
 
     public UpdateStaffServiceTests()
     {
-        _accountRepository = Substitute.For<IAccountRepository>();
+        _accountRepository = Substitute.For<IStaffRepository>();
         _roleRepository = Substitute.For<IRoleRepository>();
         _emailBuilderService = Substitute.For<IEmailBuilderService>();
         _emailSender = Substitute.For<IEmailSender>();
@@ -55,7 +55,7 @@ public class UpdateStaffServiceTests
 
         var userId = Guid.NewGuid();
 
-        _accountRepository.Exists(Arg.Any<GetAccountByEmailSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.Exists(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         await Assert.ThrowsAsync<ConflictException>(() =>
@@ -71,7 +71,7 @@ public class UpdateStaffServiceTests
 
         var userId = Guid.NewGuid();
 
-        _accountRepository.GetAsync(Arg.Any<GetAccountByIdSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staff);
 
         //Act
@@ -96,9 +96,9 @@ public class UpdateStaffServiceTests
             };
         }
 
-        public static AccountEntity CreateStaffEntity(StaffStatusEnum status)
+        public static StaffEntity CreateStaffEntity(StaffStatusEnum status)
         {
-            return new AccountEntity()
+            return new StaffEntity()
             {
                 FirstName = "Name",
                 LastName = "Lastname",

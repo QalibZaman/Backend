@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Role;
 public class GetRoleByNameExcludingCurrentSpecification : Specification<RoleEntity>
 {
     public GetRoleByNameExcludingCurrentSpecification(string name, int currentRoleId)
-        : base(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase) && currentRoleId != r.Id) { }
+        : base(r => r.Name.ToLower() == name.ToLower() && currentRoleId != r.Id) { }
 }

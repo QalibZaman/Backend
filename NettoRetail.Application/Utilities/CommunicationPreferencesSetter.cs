@@ -4,7 +4,7 @@ namespace NettoRetail.Application.Utilities;
 
 public static class CommunicationPreferencesSetter
 {
-    public static CommunicationPreferenceEntity SetCommunicationPreferences(AccountEntity user)
+    public static CommunicationPreferenceEntity SetCommunicationPreferences(StaffEntity user)
     {
         CommunicationPreferenceEntity preferences = new CommunicationPreferenceEntity(user.Id);
         if (user.PhoneNumber == null)

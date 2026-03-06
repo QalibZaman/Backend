@@ -40,31 +40,30 @@ internal class StatusHistoryComponent(PrintOrderDetailsModel model) : IComponent
                                 .SemiBold();
                             });
                     }
-
-                    var orderStatusHistory = model.StatusHistory;
-
-                    foreach (var statusHistory in orderStatusHistory)
-                    {
-                        var updatedBy = statusHistory.UpdatedBy;
-                        string[] data = [
-                            statusHistory.UpdatedAt.ToString("dd.MM.yyyy HH:mm"),
-                            statusHistory.NewStatus.ToString(),
-                            model.CustomerId == updatedBy.Id ? "Customer" : string.Join(updatedBy.FirstName, " ", updatedBy.LastName),
-                            statusHistory.Comment ?? "-"
-                        ];
-
-                        foreach (var str in data)
-                        {
-                            table.Cell()
-                                .Element((text) =>
-                                {
-                                    text.Padding(Converters.ConvertPixelsToPoints(10))
-                                        .Text(str)
-                                        .SemiBold();
-                                });
-                        }
-                    }
                 });
+                var orderStatusHistory = model.StatusHistory;
+
+                foreach (var statusHistory in orderStatusHistory)
+                {
+                    var updatedBy = statusHistory.UpdatedBy;
+                    string[] data = [
+                        statusHistory.UpdatedAt.ToString("dd.MM.yyyy HH:mm"),
+                            statusHistory.NewStatus.ToString(),
+                            model.CustomerId == updatedBy.Id ? "Customer" : string.Join(" ", updatedBy.FirstName, updatedBy.LastName),
+                            statusHistory.Comment ?? "-"
+                    ];
+
+                    foreach (var str in data)
+                    {
+                        table.Cell()
+                            .Element((text) =>
+                            {
+                                text.Padding(Converters.ConvertPixelsToPoints(10))
+                                    .Text(str)
+                                    .SemiBold();
+                            });
+                    }
+                }
             });
     }
 }

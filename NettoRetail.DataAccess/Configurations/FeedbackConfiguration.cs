@@ -41,10 +41,5 @@ public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
 
         builder.Property(f => f.DateSubmitted)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        builder.HasOne(f => f.Account)
-            .WithMany()
-            .HasForeignKey(f => f.AccountId)
-            .OnDelete(DeleteBehavior.SetNull);
   }
 }

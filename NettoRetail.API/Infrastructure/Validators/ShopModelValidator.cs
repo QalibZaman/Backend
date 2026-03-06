@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Shop;
 
 namespace NettoRetail.API.Infrastructure.Validators;
@@ -31,9 +32,9 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
 
         RuleFor(x => x.Url)
             .NotEmpty().WithMessage("\"URL\" cannot be empty.")
-            .Length(1, 50).WithMessage("The name must be between 1 and 50 characters long.")
-            .Matches(@"^[a-zA-Z0-9\-._~]+$").WithMessage("Allowed characters: All letters (A–Z, a–z), digits (0–9), -, ., _, ~.")
-            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
+            .Length(3, 255).WithMessage("URL must be between 3 and 255 characters long.")
+            .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
+            .MustBeAValidUrl().WithMessage("Website URL must be a valid URL including protocol (e.g., https://)");
 
         RuleFor(x => x.Address)
             .Length(5, 90).WithMessage("Address must be between 5 and 90 characters.")

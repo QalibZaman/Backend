@@ -1,9 +1,11 @@
 ﻿using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 
 public interface IProductDetailRepository : IBaseRepository<ProductDetailEntity>
 {
-    Task UpdateDetailsAsync(ICollection<ProductDetailEntity> upsertedDetails, ICollection<Guid> deleteIds, CancellationToken cancellationToken = default);
+    Task UpdateDetailsAsync(IEnumerable<ProductDetailEntity> upsertedDetails, CancellationToken cancellationToken);
+    Task DeleteRangeAsync(
+        IEnumerable<ProductDetailEntity> detailsToDelete,
+        CancellationToken cancellationToken);
 }

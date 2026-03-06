@@ -1,6 +1,9 @@
-﻿namespace NettoRetail.Application.Models.Feedback;
+﻿using System.Text.Json.Serialization;
+
+namespace NettoRetail.Application.Models.Feedback;
 
 public class BulkDeleteFeedbacksRequest
 {
-  public List<Guid> feedbacksIds { get; set; }
+  [JsonPropertyName("feedbacksIds")]
+  public required List<Guid> FeedbackIds { get; set; }
 }

@@ -1,12 +1,14 @@
-﻿using NettoRetail.Application.Interfaces;
+using Microsoft.Extensions.Logging;
+using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Interfaces;
 using Stripe;
 
 namespace NettoRetail.Application.Services
 {
     public sealed class StripePaymentService(
         CustomerService customerService,
-        PaymentMethodService paymentMethodService
-    ) : IStripePaymentService
+        PaymentMethodService paymentMethodService,
+        ILogger<StripePaymentService> logger) : IStripePaymentService
     {
         public async Task<string> EnsureCustomerAsync(
             string? existingCustomerId,
@@ -32,23 +34,31 @@ namespace NettoRetail.Application.Services
             string customerId,
             CancellationToken cancellationToken)
         {
-            await paymentMethodService.AttachAsync(
+            try
+            {
+                await paymentMethodService.AttachAsync(
                 paymentMethodId,
                 new PaymentMethodAttachOptions { Customer = customerId },
                 cancellationToken: cancellationToken);
 
-            var pm = await paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
+                var pm = await paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
 
-            if (pm.Card is null)
-                throw new InvalidOperationException("Only card payment methods are supported.");
+                if (pm.Card is null)
+                    throw new InvalidOperationException("Only card payment methods are supported.");
 
-            return new CardSnapshot(
-                pm.Card.Brand,
-                pm.Card.ExpMonth,
-                pm.Card.ExpYear,
-                pm.Card.Last4
-            );
+                return new CardSnapshot(
+                    pm.Card.Brand,
+                    pm.Card.ExpMonth,
+                    pm.Card.ExpYear,
+                    pm.Card.Last4);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while attaching payment method {paymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
         }
+
         public async Task SetDefaultPaymentMethodAsync(
             string customerId,
             string paymentMethodId,
@@ -62,8 +72,28 @@ namespace NettoRetail.Application.Services
                 }
             };
 
-            await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            try
+            {
+                await customerService.UpdateAsync(customerId, options, cancellationToken: cancellationToken);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while changing default payment method to {paymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
         }
 
+        public async Task DetachPaymentMethodAsync(string paymentMethodId)
+        {
+            try
+            {
+                await paymentMethodService.DetachAsync(paymentMethodId);
+            }
+            catch (StripeException ex)
+            {
+                logger.LogError(ex, "Stripe error while detaching payment method {PaymentMethodId}", paymentMethodId);
+                throw new PaymentExceptions(ex.Message);
+            }
+        }
     }
 }

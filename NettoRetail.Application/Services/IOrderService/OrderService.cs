@@ -28,7 +28,6 @@ public class OrderService(IOrderRepository orderRepository) : IOrderService
     {
         var spec = new GetOrderByIdSpecification(orderId)
             .AddInclude(o => o.Customer)
-            .AddInclude(o => o.Customer.Account)
             .AddInclude(o => o.OrderItems);
 
         return await orderRepository.GetAsync(spec, ct)

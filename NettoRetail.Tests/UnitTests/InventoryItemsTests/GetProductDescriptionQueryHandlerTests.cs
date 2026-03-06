@@ -180,7 +180,7 @@ public class GetInventoryItemDescriptionQueryHandlerTests
         {
             Id = id,
             ProductName = "Test Product",
-            ProductUpc = 123456789012,
+            ProductUpc = "123456789012",
             Price = 10.99m,
             Description = description ?? string.Empty,
             CategoryId = 1,

@@ -4,7 +4,6 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -15,7 +14,7 @@ public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryIte
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     IInventoryService inventoryService)
-    : IRequestHandler<UpdateInventoryItemCommand,Unit>
+    : IRequestHandler<UpdateInventoryItemCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
     {

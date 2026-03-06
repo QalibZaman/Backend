@@ -1,18 +1,16 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Models.Payments;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using Stripe;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
 public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<Unit>;
 
 public sealed class AddPaymentCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
 {
@@ -22,11 +20,9 @@ public sealed class AddPaymentCommandHandler(
             throw new ArgumentException("AccountId is empty.", nameof(request.AccountId));
 
         var account = await accountRepository.GetAsync(
-            new GetAccountByIdSpecification(request.AccountId),
-            cancellationToken);
-
-        if (account is null)
-            throw new KeyNotFoundException($"Account '{request.AccountId}' not found.");
+            new GetStaffByIdSpecification(request.AccountId),
+            cancellationToken)
+            ?? throw new NotFoundException($"Account {request.AccountId} not found");
 
         if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
             throw new ArgumentException("Payment method already exists.");
@@ -62,6 +58,7 @@ public sealed class AddPaymentCommandHandler(
         };
 
         await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+
         return Unit.Value;
     }
 }

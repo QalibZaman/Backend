@@ -13,7 +13,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record UpdateProfileImageCommand(Guid Id, IFormFile Image) : IRequest;
-public class UpdateProfileImageCommandHandler(IAccountRepository accountRepository,
+public class UpdateProfileImageCommandHandler(IStaffRepository accountRepository,
     IUnitOfWork unitOfWork,
     IAzureBlobService azureBlobService,
     IOptions<ConnectionStrings> connectionStrings,
@@ -21,7 +21,7 @@ public class UpdateProfileImageCommandHandler(IAccountRepository accountReposito
 {
     public async Task Handle(UpdateProfileImageCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetAccountByIdSpecification(request.Id);
+        var specification = new GetStaffByIdSpecification(request.Id);
         var account = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("No user with such id");
 
         var azureConnectionString = connectionStrings.Value.AzureConnection;

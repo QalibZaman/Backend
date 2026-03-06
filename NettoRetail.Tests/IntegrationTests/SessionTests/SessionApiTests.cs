@@ -89,8 +89,8 @@ public class SessionApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
             if (_testEmails.Any())
             {
-                var testUsers = dbContext.Accounts.Where(u => _testEmails.Contains(u.Email));
-                dbContext.Accounts.RemoveRange(testUsers);
+                var testUsers = dbContext.Staff.Where(u => _testEmails.Contains(u.Email));
+                dbContext.Staff.RemoveRange(testUsers);
                 dbContext.SaveChanges();
             }
         }

@@ -4,7 +4,7 @@ public class BrandResponse
 {
     public required int Id { get; set; }
     public required string Name { get; set; }
-    public required string Description { get; set; }
-    public required string WebsiteUrl { get; set; }
+    public string? Description { get; set; }
+    public string? WebsiteUrl { get; set; }
     public string? LogoImageUrl { get; set; }
 }

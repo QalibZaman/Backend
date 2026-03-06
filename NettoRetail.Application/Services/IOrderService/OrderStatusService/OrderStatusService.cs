@@ -14,7 +14,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
         IInventoryItemRepository itemRepository,
         IUnitOfWork unitOfWork,
         IOrderRepository orderRepository,
-        IAccountRepository accountRepository) : IOrderStatusService
+        IStaffRepository accountRepository) : IOrderStatusService
     {
         public async Task UpdateOrderStatusAsync(OrderEntity order, UpdateOrderRequest model, Guid updatedBy, CancellationToken cancellation)
         {
@@ -27,8 +27,16 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
             using var tx = unitOfWork.BeginTransaction();
             try
             {
+                var itemIds = order.OrderItems.Select(i => i.ItemId);
+                var spec = new GetItemsByIdsSpecification(itemIds);
+                var inventoryItems = await itemRepository.GetAllBySpecAsync(spec, cancellation);
+
                 if (ShouldUpdateInventory(order.OrderStatus, model.Status))
-                    await UpdateInventoryAsync(order, model.Status, cancellation);
+                {
+                    ApplyInventoryChanges(inventoryItems!, order.OrderItems, model.Status);
+                    await itemRepository.UpdateManyAsync(inventoryItems!, cancellation);
+                }
+
                 order.OrderStatus = model.Status;
                 await orderRepository.UpdateAsync(order, cancellation);
                 tx.Commit();
@@ -43,7 +51,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
         private static OrderStatusHistoryEntity CreateStatusHistory(
         OrderEntity order,
         UpdateOrderRequest model,
-        AccountEntity updatedBy)
+        StaffEntity updatedBy)
         {
             return new OrderStatusHistoryEntity
             {
@@ -85,24 +93,11 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
             }
         }
 
-        private async Task<AccountEntity> GetUpdatedByAccount(Guid accountId, CancellationToken cancellationToken)
+        private async Task<StaffEntity> GetUpdatedByAccount(Guid accountId, CancellationToken cancellationToken)
         {
-            return await accountRepository.GetAsync(new GetAccountByIdSpecification(accountId), cancellationToken) ?? throw new NotFoundException("The account does not exist.");
+            return await accountRepository.GetAsync(new GetStaffByIdSpecification(accountId), cancellationToken) ?? throw new NotFoundException("The account does not exist.");
         }
 
-        private async Task UpdateInventoryAsync(
-        OrderEntity order,
-        OrderStatusEnum newStatus,
-        CancellationToken ct)
-        {
-            var itemIds = order.OrderItems.Select(i => i.ItemId);
-            var spec = new GetItemsByIdsSpecification(itemIds);
-
-            var inventoryItems = await itemRepository.GetAllBySpecAsync(spec, ct);
-
-            ApplyInventoryChanges(inventoryItems!, order.OrderItems, newStatus);
-            await itemRepository.UpdateManyAsync(inventoryItems!, ct);
-        }
         private void EnforceOrderStatusRules(OrderStatusEnum currentStatus, OrderStatusEnum newStatus, string? comment)
         {
             if (currentStatus == newStatus)

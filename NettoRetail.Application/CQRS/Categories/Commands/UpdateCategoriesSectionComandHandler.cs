@@ -7,7 +7,6 @@ namespace NettoRetail.Application.CQRS.Categories.Commands;
 public record UpdateCategoriesSectionCommand(
     int ShopId,
     string Name,
-    string Preview,
     bool Visibility) : IRequest;
 
 public class UpdateCategoriesSectionCommandHandler(
@@ -22,7 +21,6 @@ public class UpdateCategoriesSectionCommandHandler(
             throw new NotFoundException($"Shop with id {request.ShopId} not found");
 
         shop.CategoriesSectionName = request.Name.Trim();
-        shop.CategoriesSectionPreview = request.Preview.Trim();
         shop.CategoriesSectionVisibility = request.Visibility;
 
         await shopRepository.UpdateAsync(shop, cancellationToken);

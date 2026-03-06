@@ -23,7 +23,6 @@ public class GetOrderGeneralInfoQueryHandler(
         var spec = new SpecificationBuilder<OrderEntity>()
             .Add<GetOrderByIdSpecification>(request.OrderId)
             .AddInclude(x => x.Customer)
-            .AddInclude(x => x.Customer.Account)
             .Build();
 
         var order = await orderRepository.GetAsync(spec, cancellationToken)

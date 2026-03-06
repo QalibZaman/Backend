@@ -9,9 +9,9 @@ namespace NettoRetail.Application.Services.INewsletterService;
 public class NewsletterService : INewsletterService
 {
     private readonly IEmailSender _emailSender;
-    private readonly IAccountRepository _accountRepository;
+    private readonly IStaffRepository _accountRepository;
 
-    public NewsletterService(IEmailSender emailSender, IAccountRepository accountRepository)
+    public NewsletterService(IEmailSender emailSender, IStaffRepository accountRepository)
     {
         _emailSender = emailSender;
         _accountRepository = accountRepository;
@@ -19,7 +19,7 @@ public class NewsletterService : INewsletterService
 
     public async Task SendNewsletterAsync(EmailModelRequest model)
     {
-        var specification = new GetAccountBySubscribedToNewsletter(true);
+        var specification = new GetStaffBySubscribedToNewsletter(true);
         var emails = await _accountRepository.GetAccountEmailsAsync(specification, CancellationToken.None);
 
         var bulkEmailModel = new BulkEmailModel { EmailAddresses = emails, Message = model.Message, Subject = model.Subject };

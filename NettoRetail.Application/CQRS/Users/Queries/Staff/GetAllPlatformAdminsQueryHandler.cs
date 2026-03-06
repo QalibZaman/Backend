@@ -1,6 +1,5 @@
 ﻿using Mapster;
 using MediatR;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
@@ -11,15 +10,15 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record GetAllPlatformAdminsQuery() : IRequest<List<PlatformAdminResponse>>;
 
-public class GetAllPlatformAdminsQueryHandler(IAccountRepository accountRepo)
+public class GetAllPlatformAdminsQueryHandler(IStaffRepository accountRepo)
     : IRequestHandler<GetAllPlatformAdminsQuery, List<PlatformAdminResponse>>
 {
     public async Task<List<PlatformAdminResponse>> Handle(GetAllPlatformAdminsQuery request, CancellationToken cancellationToken)
     {
-        var specification = new SpecificationBuilder<AccountEntity>()
+        var specification = new SpecificationBuilder<StaffEntity>()
             .AddOrderBy(a => a.DateCreated, isDesc: true)
             .AddCriteria(
-                a => a.Role.Name.StartsWith(PlatformAdminConstants.RoleName) || a.Role.Id == PlatformAdminConstants.RoleId)
+                a => a.Role.Name.StartsWith(PlatformAdminConstants.PlatformAdminPrefix))
             .AddInclude(a => a.Sessions!)
             .AddInclude(a => a.Role)
             .AddInclude(a => a.Role.PermissionRoles)

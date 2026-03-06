@@ -18,14 +18,11 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
         {
             var specification = new GetCustomerByIdSpecification(request.Id);
             specification.AddInclude(x => x.Order);
-            specification.AddInclude(x => x.Account);
 
             var customer = await customerRepository.GetAsync(specification, cancellationToken)
                 ?? throw new NotFoundException("Customer not found");
 
-            var account = customer.Account ?? throw new NotFoundException("Customer account not found");
-
-            if (account.ShopId != request.ShopId)
+            if (customer.ShopId != request.ShopId)
                 throw new ForbiddenException("Cannot delete customer from another shop");
 
             var hasActiveOrders = customer.Order?.Any(o =>
@@ -37,7 +34,7 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
 
             using var transaction = unitOfWork.BeginTransaction();
 
-            await sessionTerminationService.TerminateSessionsAsync(customer.AccountId, cancellationToken);
+            await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
             await customerRepository.DeleteAsync(customer, cancellationToken);
 
             transaction.Commit();

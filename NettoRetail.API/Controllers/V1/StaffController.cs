@@ -24,11 +24,13 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
 using NettoRetail.Application.Models.Session;
 using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.API.Controllers.V1;
+
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:ApiVersion}/[controller]")]
@@ -47,7 +49,7 @@ public class StaffController(
         }
 
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         var response = new ApiResponse<TokenResponse>(data);
@@ -97,7 +99,7 @@ public class StaffController(
 
         await mediator.Send(changePasswordCommand);
 
-        return NoContent(); 
+        return NoContent();
     }
 
     [HttpPost("forgot-password")]
@@ -182,7 +184,7 @@ public class StaffController(
         var tokenResponse = await mediator.Send(command);
 
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), tokenResponse.AccessToken, tokenResponse.RefreshToken);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), tokenResponse.AccessToken, tokenResponse.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
@@ -209,6 +211,12 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<StaffDetailsResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetStaffById(Guid id, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -249,6 +257,12 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> EditStaff(Guid id, [FromBody] UpdateStaffRequest request, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -262,6 +276,12 @@ public class StaffController(
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("{id:guid}/reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ResetStaffPassword(Guid id, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -272,8 +292,35 @@ public class StaffController(
         return NoContent();
     }
 
+    /// <summary>
+    /// Deletes a staff member from the current shop.
+    /// </summary>
+    /// <remarks>
+    /// US-6.4 Delete staff member.
+    /// <para>Request: <c>DELETE /api/v1/staff/{id}</c></para>
+    /// <para>Auth: Bearer token with shop claim is required.</para>
+    /// <para>Request body: none.</para>
+    /// <para>Success response: 204 No Content (empty body).</para>
+    /// <para>Error response shape:</para>
+    /// <para>
+    /// <code>
+    /// { "message": "Error message", "errors": { "field": [ "details" ] } }
+    /// </code>
+    /// </para>
+    /// <para>Notes:</para>
+    /// <para>- <c>id</c> must be a valid GUID of a staff member in the current shop.</para>
+    /// </remarks>
+    /// <param name="id">Staff member identifier (GUID) from the route.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    /// <returns>204 on success.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteStaff(Guid id, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
@@ -291,10 +338,9 @@ public class StaffController(
         var shopId = HttpContext.GetUserShopId();
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
+        var result = await mediator.Send(query, cancellationToken);
 
-        var response = await mediator.Send(query, cancellationToken);
-
-        return Ok(new ApiResponse<PaginatedResponse<StaffListResponse>>(response));
+        return Ok(result);
     }
 
     [Authorize]
@@ -337,7 +383,7 @@ public class StaffController(
 
     [Authorize]
     [HttpPut("{id:guid}/profile-image")]
-    public async Task<IActionResult> UpdateProfileImage([FromRoute]Guid id, IFormFile image, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileImage([FromRoute] Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         if (userId != id) throw new BadRequestException("You are not able to change data of another user");
@@ -429,8 +475,7 @@ public class StaffController(
 
         await mediator.Send(command, cancellationToken);
     }
-    
-        
+
     [HttpPost("activate-by-invitation")]
     [AllowAnonymous]
     public async Task<IActionResult> ActivateByInvitation([FromBody] SetPasswordByInvitationRequest model)
@@ -444,7 +489,8 @@ public class StaffController(
             ipAddress,
             Request.Headers.GetUserAgent(),
             tokenResponse.AccessToken,
-            tokenResponse.RefreshToken);
+            tokenResponse.RefreshToken,
+            UserTypeEnum.Admin);
 
         await mediator.Send(sessionCreateCommand);
 
@@ -457,10 +503,11 @@ public class StaffController(
         await mediator.Send(new ValidateInvitationTokenCommand(Token));
         return NoContent();
     }
-    
+
     [HttpPost("resend-invitation")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResendInvitation([FromBody]ResendInvitationRequest request) {
+    public async Task<IActionResult> ResendInvitation([FromBody] ResendInvitationRequest request)
+    {
         await mediator.Send(new ResendInvitationByTokenCommand(request.Token));
         return Ok(new ApiResponse("A new invitation link was sent"));
     }

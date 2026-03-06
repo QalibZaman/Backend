@@ -16,7 +16,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record CreateStaffCommand(CreateStaffRequest Model, int ShopId) : IRequest<CreateStaffResponse>;
 public class CreateStaffCommandHandler(
-    IAccountRepository accountRepository,
+    IStaffRepository accountRepository,
     IRoleRepository roleRepository,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender)
@@ -24,7 +24,7 @@ public class CreateStaffCommandHandler(
 {
     public async Task<CreateStaffResponse> Handle(CreateStaffCommand request, CancellationToken cancellationToken)
     {
-        var accountSpecification = new GetAccountByEmailSpecification(request.Model.Email);
+        var accountSpecification = new GetStaffByEmailSpecification(request.Model.Email);
         var existingAccount = await accountRepository
             .GetAsync(accountSpecification, cancellationToken);
 
@@ -35,7 +35,7 @@ public class CreateStaffCommandHandler(
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
             ?? throw new NotFoundException("Role not found");
 
-        var account = request.Model.Adapt<AccountEntity>();
+        var account = request.Model.Adapt<StaffEntity>();
         account.ShopId = request.ShopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;

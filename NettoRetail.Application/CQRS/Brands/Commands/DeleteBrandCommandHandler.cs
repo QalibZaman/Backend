@@ -24,11 +24,11 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
 
         var associatedItemsExists = await inventoryItemRepository.Exists(itemsSpecification, cancellationToken);
         if (associatedItemsExists)
-            throw new ConflictException("Cannot delete brands when associated items exist");
-
-        if (brand.LogoImageUrl != null)
-            await azureBlobService.DeleteByUrlAsync(brand.LogoImageUrl);
+            throw new ConflictException("Cannot delete brand because associated inventory items exist");
 
         await brandRepository.DeleteAsync(brand, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(brand.LogoImageUrl))
+            await azureBlobService.DeleteByUrlAsync(brand.LogoImageUrl, cancellationToken);
     }
 }

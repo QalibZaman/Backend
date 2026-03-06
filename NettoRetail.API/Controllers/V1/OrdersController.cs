@@ -10,6 +10,7 @@ using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Order;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
@@ -36,6 +37,29 @@ public class OrdersController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Creates a new order for a customer in the current shop.
+    /// </summary>
+    /// <remarks>
+    /// <para>Request body fields:</para>
+    /// <list type="bullet">
+    ///   <item><description><c>customerId</c> — customer GUID.</description></item>
+    ///   <item><description><c>deliveryType</c> — enum value: 0 = Courier, 1 = SelfDelivery, 2 = InShop.</description></item>
+    ///   <item><description><c>products</c> — array of items with <c>inventoryItemId</c> and <c>amount</c>.</description></item>
+    /// </list>
+    /// Example request:
+    /// <code>
+    /// POST /api/v1/orders
+    /// {
+    ///   "customerId": "11111111-1111-1111-1111-111111111111",
+    ///   "deliveryType": 0,
+    ///   "products": [
+    ///     { "inventoryItemId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "amount": 2 },
+    ///     { "inventoryItemId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "amount": 1 }
+    ///   ]
+    /// }
+    /// </code>
+    /// </remarks>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status201Created)]
@@ -127,8 +151,11 @@ public class OrdersController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("print/{orderId}")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrderPrintingDetails(int orderId, CancellationToken cancellationToken)
@@ -150,12 +177,29 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrdersHistory(Guid customerId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCustomerOrdersHistory(Guid customerId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var getOrderHistoryQuery = new GetOrderHistoryQuery(customerId, shopId);
         var data = await mediator.Send(getOrderHistoryQuery, cancellationToken);
         var response = new ApiResponse<IEnumerable<OrderHistoryResponse>>(data);
+
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("status/{orderId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusHistoryResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrderStatusHistory(int orderId, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetOrderStatusHistoryQuery(orderId, shopId);
+        var data = await mediator.Send(query, cancellationToken);
+        var response = new ApiResponse<IEnumerable<OrderStatusHistoryResponse>>(data);
 
         return Ok(response);
     }

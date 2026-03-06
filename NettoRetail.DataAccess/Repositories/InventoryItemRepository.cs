@@ -40,7 +40,7 @@ public class InventoryItemRepository(AppDbContext dbContext)
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<HashSet<long>> GetAllUpcHashAsync(CancellationToken cancellationToken)
+    public async Task<HashSet<string>> GetAllUpcHashAsync(CancellationToken cancellationToken)
     {
         var result = await _dbSet.Select(x => x.ProductUpc).ToHashSetAsync(cancellationToken);
 
@@ -57,5 +57,13 @@ public class InventoryItemRepository(AppDbContext dbContext)
         {
             yield return item;
         }
+    }
+
+    public async Task<int> GetImagesAmountAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    {
+        var result = await _dbSet.Where(specification.Criteria)
+            .Select((iie) => iie.Images)
+            .CountAsync(cancellationToken);
+        return result;
     }
 }
