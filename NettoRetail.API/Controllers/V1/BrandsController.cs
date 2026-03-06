@@ -61,7 +61,12 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// <param name="cancellationToken">Request cancellation token.</param>
     /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [RequiresAnyPermission]
+    [RequiresAnyPermission(
+        Permissions.INVENTORY_MANAGEMENT,
+        Permissions.CUSTOMER_MANAGEMENT,
+        Permissions.ORDERS_MANAGEMENT,
+        Permissions.SYSTEM_MANAGEMENT,
+        Permissions.ADMINS_MANAGEMENT)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<BrandResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -81,8 +86,39 @@ public class BrandsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Retrieves detailed information about a specific brand.
+    /// </summary>
+    /// <remarks>
+    /// Returns brand information for the specified <paramref name="brandId"/> that belongs to the current user's shop.
+    /// 
+    /// The shop identifier is extracted from the authenticated user's claims.
+    /// Access is restricted to users who have the required permissions and a valid shop claim.
+    /// 
+    /// Required permissions (any of the following):
+    /// - INVENTORY_MANAGEMENT
+    /// - CUSTOMER_MANAGEMENT
+    /// - ORDERS_MANAGEMENT
+    /// - SYSTEM_MANAGEMENT
+    /// - ADMINS_MANAGEMENT
+    /// </remarks>
+    /// <param name="brandId">The unique identifier of the brand.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    /// <returns>
+    /// Returns an <see cref="ApiResponse{BrandResponse}"/> containing the brand information.
+    /// </returns>
+    /// <response code="200">Brand information was successfully retrieved.</response>
+    /// <response code="401">The user is not authenticated.</response>
+    /// <response code="403">The user does not have the required permissions or access to the shop.</response>
+    /// <response code="404">The brand with the specified identifier was not found.</response>
+    /// <response code="500">An unexpected server error occurred.</response>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [RequiresAnyPermission]
+    [RequiresAnyPermission(
+        Permissions.INVENTORY_MANAGEMENT,
+        Permissions.CUSTOMER_MANAGEMENT,
+        Permissions.ORDERS_MANAGEMENT,
+        Permissions.SYSTEM_MANAGEMENT,
+        Permissions.ADMINS_MANAGEMENT)]
     [HttpGet("{brandId:int}")]
     [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
