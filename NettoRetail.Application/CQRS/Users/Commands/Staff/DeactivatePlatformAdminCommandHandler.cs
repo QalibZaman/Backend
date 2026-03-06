@@ -8,13 +8,13 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
-public record DeactivatePlatfromAdminCommand(Guid accountId, Guid CurrentAdminId) : IRequest;
+public record DeactivatePlatfromAdminCommand(Guid AccountId, Guid CurrentAdminId) : IRequest;
 
 public class DeactivatePlatformAdminCommandHandler(IStaffRepository accountRepository, ISessionTerminationService sessionTerminationService) : IRequestHandler<DeactivatePlatfromAdminCommand>
 {
     public async Task Handle(DeactivatePlatfromAdminCommand request, CancellationToken cancellationToken)
     {
-        var specification = new GetStaffByIdSpecification(request.Id);
+        var specification = new GetStaffByIdSpecification(request.AccountId);
         specification.AddInclude(adm => adm.Role);
         specification.AddCriteria(adm => adm.Role.Name.StartsWith("PlatformAdmin"));
         var admin = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("Platform admin not found.");
