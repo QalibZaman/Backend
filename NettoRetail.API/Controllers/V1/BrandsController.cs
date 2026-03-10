@@ -58,10 +58,9 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// </para>
     /// </remarks>
     /// <param name="pagination">Pagination parameters: <c>PageNumber</c> and <c>PageSize</c>.</param>
-    /// <param name="cancellationToken">Request cancellation token.</param>
     /// <returns>200 with a paginated list of brands.</returns>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [RequiresAnyPermission]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<BrandResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -81,6 +80,15 @@ public class BrandsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Retrieves detailed information about a specific brand.
+    /// </summary>
+    /// <remarks>
+    /// Returns brand information for the specified <paramref name="brandId"/> that belongs to the current user's shop.
+    /// 
+    /// The shop identifier is extracted from the authenticated user's claims.
+    /// </remarks>
+    /// <param name="brandId">The unique identifier of the brand.</param>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("{brandId:int}")]
