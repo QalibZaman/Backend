@@ -58,4 +58,12 @@ public class InventoryItemRepository(AppDbContext dbContext)
             yield return item;
         }
     }
+
+    public async Task<int> GetImagesAmountAsync(Specification<InventoryItemEntity> specification, CancellationToken cancellationToken)
+    {
+        var result = await _dbSet.Where(specification.Criteria)
+            .Select((iie) => iie.Images)
+            .CountAsync(cancellationToken);
+        return result;
+    }
 }

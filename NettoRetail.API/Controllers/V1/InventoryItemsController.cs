@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Bogus.DataSets;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -90,6 +89,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Created(string.Empty, response);
     }
 
+    /// <summary>
+    ///  Uploads the list of items from the '.csv' file.
+    /// </summary>
+    /// <remarks>
+    ///     The '.csv' file should be in correct format, example of the file content:
+    ///     <code>
+    ///         Product UPC,Product Name,Product Location,Brand,Product Category,Available Amount,Reserved Amount,On-hand Amount,Price,Status,Description
+    ///         123456789012,Wireless Mouse,"Warehouse 3, Aisle 4",Gembird,ElectronicsGadgets,70,10,90,25.99,Available,Ergonomic wireless mouse with adjustable DPI.
+    ///     </code>
+    ///     **Notice these rules:**
+    ///     1. No space after a comma char.
+    ///     2. Values that need comma are enclosed in double quotes.
+    ///     3. Brand and category must exist in the database.
+    /// </remarks>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("csv-file")]
     public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
@@ -101,6 +114,24 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         await mediator.Send(inventoryItemsListUploadCommand, cancellationToken);
 
         return Ok();
+    }
+
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPatch("full-info/{id:guid}")]
+    public async Task<IActionResult> EditInventoryItem(Guid id, [FromBody] UpdateProductModel model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+
+        await mediator.Send(new UpdateProductCommand(id, shopId, model), cancellationToken);
+
+        return NoContent();
     }
 
     [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
@@ -276,10 +307,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("parent/toggleLink")]
-    public async Task<IActionResult> ToggleLinkProducts(Guid parentId, [FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleLinkProducts([FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
     {
-        var data = await mediator.Send(new ToggleLinkProductsCommand(parentId, request.ChildId), cancellationToken);
-        var response = new ApiResponse<ToggleLinkProductsResponse>(data);
-        return Ok(response);
+        var data = await mediator.Send(new ToggleLinkProductsCommand(request.ParentId, request.ChildId), cancellationToken);
+        return Ok(data);
     }
 }

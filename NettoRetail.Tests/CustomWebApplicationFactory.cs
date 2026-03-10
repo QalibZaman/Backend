@@ -23,7 +23,7 @@ public class CustomWebApplicationFactory
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Local");
+        builder.UseEnvironment("Development");
         builder.ConfigureServices(services =>
         {
             services.AddDbContext<AppDbContext>(options =>

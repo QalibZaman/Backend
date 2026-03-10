@@ -1,7 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
-using Microsoft.IdentityModel.Tokens;
-using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Domain.Enums;
 

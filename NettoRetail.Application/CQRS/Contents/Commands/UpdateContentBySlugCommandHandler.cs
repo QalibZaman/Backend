@@ -18,7 +18,7 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
     IStaffRepository accountRepository)
     : IRequestHandler<UpdateContentBySlugCommand>
 {
-    private static readonly HtmlSanitizer Sanitizer = new();
+    private static readonly HtmlSanitizer sanitizer = new();
 
     public async Task Handle(UpdateContentBySlugCommand request, CancellationToken cancellationToken)
     {
@@ -27,23 +27,23 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
             ?? throw new BadRequestException("Couldn't find account record with given user identifier");
 
         var slug = ContentSlugParser.ParseContentSlug(request.Slug);
-        request.Model.Content = SanitizeContent(request.Model.Content);
+        if (!string.IsNullOrEmpty(request.Model.Content))
+        {
+            request.Model.Content = sanitizer.Sanitize(request.Model.Content);
+        }
 
         var spec = new GetContentByShopAndSectionSpecification(slug.ShopId, slug.SectionType);
 
         var contentBlock = await contentRepo.GetAsync(spec, cancellationToken);
-        var sanitizer = new HtmlSanitizer();
-        request.Model.Content = sanitizer.Sanitize(request.Model.Content);
 
         if (contentBlock == null)
         {
-            var contentBlockToCreate = request.Model.Adapt<ContentEntity>();
+            contentBlock = request.Model.Adapt<ContentEntity>();
+            contentBlock.SectionType = slug.SectionType;
+            contentBlock.ShopId = slug.ShopId;
 
-            ApplyAuditFields(contentBlockToCreate, updateAuthor.FullName);
-            contentBlockToCreate.SectionType = slug.SectionType;
-            contentBlockToCreate.ShopId = slug.ShopId;
-
-            await contentRepo.AddAsync(contentBlockToCreate, cancellationToken);
+            ApplyAuditFields(contentBlock, updateAuthor.FullName);
+            await contentRepo.AddAsync(contentBlock, cancellationToken);
             return;
         }
 
@@ -52,11 +52,6 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
         ApplyAuditFields(contentBlock, updateAuthor.FullName);
 
         await contentRepo.UpdateAsync(contentBlock, cancellationToken);
-    }
-
-    private static string SanitizeContent(string content)
-    {
-        return Sanitizer.Sanitize(content);
     }
 
     private static void ApplyAuditFields(ContentEntity contentEntity, string updatedBy)

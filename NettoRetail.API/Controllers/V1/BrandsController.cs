@@ -111,12 +111,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
     /// <response code="404">The brand with the specified identifier was not found.</response>
     /// <response code="500">An unexpected server error occurred.</response>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [RequiresAnyPermission(
-        Permissions.INVENTORY_MANAGEMENT,
-        Permissions.CUSTOMER_MANAGEMENT,
-        Permissions.ORDERS_MANAGEMENT,
-        Permissions.SYSTEM_MANAGEMENT,
-        Permissions.ADMINS_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("{brandId:int}")]
     [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
