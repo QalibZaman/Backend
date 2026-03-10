@@ -18,6 +18,18 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/subscription")]
 public class SubscriptionsController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Changes the subscription plan for the current shop.
+    /// </summary>
+    /// <remarks>
+    /// Possible values for <c>NewPlan</c>:
+    /// <list type="bullet">
+    /// <item><description>0 — Free </description></item>
+    /// <item><description>1 — Super </description></item>
+    /// <item><description>2 — Business </description></item>
+    /// </list>
+    /// </remarks>
+    /// <param name="request">Request containing the new subscription plan and payment method.</param>
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
