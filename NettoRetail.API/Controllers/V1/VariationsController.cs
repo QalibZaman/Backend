@@ -36,22 +36,36 @@ public class VariationsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPatch("{id:guid}/toggle-active")]
+    [HttpPatch("{id}/toggle-active")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ToggleIsActiveStatus(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleIsActiveStatus(string id, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
-        var command = new ToggleIsActiveStatusCommand(id, shopId);
+        if (!Guid.TryParse(id, out var variationId))
+            return BadRequest();
+
+        var command = new ToggleIsActiveStatusCommand(variationId, shopId);
 
         var response = await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPatch("toggle-active")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult ToggleIsActiveStatusMissingId()
+    {
+        return BadRequest();
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
