@@ -31,10 +31,9 @@ public class DeletePaymentCommandHandler(IPaymentRepository paymentRepository,
             await ChangeDefaultPaymentMethod(request.AccountId, request.PaymentMethodId, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
+        await stripePaymentService.DetachPaymentMethodAsync(request.PaymentMethodId);
         await paymentRepository.DeleteAsync(payment, cancellationToken);
         transaction.Commit();
-
-        await stripePaymentService.DetachPaymentMethodAsync(request.PaymentMethodId);
 
         var isLastMethod = payment.Account.PaymentMethods?.Count == 1;
 
