@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Sessions.Queries;
 
 public record GetActiveSessionsQuery(Guid AccountId, string CurrentSessionToken) : IRequest<IEnumerable<SessionResponse>>;
 
-public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository) : IRequestHandler<GetActiveSessionsQuery, IEnumerable<SessionResponse>>
+public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository, IMapper mapper) : IRequestHandler<GetActiveSessionsQuery, IEnumerable<SessionResponse>>
 {
     public async Task<IEnumerable<SessionResponse>> Handle(GetActiveSessionsQuery request, CancellationToken cancellationToken)
     {
@@ -19,7 +19,7 @@ public class GetActiveSessionsQueryHandler(ISessionRepository sessionRepository)
 
         var sessionResponses = activeSessions.Select(s =>
         {
-            var session = s.Adapt<SessionResponse>();
+            var session = mapper.Map<SessionResponse>(s);
             session.IsCurrent = s.Jwt == request.CurrentSessionToken;
             return session;
         });

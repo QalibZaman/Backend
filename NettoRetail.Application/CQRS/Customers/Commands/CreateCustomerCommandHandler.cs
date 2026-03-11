@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
@@ -24,7 +24,9 @@ public class CreateCustomerCommandHandler(
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
     ICountryRepository countryRepository,
-    IRoleRepository roleRepository)
+    IRoleRepository roleRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
@@ -42,15 +44,15 @@ public class CreateCustomerCommandHandler(
             await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
         }
 
-        var emailSpecification = new GetCustomerByEmailAndShopIdSpecification(request.Model.Email, request.ShopId);
-        var customerExists = await customerRepository.Exists(emailSpecification, cancellationToken);
-        if (customerExists)
-            throw new ConflictException("Account with this email already exists within current shop");
+        var emailSpecification = new GetCustomerByEmailSpecification(request.Model.Email);
+        var account = await customerRepository.Exists(emailSpecification, cancellationToken);
+        if (account)
+            throw new ConflictException("Account with this email already exists");
 
         var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
-        var customerEntity = request.Model.Adapt<CustomerEntity>();
+        var customerEntity = mapper.Map<CustomerEntity>(request.Model);
 
         customerEntity.RoleId = role!.Id;
         customerEntity.ShopId = request.ShopId;
@@ -60,7 +62,6 @@ public class CreateCustomerCommandHandler(
         var initialPassword = Guid.NewGuid().ToString();
         customerEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
-        customerEntity.Id = customerEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
         customerEntity.IsActive = true;
 
@@ -72,12 +73,21 @@ public class CreateCustomerCommandHandler(
             customerEntity.PhoneNumber = $"{country!.PhoneCode} {request.Model.PhoneNumber}";
         }
 
-        await customerRepository.AddAsync(customerEntity, cancellationToken);
+        var transaction = unitOfWork.BeginTransaction();
 
-        var response = customerEntity.Adapt<CreateCustomerResponse>();
+        try
+        {
+            await customerRepository.AddAsync(customerEntity, cancellationToken);
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
 
-        customerEntity.Adapt(response);
-        response.Country = country?.Adapt<CountryResponse>() ?? null;
+        var response = mapper.Map<CreateCustomerResponse>(customerEntity);
+        response.Country = country == null ? null : mapper.Map<CountryResponse>(country);
 
         return response;
     }

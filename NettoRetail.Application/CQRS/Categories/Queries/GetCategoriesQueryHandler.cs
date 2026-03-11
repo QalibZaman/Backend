@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -13,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Categories.Queries;
 
 public record GetCategoriesQuery(PaginationRequest Model, int ShopId) : IRequest<GetCategoriesResponse>;
 
-public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) : IRequestHandler<GetCategoriesQuery, GetCategoriesResponse>
+public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository, IMapper mapper) : IRequestHandler<GetCategoriesQuery, GetCategoriesResponse>
 {
     public async Task<GetCategoriesResponse> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
@@ -28,7 +28,7 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository) :
 
         var (items, totalAmount) = await categoryRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var responseCollection = items.Adapt<List<CategoryResponse>>();
+        var responseCollection = mapper.Map<List<CategoryResponse>>(items);
 
         var responeModel = new GetCategoriesResponse { Categories = responseCollection, TotalAmount = totalAmount };
 

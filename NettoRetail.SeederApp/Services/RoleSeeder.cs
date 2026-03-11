@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using NettoRetail.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
@@ -34,12 +34,22 @@ public class RoleSeeder(IConfiguration config, IStaffRepository repository)
                 continue;
             }
 
-            var account = acc.Adapt<StaffEntity>();
-            account.PasswordHash = PasswordHasher.HashPassword(acc.Password);
+            var status = Enum.TryParse<StaffStatusEnum>(acc.Status, true, out var parsedStatus)
+                ? parsedStatus
+                : StaffStatusEnum.CreatePassword;
+
+            var account = new StaffEntity
+            {
+                FirstName = acc.FirstName,
+                LastName = acc.LastName,
+                Email = acc.Email,
+                RoleId = acc.RoleId,
+                Status = status,
+                PasswordHash = PasswordHasher.HashPassword(acc.Password)
+            };
 
             await repository.AddAsync(account, CancellationToken.None);
             Console.WriteLine($"Created account: {acc.Email}");
         }
     }
 }
-

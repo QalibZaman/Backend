@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using NettoRetail.Application.Models.Request.RecentlyViewedProduct;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
@@ -9,10 +9,12 @@ namespace NettoRetail.Application.Services.IRecentlyViewedService;
 public class RecentlyViewedService : IRecentlyViewedService
 {
     private readonly IRecentlyViewedRepository _repository;
+    private readonly IMapper _mapper;
 
-    public RecentlyViewedService(IRecentlyViewedRepository repository)
+    public RecentlyViewedService(IRecentlyViewedRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     public async Task AddOrUpdateAsync(Guid accountId, Guid inventoryItemId, CancellationToken cancellationToken)
@@ -47,7 +49,7 @@ public class RecentlyViewedService : IRecentlyViewedService
 
         return items
         .OrderByDescending(rv => rv.ViewedAtUtc)
-         .Select(rv => rv.InventoryItem.Adapt<InventoryItemCardResponse>())
+         .Select(rv => _mapper.Map<InventoryItemCardResponse>(rv.InventoryItem))
          .ToList();
     }
 

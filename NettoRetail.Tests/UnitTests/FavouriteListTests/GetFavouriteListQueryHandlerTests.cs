@@ -1,5 +1,8 @@
-﻿using Mapster;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.CQRS.FavouriteListItems.Queries;
+using NettoRetail.Application.MappingConfiguration;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -11,10 +14,17 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
 {
     public class GetFavouriteListQueryHandlerTests
     {
-        public GetFavouriteListQueryHandlerTests()
+        private static IMapper CreateMapper()
         {
-            // Ensure Mapster config is registered
-            TypeAdapterConfig.GlobalSettings.Scan(typeof(InventoryItemCardResponse).Assembly);
+            var config = new TypeAdapterConfig();
+            config.Apply(new MappingConfiguration());
+
+            var services = new ServiceCollection();
+            services.AddSingleton(config);
+            services.AddScoped<IMapper, ServiceMapper>();
+
+            var provider = services.BuildServiceProvider();
+            return provider.GetRequiredService<IMapper>();
         }
 
 
@@ -71,7 +81,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             repo.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(new List<FavouriteListItemEntity>());
 
-            var handler = new GetFavouriteListQueryHandler(repo);
+            var handler = new GetFavouriteListQueryHandler(repo, CreateMapper());
             var result = await handler.Handle(new GetFavouriteListQuery(Guid.NewGuid(), 1), CancellationToken.None);
 
             Assert.NotNull(result);
@@ -102,7 +112,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             repo.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(data);
 
-            var handler = new GetFavouriteListQueryHandler(repo);
+            var handler = new GetFavouriteListQueryHandler(repo, CreateMapper());
             var result = await handler.Handle(new GetFavouriteListQuery(userId, shopId), CancellationToken.None);
 
             Assert.Equal(3, result.Items.Count());
@@ -129,7 +139,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             repo.GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(new List<FavouriteListItemEntity>());
 
-            var handler = new GetFavouriteListQueryHandler(repo);
+            var handler = new GetFavouriteListQueryHandler(repo, CreateMapper());
             var cts = new CancellationTokenSource();
 
             await handler.Handle(new GetFavouriteListQuery(Guid.NewGuid(), 7), cts.Token);

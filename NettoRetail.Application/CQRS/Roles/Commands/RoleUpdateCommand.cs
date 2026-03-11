@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
@@ -8,11 +8,10 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Roles.Commands;
 
-public record RoleUpdateCommand(int Id, int ShopId, UpdateRoleRequest Model) : IRequest;
-
-public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequestHandler<RoleUpdateCommand>
+public record RoleUpdateCommand(int Id, int ShopId, UpdateRoleRequest Model) : IRequest<Unit>;
+public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IMapper mapper) : IRequestHandler<RoleUpdateCommand, Unit>
 {
-    public async Task Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
         var spec = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
         var role = await roleRepository.GetAsync(spec, cancellationToken)
@@ -20,7 +19,7 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequest
 
         var permissionsIds = request.Model.PermissionIds?.Distinct().ToArray() ?? [];
 
-        request.Model.Adapt(role);
+        mapper.Map(request.Model, role);
 
         role.PermissionRoles = permissionsIds.Select(permissionId => new PermissionRoleEntity
             {
@@ -30,5 +29,6 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequest
             .ToList();
 
         await roleRepository.UpdateAsync(role, cancellationToken);
+        return Unit.Value;
     }
 }

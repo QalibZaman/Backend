@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
@@ -12,7 +12,7 @@ namespace NettoRetail.Application.CQRS.Brands.Queries;
 
 public record GetShopBrandsQuery(int ShopId, PaginationRequest Pagination) : IRequest<PaginatedResponse<BrandResponse>>;
 
-public class GetShopBrandsQueryHandler(IBrandRepository brandRepository) : IRequestHandler<GetShopBrandsQuery, PaginatedResponse<BrandResponse>>
+public class GetShopBrandsQueryHandler(IBrandRepository brandRepository, IMapper mapper) : IRequestHandler<GetShopBrandsQuery, PaginatedResponse<BrandResponse>>
 {
     public async Task<PaginatedResponse<BrandResponse>> Handle(GetShopBrandsQuery request, CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class GetShopBrandsQueryHandler(IBrandRepository brandRepository) : IRequ
 
         var (items, totalCount) = await brandRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var brands = items.Adapt<ICollection<BrandResponse>>();
+        var brands = mapper.Map<ICollection<BrandResponse>>(items);
 
         return new PaginatedResponse<BrandResponse>()
         {

@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.ClientsShop;
@@ -20,7 +20,8 @@ public class CreateShopForClientCommandHandler(IShopRepository shopRepository,
     IStaffRepository accountRepository,
     IUnitOfWork unitOfWork,
     ICountryDetailsValidationService countryDetailsValidator,
-    IShopValidationService shopValidator) : IRequestHandler<CreateShopForClientCommand, ShopResponse>
+    IShopValidationService shopValidator,
+    IMapper mapper) : IRequestHandler<CreateShopForClientCommand, ShopResponse>
 {
     public async Task<ShopResponse> Handle(CreateShopForClientCommand request, CancellationToken cancellationToken)
     {
@@ -33,13 +34,13 @@ public class CreateShopForClientCommandHandler(IShopRepository shopRepository,
             throw new ConflictException("Account already has a shop");
         }
 
-        var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+        var countryValidationModel = mapper.Map<CountryValidationModel>(request.Model);
         await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
 
-        var shopValidationModel = request.Model.Adapt<ShopValidationModel>();
+        var shopValidationModel = mapper.Map<ShopValidationModel>(request.Model);
         await shopValidator.ValidateShopOnCreate(shopValidationModel, cancellationToken);
 
-        var shop = request.Model.Adapt<ShopEntity>();
+        var shop = mapper.Map<ShopEntity>(request.Model);
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -49,6 +50,6 @@ public class CreateShopForClientCommandHandler(IShopRepository shopRepository,
         await accountRepository.UpdateAsync(account, cancellationToken);
         transaction.Commit();
 
-        return shop.Adapt<ShopResponse>();
+        return mapper.Map<ShopResponse>(shop);
     }
 }

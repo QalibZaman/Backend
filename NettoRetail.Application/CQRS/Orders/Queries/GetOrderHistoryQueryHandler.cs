@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response.Order;
@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Orders.Queries;
 
 public record GetOrderHistoryQuery(Guid CustomerId, int ShopId) : IRequest<IEnumerable<OrderHistoryResponse>>;
 
-public class GetOrderHistoryQueryHandler(IOrderRepository orderRepository)
+public class GetOrderHistoryQueryHandler(IOrderRepository orderRepository, IMapper mapper)
     : IRequestHandler<GetOrderHistoryQuery, IEnumerable<OrderHistoryResponse>>
 {
     public async Task<IEnumerable<OrderHistoryResponse>> Handle(GetOrderHistoryQuery request, CancellationToken cancellationToken)
@@ -18,7 +18,7 @@ public class GetOrderHistoryQueryHandler(IOrderRepository orderRepository)
         var order = await orderRepository.GetManyBySpecAsync(ordersByCustomerIdShopId, cancellationToken)
             ?? throw new NotFoundException("There is no such order.");
 
-        var response = order.Adapt<IEnumerable<OrderHistoryResponse>>();
+        var response = mapper.Map<IEnumerable<OrderHistoryResponse>>(order);
 
         return response;
     }

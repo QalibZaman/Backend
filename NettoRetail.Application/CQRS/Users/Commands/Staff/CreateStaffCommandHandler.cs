@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -19,7 +19,8 @@ public class CreateStaffCommandHandler(
     IStaffRepository accountRepository,
     IRoleRepository roleRepository,
     IEmailBuilderService emailBuilderService,
-    IEmailSender emailSender)
+    IEmailSender emailSender,
+    IMapper mapper)
     : IRequestHandler<CreateStaffCommand, CreateStaffResponse>
 {
     public async Task<CreateStaffResponse> Handle(CreateStaffCommand request, CancellationToken cancellationToken)
@@ -35,7 +36,7 @@ public class CreateStaffCommandHandler(
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken)
             ?? throw new NotFoundException("Role not found");
 
-        var account = request.Model.Adapt<StaffEntity>();
+        var account = mapper.Map<StaffEntity>(request.Model);
         account.ShopId = request.ShopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;
@@ -45,7 +46,7 @@ public class CreateStaffCommandHandler(
 
         var createdAccount = await accountRepository.AddAsync(account, cancellationToken);
 
-        var response = createdAccount.Adapt<CreateStaffResponse>();
+        var response = mapper.Map<CreateStaffResponse>(createdAccount);
 
         var emailModel = await emailBuilderService
             .BuildResetPasswordEmailAsync(request.Model.Email, request.Model.FirstName);

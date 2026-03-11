@@ -70,14 +70,14 @@ public class CustomersController(IMediator mediator) : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("verify-customer-activation")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> VerifyCustomer([FromQuery] string token, CancellationToken cancellationToken)
     {
         var command = new VerifyCustomerEmailCommand(token);
-        await mediator.Send(command, cancellationToken);
+        var tokenResponse = await mediator.Send(command, cancellationToken);
 
         return Ok(new ApiResponse<string>("Your email was successfully verified!"));
     }

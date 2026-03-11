@@ -155,6 +155,64 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         }
     }
 
+    public ClaimsPrincipal ValidatePlatformAdminActivationToken(string activationToken)
+        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation, allowExpired: false);
+
+    public ClaimsPrincipal ValidatePlatformAdminActivationTokenAllowExpired(string activationToken)
+        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation, allowExpired: true);
+
+    public ClaimsPrincipal ValidatePlatformAdminResetPasswordToken(string resetToken)
+        => ValidatePlatformAdminTokenInternal(resetToken, AuthTokenTypes.PlatformAdminResetPassword, allowExpired: false);
+
+    private ClaimsPrincipal ValidatePlatformAdminTokenInternal(string token, string expectedType, bool allowExpired)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        try
+        {
+            var principal = handler.ValidateToken(
+                token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = !allowExpired,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(_key),
+                    ClockSkew = TimeSpan.Zero
+                },
+                out _);
+
+            var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
+            if (tokenType != expectedType)
+            {
+                throw new BadRequestException("Invalid token type.");
+            }
+
+            var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(accountId))
+                throw new BadRequestException("Account id claim is missing in token.");
+
+            var issuedAt = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
+            if (string.IsNullOrEmpty(issuedAt))
+                throw new BadRequestException("Token issued-at claim is missing in token.");
+
+            return principal;
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            throw new BadRequestException("Token has expired.");
+        }
+        catch (SecurityTokenMalformedException)
+        {
+            throw new BadRequestException("Token format is invalid.");
+        }
+        catch (SecurityTokenException)
+        {
+            throw new BadRequestException("Invalid token.");
+        }
+    }
+
     public TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId = null)
     {
         const string tokenType = AuthClaims.TokenType;

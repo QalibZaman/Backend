@@ -2,7 +2,7 @@
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -14,6 +14,12 @@ namespace NettoRetail.Application.Services;
 
 public class CsvFileService : ICsvFileService
 {
+    private readonly IMapper _mapper;
+
+    public CsvFileService(IMapper mapper)
+    {
+        _mapper = mapper;
+    }
     private static readonly string[] InventoryItemHeaders =
     [
         "Product UPC",
@@ -31,7 +37,7 @@ public class CsvFileService : ICsvFileService
 
     public async Task<byte[]> GetEntitiesCsvData<T, TEntity>(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
     {
-        var mappedEntities = entities.Adapt<IEnumerable<T>>();
+        var mappedEntities = _mapper.Map<IEnumerable<T>>(entities);
 
         using var memoryStream = new MemoryStream();
         await using var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true);

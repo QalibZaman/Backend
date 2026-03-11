@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -22,7 +22,8 @@ public class UpdateCustomerCommandHandler(
     ICustomerRepository customerRepository,
     ICountryRepository countryRepository,
     ISessionTerminationService sessionTerminationService,
-    IUnitOfWork unitOfWork) : IRequestHandler<UpdateCustomerCommand>
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : IRequestHandler<UpdateCustomerCommand>
 {
     public async Task Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
@@ -50,7 +51,7 @@ public class UpdateCustomerCommandHandler(
         var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
         var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
 
-        request.Model.Adapt(customer);
+        mapper.Map(request.Model, customer);
 
         if (request.Model.PhoneNumber != null)
         {

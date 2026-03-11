@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -12,7 +12,11 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Categories.Commands;
 public record AddCategoryCommand(AddCategoryRequest Model, int ShopId) : IRequest<CategoryResponse>;
 
-public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, ICategoryLevelManagementService levelService, IShopRepository shopRepository) : IRequestHandler<AddCategoryCommand, CategoryResponse>
+public class AddCategoryCommandHandler(
+    ICategoryRepository categoryRepository,
+    ICategoryLevelManagementService levelService,
+    IShopRepository shopRepository,
+    IMapper mapper) : IRequestHandler<AddCategoryCommand, CategoryResponse>
 {
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
@@ -46,14 +50,14 @@ public class AddCategoryCommandHandler(ICategoryRepository categoryRepository, I
             throw new NotFoundException($"No shop with id: {request.ShopId}");
         }
 
-        var category = request.Model.Adapt<CategoryEntity>();
+        var category = mapper.Map<CategoryEntity>(request.Model);
         category.ShopId = request.ShopId;
 
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 
         var responseModel = await categoryRepository.AddAsync(category, cancellationToken);
 
-        var response = responseModel.Adapt<CategoryResponse>();
+        var response = mapper.Map<CategoryResponse>(responseModel);
 
         return response;
     }
