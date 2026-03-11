@@ -1,5 +1,5 @@
 ﻿using Ganss.Xss;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Content;
@@ -14,8 +14,10 @@ namespace NettoRetail.Application.CQRS.Contents.Commands;
 public record UpdateContentBySlugCommand(string Slug, Guid UpdateAuthor, UpdateContentRequest Model)
     : IRequest;
 
-public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
-    IStaffRepository accountRepository)
+public class UpdateContentBySlugCommandHandler(
+    IContentRepository contentRepo,
+    IStaffRepository accountRepository,
+    IMapper mapper)
     : IRequestHandler<UpdateContentBySlugCommand>
 {
     private static readonly HtmlSanitizer sanitizer = new();
@@ -38,7 +40,7 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
 
         if (contentBlock == null)
         {
-            contentBlock = request.Model.Adapt<ContentEntity>();
+            contentBlock = mapper.Map<ContentEntity>(request.Model);
             contentBlock.SectionType = slug.SectionType;
             contentBlock.ShopId = slug.ShopId;
 
@@ -47,7 +49,7 @@ public class UpdateContentBySlugCommandHandler(IContentRepository contentRepo,
             return;
         }
 
-        request.Model.Adapt(contentBlock);
+        mapper.Map(request.Model, contentBlock);
 
         ApplyAuditFields(contentBlock, updateAuthor.FullName);
 

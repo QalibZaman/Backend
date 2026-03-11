@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
@@ -12,7 +12,8 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
 public record DeleteItemFromComparisonCommand(Guid ItemId, Guid UserId) : IRequest<ItemComparisonResponse>;
 public class DeleteItemFromComparisonCommandHandler(
-    IItemComparisonRepository itemComparisonRepository)
+    IItemComparisonRepository itemComparisonRepository,
+    IMapper mapper)
     : IRequestHandler<DeleteItemFromComparisonCommand, ItemComparisonResponse>
 {
     public async Task<ItemComparisonResponse> Handle(DeleteItemFromComparisonCommand request, CancellationToken cancellationToken)
@@ -31,7 +32,7 @@ public class DeleteItemFromComparisonCommandHandler(
 
         var result = await itemComparisonRepository.DeleteItemAsync(comparison, link, cancellationToken);
 
-        var response = result.Adapt<ItemComparisonResponse>();
+        var response = mapper.Map<ItemComparisonResponse>(result);
 
         return response;
     }

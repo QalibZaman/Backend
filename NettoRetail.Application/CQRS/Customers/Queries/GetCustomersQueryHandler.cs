@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
@@ -13,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Customers.Queries;
 
 public record GetCustomersQuery(PaginationRequest PageModel, GetCustomersRequest? Model) : IRequest<PaginatedResponse<CustomerResponse>>;
 
-public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : IRequestHandler<GetCustomersQuery, PaginatedResponse<CustomerResponse>>
+public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IMapper mapper) : IRequestHandler<GetCustomersQuery, PaginatedResponse<CustomerResponse>>
 {
     public async Task<PaginatedResponse<CustomerResponse>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository) : 
 
         var (items, totalAmount) = await customerRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var mappedCustomers = items.Adapt<ICollection<CustomerResponse>>();
+        var mappedCustomers = mapper.Map<ICollection<CustomerResponse>>(items);
 
         return new PaginatedResponse<CustomerResponse>()
         {

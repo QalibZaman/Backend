@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Queries;
 
 public record GetFeedbackDetailQuery(Guid FeedbackId) : IRequest<FeedbackDetailResponse>;
 
-public class GetFeedbackDetailQueryHandler(IFeedbackRepository feedbackRepository)
+public class GetFeedbackDetailQueryHandler(IFeedbackRepository feedbackRepository, IMapper mapper)
     : IRequestHandler<GetFeedbackDetailQuery, FeedbackDetailResponse>
 {
     public async Task<FeedbackDetailResponse> Handle(GetFeedbackDetailQuery request, CancellationToken cancellationToken)
@@ -19,7 +19,7 @@ public class GetFeedbackDetailQueryHandler(IFeedbackRepository feedbackRepositor
         var feedback = await feedbackRepository.GetAsync(spec, cancellationToken)
                       ?? throw new NotFoundException("Feedback not found.");
 
-        var feedbackDetail = feedback.Adapt<FeedbackDetailResponse>();
+        var feedbackDetail = mapper.Map<FeedbackDetailResponse>(feedback);
 
         feedbackDetail.Email = feedback.Account?.Email;
         return feedbackDetail;

@@ -1,5 +1,5 @@
 using Ganss.Xss;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.OnboardingSlides;
@@ -13,7 +13,8 @@ namespace NettoRetail.Application.CQRS.OnboardingSlides.Commands;
 public record UpdateOnboardingSlideCommand(int Id, UpdateOnboardingSlideRequest Request, Guid UpdatedBy) : IRequest<OnboardingSlideResponse>;
 
 public class UpdateOnboardingSlideCommandHandler(
-    IOnboardingSlideRepository slideRepository
+    IOnboardingSlideRepository slideRepository,
+    IMapper mapper
 ) : IRequestHandler<UpdateOnboardingSlideCommand, OnboardingSlideResponse>
 {
     public async Task<OnboardingSlideResponse> Handle(UpdateOnboardingSlideCommand request, CancellationToken cancellationToken)
@@ -31,6 +32,6 @@ public class UpdateOnboardingSlideCommandHandler(
 
         await slideRepository.UpdateAsync(slide, cancellationToken);
 
-        return slide.Adapt<OnboardingSlideResponse>();
+        return mapper.Map<OnboardingSlideResponse>(slide);
     }
 }

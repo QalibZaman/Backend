@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request.Order;
 using NettoRetail.Application.Models.Response;
@@ -8,7 +8,7 @@ namespace NettoRetail.Application.CQRS.Orders.Commands;
 
 public record UpdateOrderStatusCommand(UpdateOrderRequest Model, Guid userId) : IRequest<OrderResponse>;
 
-public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderStatusService orderStatusService) : IRequestHandler<UpdateOrderStatusCommand, OrderResponse>
+public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderStatusService orderStatusService, IMapper mapper) : IRequestHandler<UpdateOrderStatusCommand, OrderResponse>
 {
     public async Task<OrderResponse> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
     {
@@ -16,7 +16,7 @@ public class UpdateOrderStatusCommandHandler(IOrderService orderService, IOrderS
 
         await orderStatusService.UpdateOrderStatusAsync(order, request.Model, request.userId, cancellationToken);
 
-        var response = order.Adapt<OrderResponse>();
+        var response = mapper.Map<OrderResponse>(order);
 
         return response;
     }

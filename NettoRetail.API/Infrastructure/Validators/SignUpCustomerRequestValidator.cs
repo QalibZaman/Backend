@@ -27,6 +27,13 @@ public class SignUpCustomerRequestValidator : AbstractValidator<SignUpCustomerRe
             .MaximumLength(256).WithMessage("Email length must be less than 256 characters long.")
             .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$").WithMessage("Email must be in a valid format.");
 
+        RuleFor(x => x.CountryId)
+            .GreaterThan(0).WithMessage("CountryId is required.");
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty().WithMessage("Phone number is required.")
+            .NotNull().WithMessage("Phone number is required.");
+
         RuleFor(x => x.Password)
            .NotEmpty().WithMessage("Password is required.")
             .NotNull().WithMessage("Password is required.")
@@ -42,5 +49,9 @@ public class SignUpCustomerRequestValidator : AbstractValidator<SignUpCustomerRe
             .NotEmpty().WithMessage("Confirmation password is required.")
             .NotNull().WithMessage("Confirmation password is required.")
             .Equal(x => x.Password).WithMessage("Passwords aren't matching.");
+
+        RuleFor(x => x.PrivacyPolicyAccepted)
+            .Equal(true)
+            .WithMessage("Privacy Policy and Terms and Conditions must be accepted.");
     }
 }

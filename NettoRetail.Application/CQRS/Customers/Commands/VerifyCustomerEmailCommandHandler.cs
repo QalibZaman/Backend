@@ -2,19 +2,20 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
-public record VerifyCustomerEmailCommand(string Token) : IRequest<Unit>;
+public record VerifyCustomerEmailCommand(string Token) : IRequest<TokenResponse>;
 public class VerifyCustomerEmailCommandHandler(
     IJwtManager jwtManager,
     ICustomerRepository customerRepository)
-    : IRequestHandler<VerifyCustomerEmailCommand, Unit>
+    : IRequestHandler<VerifyCustomerEmailCommand, TokenResponse>
 {
-    public async Task<Unit> Handle(
+    public async Task<TokenResponse> Handle(
         VerifyCustomerEmailCommand command,
         CancellationToken cancellationToken)
     {
@@ -46,6 +47,10 @@ public class VerifyCustomerEmailCommandHandler(
             await customerRepository.UpdateAsync(customer, cancellationToken);
         }
 
-        return Unit.Value;
+        return jwtManager.GetTokenResponse(
+            customer.Id.ToString(),
+            customer.Email,
+            customer.RoleId.ToString(),
+            customer.ShopId);
     }
 }

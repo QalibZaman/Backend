@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -11,7 +11,11 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 {
     public record UpdateCategoryCommand(int Id, string Name, string URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
 
-    public class UpdateCategoryCommandHandler(ICategoryRepository categoryRepository, ICategoryLevelManagementService levelService, IUnitOfWork unitOfWork) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
+    public class UpdateCategoryCommandHandler(
+        ICategoryRepository categoryRepository,
+        ICategoryLevelManagementService levelService,
+        IUnitOfWork unitOfWork,
+        IMapper mapper) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
@@ -33,13 +37,13 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
             try
             {
-                request.Adapt(category);
+                mapper.Map(request, category);
 
                 await levelService.UpdateCategoryLevel(category, cancellationToken);
 
                 transaction.Commit();
 
-                var response = category.Adapt<CategoryResponse>();
+                var response = mapper.Map<CategoryResponse>(category);
 
                 return response;
             }

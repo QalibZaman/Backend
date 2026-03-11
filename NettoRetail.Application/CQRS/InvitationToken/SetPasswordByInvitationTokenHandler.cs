@@ -1,10 +1,11 @@
 using MediatR;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.InvitationToken;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,9 +16,7 @@ namespace NettoRetail.Application.CQRS.InvitationToken;
 public record SetPasswordByInvitationTokenCommand(SetPasswordByInvitationRequest Model) : IRequest<TokenResponse>;
 
 public class SetPasswordByInvitationTokenHandler(
-    IInvitationTokenRepository invitationTokenRepository,
     IStaffRepository accountRepository,
-    IInvitationTokenService invitationTokenService,
     IJwtManager jwtManager,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService
@@ -32,21 +31,24 @@ public class SetPasswordByInvitationTokenHandler(
             throw new BadRequestException("Your invitation link is invalid or expired.");
         }
 
-        var now = DateTime.UtcNow;
+        ClaimsPrincipal principal;
+        try
+        {
+            principal = jwtManager.ValidatePlatformAdminResetPasswordToken(model.Token);
+        }
+        catch (BadRequestException)
+        {
+            throw new ConflictException("Your invitation link is invalid or expired.");
+        }
 
-        var tokenHash = invitationTokenService.Hash(model.Token);
-
-        var token = await invitationTokenRepository.GetByHashAsync(
-            new GetInvitationTokenByHashSpecification(tokenHash),
-            cancellationToken);
-
-        if (token is null || token.UsedAt is not null || token.InvalidatedAt is not null || token.ExpiresAt <= now)
+        var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(accountId))
         {
             throw new ConflictException("Your invitation link is invalid or expired.");
         }
 
         var account = await accountRepository.GetAsync(
-            new GetStaffByIdSpecification(token.AccountId),
+            new GetStaffByIdSpecification(Guid.Parse(accountId)),
             cancellationToken) 
                       ?? throw new NotFoundException("This account no longer exists. Contact your administrator.");
 
@@ -57,13 +59,26 @@ public class SetPasswordByInvitationTokenHandler(
             throw new ConflictException("Account cannot be activated.");
         }
 
-        token.UsedAt = now;
+        var issuedAtSeconds = GetIssuedAtSeconds(principal);
+        if (account.InvitationTokenIssuedAt.HasValue)
+        {
+            var latestIssuedAtSeconds = new DateTimeOffset(account.InvitationTokenIssuedAt.Value).ToUnixTimeSeconds();
+            if (issuedAtSeconds < latestIssuedAtSeconds)
+                throw new ConflictException("Your invitation link is invalid or expired.");
+        }
 
+        if (account.PasswordUpdatedAt.HasValue)
+        {
+            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
+            if (issuedAtSeconds <= passwordUpdatedAtSeconds)
+                throw new ConflictException("Your invitation link is invalid or expired.");
+        }
+
+        var now = DateTime.UtcNow;
         account.PasswordHash = PasswordHasher.HashPassword(model.Password);
         account.PasswordUpdatedAt = now;
         account.Status = StaffStatusEnum.Active;
 
-        await invitationTokenRepository.UpdateAsync(token, cancellationToken);
         await accountRepository.UpdateAsync(account, cancellationToken);
 
         var tokenResponse = jwtManager.GetTokenResponse(
@@ -78,5 +93,13 @@ public class SetPasswordByInvitationTokenHandler(
         await emailSender.SendAsync(confirmationEmail, account.Id);
 
         return tokenResponse;
+    }
+
+    private static long GetIssuedAtSeconds(ClaimsPrincipal principal)
+    {
+        var issuedAt = principal.FindFirst(JwtRegisteredClaimNames.Iat)?.Value;
+        if (!long.TryParse(issuedAt, out var issuedAtSeconds))
+            throw new NotFoundException("Invalid token.");
+        return issuedAtSeconds;
     }
 }

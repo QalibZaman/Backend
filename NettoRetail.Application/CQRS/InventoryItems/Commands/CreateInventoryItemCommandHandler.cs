@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -17,7 +17,8 @@ public class CreateInventoryItemCommandHandler(
     ICategoryRepository categoryRepository,
     IBrandRepository brandRepository,
     IProductDetailRepository productDetailRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
 {
     public async Task<InventoryItemResponse> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -57,14 +58,20 @@ public class CreateInventoryItemCommandHandler(
 
     private async Task<InventoryItemResponse> AddItemAndDetailsAsync(CreateInventoryItemCommand request, string categoryName, string brandName, CancellationToken cancellationToken)
     {
-        var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
+        var inventoryItem = mapper.Map<InventoryItemEntity>(request.Model);
         inventoryItem.ShopId = request.ShopId;
 
-        inventoryItem.ProductDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
+        var productDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
+
+        foreach (var detail in productDetails)
+        {
+            detail.InventoryItemId = inventoryItem.Id;
+        }
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+        await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
 
-        var response = responseModel.Adapt<InventoryItemResponse>();
+        var response = mapper.Map<InventoryItemResponse>(responseModel);
         response.ProductCategory = categoryName;
         response.ProductBrand = brandName;
 

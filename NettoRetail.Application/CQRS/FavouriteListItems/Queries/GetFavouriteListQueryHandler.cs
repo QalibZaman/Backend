@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
@@ -11,7 +11,8 @@ namespace NettoRetail.Application.CQRS.FavouriteListItems.Queries;
 public sealed record GetFavouriteListQuery(Guid AccountId, int ShopId) : IRequest<GetFavouriteResponse>;
 
 public sealed class GetFavouriteListQueryHandler(
-    IFavouriteListItemRepository favouriteRepository
+    IFavouriteListItemRepository favouriteRepository,
+    IMapper mapper
 ) : IRequestHandler<GetFavouriteListQuery, GetFavouriteResponse>
 {
     public async Task<GetFavouriteResponse> Handle(GetFavouriteListQuery request, CancellationToken cancellationToken)
@@ -25,10 +26,12 @@ public sealed class GetFavouriteListQueryHandler(
 
         var favourites = await favouriteRepository.GetManyBySpecAsync(spec, cancellationToken);
 
-        var items = favourites
+        var distinctItems = favourites
             .Select(x => x.InventoryItem!)
             .DistinctBy(ii => ii.Id)
-            .Adapt<List<InventoryItemCardResponse>>();
+            .ToList();
+
+        var items = mapper.Map<List<InventoryItemCardResponse>>(distinctItems);
 
         var total = items
             .Where(i => !i.IsOutOfStock)

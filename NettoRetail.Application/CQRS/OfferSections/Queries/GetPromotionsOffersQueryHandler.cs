@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.OfferSection;
@@ -9,7 +9,8 @@ namespace NettoRetail.Application.CQRS.OfferSections.Queries;
 public record GetPromotionOffersQuery() : IRequest<IEnumerable<InventoryItemCardResponse>>;
 
 public class GetPromotionOffersQueryHandler(
-    IOfferRepository offerRepository)
+    IOfferRepository offerRepository,
+    IMapper mapper)
     : IRequestHandler<GetPromotionOffersQuery, IEnumerable<InventoryItemCardResponse>>
 {
     public async Task<IEnumerable<InventoryItemCardResponse>> Handle(GetPromotionOffersQuery request, CancellationToken cancellationToken)
@@ -18,7 +19,7 @@ public class GetPromotionOffersQueryHandler(
         var offers = await offerRepository.GetManyBySpecAsync(specification, cancellationToken);
 
         var inventoryItems = offers.SelectMany(x => x.Products.Select(n => n.InventoryItem)).ToList();
-        var response = inventoryItems.Adapt<List<InventoryItemCardResponse>>();
+        var response = mapper.Map<List<InventoryItemCardResponse>>(inventoryItems);
         return response;
     }
 }

@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -13,7 +13,8 @@ public record UpdateInventoryItemCommand(Guid Id, int ShopId, UpdateInventoryIte
 
 public class UpdateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
-    IInventoryService inventoryService)
+    IInventoryService inventoryService,
+    IMapper mapper)
     : IRequestHandler<UpdateInventoryItemCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -26,7 +27,7 @@ public class UpdateInventoryItemCommandHandler(
         await inventoryService.ValidateUpdateAsync(
             request.Model, request.ShopId, request.Id, inventoryItem, cancellationToken);
 
-        var data = request.Model.Adapt<InventoryItemUpdateData>();
+        var data = mapper.Map<InventoryItemUpdateData>(request.Model);
         inventoryItem.ApplyUpdate(data);
         await inventoryItemRepository.UpdateAsync(inventoryItem, cancellationToken);
         return Unit.Value;
