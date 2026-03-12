@@ -1,5 +1,5 @@
-﻿using NettoRetail.Application.Models.Request;
-using NettoRetail.Application.Models.Request.Feedback;
+﻿using NettoRetail.Application.Models.Feedback;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Feedback;
 using NettoRetail.Domain.Entities;
