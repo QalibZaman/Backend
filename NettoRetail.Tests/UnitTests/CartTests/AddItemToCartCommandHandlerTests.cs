@@ -1,7 +1,9 @@
-﻿using NettoRetail.Application.CQRS.Cart.Commands;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.Cart.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -9,6 +11,8 @@ namespace NettoRetail.Tests.UnitTests.CartTests;
 
 public class AddItemToCartCommandHandlerTests
 {
+    private readonly IMapper _mapper = MapperFactory.Create();
+
     [Fact]
     public async Task Handle_ShouldReturnResponse_WithAddedItemDetails()
     {
@@ -40,7 +44,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, productId, Arg.Any<CancellationToken>())
             .Returns(cart);
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -79,7 +83,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, productId, Arg.Any<CancellationToken>())
             .Returns(cart);
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -99,7 +103,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, productId, Arg.Any<CancellationToken>())
             .Throws(new NotFoundException("Product not found"));
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             handler.Handle(command, CancellationToken.None));
@@ -117,7 +121,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, productId, Arg.Any<CancellationToken>())
             .Throws(new BadRequestException("Quantity exceeds available stock"));
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         await Assert.ThrowsAsync<BadRequestException>(() =>
             handler.Handle(command, CancellationToken.None));
@@ -158,7 +162,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, requestedProductId, Arg.Any<CancellationToken>())
             .Returns(cart);
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
@@ -185,7 +189,7 @@ public class AddItemToCartCommandHandlerTests
         cartService.AddItemForUserAsync(customerId, productId, Arg.Any<CancellationToken>())
             .Returns(emptyCart);
 
-        var handler = new AddItemToCartCommandHandler(cartService);
+        var handler = new AddItemToCartCommandHandler(cartService, _mapper);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             handler.Handle(command, CancellationToken.None));
