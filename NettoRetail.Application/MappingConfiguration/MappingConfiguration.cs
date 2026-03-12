@@ -72,6 +72,10 @@ public class MappingConfiguration : IRegister
         config.NewConfig<ProductDetailsEntity, ProductDetailsResponse>()
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
 
+        config.NewConfig<ProductDetailEntity, ProductDetailsResponse>()
+            .Map(dest => dest.Type, src => src.TypeEnum.ToString())
+            .Map(dest => dest.Unit, src => src.Unit.HasValue ? src.Unit.Value.ToString() : null);
+
         config.NewConfig<CustomerEntity, CustomerInfoResponse>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
