@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
+using Stripe;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -32,16 +33,17 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
         public async Task AddPayment_ShouldReturnNoContent_IfInputsAreValid()
         {
             // Arrange
-            var email = "stringaa@gmail.com"; //not allowed to edit first shopid category
+            var email = "stringaa@gmail.com";
             var password = "Stringa1234!";
             // Act
             var tokenResponse = await GetTokenResponseAsync(email, password);
 
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+            var methodId = await CreateStripePaymentMethodAsync("tok_visa_debit");
             var request = new AddPaymentRequest
             {
-                PaymentMethodId = "pm_card_visa",
+                PaymentMethodId = methodId,
             };
             var response = await _httpClient.PostAsJsonAsync("api/v1/payments", request);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -51,7 +53,7 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
         public async Task AddPayment_ShouldReturnBadRequest_IfInputsAreInvalid()
         {
             // Arrange
-            var email = "stringaa@gmail.com"; //not allowed to edit first shopid category
+            var email = "stringaa@gmail.com";
             var password = "Stringa1234!";
             // Act
             var tokenResponse = await GetTokenResponseAsync(email, password);
@@ -118,10 +120,10 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
-            // create payment first
+            var methodId = await CreateStripePaymentMethodAsync("tok_visa_debit");
             var addRequest = new AddPaymentRequest
             {
-                PaymentMethodId = "pm_card_visa"
+                PaymentMethodId = methodId
             };
 
             var addResponse = await _httpClient.PostAsJsonAsync("api/v1/payments", addRequest);
@@ -130,8 +132,8 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
             // edit payment
             var editRequest = new EditPaymentRequest
             {
-                StripePaymentMethodId = "pm_card_visa",
-                CardHolderName = "Stringaa Stringaa"
+                StripePaymentMethodId = methodId,
+                CardHolderName = "Shahin Ismayilov"
             };
 
             // Act
@@ -151,19 +153,18 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
 
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
-            var addRequest = new AddPaymentRequest
+            var methodId = await CreateStripePaymentMethodAsync("tok_visa_debit");
+            var request = new AddPaymentRequest
             {
-                PaymentMethodId = "pm_card_visa"
+                PaymentMethodId = methodId,
             };
 
-            var addResponse = await _httpClient.PostAsJsonAsync("api/v1/payments", addRequest);
+            var addResponse = await _httpClient.PostAsJsonAsync("api/v1/payments", request);
             Assert.Equal(HttpStatusCode.NoContent, addResponse.StatusCode);
-
-            var paymentMethodId = "pm_card_visa";
 
             // Act
             var response = await _httpClient.DeleteAsync(
-                $"api/v1/payments/{paymentMethodId}");
+                $"api/v1/payments/{methodId}");
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -173,7 +174,7 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
         public async Task DeletePayment_ShouldReturnUnauthorized_IfTokenMissing()
         {
             // Arrange
-            var paymentMethodId = "pm_test_123";
+            var paymentMethodId = "pm_card_visa";
 
             // Act
             var response = await _httpClient.DeleteAsync(
@@ -205,7 +206,7 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
         [Fact]
-        public async Task ChangeDefaultPayment_ShouldReturnNoContent_IfValid()
+        public async Task ChangeDefaultPayment_ShouldReturnNoContent_IfInputsAreValid()
         {
             var email = "stringaa@gmail.com";
             var password = "Stringa1234!";
@@ -214,22 +215,25 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
 
             _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            var methodId = await CreateStripePaymentMethodAsync("tok_visa_debit");
+            var secMethodId = await CreateStripePaymentMethodAsync("tok_mastercard_debit");
 
-            var request = new AddPaymentRequest
+
+            var requestVisa = new AddPaymentRequest
             {
-                PaymentMethodId = "pm_test_123",
+                PaymentMethodId = methodId
             };
-            var request2 = new AddPaymentRequest
+            var requestMaster = new AddPaymentRequest
             {
-                PaymentMethodId = "pm_test_124",
+                PaymentMethodId = secMethodId,
             };
 
-            await _httpClient.PostAsJsonAsync("api/v1/payments", request);
-            await _httpClient.PostAsJsonAsync("api/v1/payments", request2);
+            await _httpClient.PostAsJsonAsync("api/v1/payments", requestVisa);
+            await _httpClient.PostAsJsonAsync("api/v1/payments", requestMaster);
 
 
             var response = await _httpClient.PutAsync(
-                $"api/v1/payments/{request2.PaymentMethodId}/set-default",
+                $"api/v1/payments/{requestMaster.PaymentMethodId}/set-default",
                 null);
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -246,7 +250,7 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
                 new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
 
-            var pm = "pm_test_123";
+            var pm = "pm_card_visa";
 
             await _httpClient.PostAsJsonAsync(
                 "api/v1/payments",
@@ -263,28 +267,27 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
         [Fact]
         public async Task ChangeDefaultPayment_ShouldReturnNotFound_IfPaymentBelongsToAnotherUser()
         {
-            // user1
-            var token1 = await GetTokenResponseAsync(
+            var firstToken = await GetTokenResponseAsync(
                 "stringaa@gmail.com",
                 "Stringa1234!");
 
             _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token1.AccessToken);
+                new AuthenticationHeaderValue("Bearer", firstToken.AccessToken);
 
-            var pmVisa = "pm_test_123";
-            var pmMaster = "pm_test_124";
+            var pmVisa = "pm_card_visa";
+            var pmMaster = "pm_card_master";
 
             await _httpClient.PostAsJsonAsync("api/v1/payments", pmVisa);
             await _httpClient.PostAsJsonAsync("api/v1/payments", pmMaster);
 
 
             // user2
-            var token2 = await GetTokenResponseAsync(
+            var secondToken = await GetTokenResponseAsync(
                 "stringa@gmail.com",
                 "Stringa1234!");
 
             _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token2.AccessToken);
+                new AuthenticationHeaderValue("Bearer", secondToken.AccessToken);
 
 
             var response = await _httpClient.PutAsync(
@@ -304,6 +307,22 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
                 throw new InvalidDataException("Response could not be read");
 
             return responseData.Data;
+        }
+        private async Task<string> CreateStripePaymentMethodAsync(string token)
+        {
+            var service = new PaymentMethodService();
+
+            var pm = await service.CreateAsync(
+                new PaymentMethodCreateOptions
+                {
+                    Type = "card",
+                    Card = new PaymentMethodCardOptions
+                    {
+                        Token = token
+                    }
+                });
+
+            return pm.Id;
         }
         private void SeedData()
         {
@@ -505,7 +524,7 @@ namespace NettoRetail.Tests.IntegrationTests.PaymentTests
 
                 dbContext.SaveChanges();
             }
-          
+
         }
         public void Dispose()
         {

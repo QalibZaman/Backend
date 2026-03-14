@@ -27,12 +27,11 @@ public sealed class EditPaymentCommandHandler(
             cancellationToken)
             ?? throw new NotFoundException($"Account {request.AccountId} not found");
 
-        var spec = new PaymentMethodByTokenSpecification(request.Request.StripePaymentMethodId);
+        var spec = new GetPaymentMethodByIdSpecification(account.Id, request.Request.StripePaymentMethodId);
 
-        var existing = (await paymentRepository.GetAllBySpecAsync(spec, cancellationToken))
-            .FirstOrDefault();
+        var existing = await paymentRepository.GetAsync(spec, cancellationToken);
 
-        if (existing == null || existing.AccountId != account.Id)
+        if (existing == null)
             throw new NotFoundException("Payment method not found.");
 
         var stripePaymentMethod = await paymentMethodService.GetAsync(
