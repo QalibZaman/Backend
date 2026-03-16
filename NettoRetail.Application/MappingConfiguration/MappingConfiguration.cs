@@ -26,6 +26,11 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<OrderEntity, SearchOrderResponse>()
+            .Map(dest => dest.Email, src => src.Customer.Email)
+            .Map(dest => dest.FullName, src => src.Customer.FullName)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus);
+
         config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
             .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.CustomerName, src => src.FirstName + " " + src.LastName)
