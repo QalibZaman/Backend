@@ -8,26 +8,6 @@ public class SearchFieldModel
     public required string Field { get; set; }
     public required string SearchTerm { get; set; }
 
-    public static ICollection<SearchOrderResponse> AdaptSearchOrderResponse(IEnumerable<OrderEntity> entities)
-    {
-        List<SearchOrderResponse> responseList = new List<SearchOrderResponse>(capacity: entities.Count());
-        foreach (var entity in entities)
-        {
-            var response = new SearchOrderResponse
-            {
-                Id = entity.Id,
-                CreationDate = entity.CreationDate,
-                FullName = entity.Customer.FullName,
-                Email = entity.Customer.Email,
-                OrderStatus = entity.OrderStatus,
-                Creator = entity.Creator
-            };
-            responseList.Add(response);
-        }
-
-        return responseList;
-    }
-
     public enum SearchCriteria
     {
         None,
