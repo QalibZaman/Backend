@@ -231,7 +231,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpPost("platform-admins/{id:guid}/activate")]
+    [HttpPost("platform-admins/{accountId:guid}/activate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -250,7 +250,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
     [Authorize]
-    [HttpPost("platform-admins/{id:guid}/deactivate")]
+    [HttpPost("platform-admins/{accountId:guid}/deactivate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

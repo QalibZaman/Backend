@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Shared.Constants;
 using Stripe;
 
 namespace NettoRetail.Application.Services
@@ -44,7 +45,13 @@ namespace NettoRetail.Application.Services
                 var pm = await paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
 
                 if (pm.Card is null)
-                    throw new InvalidOperationException("Only card payment methods are supported.");
+                    throw new PaymentExceptions("Only card payment methods are supported.");
+
+                if (!pm.Card.Brand.Trim().Equals(BankCardTypeConstants.MasterCard, StringComparison.CurrentCultureIgnoreCase)
+                    && !pm.Card.Brand.Trim().Equals(BankCardTypeConstants.Visa, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    throw new PaymentExceptions("Only mastercard and visa cards are supported.");
+                }
 
                 return new CardSnapshot(
                     pm.Card.Brand,

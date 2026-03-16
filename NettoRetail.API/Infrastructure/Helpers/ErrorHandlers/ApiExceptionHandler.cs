@@ -21,11 +21,11 @@ public static class ApiExceptionHandler
             FluentValidation.ValidationException e => HandleFluentValidationException(e),
             System.ComponentModel.DataAnnotations.ValidationException e => HandleDataAnnotationsValidationException(e),
 
-            _ => HandleDefault(ex)
+            _ => HandleDefault()
         };
     }
 
-    private static ApiExceptionHandlerResponse HandleDefault(Exception ex)
+    private static ApiExceptionHandlerResponse HandleDefault()
     {
         return new ApiExceptionHandlerResponse(
             (int)HttpStatusCode.InternalServerError,

@@ -165,7 +165,42 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Returns a paginated list of inventory items for the current shop.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint allows searching, filtering, sorting, and pagination of inventory items.
+    ///
+    /// Search options:
+    /// - Quick search by UPC or product name.
+    /// - Filtering by category, brand, status, price range, and quantity ranges.
+    /// - Sorting by predefined sort options or multiple sorting rules.
+    /// - Pagination using page number and page size.
+    ///
+    /// The shop identifier is automatically resolved from the authenticated user's claims.
+    /// </remarks>
+    /// <param name="model">
+    /// Search and filtering parameters.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Cancellation token for the request.
+    /// </param>
+    /// <returns>
+    /// Returns a paginated list of inventory items.
+    /// </returns>
+    /// <response code="200">
+    /// Successfully returns a paginated list of inventory items.
+    /// </response>
+    /// <response code="401">
+    /// User is not authenticated.
+    /// </response>
+    /// <response code="403">
+    /// User does not have permission to access the shop inventory.
+    /// </response>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemListResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpGet("getInventoryItems")]
     public async Task<IActionResult> GetInventoryItems([FromQuery] InventoryItemsSearchModel model, CancellationToken cancellationToken)
     {
@@ -265,6 +300,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

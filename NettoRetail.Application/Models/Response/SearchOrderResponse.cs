@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using NettoRetail.Domain.Enums;
 
@@ -13,6 +14,8 @@ public class SearchOrderResponse
     public DateTime CreationDate { get; set; }
     public string FullName { get; set; }
     public string Email { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public OrderStatusEnum OrderStatus { get; set; }
     public string Creator { get; set; }
 }

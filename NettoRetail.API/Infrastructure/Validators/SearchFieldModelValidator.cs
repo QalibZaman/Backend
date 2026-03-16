@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -21,31 +21,31 @@ public class SearchFieldModelValidator : AbstractValidator<SearchFieldModel>
         RuleFor(x => x.Field)
             .NotEmpty()
             .Must(f => FieldTypes.ContainsKey(f.ToLower()))
-            .WithMessage("Invalid search field.");
+            .WithMessage(ValidationErrorMessages.Search.InvalidSearchField);
 
         RuleFor(x => x.SearchTerm)
-            .NotEmpty().WithMessage("Search term is required.")
-            .MaximumLength(100).WithMessage("Search term must be less than 100 characters.")
+            .NotEmpty().WithMessage(ValidationErrorMessages.Search.SearchTermRequired)
+            .MaximumLength(100).WithMessage(ValidationErrorMessages.Search.SearchTermMaxLength)
             .DependentRules(() =>
             {
                 When(x => IsTextField(x.Field), () =>
                 {
                     RuleFor(x => x.SearchTerm)
                         .Matches(@"^[\p{L}\p{P}\p{N}\s-]*$")
-                        .WithMessage("Invalid characters.");
+                        .WithMessage(ValidationErrorMessages.Search.InvalidCharacters);
                 });
 
                 When(x => IsNumericField(x.Field), () =>
                 {
                     RuleFor(x => x.SearchTerm)
                         .Matches(@"^\d+$")
-                        .WithMessage("Invalid numeric value.");
+                        .WithMessage(ValidationErrorMessages.Search.InvalidNumericValue);
                 });
 
                 When(x => IsEmailField(x.Field), () =>
                 {
                     RuleFor(x => x.SearchTerm)
-                        .EmailAddress().WithMessage("Invalid email format.");
+                        .EmailAddress().WithMessage(ValidationErrorMessages.Search.InvalidEmailFormat);
                 });
             });
     }
