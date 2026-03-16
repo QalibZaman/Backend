@@ -44,7 +44,7 @@ namespace NettoRetail.Application.Services
                 var pm = await paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
 
                 if (pm.Card is null)
-                    throw new InvalidOperationException("Only card payment methods are supported.");
+                    throw new BadRequestException("Only card payment methods are supported.");
 
                 return new CardSnapshot(
                     pm.Card.Brand,
