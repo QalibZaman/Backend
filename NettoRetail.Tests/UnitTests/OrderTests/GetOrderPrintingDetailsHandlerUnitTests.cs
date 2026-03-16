@@ -212,6 +212,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                     PromotionPrice = orderItemEntity.InventoryItem.PromotionPrice,
                     IsPromoted = orderItemEntity.InventoryItem.IsPromoted,
                     AvailableAmount = orderItemEntity.InventoryItem.AvailableAmount,
+                    Quantity = orderItemEntity.Quantity,
                     ReservedAmount = orderItemEntity.InventoryItem.ReservedAmount,
                     OnHandAmount = orderItemEntity.InventoryItem.OnHandAmount
                 }).ToList(),
