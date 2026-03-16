@@ -1,4 +1,4 @@
-﻿using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Application.Models.InventoryItem;
 
 namespace NettoRetail.Application.Models.Order;
 
@@ -17,8 +17,9 @@ public class PrintOrderDetailsModel
     public required int TotalProducts { get; set; }
     public int TotalQuantity
     {
-        get => InventoryItems?.Sum(i => i.ReservedAmount) ?? 0;
+        get => InventoryItems?.Sum(i => i.Quantity) ?? 0;
     }
+
     public required ICollection<InventoryItemDto> InventoryItems { get; set; }
     public required decimal Subtotal { get; set; }
     public required decimal TotalSale { get; set; }

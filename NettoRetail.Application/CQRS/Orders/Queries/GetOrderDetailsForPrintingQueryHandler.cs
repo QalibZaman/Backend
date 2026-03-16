@@ -31,7 +31,8 @@ public class GetOrderDetailsForPrintingQueryHandler(
             .AddInclude(q => q
                 .Include(o => o.Customer))
             .AddInclude(q => q
-                .Include(o => o.StatusHistory))
+                .Include(o => o.StatusHistory)
+                    .ThenInclude(sh => sh.UpdatedBy))
             .AddInclude(q => q
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.InventoryItem))

@@ -1,5 +1,6 @@
-﻿using Mapster;
+using Mapster;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Order;
@@ -13,6 +14,8 @@ public class OrderService(IOrderRepository orderRepository) : IOrderService
     public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order)
     {
         var model = order.Adapt<PrintOrderDetailsModel>();
+        model.StatusHistory ??= new List<OrderStatusHistoryDto>();
+        model.InventoryItems ??= new List<InventoryItemDto>();
         model.TotalProducts = order.OrderItems.Count;
         model.Subtotal = order.OrderItems.Sum(x => x.Quantity * x.InventoryItem.Price);
         model.TotalSale = order.OrderItems.Sum(x =>
