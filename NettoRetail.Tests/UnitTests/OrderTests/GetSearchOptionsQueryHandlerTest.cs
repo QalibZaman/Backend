@@ -1,4 +1,5 @@
-﻿using NettoRetail.Application.CQRS.Orders.Queries;
+﻿using Mapster;
+using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
@@ -38,7 +39,15 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             _customer.FirstName = "Hleb";
             _customer.LastName = "Malusheu";
             _customer.Email = "hlebMal@gmail.com";
+
         }
+
+        static GetSearchOptionsQueryHandlerTest()
+        {
+
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(GetSearchOptionsQueryHandler).Assembly);
+        }
+
         [Fact]
         public async Task Handle_ShouldReturnEmptyList()
         {

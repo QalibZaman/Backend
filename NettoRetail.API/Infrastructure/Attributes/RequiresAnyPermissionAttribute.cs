@@ -7,6 +7,9 @@ public class RequiresAnyPermissionAttribute : Attribute
 
     public RequiresAnyPermissionAttribute(params string[] permissions)
     {
+        if (permissions == null || permissions.Length == 0)
+            throw new ArgumentException("At least one permission must be specified");
+
         Permissions = permissions;
     }
 }

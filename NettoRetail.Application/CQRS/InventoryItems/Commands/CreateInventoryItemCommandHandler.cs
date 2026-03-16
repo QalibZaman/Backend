@@ -60,15 +60,9 @@ public class CreateInventoryItemCommandHandler(
         var inventoryItem = request.Model.Adapt<InventoryItemEntity>();
         inventoryItem.ShopId = request.ShopId;
 
-        var productDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
-
-        foreach (var detail in productDetails)
-        {
-            detail.InventoryItemId = inventoryItem.Id;
-        }
+        inventoryItem.ProductDetails = request.Model.ProductDetails.Adapt<List<ProductDetailEntity>>();
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
-        await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
 
         var response = responseModel.Adapt<InventoryItemResponse>();
         response.ProductCategory = categoryName;

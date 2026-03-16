@@ -4,21 +4,22 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests;
 
-public class GetOrderProductsQueryHandlerTest
+public class GetOrderProductsAndPaymentsQueryHandlerTest
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly GetOrderProductsQueryHandler _handler;
+    private readonly GetOrderProductsAndPaymentsQueryHandler _handler;
 
-    public GetOrderProductsQueryHandlerTest()
+    public GetOrderProductsAndPaymentsQueryHandlerTest()
     {
         _orderRepository = Substitute.For<IOrderRepository>();
-        _handler = new GetOrderProductsQueryHandler(_orderRepository);
+        _handler = new GetOrderProductsAndPaymentsQueryHandler(_orderRepository);
     }
 
     [Fact]
@@ -31,14 +32,14 @@ public class GetOrderProductsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
-        var query = new GetOrderProductsQuery(orderId);
+        var query = new GetOrderProductsAndPaymentsQuery(orderId);
         // Act & Assert
         var ex = await Record.ExceptionAsync(() => _handler.Handle(query, CancellationToken.None));
 
         // Assert
         Assert.NotNull(ex);
         Assert.IsType<NotFoundException>(ex);
-        Assert.Equal("There is no such order.", ex.Message);
+        Assert.Equal(HandlerConstants.Order.OrderNotFoundMessage, ex.Message);
     }
 
     [Fact]
@@ -52,7 +53,7 @@ public class GetOrderProductsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
 
-        var query = new GetOrderProductsQuery(orderId);
+        var query = new GetOrderProductsAndPaymentsQuery(orderId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -60,6 +61,11 @@ public class GetOrderProductsQueryHandlerTest
         // Assert
         Assert.NotNull(result);
         Assert.IsType<OrderProductsResponse>(result);
+        Assert.Equal(order.OrderStatus, result.OrderStatus);
+
+        await _orderRepository
+            .Received(1)
+            .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>());
     }
 
     private static OrderEntity BuildTestOrder(int id)

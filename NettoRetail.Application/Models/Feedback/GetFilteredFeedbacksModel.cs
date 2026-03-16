@@ -6,8 +6,7 @@ public class GetFilteredFeedbacksModel
 {
   public string? ShopName { get; set; }
   public IEnumerable<int>? Ratings { get; set; }
-  public DateTime? StartDate { get; set; }
-  public DateTime? EndDate { get; set; }
+  public DateRangeFilterEnum DateRange { get; set; } = DateRangeFilterEnum.All;
   public IEnumerable<bool>? IsPublic { get; set; }
   public IEnumerable<FeedbackStatusEnum>? Statuses { get; set; }
 }

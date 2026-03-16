@@ -19,6 +19,8 @@ public class ToggleExistsCommandHandler(
             ?? throw new NotFoundException("Variation not found");
 
         variation.Exists = !variation.Exists;
+        if (!variation.Exists)
+            variation.IsActive = false;
 
         await inventoryItemRepository.UpdateAsync(variation, cancellationToken);
 
