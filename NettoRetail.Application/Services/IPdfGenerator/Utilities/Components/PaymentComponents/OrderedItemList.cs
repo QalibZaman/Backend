@@ -41,8 +41,8 @@ internal class OrderedItemListComponent(PrintOrderDetailsModel model) : ICompone
                         ("UPC", item.ProductUpc),
                         ("Availability", $"In stock ({item.AvailableAmount})"),
                         ("Each", item.Price.ToString("C", cultureInfo)),
-                        ("Quantity", item.ReservedAmount.ToString()),
-                        ("Total", (item.Price * item.ReservedAmount).ToString("C", cultureInfo))
+                        ("Quantity", item.Quantity.ToString()),
+                        ("Total", (item.Price * item.Quantity).ToString("C", cultureInfo))
                     ];
 
                     foreach (var pair in headerValuePairs)
