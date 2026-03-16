@@ -98,12 +98,12 @@ public class MappingConfiguration : IRegister
             .IgnoreNullValues(true);
 
         config.NewConfig<OrderEntity, OrderListResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerName, src => $"{src.Customer.FirstName} {src.Customer.LastName}")
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CanEditData,
+            .Map(
+                dest => dest.CanEditData,
                 src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
 
         config.NewConfig<UpdateStaffRequest, StaffEntity>()
@@ -127,12 +127,12 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
             .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
             .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
-            .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
-            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
+            .Map(dest => dest.IsOnSale, src => src.InventoryItem.IsPromoted)
+            .Map(dest => dest.Sale, src => src.InventoryItem.PromotionPrice ?? 0.0m)
             .AfterMapping((src, dest) =>
             {
-                dest.Total = dest.IsPromoted
-                    ? dest.PromotionPrice * dest.Quantity
+                dest.Total = dest.IsOnSale
+                    ? dest.Sale * dest.Quantity
                     : dest.Price * dest.Quantity;
             });
 
@@ -259,14 +259,12 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
 
         config.NewConfig<OrderEntity, OrderProductsResponse>()
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.OrderItems, src => src.OrderItems)
             .IgnoreNonMapped(true)
             .AfterMapping((src, dest) =>
             {
                 dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
-                dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+                dest.Sale = dest.OrderItems.Sum(i => i.IsOnSale ? i.Sale * i.Quantity : 0.0m);
                 dest.Total = dest.OrderItems.Sum(i => i.Total);
             });
 

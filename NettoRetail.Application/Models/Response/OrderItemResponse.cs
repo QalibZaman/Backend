@@ -6,7 +6,7 @@ public class OrderItemResponse
     public required int AvailableAmount { get; set; }
     public required decimal Price { get; set; }
     public required int Quantity { get; set; }
-    public required bool IsPromoted { get; set; }
-    public decimal PromotionPrice { get; set; } = 0.0m;
+    public bool IsOnSale { get; set; }
+    public decimal Sale { get; set; } = 0.0m;
     public decimal Total { get;  set; }
 }
