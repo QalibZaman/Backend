@@ -43,7 +43,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<PaginatedResponse<PaymentHistoryResponse>>(result));
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]

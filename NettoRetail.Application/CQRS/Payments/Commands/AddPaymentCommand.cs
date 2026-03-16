@@ -25,7 +25,7 @@ public sealed class AddPaymentCommandHandler(
             ?? throw new NotFoundException($"Account {request.AccountId} not found");
 
         if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
-            throw new ArgumentException("Payment method already exists.");
+            throw new BadRequestException("Payment method already exists.");
 
         var fullName = $"{account.FirstName} {account.LastName}".Trim();
 
