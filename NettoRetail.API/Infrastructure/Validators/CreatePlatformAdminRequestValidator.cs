@@ -15,33 +15,34 @@ namespace NettoRetail.API.Infrastructure.Validators
             IPermissionRepository permissionRepo)
         {
             RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("EM-32")
-            .NotNull().WithMessage("EM-32")
-            .MinimumLength(2).WithMessage("EM-32")
-            .MaximumLength(30).WithMessage("EM-32")
-            .Matches("^[A-Za-z]+$").WithMessage("EM-32")
-            .Matches("^[A-Z][a-z]*$").WithMessage("EM-32")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("EM-32");
+            .NotEmpty().WithMessage("Invalid First Name. Please check format or length.")
+            .NotNull().WithMessage("Invalid First Name. Please check format or length.")
+            .MinimumLength(2).WithMessage("Invalid First Name. Please check format or length.")
+            .MaximumLength(30).WithMessage("Invalid First Name. Please check format or length.")
+            .Matches("^[A-Za-z]+$").WithMessage("Invalid First Name. Please check format or length.")
+            .Matches("^[A-Z][a-z]*$").WithMessage("Invalid First Name. Please check format or length.")
+            .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid First Name. Please check format or length.");
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("EM-33")
-                .NotNull().WithMessage("EM-33")
-                .MinimumLength(2).WithMessage("EM-33")
-                .MaximumLength(30).WithMessage("EM-33")
-                .Matches("^[A-Za-z]+$").WithMessage("EM-33")
-                .Matches("^[A-Z][a-z]*$").WithMessage("EM-33")
-                .Matches(@"^[^\s].*[^\s]$").WithMessage("EM-33");
+                .NotEmpty().WithMessage("Invalid Last Name. Please check format or length.")
+                .NotNull().WithMessage("Invalid Last Name. Please check format or length.")
+                .MinimumLength(2).WithMessage("Invalid Last Name. Please check format or length.")
+                .MaximumLength(30).WithMessage("Invalid Last Name. Please check format or length.")
+                .Matches("^[A-Za-z]+$").WithMessage("Invalid Last Name. Please check format or length.")
+                .Matches("^[A-Z][a-z]*$").WithMessage("Invalid Last Name. Please check format or length.")
+                .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid Last Name. Please check format or length.");
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("EM-34")
-                .NotNull().WithMessage("EM-34")
-                .MaximumLength(256).WithMessage("EM-34")
-                .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$").WithMessage("EM-34");
+                .NotEmpty().WithMessage("Invalid Email. Please check format or length.")
+                .NotNull().WithMessage("Invalid Email. Please check format or length.")
+                .MaximumLength(256).WithMessage("Invalid Email. Please check format or length.")
+                .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$")
+                .WithMessage("Invalid Email. Please check format or length.");
 
             RuleFor(x => x.PhoneNumber)
                 .Must(x => !string.IsNullOrWhiteSpace(x))
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
-                .WithMessage("EM-67");
+                .WithMessage("Invalid phone number. Please check format or length.");
 
             RuleFor(x => x.Permissions)
                  .NotNull()
