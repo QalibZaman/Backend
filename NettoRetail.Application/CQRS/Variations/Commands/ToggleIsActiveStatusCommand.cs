@@ -18,6 +18,9 @@ public class ToggleIsActiveStatusCommandHandler(
         var item = await inventoryItemRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Variation not found");
 
+        if (!item.Exists)
+            throw new BadRequestException("Item supposed to be existed");
+
         item.IsActive = !item.IsActive;
 
         await inventoryItemRepository.UpdateAsync(item, cancellationToken);
