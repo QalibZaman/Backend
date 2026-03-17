@@ -29,7 +29,7 @@ public class PdfGenerator : IPdfGenerator
 
     private static void DrawContent(PageDescriptor page, PrintOrderDetailsModel model)
     {
-        DrawDocumentHeader(page, $"Order ID - {model.Id}");
+        DrawDocumentHeader(page, $"Order #{model.Id}");
 
         page.Content()
             .Column((column) =>
@@ -40,7 +40,7 @@ public class PdfGenerator : IPdfGenerator
 
                 DrawProductsAndPayment(column, model);
 
-                DrawFooter(column, model);
+                DrawFooter(column, model.Subtotal, model.TotalSale, model.TotalAmount);
             });
     }
 
@@ -89,12 +89,8 @@ public class PdfGenerator : IPdfGenerator
             .Component(new OrderedItemListComponent(model));
     }
 
-    private static void DrawFooter(ColumnDescriptor column, PrintOrderDetailsModel model)
+    private static void DrawFooter(ColumnDescriptor column, decimal subtotal, decimal totalSale, decimal totalAmount)
     {
-        var subtotal = model.Subtotal;
-        var totalSale = model.TotalSale;
-        var totalAmount = model.TotalAmount;
-
         column.Item()
             .PaddingTop(Converters.ConvertPixelsToPoints(32))
             .PaddingBottom(Converters.ConvertPixelsToPoints(24))
