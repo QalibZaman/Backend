@@ -370,10 +370,12 @@ public class StaffController(
     [HttpPut("{id:guid}/personal-info")]
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
+        await mediator.Send(new GetAccountDetailsByIdQuery(id), cancellationToken);
+
         var userId = HttpContext.GetUserId();
+
         if (userId != id)
         {
-            await mediator.Send(new GetAccountDetailsByIdQuery(id), cancellationToken);
             throw new ForbiddenException("You are not able to change data of another user");
         }
 
