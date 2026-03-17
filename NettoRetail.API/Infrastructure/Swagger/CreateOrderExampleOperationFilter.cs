@@ -1,8 +1,8 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using NettoRetail.API.Controllers.V1;
 using NettoRetail.Domain.Enums;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace NettoRetail.API.Infrastructure.Swagger;
 
