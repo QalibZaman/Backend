@@ -8,7 +8,8 @@ namespace NettoRetail.API.Infrastructure.Validators
         public UpdatePersonalInformationRequestValidator()
         {
             RuleFor(x => x.CountryId)
-           .NotEmpty().WithMessage("CountryId is required.");
+                .NotEmpty().WithMessage("CountryId is required.")
+                .GreaterThan(0).WithMessage("CountryId must be a positive number.");
 
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
@@ -50,14 +51,14 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             RuleFor(x => x.City)
                 .NotEmpty().WithMessage("City is required.")
-                .Length(2, 50).WithMessage("City must be between 2 and 50 characters.")
+                .Length(3, 90).WithMessage("City must be between 3 and 90 characters.")
                 .Matches(@"^[A-Za-z\s-]+$").WithMessage("City can only contain Latin characters, spaces, and hyphens.")
                 .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
 
             When(x => !string.IsNullOrWhiteSpace(x.State), () =>
             {
                 RuleFor(x => x.State)
-                .Length(2, 90).WithMessage("State must be between 2 and 90 characters")
+                .Length(5, 90).WithMessage("State must be between 5 and 90 characters")
                 .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("State can only contain Latin characters, numbers, spaces, and special characters.")
                 .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.");
             });

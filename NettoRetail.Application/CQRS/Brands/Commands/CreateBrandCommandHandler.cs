@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -29,6 +29,15 @@ public class CreateBrandCommandHandler(
         if (request.ShopId <= 0) throw new ForbiddenException("Brand creation failed. No shop is linked to this account.");
 
         await brandService.EnsureBrandCanBeCreatedAsync(request.ShopId, request.Model.Name, request.Model.WebsiteUrl, cancellationToken);
+        if (request.Model.WebsiteUrl != null)
+        {
+            var getBrandsByWebsiteUrlSpecification = new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl);
+
+            if (await brandRepository.Exists(getBrandsByWebsiteUrlSpecification, cancellationToken))
+            {
+                throw new BadRequestException("Brand's website url must be unque");
+            }
+        }
 
         if (request.Model.WebsiteUrl != null)
         {

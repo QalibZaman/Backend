@@ -371,7 +371,7 @@ public class StaffController(
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+        if (userId != id) throw new ForbiddenException("You are not able to change data of another user");
 
         var command = model.Adapt<UpdatePersonalInformationCommand>();
         command = command with { Id = id };
@@ -386,7 +386,11 @@ public class StaffController(
     public async Task<IActionResult> UpdateProfileImage([FromRoute] Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+        if (userId != id)
+        {
+            await mediator.Send(new GetAccountDetailsByIdQuery(id), cancellationToken);
+            throw new ForbiddenException("You are not able to change data of another user");
+        }
 
         var command = new UpdateProfileImageCommand(id, image);
 

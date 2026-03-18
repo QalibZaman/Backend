@@ -12,7 +12,8 @@ public class FeedbackSpecification : Specification<FeedbackEntity>
         IReadOnlyCollection<int>? ratings,
         IReadOnlyCollection<FeedbackStatusEnum>? statuses,
         IReadOnlyCollection<bool>? visibilityTypes,
-        DateRangeFilterEnum dateRange)
+        DateTime? startDate,
+        DateTime? endDate)
         : base(Specification<FeedbackEntity>.Empty)
     {
         if (!string.IsNullOrWhiteSpace(shopName))
@@ -36,22 +37,9 @@ public class FeedbackSpecification : Specification<FeedbackEntity>
             AddCriteria(f => visibilityTypes.Contains(f.IsPublic));
         }
 
-        if (dateRange != DateRangeFilterEnum.All)
+        if (startDate.HasValue && endDate.HasValue)
         {
-            var todayUtc = DateTime.UtcNow.Date;
-            var startDate = dateRange switch
-            {
-                DateRangeFilterEnum.Today => todayUtc,
-                DateRangeFilterEnum.Last7Days => todayUtc.AddDays(-6),
-                DateRangeFilterEnum.LastMonth => todayUtc.AddDays(-29),
-                _ => (DateTime?)null
-            };
-
-            if (startDate.HasValue)
-            {
-                var endExclusive = todayUtc.AddDays(1);
-                AddCriteria(f => f.DateSubmitted >= startDate.Value && f.DateSubmitted < endExclusive);
-            }
+            AddCriteria(f => f.DateSubmitted >= startDate.Value && f.DateSubmitted <= endDate.Value);
         }
     }
 }
