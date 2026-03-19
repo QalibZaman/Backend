@@ -30,7 +30,7 @@ public class CreateAdminCommandHandler(IStaffRepository staffRepository,
 
         var admin = request.Model.Adapt<StaffEntity>();
         admin.RoleId = adminOptions.Value.RoleId;
-        admin.Status = StaffStatusEnum.Online;
+        admin.Status = StaffStatusEnum.Active;
 
         admin.CommunicationPreference = CommunicationPreferencesSetter.SetCommunicationPreferences(admin);
 
