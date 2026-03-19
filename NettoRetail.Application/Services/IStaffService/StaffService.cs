@@ -87,11 +87,9 @@ public class StaffService(
             return;
         }
 
-        if (request.IsActive.Value && staff.Status == StaffStatusEnum.Deactivated)
+        if (request.IsActive.Value)
         {
-            staff.Status = staff.PasswordUpdatedAt == null
-                ? StaffStatusEnum.CreatePassword
-                : StaffStatusEnum.Offline;
+            staff.Status = StaffStatusEnum.Active;
         }
         else if (!request.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
         {
@@ -114,8 +112,6 @@ public class StaffService(
             throw new ConflictException("Another account with this email already exists.");
 
         await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
-
-        staff.Status = StaffStatusEnum.Offline;
     }
 
     private void CheckIfDeactivated(

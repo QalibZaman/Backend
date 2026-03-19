@@ -52,9 +52,6 @@ public class BaseUserConfiguration : IEntityTypeConfiguration<BaseUserEntity>
 
         builder.Property(p => p.Status).HasConversion<string>();
 
-        builder.Property(p => p.PasswordUpdatedAt)
-            .IsRequired(false);
-
         builder.HasMany(s => s.Feedbacks)
             .WithOne(f => f.Account)
             .HasForeignKey(f => f.AccountId)
@@ -71,6 +68,9 @@ public class BaseUserConfiguration : IEntityTypeConfiguration<BaseUserEntity>
 
         builder.Property(f => f.DateCreated)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder.Property(f => f.PasswordUpdatedAt)
+            .ValueGeneratedOnAddOrUpdate();
 
         builder.HasDiscriminator<string>("Discriminator")
             .HasValue<StaffEntity>("Admin")

@@ -46,13 +46,9 @@ public class LogoutCommandHandler(
             await blacklistTokenService.BlacklistTokenAsync(refreshToken, refreshTokenExpiresAt, cancellationToken);
 
             var accountSpecification = new GetStaffByIdSpecification(request.UserId);
-            var account = await accountRepository.GetAsync(accountSpecification, cancellationToken);
+            var account = await accountRepository.GetAsync(accountSpecification, cancellationToken) ?? throw new BadRequestException("Account does not exist.");
 
-            if (account is not null && account.Status == StaffStatusEnum.Online)
-            {
-                account.Status = StaffStatusEnum.Offline;
-                await accountRepository.UpdateAsync(account, cancellationToken);
-            }
+            await accountRepository.UpdateAsync(account, cancellationToken);
 
             transaction.Commit();
 
