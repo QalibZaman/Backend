@@ -40,7 +40,7 @@ public class PdfGenerator : IPdfGenerator
 
                 DrawProductsAndPayment(column, model);
 
-                DrawFooter(column, model.Subtotal, model.TotalSale);
+                DrawFooter(column, model.Subtotal, model.TotalSale, model.TotalAmount);
             });
     }
 
@@ -89,7 +89,7 @@ public class PdfGenerator : IPdfGenerator
             .Component(new OrderedItemListComponent(model));
     }
 
-    private static void DrawFooter(ColumnDescriptor column, decimal subtotal, decimal totalSale)
+    private static void DrawFooter(ColumnDescriptor column, decimal subtotal, decimal totalSale, decimal totalAmount)
     {
         column.Item()
             .PaddingTop(Converters.ConvertPixelsToPoints(32))
@@ -100,7 +100,7 @@ public class PdfGenerator : IPdfGenerator
         (string Title, string Value)[] titleValuePairs = [
             ("Subtotal", subtotal.ToString("C", CultureInfo.GetCultureInfo("en-US"))),
             ("Total sale", $"-{totalSale.ToString("C", CultureInfo.GetCultureInfo("en-US"))}"),
-            ("Total", (subtotal - totalSale).ToString("C", CultureInfo.GetCultureInfo("en-US")))
+            ("Total", totalAmount.ToString("C", CultureInfo.GetCultureInfo("en-US")))
         ];
 
         foreach (var pair in titleValuePairs)

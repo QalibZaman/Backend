@@ -46,10 +46,16 @@ internal class StatusHistoryComponent(PrintOrderDetailsModel model) : IComponent
                 foreach (var statusHistory in orderStatusHistory)
                 {
                     var updatedBy = statusHistory.UpdatedBy;
+                    var author = updatedBy == null
+                        ? "Error"
+                        : model.CustomerId == updatedBy.Id
+                            ? "Customer"
+                            : string.Join(" ", updatedBy.FirstName, updatedBy.LastName);
+
                     string[] data = [
-                        statusHistory.UpdatedAt.ToString("dd.MM.yyyy HH:mm"),
+                        statusHistory.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
                             statusHistory.NewStatus.ToString(),
-                            model.CustomerId == updatedBy.Id ? "Customer" : string.Join(" ", updatedBy.FirstName, updatedBy.LastName),
+                            author,
                             statusHistory.Comment ?? "-"
                     ];
 

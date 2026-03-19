@@ -59,6 +59,8 @@ public class MappingConfiguration : IRegister
         config.NewConfig<StaffEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
+        config.NewConfig<StaffEntity, AccountDtoForPdf>();
+
         config.NewConfig<CustomerEntity, CustomerResponse>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
@@ -136,11 +138,22 @@ public class MappingConfiguration : IRegister
                     : dest.Price * dest.Quantity;
             });
 
+        config.NewConfig<OrderItemEntity, InventoryItemDto>()
+            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
+            .Map(dest => dest.ProductUpc, src => src.InventoryItem.ProductUpc)
+            .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
+            .Map(dest => dest.Price, src => src.InventoryItem.Price)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
+            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice)
+            .Map(dest => dest.ReservedAmount, src => src.InventoryItem.ReservedAmount)
+            .Map(dest => dest.OnHandAmount, src => src.InventoryItem.OnHandAmount);
+
         config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
-            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
+            .Map(dest => dest.InventoryItems, src => src.OrderItems)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
 
@@ -169,6 +182,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
             .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy.FullName);
+
+        config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
+            .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
         config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
