@@ -4,6 +4,7 @@ using NettoRetail.DataAccess.Specifications.Content;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests;
@@ -15,7 +16,7 @@ public class GetAllContentBlocksQueryHandlerTests
     public GetAllContentBlocksQueryHandlerTests()
     {
         _contentRepository = Substitute.For<IContentRepository>();
-        _handler = new GetAllContentBlocksQueryHandler(_contentRepository);
+        _handler = new GetAllContentBlocksQueryHandler(_contentRepository, MapperFactory.Create());
     }
 
     [Fact]

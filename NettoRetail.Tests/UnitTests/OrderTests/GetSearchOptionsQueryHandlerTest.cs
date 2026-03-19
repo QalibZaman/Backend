@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using MapsterMapper;
 using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Domain.Entities;
@@ -6,6 +7,7 @@ using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests
@@ -29,6 +31,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
 
         private readonly CustomerEntity _customer;
         private readonly OrderEntity _orderEntity;
+        private readonly IMapper _mapper;
         public GetSearchOptionsQueryHandlerTest() 
         {
             _orderEntity = Order(id: 1, DateTime.Now, creator: "Hleb Malusheu", OrderStatusEnum.InProgress,
@@ -39,6 +42,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             _customer.FirstName = "Hleb";
             _customer.LastName = "Malusheu";
             _customer.Email = "hlebMal@gmail.com";
+            _mapper = MapperFactory.Create();
 
         }
 
@@ -61,9 +65,9 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
                 _orderEntity
             };
             var repo = Substitute.For<IOrderRepository>();
-            repo.GetManyBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
+            repo.GetAllBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(data);
-            GetSearchOptionsQueryHandler handler = new GetSearchOptionsQueryHandler(repo);
+            GetSearchOptionsQueryHandler handler = new GetSearchOptionsQueryHandler(repo, _mapper);
             //Act & Assert
             Assert.Empty(await handler.Handle(getSearchOptionsQuery, CancellationToken.None));
         }
@@ -82,7 +86,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             var repo = Substitute.For<IOrderRepository>();
             repo.GetAllBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(data);
-            GetSearchOptionsQueryHandler handler = new(repo);
+            GetSearchOptionsQueryHandler handler = new(repo, _mapper);
             //Act
             var result = await handler.Handle(getSearchOptionsQuery, CancellationToken.None);
             //Assert
@@ -109,7 +113,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests
             var repo = Substitute.For<IOrderRepository>();
             repo.GetAllBySpecAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(data);
-            GetSearchOptionsQueryHandler handler = new(repo);
+            GetSearchOptionsQueryHandler handler = new(repo, _mapper);
             //Act 
             var result = await handler.Handle(getSearchOptionsQuery, CancellationToken.None);
             //Assert
