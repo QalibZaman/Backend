@@ -17,7 +17,7 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
      string? contentType = null)
 {
     var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-    await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+    await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
     string prefix = category.GetDirectory();
     var blobClient = containerClient.GetBlobClient($"{prefix}{fileName}");
@@ -144,5 +144,32 @@ public class AzureBlobService(BlobServiceClient blobServiceClient) : IAzureBlobS
 
         Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
         return sasUri.Query.TrimStart('?');
+    }
+
+    public string GenerateBlobSasUrlFromUrl(
+        string blobUrl,
+        BlobSasPermissions permissions,
+        TimeSpan? expiryDuration = null,
+        string? storedPolicyName = null)
+    {
+        if (string.IsNullOrWhiteSpace(blobUrl))
+            throw new ArgumentException("Blob URL cannot be null or empty.", nameof(blobUrl));
+
+        var uri = new Uri(blobUrl);
+        var segments = uri.AbsolutePath.TrimStart('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        bool isAzurite = uri.Host.Contains("127.0.0.1") || uri.Host.Contains("localhost");
+        int containerIndex = isAzurite ? 1 : 0;
+
+        if (segments.Length <= containerIndex)
+            throw new InvalidOperationException("Invalid blob URL format.");
+
+        string containerName = segments[containerIndex];
+        string blobName = Uri.UnescapeDataString(string.Join('/', segments.Skip(containerIndex + 1)));
+
+        var sasToken = GenerateBlobSasToken(containerName, blobName, permissions, expiryDuration, storedPolicyName);
+        var baseUrl = GetBlobUrl(containerName, blobName);
+
+        return $"{baseUrl}?{sasToken}";
     }
 }

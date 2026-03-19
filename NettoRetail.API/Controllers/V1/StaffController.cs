@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Mapster;
 using MediatR;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
@@ -397,6 +398,28 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("{id:guid}/profile-image")]
+    public async Task<IActionResult> GetProfileImage([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id)
+        {
+            bool hasShopIdClaim = User.Claims.Any(c => c.Type == AuthClaims.ShopId);
+            bool isSuperAdmin = User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == SuperAdminConstants.SuperAdminRoleId);
+
+            if (!hasShopIdClaim && !isSuperAdmin)
+                throw new ForbiddenException("You are not able to view data of another user");
+
+            var shopId = HttpContext.GetUserShopId();
+            await mediator.Send(new GetStaffByIdQuery(id, shopId), cancellationToken);
+        }
+
+        var sasUrl = await mediator.Send(new GetProfileImageSasUrlQuery(id), cancellationToken);
+
+        return Redirect(sasUrl);
     }
 
     [Authorize]
