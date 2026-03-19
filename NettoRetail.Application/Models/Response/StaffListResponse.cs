@@ -8,4 +8,5 @@ public class StaffListResponse
     public required string Email { get; set; }
     public required string Role { get; set; }
     public required string Status { get; set; }
+    public required DateTime PasswordUpdatedAt { get; set; }
 }

@@ -60,12 +60,6 @@ public class LoginCommandHandler(IStaffRepository staffRepository,
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
 
-        if (user.Status != StaffStatusEnum.Online)
-        {
-            user.Status = StaffStatusEnum.Online;
-            await staffRepository.UpdateAsync(user, cancellationToken);
-        }
-
         return tokenResponse;
     }
 }

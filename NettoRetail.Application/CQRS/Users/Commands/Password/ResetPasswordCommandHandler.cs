@@ -5,7 +5,6 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.PasswordHistory;
-using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -74,7 +73,7 @@ public class ResetPasswordCommandHandler(
 
             if (user.Status == StaffStatusEnum.CreatePassword)
             {
-                user.Status = StaffStatusEnum.Offline;
+                user.Status = StaffStatusEnum.Active;
             }
 
             await accountRepository.UpdateAsync(user, cancellationToken);
