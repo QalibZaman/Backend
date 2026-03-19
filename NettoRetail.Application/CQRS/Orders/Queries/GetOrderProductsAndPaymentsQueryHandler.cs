@@ -18,7 +18,7 @@ public class GetOrderProductsQueryHandler(
         var spec = new GetOrderByIdSpecification(request.OrderId);
 
         var order = await orderRepository.GetOrderWithInventoryItemsAsync(spec, cancellationToken)
-            ?? throw new NotFoundException(HandlerConstants.Order.OrderNotFoundMessage);
+            ?? throw new NotFoundException("There is no such order.");
 
         var response = mapper.Map<OrderProductsResponse>(order);
 

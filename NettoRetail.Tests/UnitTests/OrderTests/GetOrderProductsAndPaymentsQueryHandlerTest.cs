@@ -5,6 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NettoRetail.Tests.Helpers;
@@ -35,7 +36,7 @@ public class GetOrderProductsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
-        var query = new GetOrderProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
         // Act & Assert
         var ex = await Record.ExceptionAsync(() => _handler.Handle(query, CancellationToken.None));
 
@@ -56,7 +57,7 @@ public class GetOrderProductsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
 
-        var query = new GetOrderProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
