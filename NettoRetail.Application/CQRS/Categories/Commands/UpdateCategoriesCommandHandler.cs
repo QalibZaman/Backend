@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+﻿using Mapster;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -9,9 +9,9 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands
 {
-    public record UpdateCategoryCommand(int Id, string Name, string URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
+    public record UpdateCategoryCommands(int Id, string Name, string URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
 
-    public class UpdateCategoryCommandHandler(
+    public class UpdateCategoryCommandHandlers(
         ICategoryRepository categoryRepository,
         ICategoryLevelManagementService levelService,
         IUnitOfWork unitOfWork,
