@@ -3,7 +3,9 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
@@ -12,28 +14,26 @@ public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) :
 public sealed class AddPaymentCommandHandler(
     IStaffRepository accountRepository,
     IPaymentRepository paymentRepository,
-    IStripePaymentService stripePaymentService) : IRequestHandler<AddPaymentCommand, Unit>
+    IStripePaymentService stripePaymentService,
+    IUnitOfWork unitOfWork) : IRequestHandler<AddPaymentCommand, Unit>
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
-        if (request.AccountId == Guid.Empty)
-            throw new ArgumentException("AccountId is empty.", nameof(request.AccountId));
-
         var account = await accountRepository.GetAsync(
             new GetStaffByIdSpecification(request.AccountId),
             cancellationToken)
-            ?? throw new NotFoundException($"Account {request.AccountId} not found");
+            ?? throw new NotFoundException(string.Format(HandlerConstants.Payment.AccountNotFoundMessage, request.AccountId));
 
         if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
-            throw new BadRequestException("Payment method already exists.");
-
-        var fullName = $"{account.FirstName} {account.LastName}".Trim();
+            throw new BadRequestException(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
 
         var customerId = await stripePaymentService.EnsureCustomerAsync(
             account.StripeCustomerId,
-            fullName,
+            account.FullName,
             account.Email,
             cancellationToken);
+
+        using var transaction = unitOfWork.BeginTransaction();
 
         if (!string.Equals(account.StripeCustomerId, customerId, StringComparison.Ordinal))
         {
@@ -58,6 +58,8 @@ public sealed class AddPaymentCommandHandler(
         };
 
         await paymentRepository.AddAsync(paymentMethodRecord, cancellationToken);
+
+        transaction.Commit();
 
         return Unit.Value;
     }
