@@ -102,12 +102,8 @@ public class RolesController(IMediator mediator) : ControllerBase
     /// </param>
     /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
     /// <returns>
-    /// Returns <see cref="IActionResult"/> representing the result of the operation.
     /// The method returns NoContent (204) if the role is successfully updated.
     /// </returns>
-    /// <remarks>
-    /// The endpoint requires authorization based on system permissions and shop claim policy.
-    /// </remarks>
     [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{roleId:int}")]
