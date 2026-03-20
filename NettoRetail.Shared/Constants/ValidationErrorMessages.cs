@@ -46,4 +46,11 @@ public static class ValidationErrorMessages
         public const string MaxContentLengthMessage = "Content cannot exceed {MaxLength} characters.";
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
     }
+
+    public static class Payment
+    {
+        public const string IdNotEmpty = "AccountId cannot be an empty GUID";
+        public const string TokenNotEmpty = "Token cannot be empty";
+        public const string InvalidPaymentMethodIdFormat = "Invalid payment method ID format";
+    }
 }

@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using NettoRetail.API;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.Models.Request.Content;
 using NettoRetail.Shared.Constants;
@@ -15,7 +14,7 @@ public class UpdateContentRequestValidatorTests
     }
 
     [Fact]
-    public void Should_Have_Error_When_Content_Is_Empty()
+    public void Validator_Should_Fail_When_Content_Is_Empty()
     {
         var model = new UpdateContentRequest { Content = string.Empty, IsVisible = true};
         var result = _validator.TestValidate(model);
@@ -26,7 +25,7 @@ public class UpdateContentRequestValidatorTests
         Assert.True(result.Errors.Count == 2);
     }
     [Fact]
-    public void Should_Have_Error_When_Content_Exceeds_Max_Length()
+    public void Validator_Should_Fail_When_Content_Exceeds_Max_Length()
     {
         var MaxContentLength = 50 * 1024;
         var model = new UpdateContentRequest { Content = new string('a', MaxContentLength + 1), IsVisible = true };
@@ -38,7 +37,7 @@ public class UpdateContentRequestValidatorTests
         Assert.True(result.Errors.Count == 1);
     }
     [Fact]
-    public void Should_Have_Error_When_Content_Is_Whitespace_But_IsVisible_Is_True()
+    public void Validator_Should_Fail_When_Content_Is_Whitespace_But_IsVisible_Is_True()
     {
         var model = new UpdateContentRequest { Content = " ", IsVisible = true };
 
