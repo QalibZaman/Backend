@@ -4,11 +4,14 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Tests.IntegrationTests.CategoryTests
 {
@@ -205,7 +208,189 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             Assert.Equal(HttpStatusCode.NotFound, itemsResponse.StatusCode);
         }
 
+        [Fact]
+        public async Task GetCategoriesSection_ShouldReturnOk_WithDefaultSelectionIfNoSavedSelection()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
 
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var rootCategories = new[] { "Appliances", "Beauty", "Computers", "Fashion", "Garden", "Home", "Office" };
+            foreach (var categoryName in rootCategories)
+            {
+                var addCategoryRequest = new AddCategoryRequest
+                {
+                    Name = categoryName,
+                    URL = categoryName.ToLowerInvariant(),
+                    ParentId = null,
+                    Visibility = true
+                };
+                var createResponse = await _client.PostAsJsonAsync("api/v1/categories", addCategoryRequest);
+                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            }
+
+            var sectionResponse = await _client.GetAsync("api/v1/categories/section");
+            Assert.Equal(HttpStatusCode.OK, sectionResponse.StatusCode);
+
+            var result = await sectionResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesSectionResponse>>();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.Equal(CategoriesSectionOptions.DefaultSelectionCount, result.Data.SelectedCategories.Count);
+            Assert.Equal("Appliances", result.Data.SelectedCategories[0].Name);
+            Assert.Equal("Beauty", result.Data.SelectedCategories[1].Name);
+            Assert.Equal("Computers", result.Data.SelectedCategories[2].Name);
+            Assert.Equal("Fashion", result.Data.SelectedCategories[3].Name);
+            Assert.Equal("Garden", result.Data.SelectedCategories[4].Name);
+            Assert.Equal("Home", result.Data.SelectedCategories[5].Name);
+        }
+
+        [Fact]
+        public async Task GetCategoriesSection_ShouldReturnOk_ForShopWithNoCategories()
+        {
+            var email = "stringb@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var sectionResponse = await _client.GetAsync("api/v1/categories/section");
+            Assert.Equal(HttpStatusCode.OK, sectionResponse.StatusCode);
+
+            var result = await sectionResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesSectionResponse>>();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.Empty(result.Data.SelectedCategories);
+            Assert.Equal(0, result.Data.AvailableCategoriesCount);
+        }
+
+        [Fact]
+        public async Task UpdateCategoriesSection_ShouldReturnNoContent_AndSaveOrder()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var request = new EditCategoriesSectionRequest
+            {
+                Name = "Featured",
+                Visibility = true,
+                CategoryIds = new List<int> { 8 }
+            };
+
+            var response = await _client.PatchAsJsonAsync("api/v1/categories/section", request);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            var sectionResponse = await _client.GetAsync("api/v1/categories/section");
+            Assert.Equal(HttpStatusCode.OK, sectionResponse.StatusCode);
+            var section = await sectionResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesSectionResponse>>();
+            Assert.NotNull(section);
+            Assert.Single(section.Data.SelectedCategories);
+            Assert.Equal(8, section.Data.SelectedCategories[0].Id);
+        }
+
+        [Fact]
+        public async Task UpdateCategoriesSection_ShouldReturnBadRequest_WhenDuplicateCategoryIds()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var request = new EditCategoriesSectionRequest
+            {
+                Name = "Featured",
+                Visibility = true,
+                CategoryIds = new List<int> { 8, 8 }
+            };
+
+            var response = await _client.PatchAsJsonAsync("api/v1/categories/section", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task UpdateCategoriesSection_ShouldReturnBadRequest_WhenMoreThan8Categories()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var catNames = new[] { "ExtraA", "ExtraB", "ExtraC", "ExtraD", "ExtraE", "ExtraF", "ExtraG", "ExtraH", "ExtraI" };
+            foreach (var name in catNames)
+            {
+                var addCategoryRequest = new AddCategoryRequest
+                {
+                    Name = name,
+                    URL = name.ToLowerInvariant(),
+                    ParentId = null,
+                    Visibility = true
+                };
+                var createResponse = await _client.PostAsJsonAsync("api/v1/categories", addCategoryRequest);
+                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            }
+
+            var allCategoriesResponse = await _client.GetAsync("api/v1/categories?pageNumber=1&pageSize=20&shopId=1");
+            Assert.Equal(HttpStatusCode.OK, allCategoriesResponse.StatusCode);
+            var responseData = await allCategoriesResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesResponse>>();
+            Assert.NotNull(responseData);
+            var categoryIds = responseData.Data.Categories.Select(c => c.Id).OrderBy(id => id).Take(9).ToList();
+
+            var request = new EditCategoriesSectionRequest
+            {
+                Name = "Too many",
+                Visibility = true,
+                CategoryIds = categoryIds.Take(CategoriesSectionOptions.MaxSelectionCount + 1).ToList()
+            };
+
+            var response = await _client.PatchAsJsonAsync("api/v1/categories/section", request);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task SearchCategoriesForSection_ShouldReturnFilteredData_WithExcludeIds()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            // Ensure there are visible root categories available.
+            var addCategoryA = new AddCategoryRequest { Name = "Kitchen", URL = "kitchen", ParentId = null, Visibility = true };
+            var addCategoryB = new AddCategoryRequest { Name = "Kids", URL = "kids", ParentId = null, Visibility = true };
+            var addCategoryC = new AddCategoryRequest { Name = "Kites", URL = "kites", ParentId = null, Visibility = true };
+
+            var createA = await _client.PostAsJsonAsync("api/v1/categories", addCategoryA);
+            var createB = await _client.PostAsJsonAsync("api/v1/categories", addCategoryB);
+            var createC = await _client.PostAsJsonAsync("api/v1/categories", addCategoryC);
+            Assert.Equal(HttpStatusCode.Created, createA.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, createB.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, createC.StatusCode);
+
+            var getResponse = await _client.GetAsync("api/v1/categories?pageNumber=1&pageSize=20&shopId=1");
+            var allData = await getResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesResponse>>();
+            Assert.NotNull(allData);
+            Assert.NotNull(allData.Data);
+            var allIds = allData.Data.Categories.Select(c => c.Id).ToList();
+
+            var excludeIds = new List<int> { allIds.Last() };
+            var query = "k";
+            var searchResponse = await _client.GetAsync($"api/v1/categories/section/search?query={query}&pageNumber=1&pageSize=10&excludeIds={excludeIds[0]}");
+
+            Assert.Equal(HttpStatusCode.OK, searchResponse.StatusCode);
+            var searchData = await searchResponse.Content.ReadFromJsonAsync<ApiResponse<PaginatedResponse<CategorySummaryResponse>>>();
+            Assert.NotNull(searchData);
+            Assert.NotNull(searchData.Data);
+            Assert.DoesNotContain(searchData.Data.Items, item => excludeIds.Contains(item.Id));
+            Assert.All(searchData.Data.Items, item => Assert.Contains(query, item.Name, StringComparison.OrdinalIgnoreCase));
+        }
 
         private async Task<TokenResponse> GetTokenResponseAsync(string email, string password)
         {
@@ -409,6 +594,18 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                     TwoFactorEnabled = false,
                     EncryptedTotpSecret = null,
                     ShopId = 1,
+                },
+                new StaffEntity
+                {
+                    Id = Guid.Parse("5cdb183b-fe81-4c82-bd8e-21362fdd5688"),
+                    FirstName = "Stringb",
+                    LastName = "Stringb",
+                    Email = "stringb@gmail.com",
+                    PasswordHash = "C7EA0B35808B733C17F70F1A63BBC7428B62EB71D13608EF2996292A7685A99E-143B98D2518CF95011C47FD9220C51EA",
+                    RoleId = 1,
+                    TwoFactorEnabled = false,
+                    EncryptedTotpSecret = null,
+                    ShopId = 2,
                 }
                };
 
@@ -417,6 +614,9 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
                 dbContext.Shops.AddRange(shops);
 
                 dbContext.SaveChanges();
+
+                // Fix PostgreSQL identity sequence after inserting explicit IDs
+                dbContext.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"Categories\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"Categories\"), true);");
             }
         }
 

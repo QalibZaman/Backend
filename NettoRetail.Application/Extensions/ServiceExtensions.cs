@@ -100,6 +100,7 @@ public static class ServiceExtensions
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
+        services.AddScoped<ICategoriesSectionService, CategoriesSectionService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<ICartCalculatorService, CartCalculatorService>();
         services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
