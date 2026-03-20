@@ -8,11 +8,11 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Roles.Commands;
 
-public record RoleUpdateCommand(int Id, int ShopId, UpdateRoleRequest Model) : IRequest<Unit>;
+public record RoleUpdateCommand(int Id, int ShopId, UpdateRoleRequest Model) : IRequest;
 
-public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequestHandler<RoleUpdateCommand, Unit>
+public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequestHandler<RoleUpdateCommand>
 {
-    public async Task<Unit> Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
         var spec = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
         var role = await roleRepository.GetAsync(spec, cancellationToken)
@@ -30,7 +30,5 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository) : IRequest
             .ToList();
 
         await roleRepository.UpdateAsync(role, cancellationToken);
-
-        return Unit.Value;
     }
 }
