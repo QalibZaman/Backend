@@ -13,12 +13,8 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         var specification = new GetCategoryByIdSpecification(id);
         specification.AddInclude(c => c.InventoryItems);
 
-        var category = await categoryRepository.GetAsync(specification, cancellationToken);
-
-        if (category == null)
-        {
-            throw new NotFoundException($"There is no category with Id: {id}");
-        }
+        var category = await categoryRepository.GetAsync(specification, cancellationToken)
+        ?? throw new NotFoundException($"There is no category with Id: {id}");
 
         var conflictModelSpecification = new GetCategoriesOfParentByIdSpecification(id);
         var subcategoryExists = await categoryRepository.Exists(conflictModelSpecification, cancellationToken);
@@ -32,7 +28,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         if (category.InventoryItems.Any(i => i.Status != InventoryItemStatusEnum.Unavailable))
         {
             logger.LogWarning("Attempt to delete category with Id {CategoryId} that contains products.", id);
-            throw new BadRequestException($"Cannot delete category with Id {id} as it contains products.");
+            throw new ConflictException($"Cannot delete category with Id {id} as it contains products.");
         }
 
         await categoryRepository.DeleteAsync(specification, cancellationToken);
