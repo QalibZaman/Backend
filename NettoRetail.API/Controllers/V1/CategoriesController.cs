@@ -40,7 +40,7 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<GetCategoriesResponse>(response));
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<CategoryResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
