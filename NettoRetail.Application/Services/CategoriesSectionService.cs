@@ -57,8 +57,7 @@ public class CategoriesSectionService : ICategoriesSectionService
         var selectedItems = selectedCategories.Count == 0
             ? BuildDefaultSelection(availableCategories)
             : selectedCategories
-                .OrderBy(c => c.CategoriesSectionOrder)
-                .Select(c => new CategorySectionItemResponse
+            .Select(c => new CategorySectionItemResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
