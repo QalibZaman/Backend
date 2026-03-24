@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Categories;
@@ -51,6 +53,44 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
     }
 
     public async Task DeleteCategoryAsync(int id, int shopId, CancellationToken cancellationToken = default)
+    private static readonly Regex UrlPattern = new("^/[a-z0-9/-]+$", RegexOptions.Compiled);
+    private static readonly HashSet<string> ReservedUrls = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "/admin",
+        "/login",
+        "/cart",
+        "/checkout",
+        "/api",
+        "/account",
+        "/settings",
+    };
+
+    public string BuildCategoryUrl(string categoryName, string? requestedUrl, string? parentUrl)
+    {
+        var normalizedParent = NormalizePath(parentUrl);
+
+        if (!string.IsNullOrWhiteSpace(requestedUrl))
+        {
+            var normalizedRequested = NormalizePath(requestedUrl);
+            ValidateNormalizedUrl(normalizedRequested, normalizedParent);
+            return normalizedRequested;
+        }
+
+        var slug = BuildSlug(categoryName);
+        if (slug.Length < 3)
+        {
+            throw new BadRequestException("Category slug must be at least 3 characters long.");
+        }
+
+        var generated = normalizedParent != null
+            ? $"{normalizedParent}/{slug}"
+            : $"/{slug}";
+
+        ValidateNormalizedUrl(generated, normalizedParent);
+        return generated;
+    }
+
+    public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
     {
         var specification = new GetCategoryByIdAndShopIdSpecification(id, shopId);
         specification.AddInclude(c => c.InventoryItems);
