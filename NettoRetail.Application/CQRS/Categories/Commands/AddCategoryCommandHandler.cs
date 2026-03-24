@@ -8,6 +8,7 @@ using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Application.Services.ICategoryService;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands;
 public record AddCategoryCommand(AddCategoryRequest Model, int ShopId) : IRequest<CategoryResponse>;
@@ -15,15 +16,30 @@ public record AddCategoryCommand(AddCategoryRequest Model, int ShopId) : IReques
 public class AddCategoryCommandHandler(
     ICategoryRepository categoryRepository,
     ICategoryLevelManagementService levelService,
+    ICategoryService categoryService,
     IShopRepository shopRepository,
     IMapper mapper) : IRequestHandler<AddCategoryCommand, CategoryResponse>
 {
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        var normalizedName = request.Model.Name.Trim();
-        var normalizedUrl = request.Model.URL.Trim();
+        var parentCategory = default(CategoryEntity);
+         if (request.Model.ParentId is int parentId)
+        {
+            var parentCategoryExists = await categoryRepository.Exists(
+                new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
+                cancellationToken);
+            parentCategory = await categoryRepository.GetAsync(
+                new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
+    cancellationToken);
+            if (!parentCategoryExists)
+            {
+                throw new NotFoundException("Parent category not found");
+            }
 
-        var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(normalizedName, normalizedUrl, request.ShopId);
+        }
+
+        var normalizedUrl = categoryService.BuildCategoryUrl(request.Model.Name, null, parentCategory?.URL);
+        var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Model.Name, normalizedUrl, request.ShopId);
 
         var conflictingCategoryExists = await categoryRepository.Exists(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
@@ -32,17 +48,7 @@ public class AddCategoryCommandHandler(
             throw new ConflictException("Category with such name or url already exists");
         }
 
-        if (request.Model.ParentId is int parentId)
-        {
-            var parentCategoryExists = await categoryRepository.Exists(
-                new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
-                cancellationToken);
 
-            if (!parentCategoryExists)
-            {
-                throw new NotFoundException("Parent category not found");
-            }
-        }
 
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);
 
@@ -57,7 +63,7 @@ public class AddCategoryCommandHandler(
         category.Name = normalizedName;
         category.URL = normalizedUrl;
         category.ShopId = request.ShopId;
-
+        category.URL = normalizedUrl;
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 
         var responseModel = await categoryRepository.AddAsync(category, cancellationToken);
@@ -66,4 +72,5 @@ public class AddCategoryCommandHandler(
 
         return response;
     }
+
 }
