@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
@@ -12,17 +12,21 @@ namespace NettoRetail.Application.CQRS.Shops.Commands;
 
 public record UpdateShopCommand(int Id, ShopModel Model) : IRequest;
 
-public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDetailsValidationService countryDetailsValidator, IShopValidationService shopDetailsValidator) : IRequestHandler<UpdateShopCommand>
+public class UpdateShopCommandHandler(
+    IShopRepository shopRepository,
+    ICountryDetailsValidationService countryDetailsValidator,
+    IShopValidationService shopDetailsValidator,
+    IMapper mapper) : IRequestHandler<UpdateShopCommand>
 {
     public async Task Handle(UpdateShopCommand request, CancellationToken cancellationToken)
     {
         if (request.Model.CountryId != null)
         {
-            var countryValidationModel = request.Model.Adapt<CountryValidationModel>();
+            var countryValidationModel = mapper.Map<CountryValidationModel>(request.Model);
             await countryDetailsValidator.ValidateAsync(countryValidationModel, cancellationToken);
         }
 
-        var shopValidationModel = request.Model.Adapt<ShopValidationModel>();
+        var shopValidationModel = mapper.Map<ShopValidationModel>(request.Model);
 
         await shopDetailsValidator.ValidateShopOnUpdate(shopValidationModel, request.Id, cancellationToken);
 
@@ -30,7 +34,7 @@ public class UpdateShopCommandHandler(IShopRepository shopRepository, ICountryDe
         var shopToUpdate = await shopRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException($"There is no shop with such Id");
 
-        request.Model.Adapt(shopToUpdate);
+        mapper.Map(request.Model, shopToUpdate);
         await shopRepository.UpdateAsync(shopToUpdate, cancellationToken);
     }
 }

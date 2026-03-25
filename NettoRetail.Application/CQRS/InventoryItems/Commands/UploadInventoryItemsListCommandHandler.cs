@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.Exceptions;
@@ -19,7 +19,8 @@ public class UploadInventoryItemsListCommandHandler(
     ICsvFileService csvFileService,
     IValidator<List<InventoryItemCsvModel>> listValidator,
     ICategoryLevelManagementService categoryService,
-    IBrandService brandService
+    IBrandService brandService,
+    IMapper mapper
 ) : IRequestHandler<UploadInventoryItemsListCommand>
 {
 
@@ -60,7 +61,7 @@ public class UploadInventoryItemsListCommandHandler(
                 continue;
             }
 
-            var entity = item.Adapt<InventoryItemEntity>();
+            var entity = mapper.Map<InventoryItemEntity>(item);
             entity.Category = category;
             entity.Brand = brand;
             entity.BrandId = brand.Id;

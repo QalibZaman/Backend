@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Shops.Queries;
 
 public record GetShopByIdQuery(int ShopId) : IRequest<ShopResponse>;
 
-public class GetShopByIdQueryHandler(IShopRepository shopRepository) : IRequestHandler<GetShopByIdQuery, ShopResponse>
+public class GetShopByIdQueryHandler(IShopRepository shopRepository, IMapper mapper) : IRequestHandler<GetShopByIdQuery, ShopResponse>
 {
     public async Task<ShopResponse> Handle(GetShopByIdQuery request, CancellationToken cancellationToken)
     {
@@ -17,7 +17,7 @@ public class GetShopByIdQueryHandler(IShopRepository shopRepository) : IRequestH
 
         var returnedShop = await shopRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no shop with such Id");
 
-        var shopResponse = returnedShop.Adapt<ShopResponse>();
+        var shopResponse = mapper.Map<ShopResponse>(returnedShop);
 
         return shopResponse;
     }

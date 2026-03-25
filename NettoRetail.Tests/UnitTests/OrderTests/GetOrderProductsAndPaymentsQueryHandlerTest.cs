@@ -1,4 +1,5 @@
-﻿using NettoRetail.Application.CQRS.Orders.Queries;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.Orders.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
@@ -7,19 +8,22 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests;
 
-public class GetOrderProductsAndPaymentsQueryHandlerTest
+public class GetOrderProductsQueryHandlerTest
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly GetOrderProductsAndPaymentsQueryHandler _handler;
+    private readonly GetOrderProductsQueryHandler _handler;
+    private readonly IMapper _mapper;
 
-    public GetOrderProductsAndPaymentsQueryHandlerTest()
+    public GetOrderProductsQueryHandlerTest()
     {
         _orderRepository = Substitute.For<IOrderRepository>();
-        _handler = new GetOrderProductsAndPaymentsQueryHandler(_orderRepository);
+        _mapper = MapperFactory.Create();
+        _handler = new GetOrderProductsQueryHandler(_orderRepository, _mapper);
     }
 
     [Fact]
@@ -32,7 +36,7 @@ public class GetOrderProductsAndPaymentsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
-        var query = new GetOrderProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
         // Act & Assert
         var ex = await Record.ExceptionAsync(() => _handler.Handle(query, CancellationToken.None));
 
@@ -53,7 +57,7 @@ public class GetOrderProductsAndPaymentsQueryHandlerTest
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
 
-        var query = new GetOrderProductsAndPaymentsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);

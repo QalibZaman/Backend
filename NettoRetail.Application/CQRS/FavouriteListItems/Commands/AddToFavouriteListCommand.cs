@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -14,7 +14,8 @@ public record AddToFavouriteListCommand(Guid UserId, Guid InventoryItemId) : IRe
 public class AddToFavouriteListCommandHandler(
         IFavouriteListItemRepository favouriteListItemRepository,
         IInventoryItemRepository inventoryItemRepository,
-        IStaffRepository accountRepository) : IRequestHandler<AddToFavouriteListCommand, AddToFavouritesResponse>
+        IStaffRepository accountRepository,
+        IMapper mapper) : IRequestHandler<AddToFavouriteListCommand, AddToFavouritesResponse>
 {
     public async Task<AddToFavouritesResponse> Handle(AddToFavouriteListCommand request, CancellationToken cancellationToken)
     {
@@ -40,6 +41,6 @@ public class AddToFavouriteListCommandHandler(
 
         var createdItem = await favouriteListItemRepository.AddAsync(favouriteListItem, cancellationToken);
 
-        return createdItem.Adapt<AddToFavouritesResponse>();
+        return mapper.Map<AddToFavouritesResponse>(createdItem);
     }
 }

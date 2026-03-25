@@ -24,8 +24,7 @@ public static class ServiceExtensions
             client.BaseAddress = new Uri(configuration.GetSection("IpInfo").GetValue<string>("BaseUrl") ?? "https://ipinfo.io/");
         });
 
-        services.Configure<FrontendOptions>(configuration.GetSection(nameof(FrontendOptions)));
-        services.Configure<InvitationOptions>(configuration.GetSection(nameof(InvitationOptions)));
+        services.Configure<PlatformAdminActivationOptions>(configuration.GetSection(nameof(PlatformAdminActivationOptions)));
         services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
         services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
         services.Configure<CustomerPasswordResetOptions>(configuration.GetSection(nameof(CustomerPasswordResetOptions)));

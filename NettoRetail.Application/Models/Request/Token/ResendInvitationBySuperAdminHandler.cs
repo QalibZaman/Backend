@@ -1,11 +1,13 @@
 using MediatR;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -16,13 +18,11 @@ namespace NettoRetail.Application.Models.Request.Token;
 public record ResendInvitationBySuperAdminCommand(Guid AccountId) : IRequest;
 
 public class ResendInvitationBySuperAdminHandler(
-    IInvitationTokenRepository invitationTokenRepo,
     IStaffRepository accountRepo,
-    IInvitationTokenService invitationTokenService,
+    IJwtManager jwtManager,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
-    IOptions<FrontendOptions> frontendOptions,
-    IOptions<InvitationOptions> invitationOptions,
+    IOptions<PlatformAdminActivationOptions> activationOptions,
     IUnitOfWork unitOfWork) : IRequestHandler<ResendInvitationBySuperAdminCommand>
 {
     public async Task Handle(ResendInvitationBySuperAdminCommand request, CancellationToken cancellationToken)
@@ -31,25 +31,25 @@ public class ResendInvitationBySuperAdminHandler(
                           .GetAsync(new GetStaffByIdSpecification(request.AccountId), cancellationToken)
                       ?? throw new NotFoundException("Account not found");
 
-        var rawToken = invitationTokenService.GenerateRawToken();
-        var rawhash = invitationTokenService.Hash(rawToken);
-        var expiredAt = DateTimeOffset.UtcNow.AddHours(invitationOptions.Value.PlatformAdminExpiryHours);
-
-        var token = new InvitationTokenEntity
+        var now = DateTime.UtcNow;
+        var claims = new List<Claim>
         {
-            AccountId = request.AccountId,
-            TokenHash = rawhash,
-            ExpiresAt = expiredAt
+            new(ClaimTypes.NameIdentifier, account.Id.ToString()),
+            new(AuthClaims.TokenType, AuthTokenTypes.PlatformAdminActivation),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };
+
+        var rawToken = jwtManager.Generate(
+            claims,
+            TimeSpan.FromHours(activationOptions.Value.TokenExpirationHours));
 
         using var tx = unitOfWork.BeginTransaction();
 
-        await invitationTokenRepo.InvalidateAllActiveAsync(request.AccountId, cancellationToken);
-        await invitationTokenRepo.UpdateAsync(token, cancellationToken);
+        account.InvitationTokenIssuedAt = now;
+        await accountRepo.UpdateAsync(account, cancellationToken);
         tx.Commit();
         
-        var url = frontendOptions.Value.BaseUrl;
-        var link = $"{url}/set-password?token={rawToken}";
+        var link = string.Format(activationOptions.Value.ActivationLink, Uri.EscapeDataString(rawToken));
 
         var emailModel = await emailBuilderService.BuildPlatformAdminActivationEmailAsync(account.Email, account.FirstName,link);
 

@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -18,17 +18,23 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Admin;
 public record CreateAdminCommand(AdminSignUpModel Model) : IRequest<TokenResponse>;
 
 public class CreateAdminCommandHandler(IStaffRepository staffRepository,
+    IRoleRepository roleRepository,
     IJwtManager jwtManager,
-    IOptions<AdminRoleOptions> adminOptions)
+    IOptions<AdminRoleOptions> adminOptions,
+    IMapper mapper)
     : IRequestHandler<CreateAdminCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
     {
         var specification = new GetStaffByEmailSpecification(request.Model.Email);
-        if (await staffRepository.Exists(specification, cancellationToken))
-            throw new ConflictException("This user is already registered.");
+        var staff = await staffRepository.GetAsync(specification, cancellationToken);
 
-        var admin = request.Model.Adapt<StaffEntity>();
+        if (staff != null)
+        {
+            throw new ConflictException("This user is already registered.");
+        }
+
+        var admin = mapper.Map<StaffEntity>(request.Model);
         admin.RoleId = adminOptions.Value.RoleId;
         admin.Status = StaffStatusEnum.Active;
 

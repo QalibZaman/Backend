@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Customer;
@@ -11,7 +11,7 @@ public record GetCustomerContactInfoQuery(Guid AccountId, int shopId) : IRequest
 
 public class GetCustomerContactInfoQueryHandler(
     ICustomerRepository customerRepository,
-    TypeAdapterConfig config)
+    IMapper mapper)
     : IRequestHandler<GetCustomerContactInfoQuery, CustomerContactInfoResponse>
 {
     public async Task<CustomerContactInfoResponse> Handle(GetCustomerContactInfoQuery request, CancellationToken ct)
@@ -28,6 +28,6 @@ public class GetCustomerContactInfoQueryHandler(
             string.IsNullOrWhiteSpace(customer.LastName))
             throw new InvalidOperationException("Customer contact information is incomplete.");
 
-        return customer.Adapt<CustomerContactInfoResponse>(config);
+        return mapper.Map<CustomerContactInfoResponse>(customer);
     }
 }

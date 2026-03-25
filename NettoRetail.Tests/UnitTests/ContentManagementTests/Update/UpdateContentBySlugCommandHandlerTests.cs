@@ -7,6 +7,7 @@ using NettoRetail.DataAccess.Specifications.Content;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.ContentManagementTests.Update;
@@ -21,7 +22,7 @@ public class UpdateContentBySlugCommandHandlerTests
     {
         _contentRepositoryMock = Substitute.For<IContentRepository>();
         _staffRepositoryMock = Substitute.For<IStaffRepository>();
-        _handler = new UpdateContentBySlugCommandHandler(_contentRepositoryMock, _staffRepositoryMock);
+        _handler = new UpdateContentBySlugCommandHandler(_contentRepositoryMock, _staffRepositoryMock, MapperFactory.Create());
     }
     [Fact]
     public async Task Handle_ValidUpdate()

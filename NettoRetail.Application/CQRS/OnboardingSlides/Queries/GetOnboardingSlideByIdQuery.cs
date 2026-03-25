@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response.OnboardingSlides;
@@ -10,7 +10,7 @@ namespace NettoRetail.Application.CQRS.OnboardingSlides.Queries;
 
 public record GetOnboardingSlideByIdQuery(int Id) : IRequest<OnboardingSlideResponse>;
 
-public class GetOnboardingSlideByIdQueryHandler(IOnboardingSlideRepository slideRepository)
+public class GetOnboardingSlideByIdQueryHandler(IOnboardingSlideRepository slideRepository, IMapper mapper)
     : IRequestHandler<GetOnboardingSlideByIdQuery, OnboardingSlideResponse>
 {
     public async Task<OnboardingSlideResponse> Handle(GetOnboardingSlideByIdQuery request, CancellationToken cancellationToken)
@@ -20,6 +20,6 @@ public class GetOnboardingSlideByIdQueryHandler(IOnboardingSlideRepository slide
         if (slide is null)
             throw new NotFoundException($"Onboarding slide with ID {request.Id} not found.");
 
-        return slide.Adapt<OnboardingSlideResponse>();
+        return mapper.Map<OnboardingSlideResponse>(slide);
     }
 }

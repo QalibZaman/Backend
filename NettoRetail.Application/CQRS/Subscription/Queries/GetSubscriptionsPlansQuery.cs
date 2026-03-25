@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Subscriptions;
@@ -8,7 +8,9 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Subscription.Queries;
 public record GetSubscriptionsPlansQuery(int ShopId) : IRequest<List<SubscriptionPlanResponse>>;
 public class GetSubscriptionsPlansQueryHandler(
-    ISubscriptionPlanRepository subscriptionPlanRepository,IShopRepository shopRepository) : IRequestHandler<GetSubscriptionsPlansQuery, List<SubscriptionPlanResponse>>
+    ISubscriptionPlanRepository subscriptionPlanRepository,
+    IShopRepository shopRepository,
+    IMapper mapper) : IRequestHandler<GetSubscriptionsPlansQuery, List<SubscriptionPlanResponse>>
 {
     public async Task<List<SubscriptionPlanResponse>> Handle(GetSubscriptionsPlansQuery request, CancellationToken cancellationToken)
     {
@@ -19,7 +21,7 @@ public class GetSubscriptionsPlansQueryHandler(
 
         return plans.Select(s =>
         {
-            var response = s.Adapt<SubscriptionPlanResponse>();
+            var response = mapper.Map<SubscriptionPlanResponse>(s);
             response.IsActive = s.Id == shop.SubscriptionPlanId;
             return response;
         }).ToList();

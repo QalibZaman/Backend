@@ -4,7 +4,9 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Utilities;
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
@@ -13,6 +15,7 @@ public record LoginCommand(LoginModel Model) : IRequest<TokenResponse>;
 
 public class LoginCommandHandler(IStaffRepository staffRepository,
     IJwtManager jwtManager,
+    ICustomerRepository customerRepository,
     IFailedAuthAttemptRepository loginAttemptRepository,
     IFailedAuthAttemptService loginAttemptService)
     : IRequestHandler<LoginCommand, TokenResponse>
@@ -36,6 +39,11 @@ public class LoginCommandHandler(IStaffRepository staffRepository,
             throw new MyUnauthorizedException("Your account has been deactivated.");
         }
 
+        if (user.Status == StaffStatusEnum.Pending || string.IsNullOrWhiteSpace(user.PasswordHash))
+        {
+            throw new MyUnauthorizedException("Your account isn't activated. Please check your email to complete activation.");
+        }
+
         if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
         {
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt!, cancellationToken);
@@ -50,6 +58,23 @@ public class LoginCommandHandler(IStaffRepository staffRepository,
         if (loginAttempt != null)
         {
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+        }
+
+        if (user.RoleId == RoleConstants.Customer)
+        {
+            var customer = await customerRepository.GetAsync(
+                new GetCustomerByIdSpecification(user.Id),
+                cancellationToken);
+
+            if (customer == null)
+            {
+                throw new MyUnauthorizedException("Customer account not found.");
+            }
+
+            if (!customer.IsActive)
+            {
+                throw new MyUnauthorizedException("Your email isn't verified. Please check your email to complete Sign up.");
+            }
         }
 
         if (user.TwoFactorEnabled)

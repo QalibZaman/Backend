@@ -1,26 +1,27 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Order;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Orders.Queries;
 
-public record GetOrderProductsAndPaymentsQuery(int OrderId) : IRequest<OrderProductsResponse>;
-public class GetOrderProductsAndPaymentsQueryHandler(
-    IOrderRepository orderRepository)
-    : IRequestHandler<GetOrderProductsAndPaymentsQuery, OrderProductsResponse>
+public record GetOrderProductsQuery(int OrderId) : IRequest<OrderProductsResponse>;
+public class GetOrderProductsQueryHandler(
+    IOrderRepository orderRepository,
+    IMapper mapper)
+    : IRequestHandler<GetOrderProductsQuery, OrderProductsResponse>
 {
-    public async Task<OrderProductsResponse> Handle(GetOrderProductsAndPaymentsQuery request, CancellationToken cancellationToken)
+    public async Task<OrderProductsResponse> Handle(GetOrderProductsQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetOrderByIdSpecification(request.OrderId);
 
         var order = await orderRepository.GetOrderWithInventoryItemsAsync(spec, cancellationToken)
-            ?? throw new NotFoundException(HandlerConstants.Order.OrderNotFoundMessage);
+            ?? throw new NotFoundException("There is no such order.");
 
-        return order.Adapt<OrderProductsResponse>();
+        var response = mapper.Map<OrderProductsResponse>(order);
 
+        return response;
     }
 }

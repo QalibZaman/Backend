@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request;
@@ -12,7 +12,8 @@ public record GetFilteredOrdersQuery(GetFilteredOrdersModel Model, int ShopId, s
 
 public class GetFilteredOrdersQueryHandler(
     IOrderRepository orderRepository,
-    IFilteredOrderService filteredOrderService) : IRequestHandler<GetFilteredOrdersQuery, PaginatedResponse<OrderListResponse>>
+    IFilteredOrderService filteredOrderService,
+    IMapper mapper) : IRequestHandler<GetFilteredOrdersQuery, PaginatedResponse<OrderListResponse>>
 {
     public async Task<PaginatedResponse<OrderListResponse>> Handle(GetFilteredOrdersQuery request, CancellationToken cancellationToken)
     {
@@ -20,7 +21,7 @@ public class GetFilteredOrdersQueryHandler(
 
         var (items, totalAmount) = await orderRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var responseCollection = items.Adapt<ICollection<OrderListResponse>>();
+        var responseCollection = mapper.Map<ICollection<OrderListResponse>>(items);
 
         var result = new PaginatedResponse<OrderListResponse>
         {

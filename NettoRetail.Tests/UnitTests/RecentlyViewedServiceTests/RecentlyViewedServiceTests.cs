@@ -1,8 +1,10 @@
-﻿using NettoRetail.Application.Models.Request.RecentlyViewedProduct;
+﻿using MapsterMapper;
+using NettoRetail.Application.Models.Request.RecentlyViewedProduct;
 using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NSubstitute.ReturnsExtensions;
@@ -14,11 +16,13 @@ public class RecentlyViewedServiceTests
     private readonly IRecentlyViewedRepository _repository;
     private readonly RecentlyViewedService _service;
     private readonly CancellationToken _ct = CancellationToken.None;
+    private readonly IMapper _mapper;
 
     public RecentlyViewedServiceTests()
     {
         _repository = Substitute.For<IRecentlyViewedRepository>();
-        _service = new RecentlyViewedService(_repository);
+        _mapper = MapperFactory.Create();
+        _service = new RecentlyViewedService(_repository, _mapper);
     }
 
     [Fact]
@@ -503,4 +507,3 @@ public class RecentlyViewedServiceTests
                 _ct);
     }
 }
-

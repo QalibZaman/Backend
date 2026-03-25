@@ -1,9 +1,11 @@
-﻿using NettoRetail.Application.CQRS.Customers.Queries;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.Customers.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.CustomerTests;
@@ -12,11 +14,13 @@ public class GetCustomersQueryHandlerTests
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly GetCustomersQueryHandler _handler;
+    private readonly IMapper _mapper;
 
     public GetCustomersQueryHandlerTests()
     {
         _customerRepository = Substitute.For<ICustomerRepository>();
-        _handler = new GetCustomersQueryHandler(_customerRepository);
+        _mapper = MapperFactory.Create();
+        _handler = new GetCustomersQueryHandler(_customerRepository, _mapper);
     }
 
     [Fact]

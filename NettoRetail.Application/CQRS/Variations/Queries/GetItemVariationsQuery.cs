@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.DataAccess.Specifications.Inventory.Variations;
@@ -9,7 +9,8 @@ namespace NettoRetail.Application.CQRS.Variations.Queries;
 public record GetItemVariationsQuery(Guid ParentId, int ShopId) : IRequest<List<VariationResponse>>;
 
 public class GetItemVariationsQueryHandler(
-    IInventoryItemRepository inventoryItemRepository)
+    IInventoryItemRepository inventoryItemRepository,
+    IMapper mapper)
     : IRequestHandler<GetItemVariationsQuery, List<VariationResponse>>
 {
     public async Task<List<VariationResponse>> Handle(
@@ -20,7 +21,7 @@ public class GetItemVariationsQueryHandler(
 
         var variations = await inventoryItemRepository.GetAllBySpecAsync(spec, cancellationToken);
 
-        var response = variations.Adapt<List<VariationResponse>>();
+        var response = mapper.Map<List<VariationResponse>>(variations);
 
         return response;
     }

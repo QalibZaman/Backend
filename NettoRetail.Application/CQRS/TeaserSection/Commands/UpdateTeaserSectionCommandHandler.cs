@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
@@ -22,7 +22,8 @@ public class UpdateTeaserSectionCommandHandler(
     ITeaserSectionRepository teaserSectionRepository,
     IImageUploadService imageUploadService,
     IAzureBlobService azureBlobService,
-    IImageValidatorService imageValidatorService) : IRequestHandler<UpdateTeaserSectionCommand, TeaserSectionResponse>
+    IImageValidatorService imageValidatorService,
+    IMapper mapper) : IRequestHandler<UpdateTeaserSectionCommand, TeaserSectionResponse>
 {
     public async Task<TeaserSectionResponse> Handle(UpdateTeaserSectionCommand request, CancellationToken cancellationToken)
     {
@@ -33,7 +34,7 @@ public class UpdateTeaserSectionCommandHandler(
 
         teaser ??= new TeaserSectionEntity { ShopId = request.ShopId };
 
-        request.Model.Adapt(teaser);
+        mapper.Map(request.Model, teaser);
 
         await ValidateUrlUniquenessAsync(teaser.Link, teaser.Id, cancellationToken);
 
@@ -48,7 +49,7 @@ public class UpdateTeaserSectionCommandHandler(
             await teaserSectionRepository.UpdateAsync(teaser, cancellationToken);
         }
 
-        return teaser.Adapt<TeaserSectionResponse>();
+        return mapper.Map<TeaserSectionResponse>(teaser);
     }
 
     private async Task UploadTeaserImageAsync(UpdateTeaserSectionCommand request, TeaserSectionEntity entity, CancellationToken cancellationToken)

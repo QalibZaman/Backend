@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Feedback;
@@ -14,7 +14,8 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Commands;
 public record CreateFeedbackCommand(CreateFeedbackModel Model, Guid UserId) : IRequest<FeedbackResponse>;
 public class CreateFeedbackCommandHandler(
   IFeedbackRepository feedbackRepository,
-  IStaffRepository accountRepository) : IRequestHandler<CreateFeedbackCommand, FeedbackResponse>
+  IStaffRepository accountRepository,
+  IMapper mapper) : IRequestHandler<CreateFeedbackCommand, FeedbackResponse>
 {
   public async Task<FeedbackResponse> Handle(CreateFeedbackCommand request, CancellationToken cancellationToken)
   {
@@ -22,7 +23,7 @@ public class CreateFeedbackCommandHandler(
     accountByIdSpecification.AddInclude(x => x.Shop!);
     var account = await accountRepository.GetAsync(accountByIdSpecification, cancellationToken) ?? throw new NotFoundException("Account no found.");
 
-    var feedback = request.Model.Adapt<FeedbackEntity>();
+    var feedback = mapper.Map<FeedbackEntity>(request.Model);
 
     feedback.AccountId = account.Id;
     feedback.DateSubmitted = DateTime.UtcNow;
@@ -33,6 +34,6 @@ public class CreateFeedbackCommandHandler(
 
     await feedbackRepository.AddAsync(feedback, cancellationToken);
 
-    return feedback.Adapt<FeedbackResponse>();
+    return mapper.Map<FeedbackResponse>(feedback);
   }
 }
