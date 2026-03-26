@@ -100,31 +100,60 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCategoriesSection(
-        [FromQuery] GetCategoriesSectionRequest request,
-        CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCategoriesSection(CancellationToken cancellationToken)
         {
-            var query = new GetCategoriesSectionQuery(request.ShopId);
+            var shopId = HttpContext.GetUserShopId();
+            var query = new GetCategoriesSectionQuery(shopId);
 
             var response = await mediator.Send(query, cancellationToken);
 
             return Ok(new ApiResponse<GetCategoriesSectionResponse>(response));
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [HttpGet("section/search")]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CategorySummaryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SearchCategoriesForSection(
+            [FromQuery] string? query,
+            [FromQuery] List<int>? excludeIds,
+            [FromQuery] PaginationRequest pageModel,
+            CancellationToken cancellationToken)
+        {
+            var shopId = HttpContext.GetUserShopId();
+            var searchQuery = new SearchCategoriesForSectionQuery(
+                shopId,
+                query,
+                excludeIds ?? [],
+                pageModel);
+
+            var response = await mediator.Send(searchQuery, cancellationToken);
+
+            return Ok(new ApiResponse<PaginatedResponse<CategorySummaryResponse>>(response));
+        }
+
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpPatch("{shopId:int}/section")]
+        [HttpPatch("section")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategoriesSection(int shopId, [FromBody] EditCategoriesSectionRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateCategoriesSection(
+            [FromBody] EditCategoriesSectionRequest request,
+            CancellationToken cancellationToken)
         {
+            var shopId = HttpContext.GetUserShopId();
             var command = new UpdateCategoriesSectionCommand(
                 shopId,
                 request.Name,
-                request.Visibility);
+                request.Visibility,
+                request.CategoryIds);
 
             await mediator.Send(command, cancellationToken);
 

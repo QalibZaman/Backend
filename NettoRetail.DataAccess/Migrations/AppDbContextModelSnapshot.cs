@@ -307,6 +307,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoriesSectionOrder")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Level")
                         .HasColumnType("integer");
 

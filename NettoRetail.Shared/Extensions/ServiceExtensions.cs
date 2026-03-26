@@ -22,6 +22,7 @@ public static class ServiceExtensions
         services.Configure<SubscriptionOptions>(configuration.GetSection(nameof(SubscriptionOptions)));
         services.Configure<InventoryItemOptions>(configuration.GetSection(nameof(InventoryItemOptions)));
         services.Configure<ComparisonOptions>(configuration.GetSection(nameof(ComparisonOptions)));
+        services.Configure<CategoriesSectionOptions>(configuration.GetSection(nameof(CategoriesSectionOptions)));
         return services;
     }
 }
