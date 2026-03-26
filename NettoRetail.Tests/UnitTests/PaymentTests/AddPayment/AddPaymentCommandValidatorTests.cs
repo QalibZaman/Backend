@@ -26,6 +26,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 1);
     }
+
     [Fact]
     public void Validator_Should_Pass_When_PaymentMethod_Is_Valid()
     {
@@ -36,6 +37,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 0);
     }
+
     [Fact]
     public void Validator_Should_Fail_When_AccountId_Is_Empty()
     {
@@ -47,6 +49,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 1);
     }
+
     [Fact]
     public void Validator_Should_Pass_When_AccountId_Is_Valid()
     {
@@ -57,6 +60,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 0);
     }
+
     [Fact]
     public void Validator_Should_Fail_When_Both_AccountId_And_PaymentMethod_Are_Invalid()
     {
@@ -71,6 +75,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 2);
     }
+
     [Fact]
     public void Validator_Should_Pass_When_Both_AccountId_And_PaymentMethod_Are_Valid()
     {
@@ -82,6 +87,7 @@ public class AddPaymentCommandValidatorTests
 
         Assert.True(result.Errors.Count == 0);
     }
+
     [Fact]
     public void Validator_Should_Fail_When_PaymentMethodId_Is_Empty()
     {

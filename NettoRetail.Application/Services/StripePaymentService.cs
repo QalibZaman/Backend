@@ -44,17 +44,15 @@ public sealed class StripePaymentService(
     {
         try
         {
-            var attachOptions = new PaymentMethodAttachOptions { Customer = customerId };
-            await paymentMethodService.AttachAsync(
+            var pm = await paymentMethodService.AttachAsync(
             paymentMethodId,
-            attachOptions,
+            new PaymentMethodAttachOptions { Customer = customerId },
             cancellationToken: cancellationToken);
-
-            var pm = await paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
 
             ValidateCardPaymentMethod(pm);
 
             return new CardSnapshot(
+                pm.Id,
                 pm.Card.Brand,
                 pm.Card.ExpMonth,
                 pm.Card.ExpYear,
