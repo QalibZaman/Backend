@@ -14,7 +14,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         specification.AddInclude(c => c.InventoryItems);
 
         var category = await categoryRepository.GetAsync(specification, cancellationToken)
-        ?? throw new NotFoundException($"There is no category with Id: {id}");
+            ?? throw new NotFoundException($"There is no category with Id: {id}");
 
         var conflictModelSpecification = new GetCategoriesOfParentByIdSpecification(id);
         var subcategoryExists = await categoryRepository.Exists(conflictModelSpecification, cancellationToken);
