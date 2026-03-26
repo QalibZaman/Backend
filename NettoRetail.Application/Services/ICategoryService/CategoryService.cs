@@ -8,9 +8,9 @@ namespace NettoRetail.Application.Services.ICategoryService;
 
 public class CategoryService(ICategoryRepository categoryRepository, ILogger<CategoryService> logger) : ICategoryService
 {
-    public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteCategoryAsync(int id, int shopId, CancellationToken cancellationToken = default)
     {
-        var specification = new GetCategoryByIdSpecification(id);
+        var specification = new GetCategoryByIdAndShopIdSpecification(id, shopId);
         specification.AddInclude(c => c.InventoryItems);
 
         var category = await categoryRepository.GetAsync(specification, cancellationToken);

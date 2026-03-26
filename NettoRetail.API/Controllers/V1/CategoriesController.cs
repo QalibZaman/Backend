@@ -59,7 +59,7 @@ namespace NettoRetail.API.Controllers.V1
             return Created(string.Empty, new ApiResponse<CategoryResponse>(response));
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,7 +69,8 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
-            await mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
+            var shopid = HttpContext.GetUserShopId();
+            await mediator.Send(new DeleteCategoryCommand(id, shopid), cancellationToken);
 
             return NoContent();
         }
