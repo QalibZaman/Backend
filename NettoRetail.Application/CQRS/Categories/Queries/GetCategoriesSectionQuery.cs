@@ -1,6 +1,7 @@
 using MediatR;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Interfaces;
 
 namespace NettoRetail.Application.CQRS.Categories.Queries;
 
