@@ -65,7 +65,6 @@ public class AddCategoryCommandHandler(
         category.Name = request.Model.Name;
         category.URL = normalizedUrl;
         category.ShopId = request.ShopId;
-        category.URL = normalizedUrl;
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 
         var responseModel = await categoryRepository.AddAsync(category, cancellationToken);

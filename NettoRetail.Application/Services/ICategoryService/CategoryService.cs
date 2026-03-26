@@ -90,7 +90,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         return generated;
     }
 
-    public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteCategoryAsync(int id, int shopId, CancellationToken cancellationToken = default)
     {
         var specification = new GetCategoryByIdAndShopIdSpecification(id, shopId);
         specification.AddInclude(c => c.InventoryItems);
