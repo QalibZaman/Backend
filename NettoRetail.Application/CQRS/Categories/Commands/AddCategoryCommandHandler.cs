@@ -20,7 +20,10 @@ public class AddCategoryCommandHandler(
 {
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
-        var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Model.Name, request.Model.URL, request.ShopId);
+        var normalizedName = request.Model.Name.Trim();
+        var normalizedUrl = request.Model.URL.Trim();
+
+        var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(normalizedName, normalizedUrl, request.ShopId);
 
         var conflictingCategoryExists = await categoryRepository.Exists(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
@@ -51,6 +54,8 @@ public class AddCategoryCommandHandler(
         }
 
         var category = mapper.Map<CategoryEntity>(request.Model);
+        category.Name = normalizedName;
+        category.URL = normalizedUrl;
         category.ShopId = request.ShopId;
 
         await levelService.SetUpCategoryLevel(category, cancellationToken);

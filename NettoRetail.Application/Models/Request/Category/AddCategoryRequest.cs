@@ -1,6 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Request.Category;
 
-public class AddCategoryRequest
+public class AddCategoryRequest : ICategoryUpsertRequest
 {
     public required string Name { get; set; }
     public required string URL { get; set; }
