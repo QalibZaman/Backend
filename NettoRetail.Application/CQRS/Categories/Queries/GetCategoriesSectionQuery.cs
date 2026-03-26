@@ -2,6 +2,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Interfaces;
 
 namespace NettoRetail.Application.CQRS.Categories.Queries;
 
