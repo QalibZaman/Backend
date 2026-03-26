@@ -62,6 +62,7 @@ public class MappingConfiguration : IRegister
         config.NewConfig<StaffEntity, AccountDtoForPdf>();
 
         config.NewConfig<CustomerEntity, CustomerResponse>()
+            .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email);
