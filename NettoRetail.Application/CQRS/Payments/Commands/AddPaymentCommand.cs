@@ -49,7 +49,7 @@ public sealed class AddPaymentCommandHandler(
         var paymentMethodRecord = new PaymentMethodEntity
         {
             AccountId = account.Id,
-            StripePaymentMethodId = request.PaymentMethodId,
+            StripePaymentMethodId = card.StripePaymentMethodId,
             CardBrand = card.Brand,
             CardExpMonth = card.ExpMonth,
             CardExpYear = card.ExpYear,

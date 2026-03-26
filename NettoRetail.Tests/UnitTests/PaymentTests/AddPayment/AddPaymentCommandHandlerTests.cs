@@ -44,7 +44,7 @@ public class AddPaymentCommandHandlerTests
 
         var command = new AddPaymentCommand(staffEntity.Id, "pm_card_mastercard");
         var newCustomerId = "cus_12345";
-        var cardInfo = new CardSnapshot("Visa", 12, 2025, "4242");
+        var cardInfo = new CardSnapshot("pm_3232322332","Visa", 12, 2025, "4242");
 
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -75,7 +75,7 @@ public class AddPaymentCommandHandlerTests
             .AddAsync(Arg.Is<PaymentMethodEntity>(p =>
             p.CardBrand == cardInfo.Brand &&
             p.FourLastCardNumbers == cardInfo.Last4 &&
-            p.StripePaymentMethodId == command.PaymentMethodId), Arg.Any<CancellationToken>());
+            p.StripePaymentMethodId == cardInfo.StripePaymentMethodId), Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
@@ -140,7 +140,7 @@ public class AddPaymentCommandHandlerTests
         var staffEntity = InitializeEntity();
         staffEntity.StripeCustomerId = existingId;
         var command = new AddPaymentCommand(staffEntity.Id, "pm_card_mastercard");
-        var cardInfo = new CardSnapshot("Marsercard", 12, 2025, "4242");
+        var cardInfo = new CardSnapshot("pm_23322322323","Marsercard", 12, 2025, "4242");
 
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())

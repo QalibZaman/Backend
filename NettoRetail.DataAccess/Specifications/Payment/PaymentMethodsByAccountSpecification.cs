@@ -1,6 +1,5 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NettoRetail.DataAccess.Specifications.Payment;
 
