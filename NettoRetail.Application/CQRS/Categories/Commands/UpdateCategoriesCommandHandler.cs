@@ -11,7 +11,7 @@ using NettoRetail.Shared.Interfaces.Utilities;
 using MapsterMapper;
 namespace NettoRetail.Application.CQRS.Categories.Commands
 {
-    public record UpdateCategoryCommand(int Id, string Name, string? URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
+    public record UpdateCategoriesCommand(int Id, string Name, string? URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
 
     public class UpdateCategoryCommandHandlers(
         ICategoryRepository categoryRepository,
@@ -19,9 +19,9 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
         ICategoryService categoryService,
         IUnitOfWork unitOfWork,
         ICategoryService categoryService,
-        IMapper mapper) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
+        IMapper mapper) : IRequestHandler<UpdateCategoriesCommand, CategoryResponse>
     {
-        public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<CategoryResponse> Handle(UpdateCategoriesCommand request, CancellationToken cancellationToken)
         {
             var specification = new GetCategoryByIdSpecification(request.Id);
 
