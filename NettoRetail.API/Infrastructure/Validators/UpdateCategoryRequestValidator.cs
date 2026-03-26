@@ -13,10 +13,6 @@ namespace NettoRetail.API.Infrastructure.Validators
             .MaximumLength(50).WithMessage("\"Field name\" length must be less than 50 characters long.")
             .Matches(@"^[a-zA-Z0-9-_ ]+$").WithMessage("The name can only contain letters, numbers, spaces, hyphens, and underscores. Please check your input.");
 
-        RuleFor(model => model.URL)
-            .Must(BeValidCategoryUrl)
-            .WithMessage("Invalid URL format. Use lowercase letters, digits, hyphens, and slashes with a leading slash and no trailing slash.");
-
         RuleFor(model => model.Visibility)
             .NotNull().WithMessage("\"Visibility\" cannot be null.");
 
