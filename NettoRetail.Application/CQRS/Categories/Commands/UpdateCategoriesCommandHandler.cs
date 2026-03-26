@@ -18,6 +18,7 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
         ICategoryLevelManagementService levelService,
         ICategoryService categoryService,
         IUnitOfWork unitOfWork,
+        ICategoryService categoryService,
         IMapper mapper) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {
         public async Task<CategoryResponse> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
