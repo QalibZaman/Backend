@@ -11,6 +11,7 @@ using NettoRetail.Application.CQRS.OfferSections.Query;
 using NettoRetail.Application.Models.Offer;
 using NettoRetail.Application.Models.Request.Offer;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -19,7 +20,7 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class OfferController(IMediator mediator) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
