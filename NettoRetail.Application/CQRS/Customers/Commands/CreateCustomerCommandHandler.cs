@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
@@ -6,7 +6,6 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Role;
@@ -24,43 +23,49 @@ public class CreateCustomerCommandHandler(
     ICountryDetailsValidationService countryValidator,
     ICustomerRepository customerRepository,
     ICountryRepository countryRepository,
-    IRoleRepository roleRepository)
+    IRoleRepository roleRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
     : IRequestHandler<CreateCustomerCommand, CreateCustomerResponse>
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrEmpty(request.Model.PhoneNumber))
         {
-            var countryValidationModel = new CountryValidationModel()
+            var countryValidationModel = new CountryValidationModel
             {
                 CountryId = request.Model.CountryId,
                 PhoneNumber = request.Model.PhoneNumber!
             };
 
-            var countryValidationOptions = new CountryValidationOptions() { CheckForPhoneNumber = true, CheckForZipCode = false };
+            var countryValidationOptions = new CountryValidationOptions
+            {
+                CheckForPhoneNumber = true,
+                CheckForZipCode = false
+            };
 
             await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
         }
 
-        var emailSpecification = new GetCustomerByEmailAndShopIdSpecification(request.Model.Email, request.ShopId);
-        var customerExists = await customerRepository.Exists(emailSpecification, cancellationToken);
-        if (customerExists)
-            throw new ConflictException("Account with this email already exists within current shop");
+        var emailSpecification = new GetCustomerByEmailSpecification(request.Model.Email);
+        var account = await customerRepository.Exists(emailSpecification, cancellationToken);
+
+        if (account)
+        {
+            throw new ConflictException("Account with this email already exists");
+        }
 
         var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
         var role = await roleRepository.GetAsync(roleSpecification, cancellationToken);
 
-        var customerEntity = request.Model.Adapt<CustomerEntity>();
+        var customerEntity = mapper.Map<CustomerEntity>(request.Model);
 
         customerEntity.RoleId = role!.Id;
         customerEntity.ShopId = request.ShopId;
 
-        // Every customer is registered with a random password - in future, they'll be able to reset and set theirs when they'll be registered
-        // Right now, customers shouldn't be able to log in - and in the future, when they get the activation link, they'll be able to reset their password
         var initialPassword = Guid.NewGuid().ToString();
         customerEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
-        customerEntity.Id = customerEntity.Id;
         customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
         customerEntity.IsActive = true;
 
@@ -72,12 +77,13 @@ public class CreateCustomerCommandHandler(
             customerEntity.PhoneNumber = $"{country!.PhoneCode} {request.Model.PhoneNumber}";
         }
 
+        using var transaction = unitOfWork.BeginTransaction();
+
         await customerRepository.AddAsync(customerEntity, cancellationToken);
+        transaction.Commit();
 
-        var response = customerEntity.Adapt<CreateCustomerResponse>();
-
-        customerEntity.Adapt(response);
-        response.Country = country?.Adapt<CountryResponse>() ?? null;
+        var response = mapper.Map<CreateCustomerResponse>(customerEntity);
+        response.Country = country == null ? null : mapper.Map<CountryResponse>(country);
 
         return response;
     }

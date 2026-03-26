@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ISessionModelFactory;
@@ -28,7 +28,8 @@ public class CreateSessionCommandHandler(
     IPermissionRoleRepository permissionRoleRepository,
     ISessionModelFactory sessionModelFactory,
     IIpInfoService ipInfoService,
-    IPermissionCacheService permissionCacheService) : IRequestHandler<CreateSessionCommand>
+    IPermissionCacheService permissionCacheService,
+    IMapper mapper) : IRequestHandler<CreateSessionCommand>
 {
     public async Task Handle(CreateSessionCommand request, CancellationToken cancellationToken)
     {
@@ -44,7 +45,7 @@ public class CreateSessionCommandHandler(
         var expiresAt = JwtUtils.GetJwtExpiration(request.Jwt) ?? throw new InvalidTokenCredentialsException("Invalid JWT or missing expiration claim.");
         var sessionModel = await sessionModelFactory.CreateSessionModel(request.UserAgent, ip, request.Jwt, request.RefreshToken, location, expiresAt, request.UserType, cancellationToken);
 
-        var session = sessionModel.Adapt<SessionEntity>();
+        var session = mapper.Map<SessionEntity>(sessionModel);
 
         await sessionRepository.AddAsync(session, cancellationToken);
 

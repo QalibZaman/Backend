@@ -1,4 +1,4 @@
-﻿    using Mapster;
+﻿    using MapsterMapper;
     using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -14,7 +14,8 @@ using NettoRetail.Shared.Specifications;
 
     public class AddItemToComparisonCommandHandler(IItemComparisonRepository itemComparisonRepository,
         IInventoryItemRepository inventoryItemRepository,
-        IOptions<ComparisonOptions> comparisonOptions)
+        IOptions<ComparisonOptions> comparisonOptions,
+        IMapper mapper)
         : IRequestHandler<AddItemToComparisonCommand, ItemComparisonResponse>
     {
         public async Task<ItemComparisonResponse> Handle(AddItemToComparisonCommand request, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ using NettoRetail.Shared.Specifications;
             if (comparison == null)
             {
                 result = await itemComparisonRepository.AddComparisonAsync(request.ItemId, request.UserId, cancellationToken);
-                return result.Adapt<ItemComparisonResponse>();
+                return mapper.Map<ItemComparisonResponse>(result);
             }
 
             if (comparison.GetItem(request.ItemId) != null)
@@ -49,7 +50,7 @@ using NettoRetail.Shared.Specifications;
             comparison.AddItem(request.ItemId);
             result = await itemComparisonRepository.UpdateAsync(comparison, cancellationToken);
 
-            var response = result.Adapt<ItemComparisonResponse>();
+            var response = mapper.Map<ItemComparisonResponse>(result);
 
             return response;
         }

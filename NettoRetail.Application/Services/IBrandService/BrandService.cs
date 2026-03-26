@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
@@ -12,7 +12,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services.IBrandService;
 
-public class BrandService(IShopRepository shopRepository, IBrandRepository brandRepository) : IBrandService
+public class BrandService(IShopRepository shopRepository, IBrandRepository brandRepository, IMapper mapper) : IBrandService
 {
     public async Task<PaginatedResponse<BrandResponse>> GetShopBrandsBySearchAsync(
          string query, int shopId, PaginationRequest pageModel, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public class BrandService(IShopRepository shopRepository, IBrandRepository brand
 
         var (items, totalCount) = await brandRepository.GetAllPaginatedAsync(brandSpec, cancellationToken);
 
-        var brandResponses = items.Adapt<List<BrandResponse>>();
+        var brandResponses = mapper.Map<List<BrandResponse>>(items);
 
         var response = new PaginatedResponse<BrandResponse>
         {

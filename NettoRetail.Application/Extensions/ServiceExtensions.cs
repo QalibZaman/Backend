@@ -4,6 +4,7 @@ using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -69,8 +70,11 @@ public static class ServiceExtensions
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         //Mapping
+        var typeAdapterConfig = new TypeAdapterConfig();
+        typeAdapterConfig.Apply(new MappingConfiguration.MappingConfiguration());
+        services.AddSingleton(typeAdapterConfig);
+        services.AddScoped<IMapper, ServiceMapper>();
         services.AddMapster();
-        TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
 
         //Background
         services.AddHostedService<SessionCleanupService>();
@@ -93,8 +97,6 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IStripePaymentService, StripePaymentService>();
         services.AddScoped<ILinkService, LinkService>();
-        services.AddScoped<IInvitationTokenService, InvitationTokenService>();
-        services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();

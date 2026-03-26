@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -12,7 +12,8 @@ public record GetInventoryItemFullInfoQuery(Guid Id) : IRequest<InventoryItemInf
 
 public class GetInventoryItemFullInfoQueryHandler(
     IInventoryItemRepository inventoryRepo,
-    ICategoryRepository categoryRepo) : IRequestHandler<GetInventoryItemFullInfoQuery, InventoryItemInfoFullResponse>
+    ICategoryRepository categoryRepo,
+    IMapper mapper) : IRequestHandler<GetInventoryItemFullInfoQuery, InventoryItemInfoFullResponse>
 {
     public async Task<InventoryItemInfoFullResponse> Handle(
         GetInventoryItemFullInfoQuery request,
@@ -27,7 +28,7 @@ public class GetInventoryItemFullInfoQueryHandler(
         var item = await inventoryRepo.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException($"Inventory item with id '{request.Id}' was not found.");
 
-        var response = item.Adapt<InventoryItemInfoFullResponse>();
+        var response = mapper.Map<InventoryItemInfoFullResponse>(item);
 
         var chain = await categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
         response.ProductCategories = chain

@@ -1,5 +1,8 @@
-﻿using Mapster;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.CQRS.FavouriteListItems.Queries;
+using NettoRetail.Application.MappingConfiguration;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -11,10 +14,17 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
 {
     public class ResolveGuestFavouritesQueryHandlerTests
     {
-        public ResolveGuestFavouritesQueryHandlerTests()
+        private static IMapper CreateMapper()
         {
-            // Ensure Mapster config is registered
-            TypeAdapterConfig.GlobalSettings.Scan(typeof(InventoryItemCardResponse).Assembly);
+            var config = new TypeAdapterConfig();
+            config.Apply(new MappingConfiguration());
+
+            var services = new ServiceCollection();
+            services.AddSingleton(config);
+            services.AddScoped<IMapper, ServiceMapper>();
+
+            var provider = services.BuildServiceProvider();
+            return provider.GetRequiredService<IMapper>();
         }
 
 
@@ -60,7 +70,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
         public async Task Handle_ShouldReturnEmpty_AndNotHitRepo_WhenNoIds()
         {
             var repo = Substitute.For<IInventoryItemRepository>();
-            var handler = new ResolveGuestFavouritesQueryHandler(repo);
+            var handler = new ResolveGuestFavouritesQueryHandler(repo, CreateMapper());
 
             var result = await handler.Handle(new ResolveGuestFavouritesQuery(Array.Empty<Guid>(), 9), CancellationToken.None);
 
@@ -89,7 +99,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             repo.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(itemsDb);
 
-            var handler = new ResolveGuestFavouritesQueryHandler(repo);
+            var handler = new ResolveGuestFavouritesQueryHandler(repo, CreateMapper());
 
             var result = await handler.Handle(new ResolveGuestFavouritesQuery(new[] { id1, id2 }, shopId), CancellationToken.None);
 
@@ -113,7 +123,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             repo.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(new List<InventoryItemEntity>());
 
-            var handler = new ResolveGuestFavouritesQueryHandler(repo);
+            var handler = new ResolveGuestFavouritesQueryHandler(repo, CreateMapper());
             var cts = new CancellationTokenSource();
 
             await handler.Handle(new ResolveGuestFavouritesQuery(new[] { Guid.NewGuid() }, 11), cts.Token);

@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -26,7 +26,8 @@ public class InventoryService(
     ICsvFileService csvFileService,
     ICategoryRepository categoryRepository,
     IBrandRepository brandRepository,
-    ILogger<InventoryService> logger) : IInventoryService
+    ILogger<InventoryService> logger,
+    IMapper mapper) : IInventoryService
 {
     public bool IsItemNew(InventoryItemEntity item) =>
         item.LastUpdatedDate >= DateTime.UtcNow.AddDays(-options.Value.NewItemDaysThreshold);
@@ -60,7 +61,7 @@ public class InventoryService(
             .Take(pageModel.PageSize)
             .ToList();
 
-        var productResponses = pagedProduct.Adapt<List<InventoryItemListResponse>>();
+        var productResponses = mapper.Map<List<InventoryItemListResponse>>(pagedProduct);
 
         return new PaginatedResponse<InventoryItemListResponse>
         {
@@ -130,7 +131,7 @@ public class InventoryService(
 
         foreach (var item in models)
         {
-            var variant = item.Adapt<InventoryItemEntity>();
+            var variant = mapper.Map<InventoryItemEntity>(item);
 
             variant.AvailableAmount = 0;
             variant.IsVariation = true;

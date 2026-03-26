@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -17,7 +17,8 @@ public record GetClientsShopInfoQuery(int ShopId) : IRequest<ClientsShopInfoResp
 public class GetClientsShopInfoQueryHandler(
     IShopRepository shopRepository,
     IStaffRepository accountRepository,
-    IOptions<AdminRoleOptions> adminOptions) : IRequestHandler<GetClientsShopInfoQuery, ClientsShopInfoResponse>
+    IOptions<AdminRoleOptions> adminOptions,
+    IMapper mapper) : IRequestHandler<GetClientsShopInfoQuery, ClientsShopInfoResponse>
 {
     public async Task<ClientsShopInfoResponse> Handle(GetClientsShopInfoQuery request, CancellationToken cancellationToken)
     {
@@ -33,9 +34,9 @@ public class GetClientsShopInfoQueryHandler(
         var clientsAccount = await accountRepository.GetAsync(getClientAccountByIdSpecification, cancellationToken)
             ?? throw new NotFoundException("Admin account for this shop was not found.");
 
-        var response = shop.Adapt<ClientsShopInfoResponse>();
+        var response = mapper.Map<ClientsShopInfoResponse>(shop);
 
-        clientsAccount.Adapt(response);
+        mapper.Map(clientsAccount, response);
 
         return response;
     }

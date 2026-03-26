@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -17,7 +17,8 @@ public record AddToCartFromFavouritesCommand(
 
 public class AddToCartFromFavouritesCommandHandler(
     ICartService cartService,
-    IFavouriteListItemsService favouriteListItems)
+    IFavouriteListItemsService favouriteListItems,
+    IMapper mapper)
     : IRequestHandler<AddToCartFromFavouritesCommand, AddToCartResponse>
 {
     public async Task<AddToCartResponse> Handle(AddToCartFromFavouritesCommand request, CancellationToken cancellationToken)
@@ -47,7 +48,7 @@ public class AddToCartFromFavouritesCommandHandler(
             Success = true,
             Message = request.isAll ? "Items added to cart." : "Item added to cart.",
             TotalQuantity = cart.Items.Sum(i => i.Quantity),
-            AddedItem = addedLine?.Adapt<CartItemResponse>()
+            AddedItem = addedLine == null ? null : mapper.Map<CartItemResponse>(addedLine)
         };
     }
 }

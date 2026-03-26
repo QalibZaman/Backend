@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -14,7 +14,10 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.Services
 {
-    public class CategoryLevelManagementService(ICategoryRepository categoryRepository, IOptions<LevelOptions> levelOptions) : ICategoryLevelManagementService
+    public class CategoryLevelManagementService(
+        ICategoryRepository categoryRepository,
+        IOptions<LevelOptions> levelOptions,
+        IMapper mapper) : ICategoryLevelManagementService
     {
         private readonly LevelOptions _levelOptions = levelOptions.Value;
         private ICategoryRepository _categoryRepository = categoryRepository;
@@ -74,7 +77,7 @@ namespace NettoRetail.Application.Services
                 .Take(pageModel.PageSize)
                 .ToList();
 
-            var categoryResponses = pagedCategories.Adapt<List<CategoryResponse>>();
+            var categoryResponses = mapper.Map<List<CategoryResponse>>(pagedCategories);
 
             var response = new PaginatedResponse<CategoryResponse>
             {

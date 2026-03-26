@@ -1,4 +1,5 @@
-﻿using Mapster;
+using System.Linq;
+using MapsterMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Models.Order;
@@ -12,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Orders.Queries;
 
 public record GetSearchOptionsQuery(SearchFieldModel Search, int ShopId) : IRequest<ICollection<SearchOrderResponse>>;
 
-public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IRequestHandler<GetSearchOptionsQuery, ICollection<SearchOrderResponse>>
+public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository, IMapper mapper) : IRequestHandler<GetSearchOptionsQuery, ICollection<SearchOrderResponse>>
 {
     public async Task<ICollection<SearchOrderResponse>> Handle(GetSearchOptionsQuery request, CancellationToken cancellationToken)
     {
@@ -49,7 +50,6 @@ public class GetSearchOptionsQueryHandler(IOrderRepository orderRepository) : IR
 
         var spec = builder.Build();
         var results = await orderRepository.GetAllBySpecAsync(spec, cancellationToken);
-        var response = results.Adapt<ICollection<SearchOrderResponse>>();
-        return response;
+        return mapper.Map<ICollection<SearchOrderResponse>>(results ?? Enumerable.Empty<OrderEntity>());
     }
 }

@@ -1,5 +1,6 @@
-﻿using Mapster;
+using MapsterMapper;
 using NettoRetail.Application.Exceptions;
+using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Order;
@@ -8,11 +9,11 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.Services.IOrderService;
 
-public class OrderService(IOrderRepository orderRepository) : IOrderService
+public class OrderService(IOrderRepository orderRepository, IMapper mapper) : IOrderService
 {
     public async Task<PrintOrderDetailsModel> BuildPrintOrderDetailsModelAsync(OrderEntity order)
     {
-        var model = order.Adapt<PrintOrderDetailsModel>();
+        var model = mapper.Map<PrintOrderDetailsModel>(order);
         model.TotalProducts = order.OrderItems.Count;
         model.Subtotal = order.OrderItems.Sum(x => x.Quantity * x.InventoryItem.Price);
         model.TotalSale = order.OrderItems.Sum(x =>

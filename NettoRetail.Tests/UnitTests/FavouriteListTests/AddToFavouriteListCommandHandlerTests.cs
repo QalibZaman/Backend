@@ -1,10 +1,12 @@
-﻿using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.FavouriteListTests
@@ -14,19 +16,21 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
         private readonly IFavouriteListItemRepository _favouriteListItemRepository;
         private readonly IInventoryItemRepository _inventoryItemRepository;
         private readonly IStaffRepository _accountRepository;
+        private readonly IMapper _mapper;
 
         public AddToFavouriteListCommandHandlerTests()
         {
             _favouriteListItemRepository = Substitute.For<IFavouriteListItemRepository>();
             _inventoryItemRepository = Substitute.For<IInventoryItemRepository>();
             _accountRepository = Substitute.For<IStaffRepository>();
+            _mapper = MapperFactory.Create();
         }
 
         [Fact]
         public async Task Handle_ShouldThrowNotFound_WhenInventoryItemDoesNotExist()
         {
             // Arrange
-            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
+            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
             _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -40,7 +44,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
         public async Task Handle_ShouldThrowBadRequest_WhenItemAlreadyInFavourites()
         {
             // Arrange
-            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
+            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
             _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -56,7 +60,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
         public async Task Handle_ShouldAddItem_WhenEverythingIsValid()
         {
             // Arrange
-            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository);
+            var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
             _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())

@@ -1,8 +1,10 @@
-﻿using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
 using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.ICartService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Xunit;
@@ -13,11 +15,13 @@ public class AddToCartFromFavouritesCommandHandlerTests
 {
     private readonly ICartService _cartService;
     private readonly IFavouriteListItemsService _favouriteListItems;
+    private readonly IMapper _mapper;
 
     public AddToCartFromFavouritesCommandHandlerTests()
     {
         _cartService = Substitute.For<ICartService>();
         _favouriteListItems = Substitute.For<IFavouriteListItemsService>();
+        _mapper = MapperFactory.Create();
     }
 
     private static CartEntity CartWith(Guid customerId, Guid itemId, int qty) => new()
@@ -43,7 +47,7 @@ public class AddToCartFromFavouritesCommandHandlerTests
         var itemId = Guid.NewGuid();
         var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems);
+        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems, _mapper);
 
         _favouriteListItems
             .ResolveTargetIdsAsync(
@@ -76,7 +80,7 @@ public class AddToCartFromFavouritesCommandHandlerTests
         var itemId = Guid.NewGuid();
         var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems);
+        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems, _mapper);
 
         _favouriteListItems
             .ResolveTargetIdsAsync(
@@ -105,7 +109,7 @@ public class AddToCartFromFavouritesCommandHandlerTests
         var item2 = Guid.NewGuid();
         var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems);
+        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems, _mapper);
 
         _favouriteListItems
             .ResolveTargetIdsAsync(
@@ -142,7 +146,7 @@ public class AddToCartFromFavouritesCommandHandlerTests
         var itemId = Guid.NewGuid();
         var cancellationToken = new CancellationToken();
 
-        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems);
+        var handler = new AddToCartFromFavouritesCommandHandler(_cartService, _favouriteListItems, _mapper);
 
         _favouriteListItems
             .ResolveTargetIdsAsync(

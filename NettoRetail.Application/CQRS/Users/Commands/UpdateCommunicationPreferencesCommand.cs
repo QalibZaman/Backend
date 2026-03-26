@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Staff;
@@ -8,7 +8,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Users.Commands;
 
 public record UpdateCommunicationPreferencesCommand(Guid UserId, UpdateCommunicationPreferencesRequest Model) : IRequest;
-public class UpdateCommunicationCommandPreferencesHandler(ICommunicationPreferencesRepository communicationPreferencesRepository) : IRequestHandler<UpdateCommunicationPreferencesCommand>
+public class UpdateCommunicationCommandPreferencesHandler(ICommunicationPreferencesRepository communicationPreferencesRepository, IMapper mapper) : IRequestHandler<UpdateCommunicationPreferencesCommand>
 {
     public async Task Handle(UpdateCommunicationPreferencesCommand request, CancellationToken cancellationToken)
     {
@@ -17,7 +17,7 @@ public class UpdateCommunicationCommandPreferencesHandler(ICommunicationPreferen
         var communicationPreferencesToUpdate = await communicationPreferencesRepository.GetAsync(specification, cancellationToken)
             ?? throw new NotFoundException("Preferences not found");
 
-        request.Model.Adapt(communicationPreferencesToUpdate);
+        mapper.Map(request.Model, communicationPreferencesToUpdate);
 
         await communicationPreferencesRepository.UpdateAsync(communicationPreferencesToUpdate, cancellationToken);
     }

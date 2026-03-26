@@ -29,7 +29,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrderProductsAndPayments(int orderId, CancellationToken cancellationToken)
     {
-        var orderCreationCommand = new GetOrderProductsAndPaymentsQuery(orderId);
+        var orderCreationCommand = new GetOrderProductsQuery(orderId);
 
         var data = await mediator.Send(orderCreationCommand, cancellationToken);
         var response = new ApiResponse<OrderProductsResponse>(data);

@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace NettoRetail.API.Controllers.V1
     [ApiController]
     [ApiVersion(1)]
     [Route("api/v{v:ApiVersion}/[controller]")]
-    public class CategoriesController(IMediator mediator) : ControllerBase
+    public class CategoriesController(IMediator mediator, IMapper mapper) : ControllerBase
     {
         [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpGet]
@@ -84,7 +84,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
-            var command = model.Adapt<UpdateCategoryCommand>();
+            var command = mapper.Map<UpdateCategoryCommand>(model);
             var shopId = HttpContext.GetUserShopId();
             command = command with { Id = id, ShopId = shopId };
 

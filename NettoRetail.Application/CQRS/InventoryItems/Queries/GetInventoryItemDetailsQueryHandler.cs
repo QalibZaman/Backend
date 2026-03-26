@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -10,7 +10,8 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Queries;
 public record GetInventoryItemDetailsQuery(Guid Id) : IRequest<IEnumerable<ProductDetailsResponse>>;
 public class GetInventoryItemDetailsQueryHandler(
     IInventoryItemRepository inventoryItemRepository,
-    IProductDetailRepository productDetailRepository)
+    IProductDetailRepository productDetailRepository,
+    IMapper mapper)
     : IRequestHandler<GetInventoryItemDetailsQuery, IEnumerable<ProductDetailsResponse>>
 {
     public async Task<IEnumerable<ProductDetailsResponse>> Handle(GetInventoryItemDetailsQuery request, CancellationToken cancellationToken)
@@ -28,7 +29,7 @@ public class GetInventoryItemDetailsQueryHandler(
 
         var productDetails = await productDetailRepository.GetAllBySpecAsync(detailsSpecification, cancellationToken);
 
-        var response = productDetails.Adapt<IEnumerable<ProductDetailsResponse>>();
+        var response = mapper.Map<IEnumerable<ProductDetailsResponse>>(productDetails);
 
         return response;
     }

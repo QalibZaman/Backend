@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request.Review;
 using NettoRetail.Application.Models.Response;
@@ -9,12 +9,12 @@ namespace NettoRetail.Application.CQRS.Reviews.Queries;
 
 public record GetReviewsQuery(string? ShopName, int? Rating, ReviewStatusEnum? Status, DateRangeFilterEnum DateRange) : IRequest<List<ReviewResponse>>;
 
-public class GetReviewsQueryHandler(IReviewRepository reviewRepository)
+public class GetReviewsQueryHandler(IReviewRepository reviewRepository, IMapper mapper)
     : IRequestHandler<GetReviewsQuery, List<ReviewResponse>>
 {
     public async Task<List<ReviewResponse>> Handle(GetReviewsQuery request, CancellationToken cancellationToken)
     {
         var reviews = await reviewRepository.GetFilteredReviewsAsync(request.ShopName, request.Rating, request.Status, request.DateRange, cancellationToken);
-        return reviews.Select(r => r.Adapt<ReviewResponse>()).ToList();
+        return mapper.Map<List<ReviewResponse>>(reviews);
     }
 }
