@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Roles.Commands;
@@ -13,6 +14,9 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IMapper ma
 {
     public async Task<Unit> Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
+        if (request.Id == RoleConstants.Admin)
+            throw new ConflictException("The admin role cannot be edited.");
+
         var spec = new GetRoleByShopIdSpecification(request.Id, request.ShopId);
         var role = await roleRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Role not found.");

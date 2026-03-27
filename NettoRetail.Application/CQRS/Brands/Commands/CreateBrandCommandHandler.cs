@@ -40,6 +40,16 @@ public class CreateBrandCommandHandler(
             }
         }
 
+        if (request.Model.WebsiteUrl != null)
+        {
+            var getBrandsByWebsiteUrlSpecification = new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl);
+
+            if (await brandRepository.Exists(getBrandsByWebsiteUrlSpecification, cancellationToken))
+            {
+                throw new BadRequestException("Brand's website url must be unque");
+            }
+        }
+
         var containerName = azureBlobStorageOptions.Value.ContainerName;
 
         var brand = mapper.Map<BrandEntity>(request.Model);

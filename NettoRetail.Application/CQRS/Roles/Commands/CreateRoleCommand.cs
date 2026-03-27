@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;

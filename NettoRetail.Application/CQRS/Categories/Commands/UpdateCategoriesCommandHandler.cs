@@ -1,19 +1,21 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.DataAccess.Specifications.Categories;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-
 namespace NettoRetail.Application.CQRS.Categories.Commands
 {
-    public record UpdateCategoryCommands(int Id, string Name, string URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
+    public record UpdateCategoryCommand(int Id, string Name, string? URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
 
     public class UpdateCategoryCommandHandlers(
         ICategoryRepository categoryRepository,
         ICategoryLevelManagementService levelService,
+        ICategoryService categoryService,
         IUnitOfWork unitOfWork,
         IMapper mapper) : IRequestHandler<UpdateCategoryCommand, CategoryResponse>
     {
@@ -23,11 +25,31 @@ namespace NettoRetail.Application.CQRS.Categories.Commands
 
             var category = await categoryRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException($"There is no category with such Id");
 
-            var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, request.URL, request.ShopId);
+            if (request.ParentId == request.Id)
+            {
+                throw new BadRequestException("Category cannot be its own parent.");
+            }
+
+            CategoryEntity? parentCategory = null;
+            if (request.ParentId is int parentId)
+            {
+                parentCategory = await categoryRepository.GetAsync(
+                    new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
+                    cancellationToken);
+
+                if (parentCategory == null)
+                {
+                    throw new NotFoundException("Parent category not found");
+                }
+            }
+
+            var normalizedUrl = categoryService.BuildCategoryUrl(request.Name, request.URL, parentCategory?.URL);
+
+            var getCategoriesByNameOrUrlSpecification = new GetCategoriesByNameOrUrlSpecification(request.Name, normalizedUrl, request.ShopId);
 
             var conflictModel = await categoryRepository.GetAsync(getCategoriesByNameOrUrlSpecification, cancellationToken);
 
-            if (conflictModel != null)
+            if (conflictModel != null && conflictModel.Id != category.Id)
             {
                 throw new ConflictException("Category with such name or url already exists");
             }

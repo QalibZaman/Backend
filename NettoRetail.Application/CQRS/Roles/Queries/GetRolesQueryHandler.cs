@@ -2,10 +2,12 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -31,8 +33,10 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepositor
             {
                 Id = r.Id,
                 Name = r.Name,
-                Description = r.Description,
-                UserCount = r.Accounts.Count(a => a.ShopId == request.ShopId)
+                Description = r.Description ?? string.Empty,
+                UserCount = r.Accounts.Count(a => a.ShopId == request.ShopId),
+                IsEditable = r.Id != RoleConstants.Admin,
+                IsDeletable = r.Id != RoleConstants.Admin
             })
             .ToList();
 
