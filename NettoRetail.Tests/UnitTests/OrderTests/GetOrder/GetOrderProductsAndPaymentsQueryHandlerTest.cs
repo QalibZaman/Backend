@@ -11,7 +11,7 @@ using NettoRetail.Shared.Specifications;
 using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
-namespace NettoRetail.Tests.UnitTests.OrderTests;
+namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder;
 
 public class GetOrderProductsQueryHandlerTest
 {
