@@ -1820,8 +1820,8 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("ZipCode")
                         .HasMaxLength(10)

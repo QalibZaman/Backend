@@ -49,14 +49,19 @@ public class CreateShopCommandHandler(
         await shopValidator.ValidateShopOnCreate(shopValidationModel, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
+        try
+        {
+            var returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
+            accountToUpdate.ShopId = returnedShop.Id;
+            await accountRepository.UpdateAsync(accountToUpdate, cancellationToken);
+            transaction.Commit();
 
-        var returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
-
-        accountToUpdate.ShopId = returnedShop.Id;
-        await accountRepository.UpdateAsync(accountToUpdate, cancellationToken);
-
-        transaction.Commit();
-
-        return mapper.Map<ShopResponse>(returnedShop);
+            return mapper.Map<ShopResponse>(returnedShop);
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            throw new BadRequestException($"Failed to create shop: {ex.Message}");
+        }
     }
 }
