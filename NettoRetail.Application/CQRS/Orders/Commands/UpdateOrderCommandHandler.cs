@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
-using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.Order;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
@@ -18,146 +18,134 @@ public record UpdateOrderCommand(UpdateOrderModel Model, int ShopId, Guid UserId
 
 public class UpdateOrderCommandHandler(
         IOrderRepository orderRepository,
-        ICustomerRepository customerRepository,
         IInventoryItemRepository inventoryItemRepository,
         IUnitOfWork unitOfWork) : IRequestHandler<UpdateOrderCommand>
 {
     public async Task Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
         var specificationBuilder = new SpecificationBuilder<OrderEntity>();
-        var specification = specificationBuilder.Add<GetOrdersByIdSpecification>(request.OrderId).AddInclude(x => x.Include(order => order.OrderItems)).Build();
+        var specification = specificationBuilder.Add<GetOrdersByIdSpecification>(request.OrderId)
+            .AddInclude(x => x.OrderItems)
+            .Build();
 
         var order = await orderRepository.GetAsync(specification, cancellationToken)
-            ?? throw new NotFoundException("There is no such order.");
+            ?? throw new NotFoundException(HandlerConstants.Order.OrderNotFoundMessage);
 
         if (order.OrderStatus == OrderStatusEnum.InProgress)
-            throw new BadRequestException("This order cannot be edited while in 'In Progress' status.");
-
-        var customerSpecification = new GetCustomerByIdSpecification(request.Model.CustomerId);
-        var customerExists = await customerRepository.Exists(customerSpecification, cancellationToken);
-        if (!customerExists)
-            throw new NotFoundException("There is no such customer.");
-
-        var overlap = request.Model.ItemsToUpsert.Keys
-            .Intersect(request.Model.ItemsToDelete)
-            .ToList();
-
-        if (overlap.Any())
-            throw new BadRequestException($"Items cannot be both upserted and deleted: {string.Join(", ", overlap)}");
+            throw new BadRequestException(HandlerConstants.Order.OrderCannotBeEditedMessage);
 
         var inventoryItemIds = request.Model.ItemsToUpsert.Keys
-            .Concat(request.Model.ItemsToDelete)
+            .Concat(request.Model.ItemsToDelete ?? Enumerable.Empty<Guid>())
             .Distinct()
             .ToList();
 
-        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(inventoryItemIds);
-        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsSpecification, cancellationToken)
-            ?? throw new NotFoundException("There are no such items.");
+        var getItemsByIdsAndShopSpecification = new GetInventoryItemsByIdsAndShopSpecification(inventoryItemIds, request.ShopId);
+        var inventoryItems = await inventoryItemRepository.GetManyBySpecAsync(getItemsByIdsAndShopSpecification, cancellationToken)
+            ?? throw new NotFoundException(HandlerConstants.Inventory.InventoryItemsNotFoundMessage);
 
         var inventoryById = inventoryItems.ToDictionary(x => x.Id);
-        var changedItems = new HashSet<InventoryItemEntity>();
+        var itemsToUpdate = new HashSet<InventoryItemEntity>();
+
+        order.DeliveryType = (OrderDeliveryTypeEnum)request.Model.DeliveryType!;
 
         using var transaction = unitOfWork.BeginTransaction();
-
-        try
+        if (request.Model.ItemsToDelete != null)
         {
-            CountOrderInventoryItems(changedItems, request, inventoryById, order);
-
-            if (changedItems.Count > 0)
-                await inventoryItemRepository.UpdateManyAsync(changedItems.ToList(), cancellationToken);
-
-            await orderRepository.UpdateAsync(order, cancellationToken);
-            transaction.Commit();
+            ProcessDeletion(order, request.Model.ItemsToDelete, inventoryById, itemsToUpdate);
         }
-        catch
+
+        ProcessUpserts(order, request.Model.ItemsToUpsert, inventoryById, itemsToUpdate);
+
+        if (itemsToUpdate.Count > 0)
         {
-            transaction.Rollback();
-            throw;
+            await inventoryItemRepository.UpdateManyAsync(itemsToUpdate.ToList(), cancellationToken);
         }
+
+        await orderRepository.UpdateAsync(order, cancellationToken);
+        transaction.Commit();
     }
 
-    private static void ValidateInventoryAmounts(InventoryItemEntity item)
+    private void ProcessUpserts(
+        OrderEntity order,
+        IDictionary<Guid, int> itemsToUpsert,
+        Dictionary<Guid, InventoryItemEntity> inventory,
+        HashSet<InventoryItemEntity> itemsToUpdate)
     {
-        if (item.AvailableAmount < 0)
-            throw new BadRequestException($"Available amount must be non-negative (item {item.Id}).");
-
-        if (item.ReservedAmount < 0)
-            throw new BadRequestException($"Reserved amount must be non-negative (item {item.Id}).");
-
-        if (item.AvailableAmount + item.ReservedAmount > item.OnHandAmount)
-            throw new BadRequestException($"Available + Reserved cannot exceed OnHand (item {item.Id}).");
-    }
-    private static void CountOrderInventoryItems(HashSet<InventoryItemEntity> changedItems, UpdateOrderCommand request, Dictionary<Guid, InventoryItemEntity> inventoryByIds, OrderEntity order)
-    {
-        foreach (var itemToUpsert in request.Model.ItemsToUpsert)
+        foreach (var (itemId, quantity) in itemsToUpsert)
         {
-            var itemId = itemToUpsert.Key;
-            var newQty = itemToUpsert.Value;
-
-            if (newQty < 0)
-                throw new BadRequestException("Quantity must be non-negative.");
-
-            if (!inventoryByIds.TryGetValue(itemId, out var item))
-                throw new NotFoundException($"There is no such inventory item (Id: {itemId}).");
-
-            var existingOrderItem = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId);
-
-            if (existingOrderItem != null && newQty == 0)
+            if (!inventory.TryGetValue(itemId, out var stockItem))
             {
-                item.AvailableAmount += existingOrderItem.Quantity;
-                item.ReservedAmount -= existingOrderItem.Quantity;
-
-                ValidateInventoryAmounts(item);
-                changedItems.Add(item);
-
-                order.OrderItems.Remove(existingOrderItem);
-                continue;
+                throw new NotFoundException(string.Format(HandlerConstants.Inventory.InventoryItemNotFoundMessage, itemId));
             }
 
-            var oldQuantity = existingOrderItem?.Quantity ?? 0;
-            var delta = newQty - oldQuantity;
+            var existingItem = order.OrderItems.FirstOrDefault(oi => oi.ItemId == itemId);
+            int currentQuantity = existingItem?.Quantity ?? 0;
+            int delta = quantity - currentQuantity;
 
-            if (delta > 0 && item.AvailableAmount < delta)
-                throw new BadRequestException($"Not enough stock for item {item.Id}.");
-
-            if (existingOrderItem is null)
+            if (delta > 0 && stockItem.AvailableAmount < delta)
             {
-                if (newQty == 0)
-                    continue;
+                throw new BadRequestException(string.Format(HandlerConstants.Order.InsufficientStockItem, itemId));
+            }
 
-                order.OrderItems.Add(new OrderItemEntity
+            stockItem.AvailableAmount -= delta;
+            stockItem.ReservedAmount += delta;
+            ValidateInventoryAmounts(stockItem);
+
+            itemsToUpdate.Add(stockItem);
+
+            if (existingItem == null)
+            {
+                if (quantity > 0)
                 {
-                    ItemId = itemId,
-                    Quantity = newQty,
-                    OrderId = request.OrderId
-                });
+                    order.OrderItems.Add(new OrderItemEntity { ItemId = itemId, Quantity = quantity, OrderId = order.Id });
+                }
             }
-            else
+            else if (existingItem != null)
             {
-                existingOrderItem.Quantity = newQty;
+                if (quantity == 0)
+                {
+                    order.OrderItems.Remove(existingItem);
+                }
+                else
+                {
+                    existingItem.Quantity = quantity;
+                }
+            }
+        }
+    }
+
+    private void ProcessDeletion(
+        OrderEntity order,
+        IEnumerable<Guid> itemsToDelete,
+        Dictionary<Guid, InventoryItemEntity> inventory,
+        HashSet<InventoryItemEntity> itemsToUpdate)
+    {
+        foreach (var itemId in itemsToDelete)
+        {
+            var itemToRemove = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId)
+                ?? throw new NotFoundException(string.Format(HandlerConstants.Inventory.InventoryItemNotFoundMessage, itemId));
+
+            if (inventory.TryGetValue(itemId, out var stockItem))
+            {
+                stockItem.AvailableAmount += itemToRemove.Quantity;
+                stockItem.ReservedAmount -= itemToRemove.Quantity;
+                ValidateInventoryAmounts(stockItem);
+                itemsToUpdate.Add(stockItem);
             }
 
-            item.AvailableAmount -= delta;
-            item.ReservedAmount += delta;
-
-            ValidateInventoryAmounts(item);
-            changedItems.Add(item);
-        }
-
-        foreach (var itemIdToDelete in request.Model.ItemsToDelete.Distinct())
-        {
-            if (!inventoryByIds.TryGetValue(itemIdToDelete, out var item))
-                throw new NotFoundException($"There is no such inventory item (Id: {itemIdToDelete}).");
-
-            var itemToRemove = order.OrderItems.FirstOrDefault(x => x.ItemId == itemIdToDelete)
-                ?? throw new NotFoundException("One of the inventory items to delete is inaccessible.");
-
-            item.AvailableAmount += itemToRemove.Quantity;
-            item.ReservedAmount -= itemToRemove.Quantity;
-
-            ValidateInventoryAmounts(item);
-            changedItems.Add(item);
             order.OrderItems.Remove(itemToRemove);
         }
+    }
+
+    private void ValidateInventoryAmounts(InventoryItemEntity item)
+    {
+        if (item.AvailableAmount < 0)
+            throw new BadRequestException(string.Format(HandlerConstants.Inventory.AvailableAmountNotEnoughMessage, item.Id));
+
+        if (item.ReservedAmount < 0)
+            throw new BadRequestException(string.Format(HandlerConstants.Inventory.ReservedAmountNotEnoughMessage, item.Id));
+
+        if (item.AvailableAmount + item.ReservedAmount > item.OnHandAmount)
+            throw new BadRequestException(string.Format(HandlerConstants.Inventory.ReservedAvailableCannotExceedOnHand, item.Id));
     }
 }

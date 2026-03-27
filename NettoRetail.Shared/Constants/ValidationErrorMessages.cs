@@ -47,6 +47,18 @@ public static class ValidationErrorMessages
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
     }
 
+    public static class Customer
+    {
+        public const string CustomerNotFoundErrorMessage = "There is no such customer.";
+    }
+
+    public static class Order
+    {
+        public const string ItemGreaterThanZeroErrorMessage = "Item quantity must be greater than 0.";
+        public const string ItemUpsertDeleteConflictErrorMessage = "Items cannot be both upserted and deleted";
+        public const string InvalidDelivery = "The selected delivery type is invalid";
+    }
+
     public static class Payment
     {
         public const string IdNotEmpty = "AccountId cannot be an empty GUID";

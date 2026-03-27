@@ -14,7 +14,7 @@ using NettoRetail.Shared.Specifications;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
-namespace NettoRetail.Tests.UnitTests.OrderTests
+namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
 {
     public class GetOrderDetailsForPrintingQueryHandlerTests
     {
