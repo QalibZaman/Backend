@@ -88,6 +88,7 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             var model = new AddCategoryRequest
             {
                 Name = "Outdoorz",
+                URL = "/outdoorz",
                 ParentId = null,
                 Visibility = true,
             };
