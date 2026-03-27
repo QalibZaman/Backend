@@ -31,7 +31,7 @@ public sealed class ResolveGuestFavouritesQueryHandler(
         }
 
         var spec = new SpecificationBuilder<InventoryItemEntity>()
-            .Add<GetInventoryItemsByIdsAndShop>(request.ProductIds, request.ShopId)
+            .Add<GetInventoryItemsByIdsAndShopSpecification>(request.ProductIds, request.ShopId)
             .AddInclude(x => x.Category)
             .AddInclude(x => x.Images)
             .Build();

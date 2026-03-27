@@ -7,8 +7,6 @@ namespace NettoRetail.DataAccess.Specifications.Inventory;
 /// Filters inventory items by a set of ids within a shop.
 /// Includes are added by the handler via SpecificationBuilder.
 /// </summary>
-public sealed class GetInventoryItemsByIdsAndShop(
+public sealed class GetInventoryItemsByIdsAndShopSpecification(
     IReadOnlyCollection<Guid> ids,
-    int shopId
-) : Specification<InventoryItemEntity>(x => ids.Contains(x.Id) && x.ShopId == shopId)
-{ }
+    int shopId) : Specification<InventoryItemEntity>(x => ids.Contains(x.Id) && x.ShopId == shopId) { }
