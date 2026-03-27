@@ -11,13 +11,13 @@ public class GetTeaserSectionQueryHandler(
     IMapper mapper
 ) : IRequestHandler<GetTeaserSectionQuery, TeaserSectionResponse>
 {
-    public async Task<TeaserSectionResponse?> Handle(GetTeaserSectionQuery request, CancellationToken cancellationToken)
+    public async Task<TeaserSectionResponse> Handle(GetTeaserSectionQuery request, CancellationToken cancellationToken)
     {
         var spec = new GetTeaserSectionByShopIdSpecification(request.ShopId);
         var teaser = await teaserSectionRepository.GetAsync(spec, cancellationToken);
 
         if (teaser == null)
-            return null;
+            throw new KeyNotFoundException($"Teaser section not found for shop {request.ShopId}");
 
         return mapper.Map<TeaserSectionResponse>(teaser);
     }

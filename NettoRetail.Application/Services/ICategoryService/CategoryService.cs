@@ -29,8 +29,11 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         if (!string.IsNullOrWhiteSpace(requestedUrl))
         {
             var normalizedRequested = NormalizePath(requestedUrl);
-            ValidateNormalizedUrl(normalizedRequested, normalizedParent);
-            return normalizedRequested;
+            if (normalizedRequested != null)
+            {
+                ValidateNormalizedUrl(normalizedRequested, normalizedParent);
+                return normalizedRequested;
+            }
         }
 
         var slug = BuildSlug(categoryName);
@@ -47,7 +50,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
         return generated;
     }
 
-    public async Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteCategoryAsync(int id, int shopId, CancellationToken cancellationToken = default)
     {
         var specification = new GetCategoryByIdAndShopIdSpecification(id, shopId);
         specification.AddInclude(c => c.InventoryItems);
@@ -175,6 +178,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
             {
                 throw new BadRequestException("Category URL must start with the parent category path.");
             }
+
             var remainder = url[(parentUrl.Length + 1)..];
             if (remainder.Contains('/', StringComparison.Ordinal))
             {

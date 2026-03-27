@@ -4,13 +4,14 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Category;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Application.Services.ICategoryService;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands;
+
 public record AddCategoryCommand(AddCategoryRequest Model, int ShopId) : IRequest<CategoryResponse>;
 
 public class AddCategoryCommandHandler(
@@ -23,19 +24,18 @@ public class AddCategoryCommandHandler(
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
         var parentCategory = default(CategoryEntity);
-         if (request.Model.ParentId is int parentId)
+        if (request.Model.ParentId is int parentId)
         {
             var parentCategoryExists = await categoryRepository.Exists(
                 new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
                 cancellationToken);
             parentCategory = await categoryRepository.GetAsync(
                 new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
-    cancellationToken);
+                cancellationToken);
             if (!parentCategoryExists)
             {
                 throw new NotFoundException("Parent category not found");
             }
-
         }
 
         var normalizedUrl = categoryService.BuildCategoryUrl(request.Model.Name, null, parentCategory?.URL);
@@ -48,10 +48,7 @@ public class AddCategoryCommandHandler(
             throw new ConflictException("Category with such name or url already exists");
         }
 
-
-
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);
-
         var shopExists = await shopRepository.Exists(shopSpecification, cancellationToken);
 
         if (!shopExists)
@@ -60,10 +57,9 @@ public class AddCategoryCommandHandler(
         }
 
         var category = mapper.Map<CategoryEntity>(request.Model);
-        category.Name = normalizedName;
+        category.Name = request.Model.Name;
         category.URL = normalizedUrl;
         category.ShopId = request.ShopId;
-        category.URL = normalizedUrl;
         await levelService.SetUpCategoryLevel(category, cancellationToken);
 
         var responseModel = await categoryRepository.AddAsync(category, cancellationToken);
@@ -72,5 +68,4 @@ public class AddCategoryCommandHandler(
 
         return response;
     }
-
 }

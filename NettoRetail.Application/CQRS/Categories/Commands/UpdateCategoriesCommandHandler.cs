@@ -8,7 +8,6 @@ using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-using MapsterMapper;
 namespace NettoRetail.Application.CQRS.Categories.Commands
 {
     public record UpdateCategoryCommand(int Id, string Name, string? URL, bool Visibility, int? ParentId, int ShopId) : IRequest<CategoryResponse>;
