@@ -48,6 +48,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.BrandName, src => src.Brand!.Name);
 
+        config.NewConfig<RoleEntity, CreateRoleResponse>()
+            .Map(dest => dest.PermissionIds, src => src.PermissionRoles.Select(pr => pr.PermissionId).ToList());
+
         config.NewConfig<RoleEntity, RoleResponse>()
             .Map(dest => dest.UserCount, src => src.Accounts.Count())
             .Map(dest => dest.IsEditable, src => src.Id != RoleConstants.Admin)

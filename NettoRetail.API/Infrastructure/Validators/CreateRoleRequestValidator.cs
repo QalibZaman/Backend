@@ -9,24 +9,25 @@ namespace NettoRetail.API.Infrastructure.Validators
         public CreateRoleRequestValidator()
         {
             RuleFor(x => x.Name)
-               .NotEmpty().WithMessage("Role name must be provided.")
-               .Length(RoleValidationConstants.NameMinLength, RoleValidationConstants.NameMaxLength)
-               .WithMessage($"Role name must be between {RoleValidationConstants.NameMinLength} and {RoleValidationConstants.NameMaxLength} characters long.")
-               .Matches(RoleValidationConstants.NameRegex)
-               .WithMessage("Role name must only contain Latin letters, digits, '-' and '_' without spaces.");
+               .NotEmpty()
+               .Length(ValidationErrorMessages.Role.NameMinLength, ValidationErrorMessages.Role.NameMaxLength)
+               .WithMessage(ValidationErrorMessages.Role.NameLengthErrorMessage)
+               .Matches(ValidationErrorMessages.Role.NameAllowedCharactersPattern)
+               .WithMessage(ValidationErrorMessages.Role.NameAllowedCharactersRegex);
 
             RuleFor(x => x.Description)
-               .MaximumLength(RoleValidationConstants.DescriptionMaxLength)
-               .WithMessage($"Description must be less than {RoleValidationConstants.DescriptionMaxLength} characters long.")
-               .Matches(RoleValidationConstants.DescriptionRegex)
-               .WithMessage("Description must only contain Latin letters, digits, spaces, and common punctuation.")
-               .Must(d => string.IsNullOrEmpty(d) || d == d.Trim()).WithMessage("Description must not start or end with spaces.");
+               .MaximumLength(ValidationErrorMessages.Role.DescriptionMaxLength).WithMessage(ValidationErrorMessages.Role.DescriptionMaxLengthErrorMessage)
+               .Matches(ValidationErrorMessages.Role.DescriptionAllowedCharactersPattern).WithMessage(ValidationErrorMessages.Role.DescriptionAllowedCharactersRegex)
+               .Must(d => string.IsNullOrEmpty(d) || d == d.Trim()).WithMessage(ValidationErrorMessages.Role.DescriptionTrimErrorMessage);
 
             RuleFor(x => x.PermissionIds)
                 .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("At least one permission must be provided.")
+                .NotNull()
+                .WithMessage(ValidationErrorMessages.Role.PermissionsListNullErrorMessage)
+                .NotEmpty()
+                .WithMessage(ValidationErrorMessages.Role.PermissionsListEmptyErrorMessage)
                 .Must(ids => ids.Distinct().Count() == ids.Length)
-                .WithMessage("PermissionIds must contain unique values.");
+                .WithMessage(ValidationErrorMessages.Role.PermissionListUniqueIdsErrorMessage);
         }
     }
 }
