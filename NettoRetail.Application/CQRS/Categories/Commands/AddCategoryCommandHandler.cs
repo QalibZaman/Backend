@@ -9,7 +9,6 @@ using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Application.Services.ICategoryService;
 
 namespace NettoRetail.Application.CQRS.Categories.Commands;
 
@@ -25,7 +24,7 @@ public class AddCategoryCommandHandler(
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
         var parentCategory = default(CategoryEntity);
-         if (request.Model.ParentId is int parentId)
+        if (request.Model.ParentId is int parentId)
         {
             var parentCategoryExists = await categoryRepository.Exists(
                 new GetCategoryByIdAndShopIdSpecification(parentId, request.ShopId),
@@ -37,7 +36,6 @@ public class AddCategoryCommandHandler(
             {
                 throw new NotFoundException("Parent category not found");
             }
-
         }
 
         var normalizedUrl = categoryService.BuildCategoryUrl(request.Model.Name, null, parentCategory?.URL);
@@ -49,8 +47,6 @@ public class AddCategoryCommandHandler(
         {
             throw new ConflictException("Category with such name or url already exists");
         }
-
-
 
         var shopSpecification = new GetShopByIdSpecification(request.ShopId);
         var shopExists = await shopRepository.Exists(shopSpecification, cancellationToken);
@@ -72,5 +68,4 @@ public class AddCategoryCommandHandler(
 
         return response;
     }
-
 }
