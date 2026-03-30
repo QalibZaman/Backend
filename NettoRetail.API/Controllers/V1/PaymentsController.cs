@@ -61,19 +61,19 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [Authorize]
-        [HttpPut("{id:guid}")]
+        [HttpPut]
         [ProducesResponseType(typeof(ApiResponse<PaymentHistoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 
-        public async Task<IActionResult> EditPayment(Guid id, [FromBody] EditPaymentRequest model, CancellationToken cancellationToken)
+        public async Task<IActionResult> EditPayment([FromBody] EditPaymentRequest model, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
 
-            if (id == Guid.Empty)
+            if (model.StripePaymentMethodId == string.Empty)
                 return BadRequest(new ApiResponse<string>("Invalid payment method ID."));
 
-            var command = new EditPaymentCommand(userId, id, model);
+            var command = new EditPaymentCommand(userId, model);
 
             var result = await mediator.Send(command, cancellationToken);
 
