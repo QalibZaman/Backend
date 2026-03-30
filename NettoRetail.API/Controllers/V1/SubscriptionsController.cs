@@ -43,7 +43,7 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         var userId = HttpContext.GetUserId();
         var shopId = HttpContext.GetUserShopId();
 
-        var command = new ChangeSubscriptionCommand(shopId, userId, request.NewPlan, request.PaymentMethodId);
+        var command = new ChangeSubscriptionCommand(shopId, userId, request);
         await mediator.Send(command);
         return NoContent();
     }

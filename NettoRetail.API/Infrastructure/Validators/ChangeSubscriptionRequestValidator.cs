@@ -7,6 +7,11 @@ public class ChangeSubscriptionRequestValidator : AbstractValidator<ChangeSubscr
 {
     public ChangeSubscriptionRequestValidator()
     {
+        ConfigureRules();
+    }
+
+    private void ConfigureRules()
+    {
         RuleFor(x => x.PaymentMethodId)
             .Must(v => !string.IsNullOrWhiteSpace(v))
                 .WithMessage("Payment method Id is required.");
