@@ -12,13 +12,13 @@ public class ChangeSubscriptionRequestValidator : AbstractValidator<ChangeSubscr
 
     private void ConfigureRules()
     {
-        RuleFor(x => x.PaymentMethodId)
+        RuleFor(x => x.StripePaymentMethodId)
             .Must(v => !string.IsNullOrWhiteSpace(v))
                 .WithMessage("Payment method Id is required.");
 
-        RuleFor(x => x.PaymentMethodId)
+        RuleFor(x => x.StripePaymentMethodId)
             .Matches("^pm_[a-zA-Z0-9]+$")
-            .When(s => !string.IsNullOrWhiteSpace(s.PaymentMethodId))
+            .When(s => !string.IsNullOrWhiteSpace(s.StripePaymentMethodId))
                 .WithMessage("Invalid payment method id format.");
 
         RuleFor(x => x.NewPlan)

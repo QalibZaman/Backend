@@ -80,11 +80,11 @@ public class ChangeSubscriptionCommandValidator : AbstractValidator<ChangeSubscr
         CancellationToken cancellationToken)
     {
         var paymentMethodExists = await _paymentRepository.Exists(
-            new GetPaymentMethodByIdSpecification(command.UserId, command.ChangeSubscriptionRequest.PaymentMethodId), cancellationToken);
+            new GetPaymentMethodByIdSpecification(command.UserId, command.ChangeSubscriptionRequest.StripePaymentMethodId), cancellationToken);
 
         if (!paymentMethodExists)
         {
-            throw new NotFoundException($"Payment Method '{command.ChangeSubscriptionRequest.PaymentMethodId}' not found for the current user.");
+            throw new NotFoundException($"Payment Method '{command.ChangeSubscriptionRequest.StripePaymentMethodId}' not found for the current user.");
         }
     }
 }
