@@ -33,12 +33,10 @@ public class ResetCustomerPasswordCommandHandler(IJwtManager jwtManager,
             ?? throw new NotFoundException("Customer not found.");
 
         var issuedAtSeconds = GetIssuedAtSeconds(token);
-        if (customer.PasswordUpdatedAt.HasValue)
-        {
-            var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
-            if (issuedAtSeconds <= passwordUpdatedAtSeconds)
-                throw new NotFoundException("Invalid token.");
-        }
+
+        var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt).ToUnixTimeSeconds();
+        if (issuedAtSeconds <= passwordUpdatedAtSeconds)
+            throw new NotFoundException("Invalid token.");
 
         var oldhash = customer.PasswordHash;
         if (PasswordHasher.VerifyPassword(request.model.Password, oldhash))

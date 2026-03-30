@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
@@ -19,7 +19,8 @@ public class StaffService(
     IRoleRepository roleRepository,
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
-    ISessionTerminationService sessionTerminationService) : IStaffService
+    ISessionTerminationService sessionTerminationService,
+    IMapper mapper) : IStaffService
 {
     public async Task CreateStaffAsync(StaffCsvModel staffCsvModel, int shopId, CancellationToken cancelletionToken = default)
     {
@@ -34,7 +35,7 @@ public class StaffService(
         var role = await roleRepository.GetAsync(roleSpecification, cancelletionToken)
             ?? throw new NotFoundException("Role not found");
 
-        var account = staffCsvModel.Adapt<StaffEntity>();
+        var account = mapper.Map<StaffEntity>(staffCsvModel);
         account.ShopId = shopId;
         account.RoleId = role.Id;
         account.Status = StaffStatusEnum.CreatePassword;
@@ -61,7 +62,7 @@ public class StaffService(
 
         await UpdateActiveStatusAsync(request, staff, cancellationToken);
 
-        request.Adapt(staff);
+        mapper.Map(request, staff);
     }
 
     public StaffStatusEnum? ParseStaffStatus(string? statusString)
@@ -87,11 +88,9 @@ public class StaffService(
             return;
         }
 
-        if (request.IsActive.Value && staff.Status == StaffStatusEnum.Deactivated)
+        if (request.IsActive.Value)
         {
-            staff.Status = staff.PasswordUpdatedAt == null
-                ? StaffStatusEnum.CreatePassword
-                : StaffStatusEnum.Offline;
+            staff.Status = StaffStatusEnum.Active;
         }
         else if (!request.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
         {
@@ -114,8 +113,6 @@ public class StaffService(
             throw new ConflictException("Another account with this email already exists.");
 
         await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
-
-        staff.Status = StaffStatusEnum.Offline;
     }
 
     private void CheckIfDeactivated(

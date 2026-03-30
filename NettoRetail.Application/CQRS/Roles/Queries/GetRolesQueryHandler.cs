@@ -1,18 +1,19 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Roles.Queries;
 
-public record GetRolesQuery(PaginationRequest Model, int ShopId) : IRequest<PaginatedResponse<RoleResponse>>;
+public record GetRolesQuery(RoleSearchModel Model, int ShopId) : IRequest<PaginatedResponse<RoleResponse>>;
 
 public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepository shopRepository)
     : IRequestHandler<GetRolesQuery, PaginatedResponse<RoleResponse>>
@@ -25,24 +26,17 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepositor
             throw new NotFoundException($"No shop with Id: {request.ShopId}");
         }
 
-        var specificationBuilder = new SpecificationBuilder<RoleEntity>();
-        var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
-        var getSpecification = specificationBuilder
-            .Add<GetRolesByShopIdSpecification>(request.ShopId)
-            .Skip(skip)
-            .Take(request.Model.PageSize)
-            .Build()
-            .AddInclude(r => r.Accounts);
-
-        var (items, totalAmount) = await roleRepository.GetAllPaginatedAsync(getSpecification, cancellationToken);
+        var (items, totalAmount) = await roleRepository.GetAllPaginatedAsync(GetRoleFilterSpecification(request), cancellationToken);
 
         var responseCollection = items
             .Select(r => new RoleResponse
             {
                 Id = r.Id,
                 Name = r.Name,
-                Description = r.Description,
-                UserCount = r.Accounts.Count(a => a.ShopId == request.ShopId)
+                Description = r.Description ?? string.Empty,
+                UserCount = r.Accounts.Count(a => a.ShopId == request.ShopId),
+                IsEditable = r.Id != RoleConstants.Admin,
+                IsDeletable = r.Id != RoleConstants.Admin
             })
             .ToList();
 
@@ -53,5 +47,25 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepositor
         };
 
         return responseModel;
+    }
+
+    private static Specification<RoleEntity> GetRoleFilterSpecification(GetRolesQuery request)
+    {
+        var specificationBuilder = new SpecificationBuilder<RoleEntity>();
+        var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
+
+        if (request.Model.Name is not null)
+        {
+            specificationBuilder
+                .AddCriteria((role) => role.Name.ToLower()
+                    .Contains(request.Model.Name.ToLower()));
+        }
+
+        return specificationBuilder
+            .Add<GetRolesByShopIdSpecification>(request.ShopId)
+            .Skip(skip)
+            .Take(request.Model.PageSize)
+            .AddInclude(r => r.Accounts)
+            .Build();
     }
 }

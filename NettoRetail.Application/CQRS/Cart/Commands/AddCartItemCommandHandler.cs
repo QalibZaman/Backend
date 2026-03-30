@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICartService;
@@ -15,10 +15,12 @@ public class AddItemToCartCommandHandler
     : IRequestHandler<AddItemToCartCommand, AddToCartResponse>
 {
     private readonly ICartService _cartService;
+    private readonly IMapper _mapper;
 
-    public AddItemToCartCommandHandler(ICartService cartService)
+    public AddItemToCartCommandHandler(ICartService cartService, IMapper mapper)
     {
         _cartService = cartService;
+        _mapper = mapper;
     }
 
     public async Task<AddToCartResponse> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
@@ -36,7 +38,7 @@ public class AddItemToCartCommandHandler
             Success = true,
             Message = "Added to bag",
             TotalQuantity = cart.Items.Sum(i => i.Quantity),
-            AddedItem = addedItem.Adapt<CartItemResponse>()
+            AddedItem = _mapper.Map<CartItemResponse>(addedItem)
         };
     }
 }

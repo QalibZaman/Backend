@@ -11,6 +11,9 @@ public interface IJwtManager
     ClaimsPrincipal ValidateResetToken(string resetToken);
     string GenerateTempToken(string userId);
     ClaimsPrincipal ValidateEmailActivation(string emailActivationToken);
+    ClaimsPrincipal ValidatePlatformAdminActivationToken(string activationToken);
+    ClaimsPrincipal ValidatePlatformAdminActivationTokenAllowExpired(string activationToken);
+    ClaimsPrincipal ValidatePlatformAdminResetPasswordToken(string resetToken);
     TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId);
     ClaimsPrincipal ValidateCustomerResetPasswordToken(string customerResetPasswordToken);
 }

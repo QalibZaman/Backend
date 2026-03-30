@@ -27,7 +27,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrderProducts(int orderId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrderProductsAndPayments(int orderId, CancellationToken cancellationToken)
     {
         var orderCreationCommand = new GetOrderProductsQuery(orderId);
 

@@ -1,9 +1,14 @@
-﻿namespace NettoRetail.Application.Models.Request.Category;
+﻿using System.Text.Json.Serialization;
 
-public class AddCategoryRequest
+namespace NettoRetail.Application.Models.Request.Category;
+
+public class AddCategoryRequest : ICategoryUpsertRequest
 {
     public required string Name { get; set; }
-    public required string URL { get; set; }
+
+    [JsonIgnore]
+    public string? URL { get; set; }
+
     public required bool Visibility { get; set; }
     public int? ParentId { get; set; }
 }

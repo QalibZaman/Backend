@@ -89,6 +89,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Created(string.Empty, response);
     }
 
+    /// <summary>
+    ///  Uploads the list of items from the '.csv' file.
+    /// </summary>
+    /// <remarks>
+    ///     The '.csv' file should be in correct format, example of the file content:
+    ///     <code>
+    ///         Product UPC,Product Name,Product Location,Brand,Product Category,Available Amount,Reserved Amount,On-hand Amount,Price,Status,Description
+    ///         123456789012,Wireless Mouse,"Warehouse 3, Aisle 4",Gembird,ElectronicsGadgets,70,10,90,25.99,Available,Ergonomic wireless mouse with adjustable DPI.
+    ///     </code>
+    ///     **Notice these rules:**
+    ///     1. No space after a comma char.
+    ///     2. Values that need comma are enclosed in double quotes.
+    ///     3. Brand and category must exist in the database.
+    /// </remarks>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost("csv-file")]
     public async Task<IActionResult> UploadInventoryItemsList(IFormFile itemsCsvFile, CancellationToken cancellationToken)
@@ -151,7 +165,42 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Returns a paginated list of inventory items for the current shop.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint allows searching, filtering, sorting, and pagination of inventory items.
+    ///
+    /// Search options:
+    /// - Quick search by UPC or product name.
+    /// - Filtering by category, brand, status, price range, and quantity ranges.
+    /// - Sorting by predefined sort options or multiple sorting rules.
+    /// - Pagination using page number and page size.
+    ///
+    /// The shop identifier is automatically resolved from the authenticated user's claims.
+    /// </remarks>
+    /// <param name="model">
+    /// Search and filtering parameters.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Cancellation token for the request.
+    /// </param>
+    /// <returns>
+    /// Returns a paginated list of inventory items.
+    /// </returns>
+    /// <response code="200">
+    /// Successfully returns a paginated list of inventory items.
+    /// </response>
+    /// <response code="401">
+    /// User is not authenticated.
+    /// </response>
+    /// <response code="403">
+    /// User does not have permission to access the shop inventory.
+    /// </response>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemListResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [HttpGet("getInventoryItems")]
     public async Task<IActionResult> GetInventoryItems([FromQuery] InventoryItemsSearchModel model, CancellationToken cancellationToken)
     {
@@ -251,6 +300,7 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -258,10 +308,9 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("parent/toggleLink")]
-    public async Task<IActionResult> ToggleLinkProducts(Guid parentId, [FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleLinkProducts([FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
     {
-        var data = await mediator.Send(new ToggleLinkProductsCommand(parentId, request.ChildId), cancellationToken);
-        var response = new ApiResponse<ToggleLinkProductsResponse>(data);
-        return Ok(response);
+        var data = await mediator.Send(new ToggleLinkProductsCommand(request.ParentId, request.ChildId), cancellationToken);
+        return Ok(data);
     }
 }

@@ -9,6 +9,7 @@
     }
 
     public sealed record CardSnapshot(
+        string StripePaymentMethodId,
         string Brand,
         long ExpMonth,
         long ExpYear,

@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -10,7 +10,10 @@ namespace NettoRetail.Application.CQRS.InventoryItems.Commands;
 
 public record UpsertInventoryItemDetailsCommand(Guid InventoryItemId, int ShopId, UpsertInventoryItemDetailsModel Model) : IRequest;
 
-public class UpsertInventoryItemDetailsCommandHandler(IInventoryItemRepository inventoryItemRepository, IProductDetailRepository productDetailRepository)
+public class UpsertInventoryItemDetailsCommandHandler(
+    IInventoryItemRepository inventoryItemRepository,
+    IProductDetailRepository productDetailRepository,
+    IMapper mapper)
     : IRequestHandler<UpsertInventoryItemDetailsCommand>
 {
     public async Task Handle(UpsertInventoryItemDetailsCommand request, CancellationToken cancellationToken)
@@ -31,7 +34,7 @@ public class UpsertInventoryItemDetailsCommandHandler(IInventoryItemRepository i
 
         foreach (var detail in request.Model.Details)
         {
-            var entity = detail.Adapt<ProductDetailEntity>();
+            var entity = mapper.Map<ProductDetailEntity>(detail);
             entity.InventoryItemId = request.InventoryItemId;
 
             if (detail.Id.HasValue && idsList.Contains(detail.Id.Value))

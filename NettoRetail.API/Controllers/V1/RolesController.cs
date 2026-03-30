@@ -1,5 +1,4 @@
 ﻿using Asp.Versioning;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.Application.CQRS.Roles.Queries;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Roles;
@@ -63,7 +61,7 @@ public class RolesController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<PaginatedResponse<RoleResponse>>>> GetRoles([FromQuery] PaginationRequest model, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<PaginatedResponse<RoleResponse>>>> GetRoles([FromQuery] RoleSearchModel model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
         var query = new GetRolesQuery(model, shopId);
@@ -104,12 +102,8 @@ public class RolesController(IMediator mediator) : ControllerBase
     /// </param>
     /// <param name="cancellationToken">Token used to observe cancellation requests.</param>
     /// <returns>
-    /// Returns <see cref="IActionResult"/> representing the result of the operation.
     /// The method returns NoContent (204) if the role is successfully updated.
     /// </returns>
-    /// <remarks>
-    /// The endpoint requires authorization based on system permissions and shop claim policy.
-    /// </remarks>
     [RequiresAnyPermission(Permissions.SYSTEM_MANAGEMENT, Permissions.ADMINS_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("{roleId:int}")]

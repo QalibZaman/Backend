@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +35,8 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiVersion(1)]
 [Route("/api/v{version:ApiVersion}/[controller]")]
 public class StaffController(
-    IMediator mediator) : ControllerBase
+    IMediator mediator,
+    IMapper mapper) : ControllerBase
 {
     [HttpPost("log-in")]
     public async Task<IActionResult> LogIn([FromBody] LoginModel model)
@@ -339,8 +340,8 @@ public class StaffController(
 
         var query = new GetStaffListQuery(paginationRequest, filteredStaffRequest, shopId);
         var result = await mediator.Send(query, cancellationToken);
-
-        return Ok(result);
+        var response = new ApiResponse<PaginatedResponse<StaffListResponse>>(result);
+        return Ok(response);
     }
 
     [Authorize]
@@ -371,9 +372,9 @@ public class StaffController(
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+        if (userId != id) throw new ForbiddenException("You are not able to change data of another user");
 
-        var command = model.Adapt<UpdatePersonalInformationCommand>();
+        var command = mapper.Map<UpdatePersonalInformationCommand>(model);
         command = command with { Id = id };
 
         await mediator.Send(command, cancellationToken);
@@ -386,7 +387,11 @@ public class StaffController(
     public async Task<IActionResult> UpdateProfileImage([FromRoute] Guid id, IFormFile image, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        if (userId != id) throw new BadRequestException("You are not able to change data of another user");
+        if (userId != id)
+        {
+            await mediator.Send(new GetAccountDetailsByIdQuery(id), cancellationToken);
+            throw new ForbiddenException("You are not able to change data of another user");
+        }
 
         var command = new UpdateProfileImageCommand(id, image);
 
@@ -476,9 +481,21 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
     }
 
-    [HttpPost("activate-by-invitation")]
+    [HttpPost("activate")]
     [AllowAnonymous]
     public async Task<IActionResult> ActivateByInvitation([FromBody] SetPasswordByInvitationRequest model)
+    {
+        return await ActivateByInvitationInternal(model);
+    }
+
+    [HttpPatch("set-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SetPassword([FromBody] SetPasswordByInvitationRequest model)
+    {
+        return await ActivateByInvitationInternal(model);
+    }
+
+    private async Task<IActionResult> ActivateByInvitationInternal(SetPasswordByInvitationRequest model)
     {
         var tokenResponse = await mediator.Send(
             new SetPasswordByInvitationTokenCommand(model));
@@ -496,12 +513,12 @@ public class StaffController(
 
         return Ok(new ApiResponse<TokenResponse>(tokenResponse));
     }
-    [HttpPost("validate-invitation")]
+    [HttpGet("activation-token-validation")]
     [AllowAnonymous]
-    public async Task<IActionResult> ValidateInvitation([FromBody] string Token)
+    public async Task<IActionResult> ActivationTokenValidation([FromQuery] string token)
     {
-        await mediator.Send(new ValidateInvitationTokenCommand(Token));
-        return NoContent();
+        var result = await mediator.Send(new ValidateInvitationTokenCommand(token));
+        return Ok(new ApiResponse<string>(result));
     }
 
     [HttpPost("resend-invitation")]

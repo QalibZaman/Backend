@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NettoRetail.Application.Models.Response.Category;
 
 namespace NettoRetail.Application.Models.Response
 {
@@ -10,8 +6,8 @@ namespace NettoRetail.Application.Models.Response
     {
         public int ShopId { get; set; }
         public bool Visibility { get; set; }
-        public string Preview { get; set; }
-        public string Name { get; set; }
-        public int NumberOfCategories { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public IReadOnlyList<CategorySectionItemResponse> SelectedCategories { get; set; } = [];
+        public int AvailableCategoriesCount { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -12,7 +12,8 @@ namespace NettoRetail.Application.CQRS.Orders.Queries;
 public record GetOrderGeneralInfoQuery(int OrderId) : IRequest<OrderGeneralInfoResponse>;
 
 public class GetOrderGeneralInfoQueryHandler(
-    IOrderRepository orderRepository)
+    IOrderRepository orderRepository,
+    IMapper mapper)
     : IRequestHandler<GetOrderGeneralInfoQuery, OrderGeneralInfoResponse>
 {
     public async Task<OrderGeneralInfoResponse> Handle(GetOrderGeneralInfoQuery request, CancellationToken cancellationToken)
@@ -28,7 +29,7 @@ public class GetOrderGeneralInfoQueryHandler(
         var order = await orderRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("Order can't be found");
 
-        var response = order.Adapt<OrderGeneralInfoResponse>();
+        var response = mapper.Map<OrderGeneralInfoResponse>(order);
 
         return response;
     }

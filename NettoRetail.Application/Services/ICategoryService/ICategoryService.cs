@@ -2,5 +2,6 @@
 
 public interface ICategoryService
 {
-    Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default);
+    string BuildCategoryUrl(string categoryName, string? requestedUrl, string? parentUrl);
+    Task DeleteCategoryAsync(int id, int shopId, CancellationToken cancellationToken = default);
 }

@@ -1,9 +1,11 @@
-﻿using NettoRetail.Application.CQRS.OfferSections.Queries;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.OfferSections.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.OfferSections;
@@ -11,9 +13,11 @@ namespace NettoRetail.Tests.UnitTests.OfferSections;
 public class GetPromotionOffersQueryHandlerTests
 {
     private readonly IOfferRepository _offerRepo;
+    private readonly IMapper _mapper;
     public GetPromotionOffersQueryHandlerTests()
     {
         _offerRepo = Substitute.For<IOfferRepository>();
+        _mapper = MapperFactory.Create();
     }
     private static OfferEntity BuildOffer()
     {
@@ -49,7 +53,7 @@ public class GetPromotionOffersQueryHandlerTests
             .GetManyBySpecAsync(Arg.Any<Specification<OfferEntity>>(), Arg.Any<CancellationToken>())
             .Returns(offers);
 
-        var handler = new GetPromotionOffersQueryHandler(_offerRepo);
+        var handler = new GetPromotionOffersQueryHandler(_offerRepo, _mapper);
         var request = new GetPromotionOffersQuery();
 
         // Act
@@ -67,7 +71,7 @@ public class GetPromotionOffersQueryHandlerTests
             .GetManyBySpecAsync(Arg.Any<Specification<OfferEntity>>(), Arg.Any<CancellationToken>())
             .Returns(Array.Empty<OfferEntity>());
 
-        var handler = new GetPromotionOffersQueryHandler(_offerRepo);
+        var handler = new GetPromotionOffersQueryHandler(_offerRepo, _mapper);
         var request = new GetPromotionOffersQuery();
 
         // Act

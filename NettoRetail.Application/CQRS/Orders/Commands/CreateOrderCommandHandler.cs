@@ -1,8 +1,9 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Account;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
@@ -18,7 +19,8 @@ public class CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
         IInventoryItemRepository inventoryItemRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand, OrderResponse>
+        IUnitOfWork unitOfWork,
+        IMapper mapper) : IRequestHandler<CreateOrderCommand, OrderResponse>
 {
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -31,6 +33,7 @@ public class CreateOrderCommandHandler(
         {
             ReserveInventory(inventoryItems, requestedQuantities);
 
+            var account = await GetCustomerAsync(request.UserId, cancellationToken);
             var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
 
             await inventoryItemRepository.UpdateManyAsync(inventoryItems, cancellationToken);
@@ -113,7 +116,7 @@ public class CreateOrderCommandHandler(
         IReadOnlyDictionary<Guid, int> requestedQuantities,
         CancellationToken cancellationToken)
     {
-        var order = request.Model.Adapt<OrderEntity>();
+        var order = mapper.Map<OrderEntity>(request.Model);
         order.ShopId = request.ShopId;
         order.Creator = $"{customer.FirstName} {customer.LastName}";
 
@@ -122,7 +125,7 @@ public class CreateOrderCommandHandler(
         order.OrderItems = orderItems;
 
         var result = await orderRepository.AddAsync(order, cancellationToken);
-        var data = result.Adapt<OrderResponse>();
+        var data = mapper.Map<OrderResponse>(result);
         data.CustomerEmail = customer.Email;
         data.CustomerFirstName = customer.FirstName;
         data.CustomerLastName = customer.LastName;

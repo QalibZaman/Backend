@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.DataAccess.Specifications.NewProductSection;
@@ -9,7 +9,8 @@ namespace NettoRetail.Application.CQRS.NewProductsSection.Queries;
 public record GetNewProductsSectionByShopIdQuery(int ShopId) : IRequest<GetNewProductsSectionResponse?>;
 
 public class GetNewProductsSectionByShopIdQueryHandler(
-    INewProductsRepository repository)
+    INewProductsRepository repository,
+    IMapper mapper)
     : IRequestHandler<GetNewProductsSectionByShopIdQuery, GetNewProductsSectionResponse?>
 {
     public async Task<GetNewProductsSectionResponse?> Handle(
@@ -21,6 +22,6 @@ public class GetNewProductsSectionByShopIdQueryHandler(
 
         if (entity is null) return null;
 
-        return entity.Adapt<GetNewProductsSectionResponse>();
+        return mapper.Map<GetNewProductsSectionResponse>(entity);
     }
 }

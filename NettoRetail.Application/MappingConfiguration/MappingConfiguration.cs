@@ -8,7 +8,6 @@ using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
-using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
@@ -26,6 +25,11 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<OrderEntity, SearchOrderResponse>()
+            .Map(dest => dest.Email, src => src.Customer.Email)
+            .Map(dest => dest.FullName, src => src.Customer.FullName)
+            .Map(dest => dest.OrderStatus, src => src.OrderStatus);
+
         config.NewConfig<CustomerEntity, CustomerContactInfoResponse>()
             .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.CustomerName, src => src.FirstName + " " + src.LastName)
@@ -44,8 +48,13 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.BrandName, src => src.Brand!.Name);
 
+        config.NewConfig<RoleEntity, CreateRoleResponse>()
+            .Map(dest => dest.PermissionIds, src => src.PermissionRoles.Select(pr => pr.PermissionId).ToList());
+
         config.NewConfig<RoleEntity, RoleResponse>()
-            .Map(dest => dest.UserCount, src => src.Accounts.Count());
+            .Map(dest => dest.UserCount, src => src.Accounts.Count())
+            .Map(dest => dest.IsEditable, src => src.Id != RoleConstants.Admin)
+            .Map(dest => dest.IsDeletable, src => src.Id != RoleConstants.Admin);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
@@ -54,7 +63,10 @@ public class MappingConfiguration : IRegister
         config.NewConfig<StaffEntity, StaffListResponse>()
             .Map(dest => dest.Role, src => src.Role.Name);
 
+        config.NewConfig<StaffEntity, AccountDtoForPdf>();
+
         config.NewConfig<CustomerEntity, CustomerResponse>()
+            .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email);
@@ -71,6 +83,10 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ProductDetailsEntity, ProductDetailsResponse>()
             .Map(dest => dest.Type, src => src.TypeEnum.ToString());
+
+        config.NewConfig<ProductDetailEntity, ProductDetailsResponse>()
+            .Map(dest => dest.Type, src => src.TypeEnum.ToString())
+            .Map(dest => dest.Unit, src => src.Unit.HasValue ? src.Unit.Value.ToString() : null);
 
         config.NewConfig<CustomerEntity, CustomerInfoResponse>()
             .Map(dest => dest.FirstName, src => src.FirstName)
@@ -89,12 +105,12 @@ public class MappingConfiguration : IRegister
             .IgnoreNullValues(true);
 
         config.NewConfig<OrderEntity, OrderListResponse>()
-            .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
-            .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
+            .Map(dest => dest.CustomerName, src => $"{src.Customer.FirstName} {src.Customer.LastName}")
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.CanEditData,
+            .Map(
+                dest => dest.CanEditData,
                 src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
 
         config.NewConfig<UpdateStaffRequest, StaffEntity>()
@@ -118,20 +134,31 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
             .Map(dest => dest.ProductUPC, src => src.InventoryItem.ProductUpc)
             .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
-            .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
-            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice ?? 0.0m)
+            .Map(dest => dest.IsOnSale, src => src.InventoryItem.IsPromoted)
+            .Map(dest => dest.Sale, src => src.InventoryItem.PromotionPrice ?? 0.0m)
             .AfterMapping((src, dest) =>
             {
-                dest.Total = dest.IsPromoted
-                    ? dest.PromotionPrice * dest.Quantity
+                dest.Total = dest.IsOnSale
+                    ? dest.Sale * dest.Quantity
                     : dest.Price * dest.Quantity;
             });
+
+        config.NewConfig<OrderItemEntity, InventoryItemDto>()
+            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
+            .Map(dest => dest.ProductUpc, src => src.InventoryItem.ProductUpc)
+            .Map(dest => dest.AvailableAmount, src => src.InventoryItem.AvailableAmount)
+            .Map(dest => dest.Price, src => src.InventoryItem.Price)
+            .Map(dest => dest.Quantity, src => src.Quantity)
+            .Map(dest => dest.IsPromoted, src => src.InventoryItem.IsPromoted)
+            .Map(dest => dest.PromotionPrice, src => src.InventoryItem.PromotionPrice)
+            .Map(dest => dest.ReservedAmount, src => src.InventoryItem.ReservedAmount)
+            .Map(dest => dest.OnHandAmount, src => src.InventoryItem.OnHandAmount);
 
         config.NewConfig<OrderEntity, PrintOrderDetailsModel>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
             .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
-            .Map(dest => dest.InventoryItems, src => src.OrderItems.Select(model => model.InventoryItem))
+            .Map(dest => dest.InventoryItems, src => src.OrderItems)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
             .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
 
@@ -160,6 +187,9 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
             .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy.FullName);
+
+        config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
+            .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
         config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
@@ -250,14 +280,12 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ShopName, src => src.Account.Shop != null ? src.Account.Shop.Name : null);
 
         config.NewConfig<OrderEntity, OrderProductsResponse>()
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
-            .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.OrderItems, src => src.OrderItems)
             .IgnoreNonMapped(true)
             .AfterMapping((src, dest) =>
             {
                 dest.Subtotal = dest.OrderItems.Sum(i => i.Price * i.Quantity);
-                dest.Sale = dest.OrderItems.Sum(i => i.IsPromoted ? i.PromotionPrice * i.Quantity : 0.0m);
+                dest.Sale = dest.OrderItems.Sum(i => i.IsOnSale ? i.Sale * i.Quantity : 0.0m);
                 dest.Total = dest.OrderItems.Sum(i => i.Total);
             });
 

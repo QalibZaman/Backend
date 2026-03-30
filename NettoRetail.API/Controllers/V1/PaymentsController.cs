@@ -43,16 +43,17 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<PaginatedResponse<PaymentHistoryResponse>>(result));
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AddPayment([FromBody] AddPaymentRequest model, CancellationToken cancellationToken)
         {
+            var shopId = HttpContext.GetUserShopId();
             var userId = HttpContext.GetUserId();
 
-            var command = new AddPaymentCommand(userId, model.PaymentMethodId);
+            var command = new AddPaymentCommand(userId, shopId, model.PaymentMethodId);
 
             await mediator.Send(command, cancellationToken);
 
@@ -97,16 +98,16 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [Authorize]
-        [HttpPut("{paymentMethodId}/set-default")]
+        [HttpPut("{stripePaymentMethodId}/set-default")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeDefaultPayment(string paymentMethodId, CancellationToken cancellationToken)
+        public async Task<IActionResult> ChangeDefaultPayment(string stripePaymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
 
-            var command = new ChangeDefaultPaymentCommand(paymentMethodId, userId);
+            var command = new ChangeDefaultPaymentCommand(stripePaymentMethodId, userId);
 
             await mediator.Send(command, cancellationToken);
 

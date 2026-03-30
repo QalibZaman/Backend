@@ -1,13 +1,14 @@
 using MediatR;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Token;
 using NettoRetail.DataAccess.Specifications.Account;
-using NettoRetail.DataAccess.Specifications.InvitationToken;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -18,13 +19,11 @@ public record ResendInvitationByTokenCommand(string Token):IRequest
 }
 
 public class ResendInvitationByTokenHandler(
-    IInvitationTokenRepository invitationTokenRepo,
     IStaffRepository accountRepo,
-    IInvitationTokenService invitationTokenService,
+    IJwtManager jwtManager,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender,
-    IOptions<FrontendOptions> frontendOptions,
-    IOptions<InvitationOptions> invitationOptions,
+    IOptions<PlatformAdminActivationOptions> activationOptions,
     IUnitOfWork unitOfWork
     ):IRequestHandler<ResendInvitationByTokenCommand>
 {
@@ -32,36 +31,48 @@ public class ResendInvitationByTokenHandler(
     {
         if (string.IsNullOrWhiteSpace(request.Token))
             throw new ConflictException("Your invitation link is invalid or expired.");
-        var oldhash = invitationTokenService.Hash(request.Token);
-        
-        var oldtoken = await invitationTokenRepo
-            .GetByHashAsync(new GetInvitationTokenByHashSpecification(oldhash), cancellationToken)
-            ?? throw new ConflictException("Your invitation link is invalid or expired.");
+
+        ClaimsPrincipal principal;
+        try
+        {
+            principal = jwtManager.ValidatePlatformAdminActivationTokenAllowExpired(request.Token);
+        }
+        catch (BadRequestException)
+        {
+            throw new ConflictException("Your invitation link is invalid or expired.");
+        }
+
+        var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(accountId))
+            throw new ConflictException("Your invitation link is invalid or expired.");
         
         var account = await accountRepo
-            .GetAsync(new GetStaffByIdSpecification(oldtoken.AccountId),cancellationToken)
+            .GetAsync(new GetStaffByIdSpecification(Guid.Parse(accountId)),cancellationToken)
                       ?? throw new NotFoundException("This account no longer exists. Contact your administrator.");
 
-        var rawToken = invitationTokenService.GenerateRawToken();
-        var rawHash = invitationTokenService.Hash(rawToken);
-        var expiresAt = DateTimeOffset.UtcNow.AddHours(invitationOptions.Value.PlatformAdminExpiryHours);
+        if (account.Status == Domain.Enums.StaffStatusEnum.Active)
+            throw new ConflictException("Account is already activated.");
 
-        var newtoken = new InvitationTokenEntity
+        var now = DateTime.UtcNow;
+        var claims = new List<Claim>
         {
-            AccountId = account.Id,
-            TokenHash = rawHash,
-            ExpiresAt = expiresAt
+            new(ClaimTypes.NameIdentifier, account.Id.ToString()),
+            new(AuthClaims.TokenType, AuthTokenTypes.PlatformAdminActivation),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };
+
+        var rawToken = jwtManager.Generate(
+            claims,
+            TimeSpan.FromHours(activationOptions.Value.TokenExpirationHours));
 
         using var tx = unitOfWork.BeginTransaction();
 
-        await invitationTokenRepo.InvalidateAllActiveAsync(newtoken.AccountId, cancellationToken);
-        await invitationTokenRepo.UpdateAsync(newtoken, cancellationToken);
-        
+        account.InvitationTokenIssuedAt = now;
+        await accountRepo.UpdateAsync(account, cancellationToken);
+
         tx.Commit();
 
-        var url = frontendOptions.Value.BaseUrl;
-        var link = $"{url}/set-password?token={rawToken}";
+        var link = string.Format(activationOptions.Value.ActivationLink, Uri.EscapeDataString(rawToken));
 
         var emailModel = await emailBuilderService.BuildPlatformAdminActivationEmailAsync(account.Email, account.FirstName,link);
 

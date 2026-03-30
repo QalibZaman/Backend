@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -9,7 +9,7 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Account;
 
 public record GetCommunicationPreferencesByAccountIdQuery(Guid userId)
     : IRequest<CommunicationPreferencesResponse>;
-public class GetCommunicationPreferencesByAccountIdQueryHandler(ICommunicationPreferencesRepository communicationPreferencesRepository)
+public class GetCommunicationPreferencesByAccountIdQueryHandler(ICommunicationPreferencesRepository communicationPreferencesRepository, IMapper mapper)
     : IRequestHandler<GetCommunicationPreferencesByAccountIdQuery, CommunicationPreferencesResponse>
 {
     public async Task<CommunicationPreferencesResponse> Handle(
@@ -21,7 +21,7 @@ public class GetCommunicationPreferencesByAccountIdQueryHandler(ICommunicationPr
         var returnedPreferences = await communicationPreferencesRepository
             .GetAsync(specification, cancellationToken) ?? throw new NotFoundException("Preferences not found");
 
-        var preferencesResponse = returnedPreferences.Adapt<CommunicationPreferencesResponse>();
+        var preferencesResponse = mapper.Map<CommunicationPreferencesResponse>(returnedPreferences);
 
         return preferencesResponse;
     }

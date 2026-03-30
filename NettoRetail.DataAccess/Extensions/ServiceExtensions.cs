@@ -54,7 +54,6 @@ public static class ServiceExtensions
         });
 
         // Repositories
-        services.AddScoped<IInvitationTokenRepository, InvitationTokenRepository>();
         services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IInventoryItemBannerRepository, InventoryItemBannerRepository>();

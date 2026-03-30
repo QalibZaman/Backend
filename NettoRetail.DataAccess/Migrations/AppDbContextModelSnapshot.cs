@@ -110,7 +110,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime?>("PasswordUpdatedAt")
+                    b.Property<DateTime>("PasswordUpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
@@ -305,6 +306,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoriesSectionOrder")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Level")
                         .HasColumnType("integer");
@@ -963,42 +967,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("ShopId");
 
                     b.ToTable("InventoryItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InvitationTokenEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("InvalidatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<DateTimeOffset?>("UsedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.ToTable("InvitationTokens");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
@@ -2010,6 +1978,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("EncryptedTotpSecret")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("InvitationTokenIssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsOnboardingCompleted")
                         .HasColumnType("boolean");
 
@@ -2218,17 +2189,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("ParentItem");
 
                     b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InvitationTokenEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "StaffEntity")
-                        .WithMany("InvitationTokens")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StaffEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
@@ -2610,8 +2570,6 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
-                    b.Navigation("InvitationTokens");
-
                     b.Navigation("Locks");
 
                     b.Navigation("Reviews");

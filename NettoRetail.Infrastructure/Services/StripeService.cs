@@ -59,11 +59,11 @@ public class StripeService : IStripeService
         return subscription.Id;
     }
 
-    public async Task<bool> PaymentMethodExistsAsync(string paymentMethodId, CancellationToken cancellationToken=default)
+    public async Task<bool> PaymentMethodExistsAsync(string stripePaymentMethodId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var pm = await _paymentMethodService.GetAsync(paymentMethodId, cancellationToken: cancellationToken);
+            var pm = await _paymentMethodService.GetAsync(stripePaymentMethodId, cancellationToken: cancellationToken);
             return true;
         }
         catch (StripeException)
