@@ -1,7 +1,8 @@
 using FluentValidation;
 using NettoRetail.Application.Models.Request.Category;
 
-namespace NettoRetail.API.Infrastructure.Validators
+namespace NettoRetail.API.Infrastructure.Validators;
+public class AddCategoryRequestValidator : AbstractValidator<AddCategoryRequest>
 {
     public AddCategoryRequestValidator()
     {

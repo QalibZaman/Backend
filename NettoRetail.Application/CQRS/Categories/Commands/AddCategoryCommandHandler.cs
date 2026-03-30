@@ -20,7 +20,6 @@ public class AddCategoryCommandHandler(
     ICategoryLevelManagementService levelService,
     ICategoryService categoryService,
     IShopRepository shopRepository,
-     ICategoryService categoryService,
     IMapper mapper) : IRequestHandler<AddCategoryCommand, CategoryResponse>
 {
     public async Task<CategoryResponse> Handle(AddCategoryCommand request, CancellationToken cancellationToken)

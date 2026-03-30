@@ -2,7 +2,9 @@ using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.Request.Category;
 
-namespace NettoRetail.API.Infrastructure.Validators
+namespace NettoRetail.API.Infrastructure.Validators;
+
+public class UpdateCategoryRequestValidator : AbstractValidator<UpdateCategoryRequest>
 {
     public UpdateCategoryRequestValidator()
     {
@@ -63,3 +65,4 @@ namespace NettoRetail.API.Infrastructure.Validators
         return true;
     }
 }
+
