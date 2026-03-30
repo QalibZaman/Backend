@@ -85,7 +85,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditCategory(int id, UpdateCategoryRequest model, CancellationToken cancellationToken)
         {
-            var command = mapper.Map<UpdateCategoryCommand>(model);
+            var command = mapper.Map<UpdateCategoriesCommand>(model);
             var shopId = HttpContext.GetUserShopId();
             command = command with { Id = id, ShopId = shopId };
 
