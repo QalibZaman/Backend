@@ -2,6 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -9,20 +10,24 @@ using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
-public sealed record AddPaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<Unit>;
+public sealed record AddPaymentCommand(Guid AccountId, int ShopId, string PaymentMethodId) : IRequest<Unit>;
 
 public sealed class AddPaymentCommandHandler(
     IStaffRepository accountRepository,
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService,
+    IShopRepository shopRepository,
     IUnitOfWork unitOfWork) : IRequestHandler<AddPaymentCommand, Unit>
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
+        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
+            ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
+
         var account = await accountRepository.GetAsync(
             new GetStaffByIdSpecification(request.AccountId),
             cancellationToken)
-            ?? throw new NotFoundException(string.Format(HandlerConstants.Payment.AccountNotFoundMessage, request.AccountId));
+            ?? throw new NotFoundException(string.Format(HandlerConstants.Account.AccountNotFoundMessage, request.AccountId));
 
         if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
             throw new BadRequestException(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
@@ -39,6 +44,12 @@ public sealed class AddPaymentCommandHandler(
         {
             account.StripeCustomerId = customerId;
             await accountRepository.UpdateAsync(account, cancellationToken);
+        }
+
+        if (!string.Equals(shop.StripeCustomerId, customerId, StringComparison.Ordinal))
+        {
+            shop.StripeCustomerId = customerId;
+            await shopRepository.UpdateAsync(shop, cancellationToken);
         }
 
         var card = await stripePaymentService.AttachAndGetCardAsync(

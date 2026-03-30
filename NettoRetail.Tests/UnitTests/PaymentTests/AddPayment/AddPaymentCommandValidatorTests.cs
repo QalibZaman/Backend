@@ -18,7 +18,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Fail_When_PaymentMethod_Is_Invalid()
     {
-        var model = new AddPaymentCommand(Guid.NewGuid(), "InvalidMethod");
+        var model = new AddPaymentCommand(Guid.NewGuid(), 5, "InvalidMethod");
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.PaymentMethodId)
@@ -30,7 +30,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Pass_When_PaymentMethod_Is_Valid()
     {
-        var model = new AddPaymentCommand(Guid.NewGuid(), "pm_card_mastercard");
+        var model = new AddPaymentCommand(Guid.NewGuid(), 5, "pm_card_mastercard");
         var result = _validator.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.PaymentMethodId);
@@ -41,7 +41,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Fail_When_AccountId_Is_Empty()
     {
-        var model = new AddPaymentCommand(Guid.Empty, "pm_card_mastercard");
+        var model = new AddPaymentCommand(Guid.Empty, 5, "pm_card_mastercard");
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.AccountId)
@@ -53,7 +53,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Pass_When_AccountId_Is_Valid()
     {
-        var model = new AddPaymentCommand(Guid.NewGuid(), "pm_card_mastercard");
+        var model = new AddPaymentCommand(Guid.NewGuid(), 5, "pm_card_mastercard");
         var result = _validator.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.AccountId);
@@ -64,7 +64,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Fail_When_Both_AccountId_And_PaymentMethod_Are_Invalid()
     {
-        var model = new AddPaymentCommand(Guid.Empty, "InvalidMethod");
+        var model = new AddPaymentCommand(Guid.Empty, 5, "InvalidMethod");
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.AccountId)
@@ -79,7 +79,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Pass_When_Both_AccountId_And_PaymentMethod_Are_Valid()
     {
-        var model = new AddPaymentCommand(Guid.NewGuid(), "pm_card_mastercard");
+        var model = new AddPaymentCommand(Guid.NewGuid(), 5, "pm_card_mastercard");
         var result = _validator.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.AccountId);
@@ -91,7 +91,7 @@ public class AddPaymentCommandValidatorTests
     [Fact]
     public void Validator_Should_Fail_When_PaymentMethodId_Is_Empty()
     {
-        var model = new AddPaymentCommand(Guid.NewGuid(), string.Empty);
+        var model = new AddPaymentCommand(Guid.NewGuid(), 5, string.Empty);
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.PaymentMethodId)

@@ -30,7 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="BusinessRules\Subscriptions\" />
       <Folder Include="CQRS\Payments\Queries\" />
       <Folder Include="Models\Request\Feedback\" />
     </ItemGroup>
@@ -39,6 +38,12 @@
       <Content Include="Services\IPdfGenerator\Utilities\Fonts\*.ttf">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="BusinessRules\Subscriptions\**" />
+      <EmbeddedResource Remove="BusinessRules\Subscriptions\**" />
+      <None Remove="BusinessRules\Subscriptions\**" />
     </ItemGroup>
 
     <Target Name="QuestPDF_DoNotIncludeLatoFont_AfterBuild" AfterTargets="Build">

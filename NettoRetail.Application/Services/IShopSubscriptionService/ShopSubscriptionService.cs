@@ -5,7 +5,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Services;
 using Stripe;
 
-namespace NettoRetail.Application.Services;
+namespace NettoRetail.Application.Services.IShopSubscriptionService;
 
 public class ShopSubscriptionService(
     ISubscriptionPlanRepository subscriptionPlanRepository,
@@ -16,13 +16,13 @@ public class ShopSubscriptionService(
     public async Task ChangeSubscriptionAsync(
         ShopEntity shop,
         SubscriptionTypeEnum newPlan,
-        string paymentMethodId,
+        string stripePaymentMethodId,
         CancellationToken cancellationToken)
     {
-        var exist = await stripeService.PaymentMethodExistsAsync(paymentMethodId, cancellationToken);
+        var exist = await stripeService.PaymentMethodExistsAsync(stripePaymentMethodId, cancellationToken);
         if (!exist)
         {
-            throw new BadRequestException("Payment method does not exist.Subscription is not updated.");
+            throw new NotFoundException("Payment method does not exist.Subscription is not updated.");
         }
 
         var plan = await subscriptionPlanRepository
@@ -35,7 +35,7 @@ public class ShopSubscriptionService(
             {
                 shop.StripeCustomerId = await stripeService.CreateCustomerAsync(
                     shop.Email,
-                    paymentMethodId,
+                    stripePaymentMethodId,
                     cancellationToken);
             }
             catch (StripeException e)

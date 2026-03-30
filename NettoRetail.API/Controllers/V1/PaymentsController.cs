@@ -43,16 +43,17 @@ namespace NettoRetail.API.Controllers.V1
             return Ok(new ApiResponse<PaginatedResponse<PaymentHistoryResponse>>(result));
         }
 
-        [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AddPayment([FromBody] AddPaymentRequest model, CancellationToken cancellationToken)
         {
+            var shopId = HttpContext.GetUserShopId();
             var userId = HttpContext.GetUserId();
 
-            var command = new AddPaymentCommand(userId, model.PaymentMethodId);
+            var command = new AddPaymentCommand(userId, shopId, model.PaymentMethodId);
 
             await mediator.Send(command, cancellationToken);
 

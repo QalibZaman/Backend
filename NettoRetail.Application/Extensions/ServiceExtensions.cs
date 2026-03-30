@@ -36,6 +36,7 @@ using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.IRoleService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.Application.Services.IShopValidationService;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;

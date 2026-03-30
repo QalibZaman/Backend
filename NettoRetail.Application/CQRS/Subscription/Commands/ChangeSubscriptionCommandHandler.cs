@@ -2,9 +2,8 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Subscription;
 using NettoRetail.Application.Services;
-using NettoRetail.DataAccess.Specifications.Payment;
+using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.DataAccess.Specifications.Shop;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Subscription.Commands;
@@ -27,7 +26,7 @@ public class ChangeSubscriptionCommandHandler(
         await subscriptionService.ChangeSubscriptionAsync(
             shop,
             request.ChangeSubscriptionRequest.NewPlan,
-            request.ChangeSubscriptionRequest.PaymentMethodId,
+            request.ChangeSubscriptionRequest.StripePaymentMethodId,
             cancellationToken);
 
         return Unit.Value;
