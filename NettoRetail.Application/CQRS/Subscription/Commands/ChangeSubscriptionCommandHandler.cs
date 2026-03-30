@@ -1,7 +1,6 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Subscription;
-using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Shared.Interfaces.Repositories;

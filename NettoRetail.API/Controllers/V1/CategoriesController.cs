@@ -69,8 +69,8 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
         {
-            var shopid = HttpContext.GetUserShopId();
-            await mediator.Send(new DeleteCategoryCommand(id, shopid), cancellationToken);
+            var shopId = HttpContext.GetUserShopId();
+            await mediator.Send(new DeleteCategoryCommand(id, shopId), cancellationToken);
 
             return NoContent();
         }
@@ -137,7 +137,6 @@ namespace NettoRetail.API.Controllers.V1
         }
 
         [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-        [HttpPatch("{shopId:int}/section")]
         [HttpPatch("section")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
