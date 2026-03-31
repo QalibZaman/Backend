@@ -22,6 +22,7 @@ public class ToggleIsActiveStatusCommandHandler(
             throw new BadRequestException("Item supposed to be existed");
 
         item.IsActive = !item.IsActive;
+        item.UpdateStatus();
 
         await inventoryItemRepository.UpdateAsync(item, cancellationToken);
 
