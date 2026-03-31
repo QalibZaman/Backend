@@ -22,7 +22,7 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .NotEmpty().WithMessage("Name is required.")
             .Length(2, 90).WithMessage("Name must be between 2 and 90 characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
-            .Matches(@"^[A-Za-z]+$").WithMessage("Name can only contain Latin characters.");
+            .Matches(@"^[0-9A-Za-z\-'., &\/#\(\)]+$").WithMessage("Name can only contain Latin characters, digits, and common punctuation ('.', ',', '-', '/', '#', '(', ')', '&', ' ').");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
