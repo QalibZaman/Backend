@@ -32,6 +32,7 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .WithMessage("Email must be in a valid format.");
 
         RuleFor(x => x.Url)
+            .NotNull().WithMessage("URL is required.")
             .NotEmpty().WithMessage("\"URL\" cannot be empty.")
             .MaximumLength(255).WithMessage("URL must not exceed 255 characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
