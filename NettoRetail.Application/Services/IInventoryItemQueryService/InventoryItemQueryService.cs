@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using MapsterMapper;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
@@ -44,7 +44,9 @@ public class InventoryItemQueryService(
         CancellationToken ct)
     {
         var builder = new SpecificationBuilder<InventoryItemEntity>()
-            .Add<GetInventoryItemsByShopIdSpecification>(shopId);
+            .Add<GetInventoryItemsByShopIdSpecification>(shopId)
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Brand!);
 
         if (Regex.IsMatch(model.UpcOrName, @"^\d{1,12}$"))
             builder.Add<GetInventoryItemsByPartialUpcSpecification>(model.UpcOrName);
@@ -65,7 +67,9 @@ public class InventoryItemQueryService(
         CancellationToken ct)
     {
         var builder = new SpecificationBuilder<InventoryItemEntity>()
-           .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value);
+           .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value)
+           .AddInclude(x => x.Category)
+           .AddInclude(x => x.Brand!);
         var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
         var spec = builder.Skip(skip).Take(model.PageSize).Build();
 
@@ -93,7 +97,9 @@ public class InventoryItemQueryService(
 
         var specBuilder = new SpecificationBuilder<InventoryItemEntity>();
 
-        specBuilder.AddCriteria(filterSpec.Criteria);
+        specBuilder.AddCriteria(filterSpec.Criteria)
+            .AddInclude(x => x.Category)
+            .AddInclude(x => x.Brand!);
 
         if (filter.SortingOptions is { Count: > 0 })
         {

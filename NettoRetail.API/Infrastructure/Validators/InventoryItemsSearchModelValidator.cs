@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.API.Infrastructure.Validators;
+namespace NettoRetail.API.Infrastructure.Validators;
 
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
@@ -62,7 +62,7 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
 
         RuleFor(x => x.BrandName)
             .MaximumLength(90).WithMessage("Brand name length must be less than 90 characters long.")
-            .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Brand name must only contain letters, digits, '-' and '_'.");
+            .Matches("^[a-zA-Z0-9 _-]*$").WithMessage("Brand name must only contain letters, digits, spaces, '-' and '_'.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {
