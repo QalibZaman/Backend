@@ -35,7 +35,6 @@ public class CreateInventoryItemCommandHandler(
         var response = await AddItemAndDetailsAsync(request, categoryName, brandName, cancellationToken);
 
         transaction.Commit();
-
         return response;
     }
 
@@ -63,13 +62,17 @@ public class CreateInventoryItemCommandHandler(
 
         var productDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
 
-        foreach (var detail in productDetails)
+        if (productDetails is not null)
         {
-            detail.InventoryItemId = inventoryItem.Id;
+            foreach (var detail in productDetails)
+            {
+                detail.InventoryItem = inventoryItem;
+            }
+
+            inventoryItem.ProductDetails = productDetails;
         }
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
-        await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
 
         var response = mapper.Map<InventoryItemResponse>(responseModel);
         response.ProductCategory = categoryName;
