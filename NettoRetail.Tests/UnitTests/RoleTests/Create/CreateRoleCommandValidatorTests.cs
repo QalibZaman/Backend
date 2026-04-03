@@ -45,7 +45,7 @@ public class CreateRoleCommandValidatorTests
         var result = await _validator.TestValidateAsync(command);
         //Assert
         result.ShouldHaveValidationErrorFor(c => c.ShopId)
-            .WithErrorMessage(ValidationErrorMessages.Role.ShopIdRequiredErrorMessage);
+            .WithErrorMessage(ValidationErrorMessages.Shop.ShopIdRequiredErrorMessage);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class CreateRoleCommandValidatorTests
 
         //Assert
         await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage(string.Format(ValidationErrorMessages.Role.ShopDoesntExistErrorMessage, command.ShopId));
+            .WithMessage(string.Format(ValidationErrorMessages.Shop.ShopDoesntExistErrorMessage, command.ShopId));
 
     }
 

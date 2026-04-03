@@ -3,7 +3,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Constants;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Subscriptions.Commands;

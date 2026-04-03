@@ -34,7 +34,7 @@ public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
             .SetValidator(_validator);
 
         RuleFor(x => x.ShopId)
-            .GreaterThan(0).WithMessage(ValidationErrorMessages.Role.ShopIdRequiredErrorMessage)
+            .GreaterThan(0).WithMessage(ValidationErrorMessages.Shop.ShopIdRequiredErrorMessage)
             .CustomAsync(ValidateShopExistence);
 
         RuleFor(x => x)
@@ -48,7 +48,7 @@ public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
     {
         var shopExists = await _shopRepository.Exists(new GetShopByIdSpecification(shopId), cancellationToken);
         if (!shopExists)
-            throw new NotFoundException(string.Format(ValidationErrorMessages.Role.ShopDoesntExistErrorMessage, shopId));
+            throw new NotFoundException(string.Format(ValidationErrorMessages.Shop.ShopDoesntExistErrorMessage, shopId));
     }
 
     private async Task ValidateRoleNameUniqueness(CreateRoleCommand command, ValidationContext<CreateRoleCommand> context, CancellationToken cancellationToken)

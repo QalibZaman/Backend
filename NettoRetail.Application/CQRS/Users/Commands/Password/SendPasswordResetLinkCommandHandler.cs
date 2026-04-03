@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Constants;

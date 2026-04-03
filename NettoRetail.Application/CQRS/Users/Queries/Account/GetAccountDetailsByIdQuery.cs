@@ -4,7 +4,7 @@ using NettoRetail.Application.CQRS.Users.Queries.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Account;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Account;

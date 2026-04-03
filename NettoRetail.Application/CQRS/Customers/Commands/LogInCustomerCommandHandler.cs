@@ -8,7 +8,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services;
 using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;

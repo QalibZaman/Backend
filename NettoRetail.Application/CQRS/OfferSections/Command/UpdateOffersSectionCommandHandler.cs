@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Offer;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Domain.Entities;
