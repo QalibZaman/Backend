@@ -4,7 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;

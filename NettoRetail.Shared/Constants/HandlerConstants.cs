@@ -9,7 +9,6 @@
             public const string OrderCannotBeEditedMessage = "This order cannot be edited while in 'In Progress' status.";
 
             public const string InsufficientStockItem = "Insufficient stock for item {0}.";
-
         }
 
         public static class Inventory
@@ -50,6 +49,11 @@
         public static class Stripe
         {
             public const string StripeCustomerIsNotConfiguredMessage = "Stripe customer is not configured for this account.";
+        }
+
+        public static class Role
+        {
+            public const string RoleNotFoundMessage = "Role with such Id does not exist.";
         }
     }
 }

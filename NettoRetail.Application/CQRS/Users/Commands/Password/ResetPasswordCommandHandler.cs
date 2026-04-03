@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.PasswordHistory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;

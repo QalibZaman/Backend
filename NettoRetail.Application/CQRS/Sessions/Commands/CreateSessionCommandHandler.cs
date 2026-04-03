@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.PermissionRole;
 using NettoRetail.Domain.Entities;

@@ -2,7 +2,7 @@
 using NettoRetail.Application.CQRS.Subscription.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Subscription;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Payment;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.DataAccess.Specifications.SubscriptionPlan;

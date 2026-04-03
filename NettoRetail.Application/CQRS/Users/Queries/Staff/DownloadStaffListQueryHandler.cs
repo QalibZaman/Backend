@@ -3,7 +3,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 

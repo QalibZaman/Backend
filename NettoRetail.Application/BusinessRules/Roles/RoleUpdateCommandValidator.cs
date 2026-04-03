@@ -36,7 +36,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
             .CustomAsync(async (command, context, ct) =>
             {
                 var exists = await roleRepository.Exists(
-                    new GetRoleByShopIdSpecification(
+                    new GetRoleByIdAndShopIdSpecification(
                         command.Id,
                         command.ShopId),
                     ct);
