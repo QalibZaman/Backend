@@ -61,8 +61,9 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
             .MustBeAValidInventoryItemStatus().WithMessage("Invalid status value provided.");
 
         RuleFor(x => x.BrandName)
+            .MinimumLength(2).WithMessage("Brand name must be at least 2 characters long.")
             .MaximumLength(90).WithMessage("Brand name length must be less than 90 characters long.")
-            .Matches("^[a-zA-Z0-9 _-]*$").WithMessage("Brand name must only contain letters, digits, spaces, '-' and '_'.");
+            .Matches(@"^(?=.*[a-zA-Z0-9])[a-zA-Z0-9 _-]+$").WithMessage("Brand name must contain at least one letter or digit, and may only contain letters, digits, spaces, '-' and '_'.");
 
         RuleForEach(x => x.SortingOptions).ChildRules(sorting =>
         {
