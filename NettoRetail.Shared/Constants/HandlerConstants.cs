@@ -51,6 +51,11 @@
             public const string StripeCustomerIsNotConfiguredMessage = "Stripe customer is not configured for this account.";
         }
 
+        public static class Subscription
+        {
+            public const string SubscriptionPlanNotFoundMessage = "Subscription plan not found.";
+        }
+
         public static class Role
         {
             public const string RoleNotFoundMessage = "Role with such Id does not exist.";
