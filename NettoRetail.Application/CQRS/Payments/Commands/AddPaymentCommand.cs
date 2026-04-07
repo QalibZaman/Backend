@@ -30,7 +30,7 @@ public sealed class AddPaymentCommandHandler(
             ?? throw new NotFoundException(string.Format(HandlerConstants.Account.AccountNotFoundMessage, request.AccountId));
 
         if (account.ShopId != request.ShopId)
-            throw new ForbiddenException("You cannot add a payment method for a shop you do not belong to.");
+            throw new ForbiddenException(HandlerConstants.Payment.CannotAddPaymentMethodForAnotherShopMessage);
 
         if (await paymentRepository.ExistsByAccountAndStripePaymentMethodIdAsync(request.AccountId, request.PaymentMethodId, cancellationToken))
             throw new BadRequestException(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);

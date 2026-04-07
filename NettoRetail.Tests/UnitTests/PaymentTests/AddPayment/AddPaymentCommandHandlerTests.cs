@@ -152,7 +152,7 @@ public class AddPaymentCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         await act.Should().ThrowAsync<ForbiddenException>()
-            .WithMessage("You cannot add a payment method for a shop you do not belong to.");
+            .WithMessage(HandlerConstants.Payment.CannotAddPaymentMethodForAnotherShopMessage);
 
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
