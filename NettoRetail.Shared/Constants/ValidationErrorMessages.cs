@@ -95,4 +95,19 @@ public static class ValidationErrorMessages
         public const string TokenNotEmpty = "Token cannot be empty";
         public const string InvalidPaymentMethodIdFormat = "Invalid payment method ID format";
     }
+
+    public static class Subscription
+    {
+        public const string TrimmedAlphanumericRegex = @"^[A-Za-z0-9_-](?:[A-Za-z0-9 _-]*[A-Za-z0-9_-])?$";
+        public const string ConsecutiveSpecialCharsRegex = @"(--|__|-_|_-)";
+
+        public const string NameFormatErrorMessage = "The name can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string NameConsecutiveSpecialCharsErrorMessage = "Name must not contain consecutive special characters: --, __, -_, or _-.";
+        public const string PriceRequiredErrorMessage = "\"Field price\" cannot be empty.";
+        public const string DescriptionFormatErrorMessage = "The description can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string MottoFormatErrorMessage = "The motto can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string FeatureIdsRequiredErrorMessage = "At least one feature must be enabled.";
+        public const string FeatureIdsPositiveErrorMessage = "Feature IDs must be positive integers.";
+        public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
+    }
 }

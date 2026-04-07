@@ -1,8 +1,6 @@
 ﻿using FluentValidation.TestHelper;
-using Microsoft.VisualBasic;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.CQRS.Payments.Commands;
-using NettoRetail.Application.Models.Payments;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Tests.UnitTests.PaymentTests.AddPayment;
