@@ -7,10 +7,12 @@ namespace NettoRetail.API.Infrastructure.Validators;
 public class UpdateProductValidator : AbstractValidator<UpdateProductModel>
 {
     private const int MAX_NUMBER_OF_DETAILS = 20;
+
     public UpdateProductValidator(
         IValidator<GeneralInfoModel> generalInfoValidator,
         IValidator<PriceModel> priceValidator,
-        IValidator<DetailModel> detailValidator)
+        IValidator<DetailModel> detailValidator,
+        IValidator<AvailabilityInfoModel> availabilityInfoValidator)
     {
         RuleFor((model) => model)
             .Must(HasAnyPropToUpdate)
@@ -28,6 +30,7 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductModel>
                 .SetValidator(priceValidator!);
         });
 
+
         When((model) => model.Details is not null, () =>
         {
             RuleFor((model) => model.Details)
@@ -37,12 +40,17 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductModel>
             RuleForEach((model) => model.Details)
                 .SetValidator(detailValidator);
         });
+        When((model) => model.AvailabilityInfo is not null, () =>
+        {
+            RuleFor((model) => model.AvailabilityInfo)
+                .SetValidator(availabilityInfoValidator!);
+        });
     }
 
     private static bool HasAnyPropToUpdate(UpdateProductModel model)
     {
         return model.GeneralInfo is not null ||
-            model.PriceInfo is not null ||
-            model.Details is not null;
+               model.PriceInfo is not null ||
+               model.Details is not null;
     }
 }

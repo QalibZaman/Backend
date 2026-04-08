@@ -7,6 +7,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItems;
+
 public class GetInventoryItemDescriptionQueryHandlerTests
 {
     private readonly IInventoryItemRepository _inventoryRepo;
@@ -27,8 +28,8 @@ public class GetInventoryItemDescriptionQueryHandlerTests
         var entity = CreateTestEntity(itemId, expectedDescription);
 
         _inventoryRepo.GetAsync(
-            Arg.Is<GetInventoryItemByIdSpecification>(s => s.Criteria.Compile().Invoke(entity)),
-            Arg.Any<CancellationToken>())
+                Arg.Is<GetInventoryItemByIdSpecification>(s => s.Criteria.Compile().Invoke(entity)),
+                Arg.Any<CancellationToken>())
             .Returns(entity);
 
         var query = new GetInventoryItemDescriptionQuery(itemId);
@@ -79,8 +80,8 @@ public class GetInventoryItemDescriptionQueryHandlerTests
     {
         // Arrange
         _inventoryRepo.GetAsync(
-            Arg.Any<GetInventoryItemByIdSpecification>(),
-            Arg.Any<CancellationToken>())
+                Arg.Any<GetInventoryItemByIdSpecification>(),
+                Arg.Any<CancellationToken>())
             .Returns((InventoryItemEntity)null!);
 
         var query = new GetInventoryItemDescriptionQuery(Guid.NewGuid());
@@ -96,7 +97,7 @@ public class GetInventoryItemDescriptionQueryHandlerTests
     {
         // Arrange
         var itemId = Guid.NewGuid();
-        var entity = CreateTestEntity(itemId, "   "); 
+        var entity = CreateTestEntity(itemId, "   ");
 
         _inventoryRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(entity);
@@ -105,7 +106,7 @@ public class GetInventoryItemDescriptionQueryHandlerTests
         var result = await _handler.Handle(new GetInventoryItemDescriptionQuery(itemId), CancellationToken.None);
 
         // Assert
-        Assert.Equal("   ", result); 
+        Assert.Equal("   ", result);
     }
 
     [Fact]
@@ -124,7 +125,7 @@ public class GetInventoryItemDescriptionQueryHandlerTests
 
         // Assert
         Assert.Equal(html, result);
-        Assert.Contains("<strong>", result); 
+        Assert.Contains("<strong>", result);
     }
 
     [Fact]
@@ -158,12 +159,12 @@ public class GetInventoryItemDescriptionQueryHandlerTests
             .Returns(async ci =>
             {
                 var ct = ci.ArgAt<CancellationToken>(1);
-                await Task.Delay(1000, ct); 
+                await Task.Delay(1000, ct);
                 return entity;
             });
 
         using var cts = new CancellationTokenSource();
-        cts.CancelAfter(10); 
+        cts.CancelAfter(10);
 
         var query = new GetInventoryItemDescriptionQuery(itemId);
 
@@ -171,7 +172,6 @@ public class GetInventoryItemDescriptionQueryHandlerTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             _handler.Handle(query, cts.Token));
     }
-
 
 
     private static InventoryItemEntity CreateTestEntity(Guid id, string? description = "<p>Default</p>")
@@ -189,6 +189,7 @@ public class GetInventoryItemDescriptionQueryHandlerTests
             Status = InventoryItemStatusEnum.Available,
             AvailableAmount = 10,
             ReservedAmount = 0,
+            IncomingAmount = 3,
             OnHandAmount = 10,
             ProductLocation = "Test Location",
             ShopId = 1,

@@ -11,11 +11,11 @@ using System.Net;
 namespace NettoRetail.Tests.IntegrationTests.OrderTests;
 
 [Collection("Sequential Tests")]
-public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebApplicationFactory>
+public class GetOrderPrintingDetailsHandlerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
 
-    public GetOrderPrintingDetailsHandlerTests (CustomWebApplicationFactory factory)
+    public GetOrderPrintingDetailsHandlerTests(CustomWebApplicationFactory factory)
     {
         var order = BuildTestOrder(9);
 
@@ -46,7 +46,8 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
         Assert.True(response.Content.Headers.ContentType != null);
         Assert.Equal("application/pdf", response.Content.Headers.ContentType.MediaType);
 
-        Assert.True(response.Content.Headers.ContentDisposition != null || response.Headers.Contains("content-disposition"));
+        Assert.True(response.Content.Headers.ContentDisposition != null ||
+                    response.Headers.Contains("content-disposition"));
 
         var bytes = await response.Content.ReadAsByteArrayAsync();
         Assert.NotNull(bytes);
@@ -93,9 +94,11 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
             AvailableAmount = 10,
             ReservedAmount = 1,
             OnHandAmount = 11,
+            IncomingAmount = 3,
             ProductLocation = "loc",
             ShopId = 1,
-            Category = new CategoryEntity { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
+            Category = new CategoryEntity
+                { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
         };
 
         var orderItem = new OrderItemEntity
@@ -107,7 +110,8 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
 
         var statusHistory = new List<OrderStatusHistoryEntity>
         {
-            new OrderStatusHistoryEntity {
+            new OrderStatusHistoryEntity
+            {
                 OrderId = 9,
                 Id = Guid.NewGuid(),
                 UpdatedAt = DateTime.UtcNow,
@@ -142,36 +146,77 @@ public class GetOrderPrintingDetailsHandlerTests  : IClassFixture<CustomWebAppli
         private readonly OrderEntity _order;
         public FakeOrderRepository(OrderEntity order) => _order = order;
 
-        public Task<OrderEntity?> GetOrderForPrinting(Specification<OrderEntity> specification, CancellationToken cancellationToken)
+        public Task<OrderEntity?> GetOrderForPrinting(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken)
         {
             return Task.FromResult<OrderEntity?>(_order);
         }
 
         #region NotImplementedStubs
-        public Task<OrderEntity> AddAsync(OrderEntity model, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<OrderEntity?> GetAsync(Specification<OrderEntity> expression, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<IEnumerable<OrderEntity>> GetManyBySpecAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task<OrderEntity> AddAsync(OrderEntity model, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<OrderEntity?>
+            GetAsync(Specification<OrderEntity> expression, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<IEnumerable<OrderEntity>> GetManyBySpecAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
+
         public Task<int> GetAmountAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task DeleteAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task DeleteAsync(OrderEntity entity, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task DeleteManyBySpecAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<OrderEntity> UpdateAsync(OrderEntity model, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<IEnumerable<OrderEntity>> GetAllAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<IEnumerable<OrderEntity>> GetAllBySpecAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<bool> Exists(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task AddRangeAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task AddBulkAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<int> GetAmountBySpecAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<(ICollection<OrderEntity> Items, int TotalCount)> GetAllPaginatedAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task UpdateBulkAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task UpdateManyAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<OrderEntity> GetWithRelatedDataAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
-        public Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task DeleteAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task DeleteAsync(OrderEntity entity, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task DeleteManyBySpecAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task<OrderEntity> UpdateAsync(OrderEntity model, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<IEnumerable<OrderEntity>> GetAllAsync(CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<IEnumerable<OrderEntity>> GetAllBySpecAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task<bool> Exists(Specification<OrderEntity> specification, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task AddRangeAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task AddBulkAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<int> GetAmountBySpecAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task<(ICollection<OrderEntity> Items, int TotalCount)> GetAllPaginatedAsync(
+            Specification<OrderEntity> specification, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task UpdateBulkAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task UpdateManyAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) =>
+            throw new NotImplementedException();
+
+        public Task<OrderEntity> GetWithRelatedDataAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
+
+        public Task<OrderEntity?> GetOrderWithInventoryItemsAsync(Specification<OrderEntity> specification,
+            CancellationToken cancellationToken) => throw new NotImplementedException();
 
         public Task CommitAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }

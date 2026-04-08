@@ -7,6 +7,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItems;
+
 public class UpdateInventoryItemDescriptionCommandHandlerTests
 {
     private readonly IInventoryItemRepository _inventoryRepo;
@@ -35,7 +36,8 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
 
         // Assert
         await _inventoryRepo.Received(1)
-            .UpdateAsync(Arg.Is<InventoryItemEntity>(x => x.Description == "New updated description"), Arg.Any<CancellationToken>());
+            .UpdateAsync(Arg.Is<InventoryItemEntity>(x => x.Description == "New updated description"),
+                Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -151,10 +153,9 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
 
         // Assert
         await _inventoryRepo.Received(1)
-         .UpdateAsync(
-         Arg.Is<InventoryItemEntity>(x => x.Description == "   New content   "),
-         Arg.Any<CancellationToken>());
-
+            .UpdateAsync(
+                Arg.Is<InventoryItemEntity>(x => x.Description == "   New content   "),
+                Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -189,7 +190,7 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
         _inventoryRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(entity);
 
-        string longDescription = new string('a', 5000); 
+        string longDescription = new string('a', 5000);
         var command = new UpdateInventoryItemDescriptionCommand(id, longDescription);
 
         // Act
@@ -197,7 +198,8 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
 
         // Assert
         await _inventoryRepo.Received(1)
-            .UpdateAsync(Arg.Is<InventoryItemEntity>(x => x.Description == longDescription), Arg.Any<CancellationToken>());
+            .UpdateAsync(Arg.Is<InventoryItemEntity>(x => x.Description == longDescription),
+                Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -235,6 +237,7 @@ public class UpdateInventoryItemDescriptionCommandHandlerTests
             Status = InventoryItemStatusEnum.Available,
             AvailableAmount = 10,
             ReservedAmount = 0,
+            IncomingAmount = 3,
             OnHandAmount = 10,
             ProductLocation = "Test Location",
             ShopId = 1,

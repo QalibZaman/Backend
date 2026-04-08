@@ -50,6 +50,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 Status = InventoryItemStatusEnum.Available,
                 AvailableAmount = 10,
                 ReservedAmount = 5,
+                IncomingAmount = 3,
                 OnHandAmount = 15,
                 ProductLocation = "A1",
                 ShopId = shopId,
@@ -74,7 +75,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var expectedItems = new List<InventoryItemEntity> { CreateItem("Item1", "1234567890") };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)expectedItems, expectedItems.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -88,7 +90,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         {
             var model = new InventoryItemsSearchModel { UpcOrName = "Laptop" };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -109,7 +112,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             var items = new List<InventoryItemEntity> { CreateItem("Item", "123", 15) };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(((ICollection<InventoryItemEntity>)items, items.Count));
 
             // Act
@@ -139,7 +143,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
             var items = new List<InventoryItemEntity> { CreateItem("Item", "111", 5, 5) };
 
             _categoryRepo.GetCategorySubtreeAsync(5, Arg.Any<CancellationToken>()).Returns(Task.FromResult(categories));
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, 1)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -167,7 +172,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("ItemB", "2", 20)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -180,8 +186,9 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         public async Task GetInventoryItemsAsync_ShouldHandleEmptyModel_AndReturnEmptyResult()
         {
             // Arrange
-            var model = new InventoryItemsSearchModel(); 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            var model = new InventoryItemsSearchModel();
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
 
             // Act
@@ -201,7 +208,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
             var model = new InventoryItemsSearchModel { UpcOrName = "   Laptop   " };
             var items = new List<InventoryItemEntity> { CreateItem("Laptop", "321", 100) };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -209,13 +217,15 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
             Assert.Equal(1, result.TotalAmount);
             Assert.Single(result.Items);
         }
+
         [Fact]
         public async Task GetInventoryItemsAsync_ShouldReturnEmpty_WhenRepositoryReturnsEmptyResult()
         {
             // Arrange
             var model = new InventoryItemsSearchModel { UpcOrName = "Phone" };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
 
             // Act
@@ -239,7 +249,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 SortingOptions = null
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -264,7 +275,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             _categoryRepo.GetCategorySubtreeAsync(9, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(new List<CategoryEntity>()));
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -292,7 +304,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("Item3", "3", 30)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, 6)));
 
             // Act
@@ -313,7 +326,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 SortingOptions = new List<SortingOption> { new() { Field = "price", IsDescending = true } }
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -340,7 +354,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("BrandB", "2", 200)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -368,7 +383,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("Filtered2", "22", 40)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -390,7 +406,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("DefaultSorted", "999", 50)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -415,7 +432,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("Sneaker", "2", 90)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             // Act
@@ -444,7 +462,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("ItemB", "2", 70)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             // Act
@@ -477,7 +496,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             _categoryRepo.GetCategorySubtreeAsync(3, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(categories));
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -500,7 +520,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("Phone", "123", 200)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, items.Count)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
@@ -523,7 +544,8 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
                 CreateItem("PartialA", "1", 10)
             };
 
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)items, 5)));
 
             var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);

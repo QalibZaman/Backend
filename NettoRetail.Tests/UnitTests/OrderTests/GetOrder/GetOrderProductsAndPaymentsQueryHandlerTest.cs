@@ -85,6 +85,7 @@ public class GetOrderProductsQueryHandlerTest
             IsActive = true,
             AvailableAmount = 10,
             ReservedAmount = 0,
+            IncomingAmount = 3,
             OnHandAmount = 10,
             ProductLocation = "Shelf A",
             ShopId = 1,
@@ -94,7 +95,8 @@ public class GetOrderProductsQueryHandlerTest
             IsPromoted = true,
             Status = InventoryItemStatusEnum.Available,
             Brand = new BrandEntity { Id = 1, Name = "TestBrand", ShopId = 1 },
-            Category = new CategoryEntity { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
+            Category = new CategoryEntity
+                { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
         };
 
         var orderItem = new OrderItemEntity

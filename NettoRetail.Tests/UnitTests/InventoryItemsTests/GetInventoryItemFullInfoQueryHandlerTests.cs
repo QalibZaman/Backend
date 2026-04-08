@@ -46,6 +46,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
             PromotionPrice = null,
             AvailableAmount = 12,
             ReservedAmount = 0,
+            IncomingAmount = 3,
             OnHandAmount = 12,
             LastUpdatedDate = DateTime.UtcNow,
             IsActive = true,
@@ -64,8 +65,9 @@ public class GetInventoryItemFullInfoQueryHandlerTests
 
     private static List<CategoryEntity> Breadcrumbs() => new()
     {
-        new CategoryEntity { Id = 1,  Name = "Groceries",  Level = 0, ShopId = 1, URL = "groceries",  Visibility = true },
-        new CategoryEntity { Id = 10, Name = "Soft Drinks", Level = 2, ShopId = 1, URL = "soft-drinks", Visibility = true }
+        new CategoryEntity { Id = 1, Name = "Groceries", Level = 0, ShopId = 1, URL = "groceries", Visibility = true },
+        new CategoryEntity
+            { Id = 10, Name = "Soft Drinks", Level = 2, ShopId = 1, URL = "soft-drinks", Visibility = true }
     };
 
     [Fact]
@@ -76,10 +78,10 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         var item = MakeItem(id);
 
         _inventoryRepo.GetAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
-                      .Returns(item);
+            .Returns(item);
 
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
-                     .Returns(Task.FromResult(Breadcrumbs()));
+            .Returns(Task.FromResult(Breadcrumbs()));
 
         var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 
@@ -102,7 +104,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
     {
         // Arrange
         _inventoryRepo.GetAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
-                      .Returns((InventoryItemEntity?)null);
+            .Returns((InventoryItemEntity?)null);
 
         var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 
@@ -123,10 +125,10 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         var item = MakeItem(id);
 
         _inventoryRepo.GetAsync(Arg.Any<GetItemByIdSpecification>(), token)
-                      .Returns(item);
+            .Returns(item);
 
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, token)
-                     .Returns(Task.FromResult(Breadcrumbs()));
+            .Returns(Task.FromResult(Breadcrumbs()));
 
         var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 

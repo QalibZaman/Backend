@@ -42,8 +42,8 @@ public class RecentlyViewedServiceTests
         // Assert
         await _repository.Received(1)
             .AddAsync(Arg.Is<RecentlyViewedProductEntity>(x =>
-                x.AccountId == accountId &&
-                x.InventoryItemId == inventoryItemId),
+                    x.AccountId == accountId &&
+                    x.InventoryItemId == inventoryItemId),
                 _ct);
 
         await _repository.Received(1)
@@ -75,9 +75,9 @@ public class RecentlyViewedServiceTests
         // Assert
         await _repository.Received(1)
             .UpdateAsync(Arg.Is<RecentlyViewedProductEntity>(x =>
-                x.AccountId == accountId &&
-                x.InventoryItemId == inventoryItemId &&
-                x.ViewedAtUtc > originalTime),
+                    x.AccountId == accountId &&
+                    x.InventoryItemId == inventoryItemId &&
+                    x.ViewedAtUtc > originalTime),
                 _ct);
 
         await _repository.Received(1)
@@ -115,8 +115,8 @@ public class RecentlyViewedServiceTests
             .ThrowsAsync(new Exception("DB failure"));
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(
-            () => _service.AddOrUpdateAsync(accountId, inventoryItemId, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<Exception>(() =>
+            _service.AddOrUpdateAsync(accountId, inventoryItemId, CancellationToken.None));
 
         Assert.Equal("DB failure", ex.Message);
     }
@@ -297,16 +297,15 @@ public class RecentlyViewedServiceTests
         // Arrange
         var accountId = Guid.NewGuid();
         var guestItems = new List<MergeRecentlyViewedItem>
-            {
-                new() { InventoryItemId = Guid.NewGuid(), ViewedAtUtc = DateTime.UtcNow }
-            };
+        {
+            new() { InventoryItemId = Guid.NewGuid(), ViewedAtUtc = DateTime.UtcNow }
+        };
 
         _repository.When(x => x.MergeAsync(accountId, Arg.Any<IEnumerable<RecentlyViewedProductEntity>>(), _ct))
             .Throw(new Exception("DB merge error"));
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(
-            () => _service.MergeGuestItemsAsync(accountId, guestItems, _ct));
+        var ex = await Assert.ThrowsAsync<Exception>(() => _service.MergeGuestItemsAsync(accountId, guestItems, _ct));
 
         Assert.Equal("DB merge error", ex.Message);
     }
@@ -319,7 +318,7 @@ public class RecentlyViewedServiceTests
         var now = DateTime.UtcNow;
 
         var list = new List<RecentlyViewedProductEntity>
-{
+        {
             new()
             {
                 AccountId = accountId,
@@ -340,6 +339,7 @@ public class RecentlyViewedServiceTests
                     Status = NettoRetail.Domain.Enums.InventoryItemStatusEnum.Available,
                     AvailableAmount = 1,
                     ReservedAmount = 0,
+                    IncomingAmount = 3,
                     OnHandAmount = 1,
                     ProductLocation = "loc",
                     ShopId = 1
@@ -365,6 +365,7 @@ public class RecentlyViewedServiceTests
                     Status = NettoRetail.Domain.Enums.InventoryItemStatusEnum.Available,
                     AvailableAmount = 1,
                     ReservedAmount = 0,
+                    IncomingAmount = 3,
                     OnHandAmount = 1,
                     ProductLocation = "loc",
                     ShopId = 1
@@ -451,10 +452,12 @@ public class RecentlyViewedServiceTests
 
         // Use reflection to call the private method
         var method = typeof(RecentlyViewedService)
-            .GetMethod("FindExistingAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            .GetMethod("FindExistingAsync",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 
         // Act
-        var result = await (Task<RecentlyViewedProductEntity?>)method.Invoke(_service, new object[] { accountId, itemId, _ct })!;
+        var result =
+            await (Task<RecentlyViewedProductEntity?>)method.Invoke(_service, new object[] { accountId, itemId, _ct })!;
 
         // Assert
         Assert.NotNull(result);
@@ -475,7 +478,8 @@ public class RecentlyViewedServiceTests
         var originalTime = entity.ViewedAtUtc;
 
         var method = typeof(RecentlyViewedService)
-            .GetMethod("UpdateTimestampAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            .GetMethod("UpdateTimestampAsync",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 
         // Act
         await (Task)method.Invoke(_service, new object[] { entity, _ct })!;
@@ -493,7 +497,8 @@ public class RecentlyViewedServiceTests
         var itemId = Guid.NewGuid();
 
         var method = typeof(RecentlyViewedService)
-            .GetMethod("InsertNewAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            .GetMethod("InsertNewAsync",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 
         // Act
         await (Task)method.Invoke(_service, new object[] { accountId, itemId, _ct })!;
@@ -501,9 +506,9 @@ public class RecentlyViewedServiceTests
         // Assert
         await _repository.Received(1)
             .AddAsync(Arg.Is<RecentlyViewedProductEntity>(x =>
-                x.AccountId == accountId &&
-                x.InventoryItemId == itemId &&
-                x.ViewedAtUtc <= DateTime.UtcNow),
+                    x.AccountId == accountId &&
+                    x.InventoryItemId == itemId &&
+                    x.ViewedAtUtc <= DateTime.UtcNow),
                 _ct);
     }
 }
