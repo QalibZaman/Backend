@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -16,7 +17,6 @@ public class CreateInventoryItemCommandHandler(
     IInventoryItemRepository inventoryItemRepository,
     ICategoryRepository categoryRepository,
     IBrandRepository brandRepository,
-    IProductDetailRepository productDetailRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper)
     : IRequestHandler<CreateInventoryItemCommand, InventoryItemResponse>
@@ -60,17 +60,7 @@ public class CreateInventoryItemCommandHandler(
         var inventoryItem = mapper.Map<InventoryItemEntity>(request.Model);
         inventoryItem.ShopId = request.ShopId;
 
-        var productDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
-
-        if (productDetails is not null)
-        {
-            foreach (var detail in productDetails)
-            {
-                detail.InventoryItem = inventoryItem;
-            }
-
-            inventoryItem.ProductDetails = productDetails;
-        }
+        inventoryItem.ProductDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
 
