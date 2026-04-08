@@ -13,6 +13,16 @@ public interface IStaffService
         int shopId,
         CancellationToken token = default);
 
+    Task<StaffEntity> CreateStaffAsync(
+        CreateStaffRequest request,
+        int shopId,
+        CancellationToken token = default);
+
+    Task CreateStaffAsync(
+        IReadOnlyCollection<StaffCsvModel> staffCsvModels,
+        int shopId,
+        CancellationToken token = default);
+
     Task UpdateStaffAsync(
         UpdateStaffRequest request,
         StaffEntity staff,

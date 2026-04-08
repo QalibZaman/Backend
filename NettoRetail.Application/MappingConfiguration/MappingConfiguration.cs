@@ -201,8 +201,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
-            .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
             .Ignore(dest => dest.Role)
+            .Ignore(dest => dest.Status)
             .Ignore(dest => dest.PasswordHash);
 
         config.NewConfig<FeedbackEntity, FeedbackResponse>()

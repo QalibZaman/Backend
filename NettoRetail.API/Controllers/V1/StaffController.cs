@@ -456,14 +456,15 @@ public class StaffController(
         return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadStaffList(IFormFile file, int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> UploadStaffList(IFormFile file, CancellationToken cancellationToken)
     {
-        var command = new UploadStaffListCommand(file, id);
+        var userShopId = HttpContext.GetUserShopId();
+        var command = new UploadStaffListCommand(file, userShopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
