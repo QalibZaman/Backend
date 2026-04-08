@@ -88,4 +88,31 @@ public class GetAllContentBlocksQueryHandlerTests
 
 
     }
+
+    [Fact]
+    public async Task GetAllContents_EmptyContent_IsReturnedAsInvisible()
+    {
+        int shopId = 5;
+        var contents = new List<ContentEntity>
+        {
+            new ContentEntity
+            {
+                Id = 1,
+                ShopId = shopId,
+                Content = "<p><br></p>",
+                IsVisible = true,
+                LastUpdated = DateTime.UtcNow,
+                SectionType = SectionTypeEnum.OurStory,
+                UpdatedBy = "TestUser",
+            }
+        };
+
+        _contentRepository
+            .GetAllBySpecAsync(Arg.Any<GetContentByShopSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(contents);
+
+        var result = await _handler.Handle(new GetAllContentBlocksQuery(shopId), CancellationToken.None);
+
+        Assert.False(result[0].IsVisible);
+    }
 }

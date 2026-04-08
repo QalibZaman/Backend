@@ -1,4 +1,3 @@
-﻿using Ganss.Xss;
 using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
@@ -7,6 +6,7 @@ using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Content;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Contents.Commands;
@@ -20,8 +20,6 @@ public class UpdateContentBySlugCommandHandler(
     IMapper mapper)
     : IRequestHandler<UpdateContentBySlugCommand>
 {
-    private static readonly HtmlSanitizer sanitizer = new();
-
     public async Task Handle(UpdateContentBySlugCommand request, CancellationToken cancellationToken)
     {
         var accountSpecification = new GetStaffByIdSpecification(request.UpdateAuthor);
@@ -29,10 +27,20 @@ public class UpdateContentBySlugCommandHandler(
             ?? throw new BadRequestException("Couldn't find account record with given user identifier");
 
         var slug = ContentSlugParser.ParseContentSlug(request.Slug);
-        if (!string.IsNullOrEmpty(request.Model.Content))
+        request.Model.Content = ContentBlockRules.Sanitize(request.Model.Content);
+
+        if (!ContentBlockRules.HasMeaningfulContent(request.Model.Content))
         {
-            request.Model.Content = sanitizer.Sanitize(request.Model.Content);
+            throw new BadRequestException(ValidationErrorMessages.Content.IsRequired);
         }
+
+        var imageValidationError = ContentBlockRules.ValidateImages(request.Model.Content);
+        if (imageValidationError != null)
+        {
+            throw new BadRequestException(imageValidationError);
+        }
+
+        request.Model.IsVisible = ContentBlockRules.ShouldBeVisible(request.Model.IsVisible, request.Model.Content);
 
         var spec = new GetContentByShopAndSectionSpecification(slug.ShopId, slug.SectionType);
 

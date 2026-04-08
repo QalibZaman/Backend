@@ -20,9 +20,8 @@ public static class ValidationErrorMessages
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
         public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
-        public const string UpcNotEmptyErrorMessage = "Product UPC is required.";
-        public const string UpcMinLengthErrorMessage = "Product UPC must be exactly 12 digits long.";
-        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, ',' and '-'. It cannot start or end with a space.";
+        public const string UpcNotEmpty = "Product UPC is required.";
+        public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
         public const string InvalidPriceScaleMessage = "Price must not have more than 2 decimal places.";
         public const string MaxPriceMaxLengthErrorMessage = "Max price must be greater than or equal to min price.";
         public const string DescriptionRegex = @"^[-a-zA-Z0-9.,!?;:'""()-]+( [a-zA-Z0-9.,!?;:'""()-]+)*$";
@@ -54,6 +53,10 @@ public static class ValidationErrorMessages
         public const string IsRequired = "Content is required.";
         public const string MaxContentLengthMessage = "Content cannot exceed {MaxLength} characters.";
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
+        public const string ImageLimitExceededMessage = "Image limits exceeded. Please remove excess images or check file sizes/formats.";
+        public const string InvalidImageFormatMessage = "Invalid file format.";
+        public const string ImageSizeTooSmallMessage = "File size must be at least 1KB.";
+        public const string ImageSizeTooLargeMessage = "File size exceeds 5MB limit.";
     }
 
     public static class Role
