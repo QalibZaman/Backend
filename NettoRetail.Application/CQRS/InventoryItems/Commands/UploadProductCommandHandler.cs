@@ -58,6 +58,10 @@ public class UpdateProductCommandHandler(
         {
             model.AvailabilityInfo.Adapt(item);
         }
+        if (model.AvailabilityInfo is not null)
+        {
+            model.AvailabilityInfo.Adapt(item);
+        }
 
         if (model.Details is not null)
         {
