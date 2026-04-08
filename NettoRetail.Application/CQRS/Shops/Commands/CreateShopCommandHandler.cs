@@ -51,10 +51,8 @@ public class CreateShopCommandHandler(
         using var transaction = unitOfWork.BeginTransaction();
 
         var returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
-
         accountToUpdate.ShopId = returnedShop.Id;
         await accountRepository.UpdateAsync(accountToUpdate, cancellationToken);
-
         transaction.Commit();
 
         return mapper.Map<ShopResponse>(returnedShop);

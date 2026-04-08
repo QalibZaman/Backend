@@ -27,7 +27,7 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
             .IsUnique();
 
         builder.Property(s => s.Url)
-            .HasMaxLength(50);
+            .HasMaxLength(255);
 
         builder.Property(s => s.Address)
             .HasMaxLength(90);
