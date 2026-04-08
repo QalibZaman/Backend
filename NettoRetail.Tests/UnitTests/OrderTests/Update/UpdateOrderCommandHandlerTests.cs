@@ -21,6 +21,7 @@ public class UpdateOrderCommandHandlerTests
     private readonly IInventoryItemRepository _inventoryItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDbTransaction _transaction;
+
     public UpdateOrderCommandHandlerTests()
     {
         _orderRepository = Substitute.For<IOrderRepository>();
@@ -46,11 +47,11 @@ public class UpdateOrderCommandHandlerTests
         //Assert
         await _orderRepository.Received(1).UpdateAsync(Arg.Any<OrderEntity>(), Arg.Any<CancellationToken>());
 
-        await _inventoryItemRepository.Received(1).UpdateManyAsync(Arg.Any<List<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
+        await _inventoryItemRepository.Received(1)
+            .UpdateManyAsync(Arg.Any<List<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
-        
     }
 
     [Fact]
@@ -70,7 +71,6 @@ public class UpdateOrderCommandHandlerTests
 
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
-
     }
 
     [Fact]
@@ -129,7 +129,8 @@ public class UpdateOrderCommandHandlerTests
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(CreateDefaultOrder(command.Model.CustomerId));
 
-        _inventoryItemRepository.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository
+            .GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity> { stockItem });
 
         //Act
@@ -141,7 +142,6 @@ public class UpdateOrderCommandHandlerTests
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.DidNotReceive().Commit();
-
     }
 
     [Fact]
@@ -155,7 +155,8 @@ public class UpdateOrderCommandHandlerTests
         var stockItem = CreateDefaultInventoryItem(deleteId, shopId);
         stockItem.ReservedAmount = 1;
 
-        _inventoryItemRepository.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository
+            .GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity>() { stockItem });
 
         //Act
@@ -183,7 +184,7 @@ public class UpdateOrderCommandHandlerTests
                 ItemsToDelete = new List<Guid>()
             }, 10, Guid.NewGuid(), 100);
 
-        var order= CreateDefaultOrder(command.Model.CustomerId);
+        var order = CreateDefaultOrder(command.Model.CustomerId);
         order.OrderItems.Add(new OrderItemEntity { ItemId = itemId, Quantity = 4 });
         var stockItem = CreateDefaultInventoryItem(itemId, command.ShopId);
         stockItem.AvailableAmount = 100;
@@ -191,7 +192,8 @@ public class UpdateOrderCommandHandlerTests
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
-        _inventoryItemRepository.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository
+            .GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity> { stockItem });
 
         //Act
@@ -203,8 +205,6 @@ public class UpdateOrderCommandHandlerTests
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
-
-
     }
 
     [Fact]
@@ -213,7 +213,11 @@ public class UpdateOrderCommandHandlerTests
         // Arrange
         var itemId = Guid.NewGuid();
         var command = new UpdateOrderCommand(
-            new UpdateOrderModel { DeliveryType = OrderDeliveryTypeEnum.SelfDelivery, CustomerId = Guid.NewGuid(), ItemsToUpsert = new Dictionary<Guid, int> { { itemId, 0 } } },
+            new UpdateOrderModel
+            {
+                DeliveryType = OrderDeliveryTypeEnum.SelfDelivery, CustomerId = Guid.NewGuid(),
+                ItemsToUpsert = new Dictionary<Guid, int> { { itemId, 0 } }
+            },
             10, Guid.NewGuid(), 100);
 
         var order = CreateDefaultOrder(Guid.NewGuid());
@@ -221,7 +225,8 @@ public class UpdateOrderCommandHandlerTests
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>()).Returns(order);
 
-        _inventoryItemRepository.GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository
+            .GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity> { CreateDefaultInventoryItem(itemId, 10) });
 
         // Act
@@ -257,7 +262,6 @@ public class UpdateOrderCommandHandlerTests
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
-
     }
 
     private UpdateOrderCommand SetupValidUpdateOrder()
@@ -279,7 +283,7 @@ public class UpdateOrderCommandHandlerTests
             ShopId: shopId,
             UserId: userId,
             OrderId: orderId
-            );
+        );
         var order = CreateDefaultOrder(customerId, deleteId);
         var stockItems = new List<InventoryItemEntity>
         {
@@ -298,6 +302,7 @@ public class UpdateOrderCommandHandlerTests
 
         return command;
     }
+
     private OrderEntity CreateDefaultOrder(Guid customerId, Guid? existingItemId = null)
     {
         var order = new OrderEntity
@@ -319,22 +324,26 @@ public class UpdateOrderCommandHandlerTests
                 OrderId = 100
             });
         }
+
         return order;
     }
+
     private InventoryItemEntity CreateDefaultInventoryItem(Guid id, int shopId)
     {
         return new InventoryItemEntity
         {
             Id = id,
             AvailableAmount = 100,
+            IncomingAmount = 3,
             ReservedAmount = 10,
             OnHandAmount = 110,
             ShopId = shopId,
             Description = "description",
             LastUpdatedDate = DateTime.UtcNow,
-            Brand = new BrandEntity { Id = 10, Name = "brand", ShopId = shopId},
+            Brand = new BrandEntity { Id = 10, Name = "brand", ShopId = shopId },
             BrandId = 10,
-            Category = new CategoryEntity { Id = 10, Name = "category", ShopId = shopId, URL = "https://test.com", Visibility = true},
+            Category = new CategoryEntity
+                { Id = 10, Name = "category", ShopId = shopId, URL = "https://test.com", Visibility = true },
             CategoryId = 10,
             Price = 100,
             IsActive = true,
