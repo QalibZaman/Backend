@@ -512,3 +512,4 @@ public class RecentlyViewedServiceTests
                 _ct);
     }
 }
+
