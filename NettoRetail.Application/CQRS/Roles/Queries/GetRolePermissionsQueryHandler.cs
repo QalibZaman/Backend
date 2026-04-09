@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response.Roles;
@@ -9,7 +9,8 @@ using NettoRetail.Shared.Interfaces.Repositories;
 namespace NettoRetail.Application.CQRS.Roles.Queries;
 public record GetRolePermissionQuery(int ShopId) : IRequest<List<GetRolePermissionsResponse>>;
 public class GetRolePermissionsQueryHandler(IRoleRepository roleRepository,
-    IShopRepository shopRepository)
+    IShopRepository shopRepository,
+    IMapper mapper)
     : IRequestHandler<GetRolePermissionQuery, List<GetRolePermissionsResponse>>
 {
     public async Task<List<GetRolePermissionsResponse>> Handle(GetRolePermissionQuery request, CancellationToken cancellationToken)
@@ -22,7 +23,7 @@ public class GetRolePermissionsQueryHandler(IRoleRepository roleRepository,
         var spec = new GetRolesByShopIdSpecification(request.ShopId);
         var roles = await roleRepository.GetRolesWithPermissionsBySpec(spec, cancellationToken);
 
-        var response = roles.Adapt<List<GetRolePermissionsResponse>>();
+        var response = mapper.Map<List<GetRolePermissionsResponse>>(roles);
 
         return response;
     }

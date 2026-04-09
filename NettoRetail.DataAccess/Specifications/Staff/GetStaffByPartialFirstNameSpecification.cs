@@ -2,7 +2,7 @@
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Account;
+namespace NettoRetail.DataAccess.Specifications.Staff;
 
 public class GetStaffByPartialFirstNameSpecification : Specification<StaffEntity>
 {

@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Services.ICartService;
@@ -9,9 +9,10 @@ public record UpdateCartItemQuantityCommand(
         Guid CartItemId,
         int Quantity,
         Guid CustomerId) : IRequest<CartItemResponse>;
-public class UpdateCartItemQuantityCommandHandler(ICartService cartService) : IRequestHandler<UpdateCartItemQuantityCommand, CartItemResponse>
+public class UpdateCartItemQuantityCommandHandler(ICartService cartService, IMapper mapper) : IRequestHandler<UpdateCartItemQuantityCommand, CartItemResponse>
 {
     private readonly ICartService _cartService = cartService;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<CartItemResponse> Handle(UpdateCartItemQuantityCommand request, CancellationToken cancellationToken)
     {
@@ -21,7 +22,7 @@ public class UpdateCartItemQuantityCommandHandler(ICartService cartService) : IR
                     request.Quantity,
                     cancellationToken);
 
-        var response = updatedItem.Adapt<CartItemResponse>();
+        var response = _mapper.Map<CartItemResponse>(updatedItem);
 
         return response;
     }

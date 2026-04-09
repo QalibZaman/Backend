@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Entities;
@@ -10,7 +10,9 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record GetAllPlatformAdminsQuery() : IRequest<List<PlatformAdminResponse>>;
 
-public class GetAllPlatformAdminsQueryHandler(IStaffRepository accountRepo)
+public class GetAllPlatformAdminsQueryHandler(
+    IStaffRepository accountRepo,
+    IMapper mapper)
     : IRequestHandler<GetAllPlatformAdminsQuery, List<PlatformAdminResponse>>
 {
     public async Task<List<PlatformAdminResponse>> Handle(GetAllPlatformAdminsQuery request, CancellationToken cancellationToken)
@@ -26,7 +28,7 @@ public class GetAllPlatformAdminsQueryHandler(IStaffRepository accountRepo)
 
         var accounts = await accountRepo.GetAllBySpecAsync(specification, cancellationToken);
 
-        var response = accounts.Adapt<List<PlatformAdminResponse>>();
+        var response = mapper.Map<List<PlatformAdminResponse>>(accounts);
 
         return response;
     }

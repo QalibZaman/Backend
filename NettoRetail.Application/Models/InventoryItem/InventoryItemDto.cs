@@ -8,6 +8,7 @@
         public string ProductUpc { get; set; } = string.Empty;
         public decimal? PromotionPrice { get; set; }
         public required int AvailableAmount { get; set; }
+        public required int Quantity { get; set; }
         public required int ReservedAmount { get; set; }
         public required int OnHandAmount { get; set; }
     }

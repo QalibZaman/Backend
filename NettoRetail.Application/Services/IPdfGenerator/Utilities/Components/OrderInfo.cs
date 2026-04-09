@@ -73,7 +73,7 @@ internal class OrderInfoComponent(PrintOrderDetailsModel model) : IComponent
 
         Dictionary<string, string> rightColumnContent = new()
         {
-            { "Created", model.CreationDate.ToString("dd.MM.yyyy HH:mm") },
+            { "Created", model.CreationDate.ToString("yyyy-MM-dd HH:mm:ss") },
             { "Delivery type", model.DeliveryType },
             { "Creator", model.Creator }
         };

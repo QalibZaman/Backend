@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
@@ -6,6 +7,7 @@ using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.ShopTests;
@@ -14,6 +16,7 @@ public class InventoryServiceTests
 {
     private readonly Fixture _fixture;
     private readonly IInventoryService _inventoryService;
+    private readonly IMapper _mapper;
 
     public InventoryServiceTests()
     {
@@ -28,6 +31,7 @@ public class InventoryServiceTests
         var categoryRepo = Substitute.For<ICategoryRepository>();
         var brandRepo = Substitute.For<IBrandRepository>();
         var logger = Substitute.For<ILogger<InventoryService>>();
+        _mapper = MapperFactory.Create();
 
         _fixture = new Fixture();
 
@@ -37,7 +41,8 @@ public class InventoryServiceTests
             csvService,
             categoryRepo,
             brandRepo,
-            logger
+            logger,
+            _mapper
         );
     }
 

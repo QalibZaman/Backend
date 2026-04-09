@@ -1,4 +1,7 @@
-﻿using Mapster;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.DependencyInjection;
+using NettoRetail.Application.MappingConfiguration;
 using NettoRetail.Application.CQRS.Customers.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
@@ -18,15 +21,27 @@ public class GetCustomerInfoQueryHandlerTests
         _customerRepository = Substitute.For<ICustomerRepository>();
     }
 
+    private static IMapper CreateMapper()
+    {
+        var config = new TypeAdapterConfig();
+        config.Apply(new MappingConfiguration());
+
+        var services = new ServiceCollection();
+        services.AddSingleton(config);
+        services.AddScoped<IMapper, ServiceMapper>();
+
+        var provider = services.BuildServiceProvider();
+        return provider.GetRequiredService<IMapper>();
+    }
+
     [Fact]
     public async Task Handle_ShouldThrowNotFound_WhenCustomerDoesNotExist()
     {
         // Arrange
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
         var query = new GetCustomerInfoQuery("LOYALTY-404");
 
         _customerRepository
@@ -46,11 +61,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var loyaltyId = "LOYALTY-123";
         var query = new GetCustomerInfoQuery(loyaltyId);
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         var customer = new CustomerEntity
         {
@@ -86,11 +100,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var loyaltyId = "LOYALTY-CT";
         var query = new GetCustomerInfoQuery(loyaltyId);
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
         var cancellationToken = new CancellationToken();
 
         _customerRepository
@@ -138,11 +151,10 @@ public class GetCustomerInfoQueryHandlerTests
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())
             .Returns(customer);
 
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -160,11 +172,10 @@ public class GetCustomerInfoQueryHandlerTests
     {
         // Arrange
         var query = new GetCustomerInfoQuery("LOYALTY-EX");
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         _customerRepository
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())
@@ -180,11 +191,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var loyaltyId = "LOYALTY-SPEC";
         var query = new GetCustomerInfoQuery(loyaltyId);
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         Specification<CustomerEntity>? capturedSpec = null;
 
@@ -246,11 +256,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var loyaltyId = "LOYALTY-INCLUDE";
         var query = new GetCustomerInfoQuery(loyaltyId);
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         Specification<CustomerEntity>? capturedSpec = null;
 
@@ -289,11 +298,10 @@ public class GetCustomerInfoQueryHandlerTests
     public async Task Handle_ShouldThrowNotFound_WhenLoyaltyIdIsEmpty()
     {
         // Arrange
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
         var query = new GetCustomerInfoQuery("");
 
         _customerRepository
@@ -309,11 +317,10 @@ public class GetCustomerInfoQueryHandlerTests
     public async Task Handle_ShouldThrowNotFound_WhenLoyaltyIdIsWhitespace()
     {
         // Arrange
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
         var query = new GetCustomerInfoQuery("   ");
 
         _customerRepository
@@ -332,11 +339,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var accountId = Guid.NewGuid();
         var query = new GetCustomerInfoQuery("OK");
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         var customer = new CustomerEntity
         {
@@ -367,11 +373,10 @@ public class GetCustomerInfoQueryHandlerTests
         // Arrange
         var loyaltyId = "LOYALTY-INCLUDE";
         var query = new GetCustomerInfoQuery("ABC");
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         Specification<CustomerEntity>? capturedSpec = null;
 
@@ -411,11 +416,10 @@ public class GetCustomerInfoQueryHandlerTests
     {
         // Arrange
         var query = new GetCustomerInfoQuery("ABC");
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         var customer = new CustomerEntity
         {
@@ -467,11 +471,10 @@ public class GetCustomerInfoQueryHandlerTests
     {
         // Arrange
         var query = new GetCustomerInfoQuery("VALID-ID");
-        var config = new TypeAdapterConfig();
 
         var handler = new GetCustomerInfoQueryHandler(
             _customerRepository,
-            config);
+            CreateMapper());
 
         _customerRepository
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())

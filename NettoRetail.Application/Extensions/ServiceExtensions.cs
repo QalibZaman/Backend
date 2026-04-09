@@ -4,6 +4,7 @@ using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ICountryCacheService;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IEntityLockService;
+using NettoRetail.Application.Services.IFeedbackService;
 using NettoRetail.Application.Services.IInventoryItemQueryService;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.ILinkService;
@@ -34,6 +36,7 @@ using NettoRetail.Application.Services.IRecentlyViewedService;
 using NettoRetail.Application.Services.IRoleService;
 using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.Application.Services.IShopValidationService;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
@@ -68,8 +71,11 @@ public static class ServiceExtensions
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         //Mapping
+        var typeAdapterConfig = new TypeAdapterConfig();
+        typeAdapterConfig.Apply(new MappingConfiguration.MappingConfiguration());
+        services.AddSingleton(typeAdapterConfig);
+        services.AddScoped<IMapper, ServiceMapper>();
         services.AddMapster();
-        TypeAdapterConfig.GlobalSettings.Apply(new MappingConfiguration.MappingConfiguration());
 
         //Background
         services.AddHostedService<SessionCleanupService>();
@@ -92,13 +98,12 @@ public static class ServiceExtensions
         //Services
         services.AddScoped<IStripePaymentService, StripePaymentService>();
         services.AddScoped<ILinkService, LinkService>();
-        services.AddScoped<IInvitationTokenService, InvitationTokenService>();
-        services.AddSingleton(TypeAdapterConfig.GlobalSettings);
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
         services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
+        services.AddScoped<ICategoriesSectionService, CategoriesSectionService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<ICartCalculatorService, CartCalculatorService>();
         services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
@@ -126,6 +131,7 @@ public static class ServiceExtensions
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
+        services.AddScoped<IFilteredFeedbackService, FilteredFeedbackService>();
         services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
         services.AddScoped<IOrderStatusService, OrderStatusService>();
         services.AddScoped<IRoleService, RoleService>();

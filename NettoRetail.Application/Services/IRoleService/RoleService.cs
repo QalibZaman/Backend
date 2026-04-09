@@ -2,7 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Admin;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;
@@ -18,14 +18,15 @@ namespace NettoRetail.Application.Services.IRoleService
         IPermissionRepository permissionRepository,
         IRoleRepository roleRepository) : IRoleService
     {
-        public bool ArePermissionsEqual(ICollection<PermissionRoleEntity> existingPermissions, ICollection<PermissionRoleEntity> newPermissions)
+        public bool ArePermissionsEqual(ICollection<PermissionRoleEntity> existingPermissions,
+            ICollection<PermissionRoleEntity> newPermissions)
         {
             if (existingPermissions is null || newPermissions is null)
                 return false;
 
             var existingPermissionIds = existingPermissions
-            .Select(pr => pr.PermissionId)
-            .ToHashSet();
+                .Select(pr => pr.PermissionId)
+                .ToHashSet();
 
             return existingPermissionIds.SetEquals(newPermissions.Select(pr => pr.PermissionId));
         }
@@ -58,12 +59,21 @@ namespace NettoRetail.Application.Services.IRoleService
                 .Distinct()
                 .ToList();
 
+            if (permissionTitles.Count == 0)
+                throw new BadRequestException("Selected permissions are invalid.");
+
             var permissionIDs = await permissionRepository.GetIdsBySpecAsync(
                 new GetPermissionsByTitlesSpecification(permissionTitles), cancellationToken);
 
+            if (permissionIDs.Count() == 0)
+                throw new BadRequestException("Selected permissions are invalid.");
+
             var spec = new GetRoleByExactPermissionsSpecification(permissionIDs);
             var existingRoles = await roleRepository.GetAllBySpecAsync(spec, cancellationToken);
-            var existingRole = existingRoles?.FirstOrDefault();
+            var existingRole = existingRoles?
+                .FirstOrDefault(role =>
+                    role.Name.StartsWith(PlatformAdminConstants.PlatformAdminPrefix,
+                        StringComparison.OrdinalIgnoreCase));
 
             if (existingRole != null)
                 return existingRole;
@@ -82,3 +92,4 @@ namespace NettoRetail.Application.Services.IRoleService
         }
     }
 }
+

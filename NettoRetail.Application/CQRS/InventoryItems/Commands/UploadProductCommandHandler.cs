@@ -1,4 +1,4 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
@@ -20,7 +20,8 @@ public class UpdateProductCommandHandler(
     ICategoryRepository categoryRepository,
     IBrandRepository brandRepository,
     IProductDetailRepository productDetailRepository,
-    IUnitOfWork unitOfWork) : IRequestHandler<UpdateProductCommand>
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : IRequestHandler<UpdateProductCommand>
 {
     public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
@@ -39,14 +40,14 @@ public class UpdateProductCommandHandler(
         {
             await ValidateGeneralInfoAsync(model.GeneralInfo, shopId, cancellationToken);
 
-            model.GeneralInfo.Adapt(item);
+            mapper.Map(model.GeneralInfo, item);
         }
 
         if (model.PriceInfo is not null)
         {
             ValidatePrice(model.PriceInfo, item);
 
-            model.PriceInfo.Adapt(item);
+            mapper.Map(model.PriceInfo, item);
         }
 
         if (model.Details is not null)
@@ -95,7 +96,7 @@ public class UpdateProductCommandHandler(
             {
                 var sourceModel = modelsToUpdate.First(m => m.Id == entity.Id);
 
-                sourceModel.Adapt(entity);
+                mapper.Map(sourceModel, entity);
             }
 
             await productDetailRepository.UpdateDetailsAsync(entitiesToUpdate, cancellationToken);

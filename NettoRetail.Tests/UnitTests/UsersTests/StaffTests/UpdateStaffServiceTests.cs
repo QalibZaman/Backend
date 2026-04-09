@@ -1,13 +1,15 @@
-﻿using NettoRetail.Application.Exceptions;
+﻿using MapsterMapper;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
@@ -20,6 +22,7 @@ public class UpdateStaffServiceTests
     private readonly IEmailBuilderService _emailBuilderService;
     private readonly IEmailSender _emailSender;
     private readonly ISessionTerminationService _sessionTerminationService;
+    private readonly IMapper _mapper;
 
     public UpdateStaffServiceTests()
     {
@@ -28,7 +31,14 @@ public class UpdateStaffServiceTests
         _emailBuilderService = Substitute.For<IEmailBuilderService>();
         _emailSender = Substitute.For<IEmailSender>();
         _sessionTerminationService = Substitute.For<ISessionTerminationService>();
-        _staffService = new StaffService(_accountRepository, _roleRepository, _emailSender, _emailBuilderService, _sessionTerminationService);
+        _mapper = MapperFactory.Create();
+        _staffService = new StaffService(
+            _accountRepository,
+            _roleRepository,
+            _emailSender,
+            _emailBuilderService,
+            _sessionTerminationService,
+            _mapper);
 
     }
 

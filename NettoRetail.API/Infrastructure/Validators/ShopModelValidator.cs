@@ -1,13 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
-using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Shop;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
 public class ShopModelValidator : AbstractValidator<ShopModel>
 {
+    private static readonly string[] ReservedUrls = { "/admin", "/login", "/cart", "/checkout", "/api", "/account", "/settings" };
+
     public ShopModelValidator()
     {
         RuleFor(x => x.PhoneNumber)
@@ -22,7 +23,7 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .NotEmpty().WithMessage("Name is required.")
             .Length(2, 90).WithMessage("Name must be between 2 and 90 characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
-            .Matches(@"^[A-Za-z]+$").WithMessage("Name can only contain Latin characters.");
+            .Matches(@"^[0-9A-Za-z\-'., &\/#\(\)]+$").WithMessage("Name can only contain Latin characters, digits, and common punctuation ('.', ',', '-', '/', '#', '(', ')', '&', ' ').");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -31,14 +32,16 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .WithMessage("Email must be in a valid format.");
 
         RuleFor(x => x.Url)
+            .NotNull().WithMessage("URL is required.")
             .NotEmpty().WithMessage("\"URL\" cannot be empty.")
-            .Length(3, 255).WithMessage("URL must be between 3 and 255 characters long.")
+            .MaximumLength(255).WithMessage("URL must not exceed 255 characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
-            .MustBeAValidUrl().WithMessage("Website URL must be a valid URL including protocol (e.g., https://)");
+            .Must(x => IsValidHierarchicalUrl(x)).WithMessage("URL must correspond to the hierarchical structure: /{parent-slug}/{category-slug}, where each slug portion must be at least 3 characters.")
+            .Must(x => !IsReservedUrl(x)).WithMessage("URL cannot use reserved paths: /admin, /login, /cart, /checkout, /api, /account, /settings.");
 
         RuleFor(x => x.Address)
             .Length(5, 90).WithMessage("Address must be between 5 and 90 characters.")
-            .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("Address can only contain Latin characters, numbers, and special characters.")
+            .Matches(@"^[A-Za-z0-9\s\-,.;:&'""@#+*]+$").WithMessage("Address can only contain Latin characters, numbers, and special characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
             .When(x => !x.Address.IsNullOrEmpty());
 
@@ -50,7 +53,7 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
 
         RuleFor(x => x.State)
             .Length(2, 50).WithMessage("State must be between 2 and 50 characters.")
-            .Matches(@"^[A-Za-z0-9\s\-,.]+$").WithMessage("State can only contain Latin characters, numbers, spaces, and special characters.")
+            .Matches(@"^[A-Za-z0-9\s\-,.;:&'""@#+*]+$").WithMessage("State can only contain Latin characters, numbers, and special characters.")
             .Must(x => x.Trim() == x).WithMessage("No leading or trailing spaces are allowed.")
             .When(x => !x.State.IsNullOrEmpty());
 
@@ -61,5 +64,48 @@ public class ShopModelValidator : AbstractValidator<ShopModel>
             .Must((description) => !Regex.IsMatch(description, @"<[^>]+>"))
             .WithMessage("Invalid description. Please check format or length.")
             .When(x => !x.Description.IsNullOrEmpty());
+    }
+
+    /// <summary>
+    /// Validates that the URL follows the hierarchical structure: /{parent-slug}/{category-slug}
+    /// Each slug portion must be at least 3 characters long.
+    /// </summary>
+    private static bool IsValidHierarchicalUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return false;
+
+        // URL must start with /
+        if (!url.StartsWith("/"))
+            return false;
+
+        // Split by / and filter empty parts
+        var parts = url.Split(new[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+        // Must have exactly 2 parts (parent-slug and category-slug)
+        if (parts.Length != 2)
+            return false;
+
+        // Each part must be at least 3 characters
+        if (parts[0].Length < 3 || parts[1].Length < 3)
+            return false;
+
+        // Each part should only contain alphanumeric characters and hyphens
+        var slugPattern = @"^[a-z0-9-]+$";
+        foreach (var part in parts)
+        {
+            if (!Regex.IsMatch(part, slugPattern, RegexOptions.IgnoreCase))
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if the URL is in the reserved URLs list.
+    /// </summary>
+    private static bool IsReservedUrl(string url)
+    {
+        return ReservedUrls.Any(reserved => url.Equals(reserved, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -2,7 +2,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -46,13 +46,9 @@ public class LogoutCommandHandler(
             await blacklistTokenService.BlacklistTokenAsync(refreshToken, refreshTokenExpiresAt, cancellationToken);
 
             var accountSpecification = new GetStaffByIdSpecification(request.UserId);
-            var account = await accountRepository.GetAsync(accountSpecification, cancellationToken);
+            var account = await accountRepository.GetAsync(accountSpecification, cancellationToken) ?? throw new BadRequestException("Account does not exist.");
 
-            if (account is not null && account.Status == StaffStatusEnum.Online)
-            {
-                account.Status = StaffStatusEnum.Offline;
-                await accountRepository.UpdateAsync(account, cancellationToken);
-            }
+            await accountRepository.UpdateAsync(account, cancellationToken);
 
             transaction.Commit();
 

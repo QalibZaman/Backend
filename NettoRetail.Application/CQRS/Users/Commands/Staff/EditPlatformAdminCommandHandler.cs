@@ -2,7 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IRoleService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 

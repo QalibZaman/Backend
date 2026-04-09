@@ -1,10 +1,10 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -17,7 +17,10 @@ public record GetPaymentHistoryQuery(
     bool? SortDescending)
     : IRequest<PaginatedResponse<PaymentHistoryResponse>>;
 
-public class GetPaymentHistoryQueryHandler(IStaffRepository accountRepository, IPaymentHistoryRepository paymentHistoryRepository)
+public class GetPaymentHistoryQueryHandler(
+    IStaffRepository accountRepository,
+    IPaymentHistoryRepository paymentHistoryRepository,
+    IMapper mapper)
     : IRequestHandler<GetPaymentHistoryQuery, PaginatedResponse<PaymentHistoryResponse>>
 {
     public async Task<PaginatedResponse<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
@@ -40,7 +43,7 @@ public class GetPaymentHistoryQueryHandler(IStaffRepository accountRepository, I
 
         var (items, totalCount) = await paymentHistoryRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var responseItems = items.Adapt<List<PaymentHistoryResponse>>();
+        var responseItems = mapper.Map<List<PaymentHistoryResponse>>(items);
 
         return new PaginatedResponse<PaymentHistoryResponse>
         {

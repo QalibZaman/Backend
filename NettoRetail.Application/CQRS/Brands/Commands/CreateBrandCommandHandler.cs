@@ -1,4 +1,4 @@
-using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -22,7 +22,8 @@ public class CreateBrandCommandHandler(
     IBrandRepository brandRepository,
     IAzureBlobService azureBlobService,
     IBlobNameGenerator blobNameGenerator,
-    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<CreateBrandCommand, BrandResponse>
+    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
+    IMapper mapper) : IRequestHandler<CreateBrandCommand, BrandResponse>
 {
     public async Task<BrandResponse> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
     {
@@ -39,9 +40,19 @@ public class CreateBrandCommandHandler(
             }
         }
 
+        if (request.Model.WebsiteUrl != null)
+        {
+            var getBrandsByWebsiteUrlSpecification = new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl);
+
+            if (await brandRepository.Exists(getBrandsByWebsiteUrlSpecification, cancellationToken))
+            {
+                throw new BadRequestException("Brand's website url must be unque");
+            }
+        }
+
         var containerName = azureBlobStorageOptions.Value.ContainerName;
 
-        var brand = request.Model.Adapt<BrandEntity>();
+        var brand = mapper.Map<BrandEntity>(request.Model);
 
         brand.ShopId = request.ShopId;
 
@@ -59,6 +70,6 @@ public class CreateBrandCommandHandler(
             await brandRepository.UpdateAsync(brand, cancellationToken);
         }
 
-        return brand.Adapt<BrandResponse>();
+        return mapper.Map<BrandResponse>(brand);
     }
 }

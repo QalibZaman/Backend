@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
@@ -20,7 +20,8 @@ public record UpdateBrandCommand(int Id, UpdateBrandRequest Model, int ShopId) :
 public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
     IAzureBlobService azureBlobService,
     IBlobNameGenerator blobNameGenerator,
-    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions) : IRequestHandler<UpdateBrandCommand, BrandResponse>
+    IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
+    IMapper mapper) : IRequestHandler<UpdateBrandCommand, BrandResponse>
 {
     public async Task<BrandResponse> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
@@ -47,9 +48,9 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
             brand.LogoImageUrl = logoUrl;
         }
 
-        request.Model.Adapt(brand);
+        mapper.Map(request.Model, brand);
         await brandRepository.UpdateAsync(brand, cancellationToken);
 
-        return brand.Adapt<BrandResponse>();
+        return mapper.Map<BrandResponse>(brand);
     }
 }

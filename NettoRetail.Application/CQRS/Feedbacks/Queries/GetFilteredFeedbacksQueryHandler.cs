@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Feedback;
@@ -13,7 +13,9 @@ namespace NettoRetail.Application.CQRS.Feedbacks.Queries;
 
 public record GetFilteredFeedbacksQuery(GetFilteredFeedbacksModel Model, PaginationRequest PageModel) : IRequest<PaginatedResponse<FeedbackResponse>>;
 
-public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackRepository)
+public class GetFilteredFeedbacksQueryHandler(
+    IFeedbackRepository feedbackRepository,
+    IMapper mapper)
    : IRequestHandler<GetFilteredFeedbacksQuery, PaginatedResponse<FeedbackResponse>>
 {
   public async Task<PaginatedResponse<FeedbackResponse>> Handle(GetFilteredFeedbacksQuery request, CancellationToken cancellationToken)
@@ -48,7 +50,7 @@ public class GetFilteredFeedbacksQueryHandler(IFeedbackRepository feedbackReposi
       .Build();
 
     var (items, totalAmount) = await feedbackRepository.GetAllPaginatedAsync(specification, cancellationToken);
-    var data = items.Adapt<List<FeedbackResponse>>();
+    var data = mapper.Map<List<FeedbackResponse>>(items);
 
     var responseModel = new PaginatedResponse<FeedbackResponse>
     {

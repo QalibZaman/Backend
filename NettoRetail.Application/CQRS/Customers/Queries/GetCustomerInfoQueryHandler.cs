@@ -1,4 +1,4 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
@@ -13,7 +13,7 @@ public record GetCustomerInfoQuery(string LoyaltyId) : IRequest<CustomerInfoResp
 
 public class GetCustomerInfoQueryHandler(
     ICustomerRepository customerRepository,
-    TypeAdapterConfig config) : IRequestHandler<GetCustomerInfoQuery, CustomerInfoResponse>
+    IMapper mapper) : IRequestHandler<GetCustomerInfoQuery, CustomerInfoResponse>
 {
     public async Task<CustomerInfoResponse> Handle(GetCustomerInfoQuery request, CancellationToken cancellationToken)
     {
@@ -22,6 +22,6 @@ public class GetCustomerInfoQueryHandler(
         var customer = await customerRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException("There is no customer with such loyalty id.");
 
-        return customer.Adapt<CustomerInfoResponse>(config);
+        return mapper.Map<CustomerInfoResponse>(customer);
     }
 }

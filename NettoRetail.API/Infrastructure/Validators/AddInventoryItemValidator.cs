@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.InventoryItem;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -8,28 +9,27 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
     public AddInventoryItemValidator()
     {
         RuleFor(x => x.ProductName)
-            .NotEmpty().WithMessage(Constants.Validation.Inventory.IsRequired)
-            .NotNull().WithMessage(Constants.Validation.Inventory.IsRequired)
-            .MinimumLength(Constants.Validation.Inventory.ProductNameMinLength).WithMessage(Constants.Validation.Inventory.NameMinLength)
-            .MaximumLength(Constants.Validation.Inventory.ProductNameMaxLength).WithMessage(Constants.Validation.Inventory.NameMaxLength)
-            .Matches(Constants.Validation.Inventory.ProductNameRegex).WithMessage(Constants.Validation.Inventory.ProductNameAllowedCharactersRegex);
+            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.IsRequired)
+            .NotNull().WithMessage(ValidationErrorMessages.Inventory.IsRequired)
+            .MinimumLength(ValidationErrorMessages.Inventory.ProductNameMinLength).WithMessage(ValidationErrorMessages.Inventory.NameMinLength)
+            .MaximumLength(ValidationErrorMessages.Inventory.ProductNameMaxLength).WithMessage(ValidationErrorMessages.Inventory.NameMaxLength)
+            .Matches(ValidationErrorMessages.Inventory.ProductNameRegex).WithMessage(ValidationErrorMessages.Inventory.ProductNameAllowedCharactersRegex);
+        RuleFor(x => x.CategoryId).GreaterThan(ValidationErrorMessages.Inventory.InvalidThreshold);
 
-        RuleFor(x => x.CategoryId).GreaterThan(Constants.Validation.Inventory.InvalidThreshold);
-
-        RuleFor(x => x.BrandId).GreaterThan(Constants.Validation.Inventory.InvalidThreshold);
+        RuleFor(x => x.BrandId).GreaterThan(ValidationErrorMessages.Inventory.InvalidThreshold);
 
         RuleFor(x => x.ProductUpc)
-            .NotEmpty().WithMessage(Constants.Validation.Inventory.UpcNotEmpty)
-            .Matches(Constants.Validation.Inventory.UpcCodeRegex).WithMessage(Constants.Validation.Inventory.UpcMinLength);
+            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmpty)
+            .Matches(ValidationErrorMessages.Inventory.UpcCodeRegex).WithMessage(ValidationErrorMessages.Inventory.UpcMinLength);
 
         RuleFor(x => x.Price)
-            .GreaterThanOrEqualTo(Constants.Validation.Inventory.InvalidThreshold).WithMessage(Constants.Validation.Inventory.PriceMinlength)
-            .PrecisionScale(Constants.Validation.DatabaseConstants.FinancialPrecision, Constants.Validation.DatabaseConstants.FinancialScale, false).WithMessage(Constants.Validation.Inventory.InvalidPriceScaleMessage);
+            .GreaterThanOrEqualTo(ValidationErrorMessages.Inventory.InvalidThreshold).WithMessage(ValidationErrorMessages.Inventory.PriceMinlength)
+            .PrecisionScale(ValidationErrorMessages.Inventory.FinancialPrecision, ValidationErrorMessages.Inventory.FinancialScale, false).WithMessage(ValidationErrorMessages.Inventory.InvalidPriceScaleMessage);
 
         RuleFor(x => x.Description)
-            .MaximumLength(Constants.Validation.Inventory.DescriptionMaxLength).WithMessage(Constants.Validation.Inventory.DescriptionMaxLengthMessage)
-            .Matches(Constants.Validation.Inventory.DescriptionRegex)
-            .WithMessage(Constants.Validation.Inventory.DescriptionInvalidFormatMessage);
+            .MaximumLength(ValidationErrorMessages.Inventory.DescriptionMaxLength).WithMessage(ValidationErrorMessages.Inventory.DescriptionMaxLengthMessage)
+            .Matches(ValidationErrorMessages.Inventory.DescriptionRegex)
+            .WithMessage(ValidationErrorMessages.Inventory.DescriptionInvalidFormatMessage);
 
         RuleForEach(x => x.ProductDetails).SetValidator(new ProductDetailsModelValidator());
     }

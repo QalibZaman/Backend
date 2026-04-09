@@ -36,12 +36,12 @@ public class CategoryRepository(AppDbContext dbContext)
     {
         var sql = @"
             WITH RECURSIVE CategoriesSubtree AS (
-                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId""
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId"", c.""CategoriesSectionOrder""
                 FROM public.""Categories"" c WHERE c.""Id"" = @p0
 
                 UNION ALL
 
-                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId""
+                SELECT c.""Id"", c.""Name"", c.""ParentId"", c.""URL"", c.""Visibility"", c.""Level"", c.""ShopId"", c.""CategoriesSectionOrder""
                 FROM public.""Categories"" c
                 INNER JOIN CategoriesSubtree rc ON c.""Id"" = rc.""ParentId""
             )

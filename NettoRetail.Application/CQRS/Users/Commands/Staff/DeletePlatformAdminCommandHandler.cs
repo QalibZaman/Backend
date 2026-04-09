@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -27,7 +27,7 @@ public class DeletePlatformAdminCommandHandler(
 
         var admin = await accountRepository.GetAsync(specification, cancellationToken) ?? throw new NotFoundException("Platform admin not found.");
 
-        if (admin.Status != StaffStatusEnum.Deactivated && admin.Status != StaffStatusEnum.Pending)
+        if (admin.Status != StaffStatusEnum.Deactivated || admin.Status != StaffStatusEnum.Pending)
         {
             throw new BadRequestException("Only deactivated or pending platform admins can be deleted.");
         }

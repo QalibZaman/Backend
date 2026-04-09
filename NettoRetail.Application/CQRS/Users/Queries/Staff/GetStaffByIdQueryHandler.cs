@@ -1,8 +1,8 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -10,7 +10,8 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 public record GetStaffByIdQuery(Guid Id, int ShopId) : IRequest<StaffDetailsResponse>;
 
 public class GetStaffByIdQueryHandler(
-    IStaffRepository accountRepository)
+    IStaffRepository accountRepository,
+    IMapper mapper)
     : IRequestHandler<GetStaffByIdQuery, StaffDetailsResponse>
 {
     public async Task<StaffDetailsResponse> Handle(GetStaffByIdQuery request, CancellationToken cancellationToken)
@@ -22,6 +23,6 @@ public class GetStaffByIdQueryHandler(
         if (staff.ShopId != request.ShopId)
             throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
-        return staff.Adapt<StaffDetailsResponse>();
+        return mapper.Map<StaffDetailsResponse>(staff);
     }
 }

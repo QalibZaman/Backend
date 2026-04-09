@@ -27,7 +27,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrderProducts(int orderId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetOrderProductsAndPayments(int orderId, CancellationToken cancellationToken)
     {
         var orderCreationCommand = new GetOrderProductsQuery(orderId);
 
@@ -36,8 +36,8 @@ public class OrdersController(IMediator mediator) : ControllerBase
 
         return Ok(response);
     }
-
-    /// <summary>
+    
+        /// <summary>
     /// Creates a new order for a customer in the current shop.
     /// </summary>
     /// <remarks>
@@ -60,6 +60,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     /// }
     /// </code>
     /// </remarks>
+
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status201Created)]

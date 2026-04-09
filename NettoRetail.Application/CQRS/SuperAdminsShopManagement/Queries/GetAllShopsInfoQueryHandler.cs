@@ -1,9 +1,9 @@
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,7 +15,8 @@ public record GetAllShopsInfoQuery(PaginationRequest PageModel) : IRequest<Pagin
 
 public class GetAllShopsInfoQueryHandler(
     IShopRepository shopRepository,
-    IStaffRepository accountRepository)
+    IStaffRepository accountRepository,
+    IMapper mapper)
     : IRequestHandler<GetAllShopsInfoQuery, PaginatedResponse<AllShopsInfoResponse>>
 {
     public async Task<PaginatedResponse<AllShopsInfoResponse>> Handle(GetAllShopsInfoQuery request, CancellationToken cancellationToken)
@@ -30,7 +31,7 @@ public class GetAllShopsInfoQueryHandler(
 
         var (shops, totalAmount) = await shopRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var response = shops.Adapt<List<AllShopsInfoResponse>>();
+        var response = mapper.Map<List<AllShopsInfoResponse>>(shops);
 
         foreach (var shop in response)
         {

@@ -1,9 +1,11 @@
-﻿using NettoRetail.Application.CQRS.InventoryItems.Queries;
+﻿using MapsterMapper;
+using NettoRetail.Application.CQRS.InventoryItems.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItemsTests;
@@ -12,6 +14,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
 {
     private readonly IInventoryItemRepository _inventoryRepo = Substitute.For<IInventoryItemRepository>();
     private readonly ICategoryRepository _categoryRepo = Substitute.For<ICategoryRepository>();
+    private readonly IMapper _mapper = MapperFactory.Create();
 
     private static InventoryItemEntity MakeItem(Guid id)
     {
@@ -78,7 +81,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, Arg.Any<CancellationToken>())
                      .Returns(Task.FromResult(Breadcrumbs()));
 
-        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 
         // Act
         var result = await handler.Handle(new GetInventoryItemFullInfoQuery(id), CancellationToken.None);
@@ -101,7 +104,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         _inventoryRepo.GetAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
                       .Returns((InventoryItemEntity?)null);
 
-        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 
         // Act
         var act = () => handler.Handle(new GetInventoryItemFullInfoQuery(Guid.NewGuid()), CancellationToken.None);
@@ -125,7 +128,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         _categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, token)
                      .Returns(Task.FromResult(Breadcrumbs()));
 
-        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo);
+        var handler = new GetInventoryItemFullInfoQueryHandler(_inventoryRepo, _categoryRepo, _mapper);
 
         // Act
         _ = await handler.Handle(new GetInventoryItemFullInfoQuery(id), token);

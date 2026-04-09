@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MapsterMapper;
 using NSubstitute;
 using Xunit;
 using NettoRetail.Application.Models.InventoryItem;
@@ -12,6 +13,7 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Tests.Helpers;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItems
 {
@@ -20,10 +22,12 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         private readonly IInventoryItemRepository _inventoryRepo = Substitute.For<IInventoryItemRepository>();
         private readonly ICategoryRepository _categoryRepo = Substitute.For<ICategoryRepository>();
         private readonly InventoryItemQueryService _service;
+        private readonly IMapper _mapper;
 
         public InventoryItemQueryServiceTests()
         {
-            _service = new InventoryItemQueryService(_inventoryRepo, _categoryRepo);
+            _mapper = MapperFactory.Create();
+            _service = new InventoryItemQueryService(_inventoryRepo, _categoryRepo, _mapper);
         }
 
         private static InventoryItemEntity CreateItem(

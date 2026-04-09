@@ -1,9 +1,9 @@
-﻿using Mapster;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands;
@@ -19,8 +19,10 @@ public record UpdatePersonalInformationCommand(Guid Id,
     string ZipCode,
     int CountryId) : IRequest;
 
-public class UpdatePersonalInformationCommandHandler(IStaffRepository accountRepository,
-    ICountryDetailsValidationService countryDetailsValidator) : IRequestHandler<UpdatePersonalInformationCommand>
+public class UpdatePersonalInformationCommandHandler(
+    IStaffRepository accountRepository,
+    ICountryDetailsValidationService countryDetailsValidator,
+    IMapper mapper) : IRequestHandler<UpdatePersonalInformationCommand>
 {
     public async Task Handle(UpdatePersonalInformationCommand request, CancellationToken cancellationToken)
     {
@@ -38,10 +40,10 @@ public class UpdatePersonalInformationCommandHandler(IStaffRepository accountRep
             }
         }
 
-        var validationModel = request.Adapt<CountryValidationModel>();
+        var validationModel = mapper.Map<CountryValidationModel>(request);
         await countryDetailsValidator.ValidateAsync(validationModel, cancellationToken);
 
-        account = request.Adapt(account);
+        mapper.Map(request, account);
 
         await accountRepository.UpdateAsync(account, cancellationToken);
     }

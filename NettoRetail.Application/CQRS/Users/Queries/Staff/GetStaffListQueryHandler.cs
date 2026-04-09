@@ -1,11 +1,11 @@
 ﻿using System.Linq.Expressions;
-using Mapster;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -15,7 +15,9 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record GetStaffListQuery(PaginationRequest PaginationModel, GetFilteredStaffRequest Model, int ShopId) : IRequest<PaginatedResponse<StaffListResponse>>;
 
-public class GetStaffListQueryHandler(IStaffRepository accountRepository)
+public class GetStaffListQueryHandler(
+    IStaffRepository accountRepository,
+    IMapper mapper)
     : IRequestHandler<GetStaffListQuery, PaginatedResponse<StaffListResponse>>
 {
     public async Task<PaginatedResponse<StaffListResponse>> Handle(GetStaffListQuery request, CancellationToken cancellationToken)
@@ -48,7 +50,7 @@ public class GetStaffListQueryHandler(IStaffRepository accountRepository)
             .Take(request.PaginationModel.PageSize);
 
         var staffEntitiesTuple = await accountRepository.GetStaffAccountsPaginated(specificationBuilder.Build(), cancellationToken);
-        var staffCollection = staffEntitiesTuple.Items.Adapt<ICollection<StaffListResponse>>();
+        var staffCollection = mapper.Map<ICollection<StaffListResponse>>(staffEntitiesTuple.Items);
 
         var paginatedResponse = new PaginatedResponse<StaffListResponse>()
         {
