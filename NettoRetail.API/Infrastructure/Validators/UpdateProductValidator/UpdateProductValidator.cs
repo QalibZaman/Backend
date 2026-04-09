@@ -51,6 +51,7 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductModel>
     {
         return model.GeneralInfo is not null ||
                model.PriceInfo is not null ||
-               model.Details is not null;
+               model.Details is not null ||
+               model.AvailabilityInfo is not null;
     }
 }
