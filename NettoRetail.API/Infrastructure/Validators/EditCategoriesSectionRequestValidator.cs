@@ -19,6 +19,7 @@ public class EditCategoriesSectionRequestValidator : AbstractValidator<EditCateg
             .WithMessage("The field contains invalid characters or spaces at the beginning/end.");
 
         RuleFor(x => x.CategoryIds)
+            .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage("Category selection is required.")
             .Must(ids => ids.Count > 0)
