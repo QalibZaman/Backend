@@ -1,5 +1,4 @@
 ﻿using NettoRetail.Application.CQRS.Contents.Queries;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Content;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -55,7 +54,9 @@ public class GetAllContentBlocksQueryHandlerTests
 
         //Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedContents.Count, result.Count);
+        Assert.Equal(Enum.GetValues<SectionTypeEnum>().Length, result.Count);
+        Assert.Contains(result, x => x.SectionType == SectionTypeEnum.PrivacyPolicy.ToString() && x.Id == 1);
+        Assert.Contains(result, x => x.SectionType == SectionTypeEnum.CookiesPolicy.ToString() && x.Id == 2);
         
         await _contentRepository
             .Received(1)
@@ -63,30 +64,29 @@ public class GetAllContentBlocksQueryHandlerTests
 
     }
     [Fact]
-    public async Task GetAllContents_NoContents_ThrowsNotFoundException()
+    public async Task GetAllContents_NoContents_ReturnsAllEmptySections()
     {
-        //Arrange
         int shopId = 5;
 
         _contentRepository
             .GetAllBySpecAsync(Arg.Any<GetContentByShopSpecification>(), Arg.Any<CancellationToken>())
             .Returns(new List<ContentEntity>());
 
-        //Act
-        var query = new GetAllContentBlocksQuery(shopId);
+        var result = await _handler.Handle(new GetAllContentBlocksQuery(shopId), CancellationToken.None);
 
-        //Assert
-
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
-            _handler.Handle(query, CancellationToken.None));
-
-        Assert.Equal($"Contents not found with shop id {shopId}.", ex.Message);
+        Assert.Equal(Enum.GetValues<SectionTypeEnum>().Length, result.Count);
+        Assert.All(result, x =>
+        {
+            Assert.False(x.IsVisible);
+            Assert.Equal(0, x.Id);
+            Assert.Equal(string.Empty, x.Content);
+            Assert.Null(x.LastUpdated);
+            Assert.Null(x.UpdatedBy);
+        });
 
         await _contentRepository
             .Received(1)
             .GetAllBySpecAsync(Arg.Any<GetContentByShopSpecification>(), Arg.Any<CancellationToken>());
-
-
     }
 
     [Fact]
@@ -113,6 +113,7 @@ public class GetAllContentBlocksQueryHandlerTests
 
         var result = await _handler.Handle(new GetAllContentBlocksQuery(shopId), CancellationToken.None);
 
-        Assert.False(result[0].IsVisible);
+        var ourStoryBlock = result.Single(x => x.SectionType == SectionTypeEnum.OurStory.ToString());
+        Assert.False(ourStoryBlock.IsVisible);
     }
 }

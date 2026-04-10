@@ -175,7 +175,7 @@ public class UpdateContentBySlugCommandHandlerTests
 
         var ex = await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(request, CancellationToken.None));
 
-        Assert.Equal("Content cannot be empty.", ex.Message);
+        Assert.Equal("\"Field name\" cannot be empty.", ex.Message);
 
         await _contentRepositoryMock.DidNotReceive().AddAsync(Arg.Any<ContentEntity>(), Arg.Any<CancellationToken>());
         await _contentRepositoryMock.DidNotReceive().UpdateAsync(Arg.Any<ContentEntity>(), Arg.Any<CancellationToken>());
