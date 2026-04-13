@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Role;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators
 {
@@ -8,13 +9,25 @@ namespace NettoRetail.API.Infrastructure.Validators
         public CreateRoleRequestValidator()
         {
             RuleFor(x => x.Name)
-               .Length(2, 50).WithMessage("Role name length must be more than 2 and  less than 50 characters long.")
-               .Matches("^[a-zA-Z0-9-_]*$").WithMessage("Role name must only contain letters, digits, '-' and '_'.");
+               .NotEmpty()
+               .Length(ValidationErrorMessages.Role.NameMinLength, ValidationErrorMessages.Role.NameMaxLength)
+               .WithMessage(ValidationErrorMessages.Role.NameLengthErrorMessage)
+               .Matches(ValidationErrorMessages.Role.NameAllowedCharactersPattern)
+               .WithMessage(ValidationErrorMessages.Role.NameAllowedCharactersRegex);
 
             RuleFor(x => x.Description)
-               .MaximumLength(500).WithMessage("Description must be less than 500 characters long.")
-               .Matches(@"^[A-Za-z0-9 ,.\-_'()]*$").WithMessage("Description must only contain letters, digits, spaces, and common punctuation.")
-               .Must(d => string.IsNullOrEmpty(d) || d == d.Trim()).WithMessage("Description must not start or end with spaces.");
+               .MaximumLength(ValidationErrorMessages.Role.DescriptionMaxLength).WithMessage(ValidationErrorMessages.Role.DescriptionMaxLengthErrorMessage)
+               .Matches(ValidationErrorMessages.Role.DescriptionAllowedCharactersPattern).WithMessage(ValidationErrorMessages.Role.DescriptionAllowedCharactersRegex)
+               .Must(d => string.IsNullOrEmpty(d) || d == d.Trim()).WithMessage(ValidationErrorMessages.Role.DescriptionTrimErrorMessage);
+
+            RuleFor(x => x.PermissionIds)
+                .Cascade(CascadeMode.Stop)
+                .NotNull()
+                .WithMessage(ValidationErrorMessages.Role.PermissionsListNullErrorMessage)
+                .NotEmpty()
+                .WithMessage(ValidationErrorMessages.Role.PermissionsListEmptyErrorMessage)
+                .Must(ids => ids.Distinct().Count() == ids.Length)
+                .WithMessage(ValidationErrorMessages.Role.PermissionListUniqueIdsErrorMessage);
         }
     }
 }

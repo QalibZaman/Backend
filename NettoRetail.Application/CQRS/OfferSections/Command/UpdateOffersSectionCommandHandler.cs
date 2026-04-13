@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Offer;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.OfferSection;
 using NettoRetail.Domain.Entities;
@@ -103,7 +103,7 @@ public class UpdateOffersSectionCommandHandler(
         foreach (var item in itemIds)
         {
             if (!await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, shopId), cancellationToken))
-                throw new BadRequestException("This item is not in your shop.");
+                throw new NotFoundException("This item is not in your shop.");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using NettoRetail.Domain.Enums;
 using Microsoft.Extensions.Configuration;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.SeederApp.Models;
 using NettoRetail.Shared.Interfaces.Repositories;

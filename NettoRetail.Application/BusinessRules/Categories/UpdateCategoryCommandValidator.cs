@@ -6,7 +6,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.BusinessRules.Categories;
 
-public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
+public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoriesCommand>
 {
     public UpdateCategoryCommandValidator(ICategoryRepository categoryRepository)
     {
@@ -61,7 +61,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
                 }
 
                 var normalizedName = command.Name.Trim();
-                var normalizedUrl = command.URL.Trim();
+                var normalizedUrl = command.URL?.Trim() ?? string.Empty;
 
                 var nameChanged = !string.Equals(category.Name, normalizedName, StringComparison.OrdinalIgnoreCase);
                 var urlChanged = !string.Equals(category.URL, normalizedUrl, StringComparison.OrdinalIgnoreCase);
@@ -82,7 +82,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
 
                     if (nameConflict && urlConflict)
                     {
-                        throw new ConflictException("Category name already exists (EM-17a). Category URL already exists (EM-17b)." );
+                        throw new ConflictException("Category name already exists (EM-17a). Category URL already exists (EM-17b).");
                     }
 
                     if (nameConflict)

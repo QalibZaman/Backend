@@ -62,11 +62,7 @@ public class CreateInventoryItemCommandHandler(
         inventoryItem.ShopId = request.ShopId;
 
         var productDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
-
-        foreach (var detail in productDetails)
-        {
-            detail.InventoryItemId = inventoryItem.Id;
-        }
+        AttachProductDetailsToInventoryItem(productDetails, inventoryItem.Id);
 
         var responseModel = await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
         await productDetailRepository.AddRangeAsync(productDetails, cancellationToken);
@@ -76,5 +72,13 @@ public class CreateInventoryItemCommandHandler(
         response.ProductBrand = brandName;
 
         return response;
+    }
+
+    private static void AttachProductDetailsToInventoryItem(IEnumerable<ProductDetailEntity> productDetails, Guid inventoryItemId)
+    {
+        foreach (var detail in productDetails)
+        {
+            detail.InventoryItemId = inventoryItemId;
+        }
     }
 }

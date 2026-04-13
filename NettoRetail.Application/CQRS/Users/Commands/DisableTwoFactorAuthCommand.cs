@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.TwoFactorAuth;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Sessions;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;

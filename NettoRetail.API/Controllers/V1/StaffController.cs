@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using MapsterMapper;
 using MediatR;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
@@ -371,8 +372,14 @@ public class StaffController(
     [HttpPut("{id:guid}/personal-info")]
     public async Task<IActionResult> UpdatePersonalInformation(Guid id, UpdatePersonalInformationRequest model, CancellationToken cancellationToken)
     {
+        await mediator.Send(new GetAccountDetailsByIdQuery(id), cancellationToken);
+
         var userId = HttpContext.GetUserId();
-        if (userId != id) throw new ForbiddenException("You are not able to change data of another user");
+
+        if (userId != id)
+        {
+            throw new ForbiddenException("You are not able to change data of another user");
+        }
 
         var command = mapper.Map<UpdatePersonalInformationCommand>(model);
         command = command with { Id = id };
@@ -398,6 +405,28 @@ public class StaffController(
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("{id:guid}/profile-image")]
+    public async Task<IActionResult> GetProfileImage([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId != id)
+        {
+            bool hasShopIdClaim = User.Claims.Any(c => c.Type == AuthClaims.ShopId);
+            bool isSuperAdmin = User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == SuperAdminConstants.SuperAdminRoleId);
+
+            if (!hasShopIdClaim && !isSuperAdmin)
+                throw new ForbiddenException("You are not able to view data of another user");
+
+            var shopId = HttpContext.GetUserShopId();
+            await mediator.Send(new GetStaffByIdQuery(id, shopId), cancellationToken);
+        }
+
+        var sasUrl = await mediator.Send(new GetProfileImageSasUrlQuery(id), cancellationToken);
+
+        return Redirect(sasUrl);
     }
 
     [Authorize]

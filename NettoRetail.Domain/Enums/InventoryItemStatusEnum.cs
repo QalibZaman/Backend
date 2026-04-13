@@ -2,6 +2,7 @@
 
 public enum InventoryItemStatusEnum
 {
+    New,
     Available,
     Committed,
     Unavailable,

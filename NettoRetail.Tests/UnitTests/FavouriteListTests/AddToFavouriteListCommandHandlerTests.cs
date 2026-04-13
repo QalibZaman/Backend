@@ -1,7 +1,7 @@
 ﻿using MapsterMapper;
 using NettoRetail.Application.CQRS.FavouriteListItems.Commands;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.FavouriteList;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;

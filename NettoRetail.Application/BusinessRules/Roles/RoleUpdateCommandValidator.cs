@@ -4,6 +4,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.DataAccess.Specifications.Shop;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Security;
 
@@ -13,6 +14,13 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
 {
     public RoleUpdateCommandValidator(IRoleRepository roleRepository, IShopRepository shopRepository, IPermissionRepository permissionRepository)
     {
+        RuleFor(x => x.Id)
+            .Custom((roleId, context) =>
+            {
+                if (roleId == RoleConstants.Admin)
+                    throw new ConflictException("The admin role cannot be edited.");
+            });
+
         // Shop existence validation
         RuleFor(x => x.ShopId)
             .CustomAsync(async (shopId, context, ct) =>
@@ -28,7 +36,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
             .CustomAsync(async (command, context, ct) =>
             {
                 var exists = await roleRepository.Exists(
-                    new GetRoleByShopIdSpecification(
+                    new GetRoleByIdAndShopIdSpecification(
                         command.Id,
                         command.ShopId),
                     ct);
@@ -44,7 +52,8 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
                 var exists = await roleRepository.Exists(
                     new GetRoleByNameExcludingCurrentSpecification(
                         command.Model.Name,
-                        command.Id),
+                        command.Id,
+                        command.ShopId),
                     ct);
 
                 if (exists)

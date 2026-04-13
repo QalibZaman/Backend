@@ -83,12 +83,12 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             var tokenResponse = await GetTokenResponseAsync(email, password);
 
             _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", tokenResponse. AccessToken);
+                new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
             var model = new AddCategoryRequest
             {
                 Name = "Outdoorz",
-                URL = "outdoorz",
+                URL = "/outdoorz",
                 ParentId = null,
                 Visibility = true,
             };
@@ -97,6 +97,43 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
 
             // Asserts
             Assert.Equal(HttpStatusCode.Created, itemsResponse.StatusCode);
+
+            var result = await itemsResponse.Content.ReadFromJsonAsync<ApiResponse<CategoryResponse>>();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.Equal("/outdoorz", result.Data.URL);
+        }
+
+        [Fact]
+        public async Task AddCategory_ShouldAutoGenerateUrl_AndIgnoreManualOverride()
+        {
+            // Arrange
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            // Act
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var model = new AddCategoryRequest
+            {
+                Name = "Custom Category",
+                URL = "/custom-override",
+                ParentId = null,
+                Visibility = true,
+            };
+
+            var itemsResponse = await _client.PostAsJsonAsync("api/v1/categories", model);
+
+            // Asserts
+            Assert.Equal(HttpStatusCode.Created, itemsResponse.StatusCode);
+
+            var result = await itemsResponse.Content.ReadFromJsonAsync<ApiResponse<CategoryResponse>>();
+            Assert.NotNull(result);
+            Assert.NotNull(result.Data);
+            Assert.Equal("/custom-category", result.Data.URL);
         }
 
         [Fact]
@@ -363,9 +400,9 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
 
             // Ensure there are visible root categories available.
-            var addCategoryA = new AddCategoryRequest { Name = "Kitchen", URL = "kitchen", ParentId = null, Visibility = true };
-            var addCategoryB = new AddCategoryRequest { Name = "Kids", URL = "kids", ParentId = null, Visibility = true };
-            var addCategoryC = new AddCategoryRequest { Name = "Kites", URL = "kites", ParentId = null, Visibility = true };
+            var addCategoryA = new AddCategoryRequest { Name = "Kitchen", ParentId = null, Visibility = true };
+            var addCategoryB = new AddCategoryRequest { Name = "Kids", ParentId = null, Visibility = true };
+            var addCategoryC = new AddCategoryRequest { Name = "Kites", ParentId = null, Visibility = true };
 
             var createA = await _client.PostAsJsonAsync("api/v1/categories", addCategoryA);
             var createB = await _client.PostAsJsonAsync("api/v1/categories", addCategoryB);

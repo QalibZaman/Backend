@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.PasswordHistory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;

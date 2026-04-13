@@ -40,6 +40,12 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="BusinessRules\Subscriptions\**" />
+      <EmbeddedResource Remove="BusinessRules\Subscriptions\**" />
+      <None Remove="BusinessRules\Subscriptions\**" />
+    </ItemGroup>
+
     <Target Name="QuestPDF_DoNotIncludeLatoFont_AfterBuild" AfterTargets="Build">
       <RemoveDir Directories="$(OutDir)LatoFont" />
     </Target>

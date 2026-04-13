@@ -26,7 +26,7 @@ public class EmailBuilderService(
         };
 
         var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(passwordOptions.Value.TokenExpirationHours));
-        var resetLink = string.Format(passwordOptions.Value.ResetLink, resetToken);
+        var resetLink = string.Format(passwordOptions.Value.ResetLink, Uri.EscapeDataString(resetToken));
 
         var model = new { reset_link = resetLink, user_name = firstName };
 
