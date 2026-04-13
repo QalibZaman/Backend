@@ -18,5 +18,10 @@ public interface IStaffService
         StaffEntity staff,
         CancellationToken token = default);
 
+    Task<byte[]> DownloadStaffCsvAsync(
+        int userShopId,
+        GetFilteredStaffCsvRequest request,
+        CancellationToken token = default);
+
     public StaffStatusEnum? ParseStaffStatus(string? statusString);
 }

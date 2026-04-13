@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Staff;
@@ -23,6 +24,8 @@ public class UpdateStaffServiceTests
     private readonly IEmailSender _emailSender;
     private readonly ISessionTerminationService _sessionTerminationService;
     private readonly IMapper _mapper;
+    private readonly ICsvFileService _csvFileService;
+    private readonly ILogger<StaffService> _logger;
 
     public UpdateStaffServiceTests()
     {
@@ -32,13 +35,17 @@ public class UpdateStaffServiceTests
         _emailSender = Substitute.For<IEmailSender>();
         _sessionTerminationService = Substitute.For<ISessionTerminationService>();
         _mapper = MapperFactory.Create();
+        _csvFileService = Substitute.For<ICsvFileService>();
+        _logger = Substitute.For<ILogger<StaffService>>();
         _staffService = new StaffService(
             _accountRepository,
             _roleRepository,
             _emailSender,
             _emailBuilderService,
             _sessionTerminationService,
-            _mapper);
+            _mapper,
+            _csvFileService,
+            _logger);
 
     }
 
