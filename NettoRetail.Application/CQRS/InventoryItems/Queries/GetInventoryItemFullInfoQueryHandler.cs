@@ -31,9 +31,7 @@ public class GetInventoryItemFullInfoQueryHandler(
         var response = mapper.Map<InventoryItemInfoFullResponse>(item);
 
         var chain = await categoryRepo.GetCategoryWithHierarchyAsync(item.CategoryId, cancellationToken);
-        response.ProductCategories = chain
-            .Select(c => new CategorySummaryResponse { Id = c.Id, Name = c.Name })
-            .ToList();
+        mapper.Map<List<CategorySummaryResponse>>(chain);
 
         return response;
     }
