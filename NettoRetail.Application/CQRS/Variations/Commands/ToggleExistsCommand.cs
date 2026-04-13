@@ -22,6 +22,8 @@ public class ToggleExistsCommandHandler(
         if (!variation.Exists)
             variation.IsActive = false;
 
+        variation.UpdateStatus();
+
         await inventoryItemRepository.UpdateAsync(variation, cancellationToken);
 
         return Unit.Value;
