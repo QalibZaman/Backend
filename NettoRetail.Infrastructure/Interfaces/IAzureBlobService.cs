@@ -26,4 +26,10 @@ public interface IAzureBlobService
         TimeSpan? expiryDuration = null,
         string? storedPolicyName = null);
 
+    string GenerateBlobSasUrlFromUrl(
+        string blobUrl,
+        BlobSasPermissions permissions,
+        TimeSpan? expiryDuration = null,
+        string? storedPolicyName = null);
+
 }

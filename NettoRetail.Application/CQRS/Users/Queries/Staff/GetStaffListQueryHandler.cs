@@ -5,7 +5,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Role;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators
 {

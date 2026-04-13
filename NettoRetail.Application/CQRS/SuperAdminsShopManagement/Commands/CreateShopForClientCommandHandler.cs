@@ -7,7 +7,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Shop;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.Application.Services.IShopValidationService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;

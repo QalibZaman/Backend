@@ -5,7 +5,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Country;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Order;

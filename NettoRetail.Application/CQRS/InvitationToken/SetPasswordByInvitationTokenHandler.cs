@@ -5,7 +5,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;

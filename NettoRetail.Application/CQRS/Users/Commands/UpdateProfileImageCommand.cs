@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using NettoRetail.Application.Enums;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Options;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;

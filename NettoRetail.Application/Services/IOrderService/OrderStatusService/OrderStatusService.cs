@@ -1,6 +1,6 @@
 ﻿using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Order;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;

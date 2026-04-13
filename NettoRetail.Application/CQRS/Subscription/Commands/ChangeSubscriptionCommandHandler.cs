@@ -1,8 +1,8 @@
 using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.Application.Services;
+using NettoRetail.Application.Models.Request.Subscription;
+using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.DataAccess.Specifications.Shop;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Subscription.Commands;
@@ -10,8 +10,7 @@ namespace NettoRetail.Application.CQRS.Subscription.Commands;
 public record ChangeSubscriptionCommand(
     int ShopId,
     Guid UserId,
-    SubscriptionTypeEnum NewPlan,
-    string PaymentMethodId) : IRequest<Unit>;
+    ChangeSubscriptionRequest ChangeSubscriptionRequest) : IRequest<Unit>;
 
 public class ChangeSubscriptionCommandHandler(
     IShopRepository shopRepository,
@@ -25,8 +24,8 @@ public class ChangeSubscriptionCommandHandler(
 
         await subscriptionService.ChangeSubscriptionAsync(
             shop,
-            request.NewPlan,
-            request.PaymentMethodId,
+            request.ChangeSubscriptionRequest.NewPlan,
+            request.ChangeSubscriptionRequest.StripePaymentMethodId,
             cancellationToken);
 
         return Unit.Value;

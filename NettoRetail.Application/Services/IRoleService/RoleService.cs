@@ -2,7 +2,7 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Models.Admin;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Permissions;
 using NettoRetail.DataAccess.Specifications.Role;
 using NettoRetail.Domain.Entities;

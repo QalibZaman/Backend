@@ -3,7 +3,7 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
-using NettoRetail.DataAccess.Specifications.Account;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.PasswordHistory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -24,8 +24,7 @@ public class ResetPasswordCommandHandler(
 {
     public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.Validate(request.Model.Token) ??
-            throw new InvalidTokenCredentialsException("Invalid or expired reset token.");
+        var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
 
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ??
             throw new BadRequestException("Invalid token payload.");

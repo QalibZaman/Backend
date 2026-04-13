@@ -8,7 +8,6 @@ using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
-using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
@@ -49,8 +48,13 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
             .Map(dest => dest.BrandName, src => src.Brand!.Name);
 
+        config.NewConfig<RoleEntity, CreateRoleResponse>()
+            .Map(dest => dest.PermissionIds, src => src.PermissionRoles.Select(pr => pr.PermissionId).ToList());
+
         config.NewConfig<RoleEntity, RoleResponse>()
-            .Map(dest => dest.UserCount, src => src.Accounts.Count());
+            .Map(dest => dest.UserCount, src => src.Accounts.Count())
+            .Map(dest => dest.IsEditable, src => src.Id != RoleConstants.Admin)
+            .Map(dest => dest.IsDeletable, src => src.Id != RoleConstants.Admin);
 
         config.NewConfig<InventoryItemEntity, InventoryItemCsvModel>()
             .Map(dest => dest.ProductCategory, src => src.Category.Name)
@@ -342,7 +346,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Unavailable, src => src.InventoryItems
                 .Count(i => i.Status == InventoryItemStatusEnum.Unavailable))
             .Map(dest => dest.Incoming, src => src.InventoryItems
-                .Count(i => i.Status == InventoryItemStatusEnum.Incoming));
+                .Count(i => i.Status == InventoryItemStatusEnum.Incoming))
+            .Map(dest => dest.New, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.New));
 
         config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
             .Map(dest => dest.RoleId, src => src.Id)
