@@ -26,6 +26,9 @@ public class ChangeDefaultPaymentCommandHandler(
         if (paymentMethod.AccountId != request.AccountId)
             throw new ValidationException(HandlerConstants.Payment.PaymentMethodDoesntBelongMessage);
 
+        if (paymentMethod.CardExpYear < DateTime.UtcNow.Year || (paymentMethod.CardExpYear == DateTime.UtcNow.Year && paymentMethod.CardExpMonth < DateTime.UtcNow.Month))
+            throw new ValidationException(HandlerConstants.Payment.PaymentMethodExpiredMessage);
+
         var allMethods = paymentMethod.Account.PaymentMethods!.ToList();
 
         if (allMethods.Count < 2)
@@ -40,16 +43,17 @@ public class ChangeDefaultPaymentCommandHandler(
 
         var newDefaultStripeId = paymentMethod.StripePaymentMethodId;
 
-        await stripePaymentService.SetDefaultPaymentMethodAsync(
-            customerId,
-            newDefaultStripeId,
-            cancellationToken);
-
         using var transaction = unitOfWork.BeginTransaction();
+
         foreach (var payMethod in allMethods)
                 payMethod.IsDefault = payMethod.StripePaymentMethodId == newDefaultStripeId;
 
         await paymentRepository.UpdateManyAsync(allMethods, cancellationToken);
+
+        await stripePaymentService.SetDefaultPaymentMethodAsync(
+            customerId,
+            newDefaultStripeId,
+            cancellationToken);
 
         transaction.Commit();
     }

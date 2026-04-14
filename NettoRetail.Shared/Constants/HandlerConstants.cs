@@ -28,6 +28,7 @@
             public const string PaymentMethodNotFoundMessage = "Payment method not found.";
             public const string PaymentMethodDoesntBelongMessage = "Payment method does not belong to this account.";
             public const string AtLeastTwoPaymentMethodsRequiredMessage = "At least two payment methods are required to change default.";
+            public const string PaymentMethodExpiredMessage = "Payment method is expired.";
         }
 
         public static class Shop
