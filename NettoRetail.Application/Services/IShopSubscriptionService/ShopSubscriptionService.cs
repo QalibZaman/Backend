@@ -10,8 +10,7 @@ namespace NettoRetail.Application.Services.IShopSubscriptionService;
 public class ShopSubscriptionService(
     ISubscriptionPlanRepository subscriptionPlanRepository,
     IShopRepository shopRepository,
-    IStripeService stripeService
-) : IShopSubscriptionService
+    IStripeService stripeService) : IShopSubscriptionService
 {
     public async Task ChangeSubscriptionAsync(
         ShopEntity shop,
