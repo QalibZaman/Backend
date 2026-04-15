@@ -1,9 +1,11 @@
 using MapsterMapper;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -67,10 +69,19 @@ public class InventoryItemQueryService(
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
+        IEnumerable<int> categoryIds = Enumerable.Empty<int>();
         var filter = mapper.Map<GetFilteredInventoryItemsModel>(model);
-        var categoryIds = filter.CategoryId != 0
-            ? (await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct)).Select(c => c.Id)
-            : Enumerable.Empty<int>();
+        if (filter.CategoryId != 0)
+        {
+            var subtree = await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct);
+
+            if (!subtree.Any())
+            {
+                throw new NotFoundException(HandlerConstants.Category.CategoryNotFoundMessage);
+            }
+
+            categoryIds = subtree.Select(x => x.Id);
+        }
 
         var filterSpec = InventoryItemFilterBuilder.Build(filter, shopId, categoryIds);
         var builder = new SpecificationBuilder<InventoryItemEntity>()

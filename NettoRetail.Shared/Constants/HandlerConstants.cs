@@ -61,5 +61,9 @@
         {
             public const string RoleNotFoundMessage = "Role with such Id does not exist.";
         }
+        public static class Category
+        {
+            public const string CategoryNotFoundMessage = "Category with such Id does not exist.";
+        }
     }
 }
