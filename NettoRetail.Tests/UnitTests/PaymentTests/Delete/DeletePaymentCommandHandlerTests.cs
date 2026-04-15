@@ -44,6 +44,7 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldDeletePayment_AndReturnNotLast_WhenDeletingNonDefaultPayment()
     {
+        // Arrange
         var accountId = Guid.NewGuid();
         var account = CreateAccount("cus_123");
         var paymentToDelete = CreatePayment(accountId, "pm_delete", account, isDefault: false);
@@ -57,8 +58,10 @@ public class DeletePaymentCommandHandlerTests
             .PaymentMethodExistsAsync(paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns(true);
 
+        // Act
         var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
 
+        // Assert
         result.Should().BeEquivalentTo(new PaymentMethodDeleteResponse { IsLastPaymentMethod = false });
 
         await _stripePaymentService.DidNotReceive()
@@ -77,6 +80,7 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldSetFallbackAsDefault_WhenDeletingDefaultPaymentAndFallbackExists()
     {
+        // Arrange
         var accountId = Guid.NewGuid();
         var account = CreateAccount("cus_123");
         var paymentToDelete = CreatePayment(accountId, "pm_default", account, isDefault: true);
@@ -93,8 +97,10 @@ public class DeletePaymentCommandHandlerTests
             .GetFallbackPaymentMethodAsync(accountId, paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns(fallback);
 
+        // Act
         var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
 
+        // Assert
         result.IsLastPaymentMethod.Should().BeFalse();
 
         await _stripePaymentService.Received(1)
@@ -110,6 +116,7 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnLastMethodTrue_WhenDeletingOnlyPaymentMethod()
     {
+        // Arrange
         var accountId = Guid.NewGuid();
         var account = CreateAccount("cus_123");
         var paymentToDelete = CreatePayment(accountId, "pm_only", account, isDefault: true);
@@ -125,8 +132,10 @@ public class DeletePaymentCommandHandlerTests
             .GetFallbackPaymentMethodAsync(accountId, paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns((PaymentMethodEntity?)null);
 
+        // Act
         var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
 
+        // Assert
         result.IsLastPaymentMethod.Should().BeTrue();
 
         await _stripePaymentService.DidNotReceive()
@@ -142,12 +151,15 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenPaymentDoesNotExistInDatabase()
     {
+        // Arrange
         _paymentRepository
             .GetAsync(Arg.Any<GetPaymentMethodByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns((PaymentMethodEntity?)null);
 
+        // Act
         var act = async () => await _handler.Handle(new DeletePaymentCommand(Guid.NewGuid(), "pm_missing"), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(HandlerConstants.Payment.PaymentMethodNotFoundMessage);
 
@@ -159,6 +171,7 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenPaymentDoesNotExistInStripe()
     {
+        // Arrange
         var accountId = Guid.NewGuid();
         var account = CreateAccount("cus_123");
         var paymentToDelete = CreatePayment(accountId, "pm_missing_in_stripe", account, isDefault: false);
@@ -171,8 +184,10 @@ public class DeletePaymentCommandHandlerTests
             .PaymentMethodExistsAsync(paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns(false);
 
+        // Act
         var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(HandlerConstants.Payment.PaymentMethodNotFoundMessage);
 
@@ -186,6 +201,7 @@ public class DeletePaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowValidationException_WhenDeletingDefaultAndStripeCustomerIsMissing()
     {
+        // Arrange
         var accountId = Guid.NewGuid();
         var account = CreateAccount(string.Empty);
         var paymentToDelete = CreatePayment(accountId, "pm_default", account, isDefault: true);
@@ -202,8 +218,10 @@ public class DeletePaymentCommandHandlerTests
             .GetFallbackPaymentMethodAsync(accountId, paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns(fallback);
 
+        // Act
         var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<ValidationException>()
             .WithMessage(HandlerConstants.Stripe.StripeCustomerIsNotConfiguredMessage);
 
