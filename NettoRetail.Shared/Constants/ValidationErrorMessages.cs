@@ -11,7 +11,6 @@ public static class ValidationErrorMessages
         public const int ProductNameMinLength = 2;
         public const int ProductNameMaxLength = 50;
 
-
         public const string ProductNameRegex = @"^[a-zA-Z0-9_\- ]+$";
         public const string UpcCodeRegex = @"^\d{12}$";
         public const string ProductLocationRegex = @"^(?! )[a-zA-Z0-9,\- ]*(?<! )$";
@@ -107,21 +106,6 @@ public static class ValidationErrorMessages
         public const string InvalidPaymentMethodIdFormat = "Invalid payment method ID format";
     }
 
-    public static class Brand
-    {
-        public const string BrandNameAllowedCharactersRegex = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
-    }
-
-    public static class Pagination
-    {
-        public const string PaginationTooLargeErrorMessage = "Pagination parameters are too large.";
-    }
-
-    public static class Sort
-    {
-        public const string SortingFieldRequiredMessage = "Sorting field is required.";
-    }
-
     public static class Subscription
     {
         public const string TrimmedAlphanumericRegex = @"^[A-Za-z0-9_-](?:[A-Za-z0-9 _-]*[A-Za-z0-9_-])?$";
@@ -135,5 +119,20 @@ public static class ValidationErrorMessages
         public const string FeatureIdsRequiredErrorMessage = "At least one feature must be enabled.";
         public const string FeatureIdsPositiveErrorMessage = "Feature IDs must be positive integers.";
         public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
+    }
+
+    public static class Brand
+    {
+        public const string BrandNameAllowedCharactersRegex = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
+    }
+
+    public static class Pagination
+    {
+        public const string PaginationTooLargeErrorMessage = "Pagination parameters are too large.";
+    }
+
+    public static class Sort
+    {
+        public const string SortingFieldRequiredMessage = "Sorting field is required.";
     }
 }
