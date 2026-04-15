@@ -46,6 +46,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldAddPaymentMethod_AndMarkAsDefault_WhenValidFirstPaymentRequest()
     {
+        // Arrange
         var staffEntity = InitializeEntity();
         var shopEntity = InitializeShop(staffEntity.ShopId!.Value);
         var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_card_mastercard");
@@ -72,8 +73,10 @@ public class AddPaymentCommandHandlerTests
             .AttachAndGetCardAsync(command.PaymentMethodId, newCustomerId, Arg.Any<CancellationToken>())
             .Returns(cardInfo);
 
+        // Act
         await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await _staffRepository
             .Received(1)
             .UpdateAsync(Arg.Is<StaffEntity>(s => s.Id == staffEntity.Id && s.StripeCustomerId == newCustomerId), Arg.Any<CancellationToken>());
@@ -103,6 +106,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenAccountDoesNotExist()
     {
+        // Arrange
         var shopEntity = InitializeShop(1);
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
@@ -110,8 +114,10 @@ public class AddPaymentCommandHandlerTests
 
         var command = new AddPaymentCommand(Guid.NewGuid(), shopEntity.Id, "pm_123");
 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(string.Format(HandlerConstants.Account.AccountNotFoundMessage, command.AccountId));
 
@@ -122,14 +128,17 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenShopDoesNotExist()
     {
+        // Arrange
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(InitializeEntity());
 
         var command = new AddPaymentCommand(Guid.NewGuid(), 5, "pm_123");
 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, command.ShopId));
 
@@ -140,6 +149,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowForbiddenException_WhenAccountDoesNotBelongToShop()
     {
+        // Arrange
         var account = InitializeEntity(shopId: 2);
         var shop = InitializeShop(1);
 
@@ -149,8 +159,10 @@ public class AddPaymentCommandHandlerTests
 
         var command = new AddPaymentCommand(account.Id, shop.Id, "pm_card_mastercard");
 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<ForbiddenException>()
             .WithMessage(HandlerConstants.Payment.CannotAddPaymentMethodForAnotherShopMessage);
 
@@ -161,6 +173,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrowBadRequestException_WhenPaymentMethodAlreadyExistsForAccount()
     {
+        // Arrange
         var account = InitializeEntity();
         var shop = InitializeShop(account.ShopId!.Value);
 
@@ -174,8 +187,10 @@ public class AddPaymentCommandHandlerTests
 
         var command = new AddPaymentCommand(account.Id, shop.Id, "pm_already_exists");
 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<BadRequestException>()
             .WithMessage(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
 
@@ -186,6 +201,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldNotUpdateAccount_AndShouldNotSetDefault_WhenCustomerAlreadyHasPaymentMethods()
     {
+        // Arrange
         var existingId = "cus_existing";
         var staffEntity = InitializeEntity();
         var shopEntity = InitializeShop(staffEntity.ShopId!.Value, stripeCustomerId: existingId);
@@ -214,8 +230,10 @@ public class AddPaymentCommandHandlerTests
             .AttachAndGetCardAsync(command.PaymentMethodId, existingId, Arg.Any<CancellationToken>())
             .Returns(cardInfo);
 
+        // Act
         await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await _staffRepository
             .DidNotReceive()
             .UpdateAsync(Arg.Any<StaffEntity>(), Arg.Any<CancellationToken>());
@@ -239,6 +257,7 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldNotSavePayment_WhenStripeServiceThrowsException()
     {
+        // Arrange
         var staffEntity = InitializeEntity();
         var shopEntity = InitializeShop(staffEntity.ShopId!.Value);
 
@@ -263,8 +282,11 @@ public class AddPaymentCommandHandlerTests
             .ThrowsAsync(new PaymentExceptions("Error"));
 
         var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_invalid");
+
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should()
             .ThrowAsync<PaymentExceptions>()
             .WithMessage("Error");
