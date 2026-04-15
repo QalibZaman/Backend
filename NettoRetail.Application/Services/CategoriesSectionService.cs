@@ -73,16 +73,7 @@ public class CategoriesSectionService : ICategoriesSectionService
 
         using var transaction = _unitOfWork.BeginTransaction();
 
-        foreach (var category in currentSelection)
-        {
-            category.CategoriesSectionOrder = null;
-        }
-
-        for (var index = 0; index < resolvedSelection.Count; index++)
-        {
-            var category = resolvedSelection[index];
-            category.CategoriesSectionOrder = index;
-        }
+        ApplyCategoriesSectionOrder(currentSelection, resolvedSelection);
 
         shop.CategoriesSectionName = name.Trim();
         shop.CategoriesSectionVisibility = visibility;
@@ -199,6 +190,21 @@ public class CategoriesSectionService : ICategoriesSectionService
     private static bool IsSelectableCategory(CategoryEntity category)
     {
         return category.Level == 1 && category.Visibility;
+    }
+
+    private static void ApplyCategoriesSectionOrder(
+    List<CategoryEntity> currentSelection,
+    List<CategoryEntity> resolvedSelection)
+    {
+        foreach (var category in currentSelection)
+        {
+            category.CategoriesSectionOrder = null;
+        }
+
+        for (var index = 0; index < resolvedSelection.Count; index++)
+        {
+            resolvedSelection[index].CategoriesSectionOrder = index;
+        }
     }
 
     private IReadOnlyList<CategorySectionItemResponse> BuildDefaultSelection(List<CategoryEntity> availableCategories)
