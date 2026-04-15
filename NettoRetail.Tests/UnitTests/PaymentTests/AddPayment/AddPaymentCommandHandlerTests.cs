@@ -1,10 +1,7 @@
-﻿using AngleSharp.Dom;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore.Storage;
 using NettoRetail.Application.CQRS.Payments.Commands;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
@@ -26,6 +23,7 @@ public class AddPaymentCommandHandlerTests
     private readonly AddPaymentCommandHandler _handler;
     private readonly IDbTransaction _transaction;
     private readonly IShopRepository _shopRepository;
+
     public AddPaymentCommandHandlerTests()
     {
         _staffRepository = Substitute.For<IStaffRepository>();
@@ -37,28 +35,35 @@ public class AddPaymentCommandHandlerTests
 
         _unitOfWork.BeginTransaction().Returns(_transaction);
 
-        _handler = new AddPaymentCommandHandler(_staffRepository, _paymentRepository, _stripePaymentService,_shopRepository, _unitOfWork);
+        _handler = new AddPaymentCommandHandler(
+            _staffRepository,
+            _paymentRepository,
+            _stripePaymentService,
+            _shopRepository,
+            _unitOfWork);
     }
 
     [Fact]
-    public async Task Handle_ShouldAddPaymentMethod_WhenValidRequest()
+    public async Task Handle_ShouldAddPaymentMethod_AndMarkAsDefault_WhenValidFirstPaymentRequest()
     {
         // Arrange
         var staffEntity = InitializeEntity();
-        var shopEntity = InitializeShop();
-
+        var shopEntity = InitializeShop(staffEntity.ShopId!.Value);
         var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_card_mastercard");
         var newCustomerId = "cus_12345";
-        var cardInfo = new CardSnapshot("pm_3232322332","Visa", 12, 2025, "4242");
+        var cardInfo = new CardSnapshot("pm_3232322332", "Visa", 12, 2025, "4242");
 
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staffEntity);
 
         _paymentRepository
-            .ExistsByStripePaymentMethodIdAsync(command.PaymentMethodId, Arg.Any<CancellationToken>())
+            .ExistsByAccountAndStripePaymentMethodIdAsync(command.AccountId, command.PaymentMethodId, Arg.Any<CancellationToken>())
             .Returns(false);
-        
+
+        _paymentRepository
+            .HasAnyByAccountIdAsync(command.AccountId, Arg.Any<CancellationToken>())
+            .Returns(false);
 
         _stripePaymentService
             .EnsureCustomerAsync(null, staffEntity.FullName, staffEntity.Email, Arg.Any<CancellationToken>())
@@ -68,66 +73,72 @@ public class AddPaymentCommandHandlerTests
             .AttachAndGetCardAsync(command.PaymentMethodId, newCustomerId, Arg.Any<CancellationToken>())
             .Returns(cardInfo);
 
-        //Act
+        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        //Assert
+        // Assert
         await _staffRepository
             .Received(1)
             .UpdateAsync(Arg.Is<StaffEntity>(s => s.Id == staffEntity.Id && s.StripeCustomerId == newCustomerId), Arg.Any<CancellationToken>());
 
+        await _shopRepository
+            .Received(1)
+            .UpdateAsync(Arg.Is<ShopEntity>(s => s.Id == shopEntity.Id && s.StripeCustomerId == newCustomerId), Arg.Any<CancellationToken>());
+
+        await _stripePaymentService
+            .Received(1)
+            .SetDefaultPaymentMethodAsync(newCustomerId, cardInfo.StripePaymentMethodId, Arg.Any<CancellationToken>());
+
         await _paymentRepository
             .Received(1)
             .AddAsync(Arg.Is<PaymentMethodEntity>(p =>
-            p.CardBrand == cardInfo.Brand &&
-            p.FourLastCardNumbers == cardInfo.Last4 &&
-            p.StripePaymentMethodId == cardInfo.StripePaymentMethodId), Arg.Any<CancellationToken>());
+                p.CardBrand == cardInfo.Brand &&
+                p.FourLastCardNumbers == cardInfo.Last4 &&
+                p.StripePaymentMethodId == cardInfo.StripePaymentMethodId &&
+                p.IsActive &&
+                p.IsDefault), Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
-        _transaction.Received(0).Rollback();
-
-
+        _transaction.DidNotReceive().Rollback();
     }
 
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenAccountDoesNotExist()
     {
-        //Arrange
+        // Arrange
+        var shopEntity = InitializeShop(1);
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult((StaffEntity?)null));
 
-        var shopEntity = InitializeShop();
+        var command = new AddPaymentCommand(Guid.NewGuid(), shopEntity.Id, "pm_123");
 
-        var command = new AddPaymentCommand(Guid.NewGuid(),shopEntity.Id, "pm_123");
-
-        //Act 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
-        //Assert
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(string.Format(HandlerConstants.Account.AccountNotFoundMessage, command.AccountId));
 
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
     }
+
     [Fact]
     public async Task Handle_ShouldThrowNotFoundException_WhenShopDoesNotExist()
     {
-        //Arrange
+        // Arrange
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult((StaffEntity?)null));
+            .Returns(InitializeEntity());
 
-        var accountEntity = InitializeEntity();
+        var command = new AddPaymentCommand(Guid.NewGuid(), 5, "pm_123");
 
-        var command = new AddPaymentCommand(accountEntity.Id, 5, "pm_123");
-
-        //Act 
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
-        //Assert
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>()
             .WithMessage(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, command.ShopId));
 
@@ -136,26 +147,50 @@ public class AddPaymentCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldThrowBadRequestException_WhenPaymentMethodAlreadyExists()
+    public async Task Handle_ShouldThrowForbiddenException_WhenAccountDoesNotBelongToShop()
     {
-        //Arrange
+        // Arrange
+        var account = InitializeEntity(shopId: 2);
+        var shop = InitializeShop(1);
+
+        _staffRepository
+            .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(account);
+
+        var command = new AddPaymentCommand(account.Id, shop.Id, "pm_card_mastercard");
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ForbiddenException>()
+            .WithMessage(HandlerConstants.Payment.CannotAddPaymentMethodForAnotherShopMessage);
+
+        _unitOfWork.DidNotReceive().BeginTransaction();
+        _transaction.DidNotReceive().Commit();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowBadRequestException_WhenPaymentMethodAlreadyExistsForAccount()
+    {
+        // Arrange
         var account = InitializeEntity();
-        var shop = InitializeShop();
+        var shop = InitializeShop(account.ShopId!.Value);
 
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(account);
 
         _paymentRepository
-            .ExistsByStripePaymentMethodIdAsync("pm_already_exists", Arg.Any<CancellationToken>())
+            .ExistsByAccountAndStripePaymentMethodIdAsync(account.Id, "pm_already_exists", Arg.Any<CancellationToken>())
             .Returns(true);
 
         var command = new AddPaymentCommand(account.Id, shop.Id, "pm_already_exists");
 
-        //Act
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
-        //Assert
+        // Assert
         await act.Should().ThrowAsync<BadRequestException>()
             .WithMessage(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
 
@@ -164,39 +199,56 @@ public class AddPaymentCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldNotUpdateAccount_WhenStripeCustomerIdAlreadyExists()
+    public async Task Handle_ShouldNotUpdateAccount_AndShouldNotSetDefault_WhenCustomerAlreadyHasPaymentMethods()
     {
-        //Arrange
-        var existingId = "existingId";
+        // Arrange
+        var existingId = "cus_existing";
         var staffEntity = InitializeEntity();
-        var shopEntity = InitializeShop();
+        var shopEntity = InitializeShop(staffEntity.ShopId!.Value, stripeCustomerId: existingId);
         staffEntity.StripeCustomerId = existingId;
+
         var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_card_mastercard");
-        var cardInfo = new CardSnapshot("pm_23322322323","Marsercard", 12, 2025, "4242");
+        var cardInfo = new CardSnapshot("pm_23322322323", "Mastercard", 12, 2025, "4242");
 
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staffEntity);
 
+        _paymentRepository
+            .ExistsByAccountAndStripePaymentMethodIdAsync(command.AccountId, command.PaymentMethodId, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        _paymentRepository
+            .HasAnyByAccountIdAsync(command.AccountId, Arg.Any<CancellationToken>())
+            .Returns(true);
+
         _stripePaymentService
-            .EnsureCustomerAsync(existingId, staffEntity.FullName,staffEntity.Email, Arg.Any<CancellationToken>())
+            .EnsureCustomerAsync(existingId, staffEntity.FullName, staffEntity.Email, Arg.Any<CancellationToken>())
             .Returns(existingId);
 
         _stripePaymentService
             .AttachAndGetCardAsync(command.PaymentMethodId, existingId, Arg.Any<CancellationToken>())
             .Returns(cardInfo);
 
-        //Act
+        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        //Assert
+        // Assert
         await _staffRepository
             .DidNotReceive()
             .UpdateAsync(Arg.Any<StaffEntity>(), Arg.Any<CancellationToken>());
 
+        await _shopRepository
+            .DidNotReceive()
+            .UpdateAsync(Arg.Any<ShopEntity>(), Arg.Any<CancellationToken>());
+
+        await _stripePaymentService
+            .DidNotReceive()
+            .SetDefaultPaymentMethodAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+
         await _paymentRepository
             .Received(1)
-            .AddAsync(Arg.Any<PaymentMethodEntity>(), Arg.Any<CancellationToken>());
+            .AddAsync(Arg.Is<PaymentMethodEntity>(p => !p.IsDefault && p.IsActive), Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
@@ -205,25 +257,36 @@ public class AddPaymentCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldNotSavePayment_WhenStripeServiceThrowsException()
     {
-        //Arrange
+        // Arrange
         var staffEntity = InitializeEntity();
-        var shopEntity = InitializeShop();
+        var shopEntity = InitializeShop(staffEntity.ShopId!.Value);
+
         _staffRepository
             .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staffEntity);
 
+        _paymentRepository
+            .ExistsByAccountAndStripePaymentMethodIdAsync(staffEntity.Id, Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        _paymentRepository
+            .HasAnyByAccountIdAsync(staffEntity.Id, Arg.Any<CancellationToken>())
+            .Returns(false);
+
         _stripePaymentService
-            .EnsureCustomerAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<CancellationToken>())
+            .EnsureCustomerAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns("newCustomerId");
 
         _stripePaymentService
             .AttachAndGetCardAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new PaymentExceptions("Error"));
 
-        //Act
-        var command = new AddPaymentCommand(staffEntity.Id,shopEntity.Id, "pm_invalid");
+        var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_invalid");
+
+        // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         await act.Should()
             .ThrowAsync<PaymentExceptions>()
             .WithMessage("Error");
@@ -234,9 +297,9 @@ public class AddPaymentCommandHandlerTests
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.DidNotReceive().Commit();
-
     }
-    private StaffEntity InitializeEntity()
+
+    private StaffEntity InitializeEntity(int shopId = 1)
     {
         return new StaffEntity
         {
@@ -244,19 +307,22 @@ public class AddPaymentCommandHandlerTests
             FirstName = "Test",
             LastName = "Testtest",
             PasswordHash = "hashedpassword",
+            ShopId = shopId
         };
     }
-    private ShopEntity InitializeShop()
+
+    private ShopEntity InitializeShop(int shopId, string? stripeCustomerId = null)
     {
         var shopEntity = new ShopEntity
         {
-            Id = 1,
+            Id = shopId,
             Email = "test@example.com",
             IsActive = true,
             Name = "Test",
             PhoneNumber = "333 333 33",
             SubscriptionPlanId = 1,
-            Url = "https://test.com"
+            Url = "https://test.com",
+            StripeCustomerId = stripeCustomerId
         };
 
         _shopRepository.GetAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())

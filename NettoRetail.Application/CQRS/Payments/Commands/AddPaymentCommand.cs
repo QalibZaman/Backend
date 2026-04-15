@@ -29,8 +29,13 @@ public sealed class AddPaymentCommandHandler(
             cancellationToken)
             ?? throw new NotFoundException(string.Format(HandlerConstants.Account.AccountNotFoundMessage, request.AccountId));
 
-        if (await paymentRepository.ExistsByStripePaymentMethodIdAsync(request.PaymentMethodId, cancellationToken))
+        if (account.ShopId != request.ShopId)
+            throw new ForbiddenException(HandlerConstants.Payment.CannotAddPaymentMethodForAnotherShopMessage);
+
+        if (await paymentRepository.ExistsByAccountAndStripePaymentMethodIdAsync(request.AccountId, request.PaymentMethodId, cancellationToken))
             throw new BadRequestException(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
+
+        var isFirstPaymentMethod = !await paymentRepository.HasAnyByAccountIdAsync(request.AccountId, cancellationToken);
 
         var customerId = await stripePaymentService.EnsureCustomerAsync(
             account.StripeCustomerId,
@@ -57,6 +62,14 @@ public sealed class AddPaymentCommandHandler(
             customerId,
             cancellationToken);
 
+        if (isFirstPaymentMethod)
+        {
+            await stripePaymentService.SetDefaultPaymentMethodAsync(
+                customerId,
+                card.StripePaymentMethodId,
+                cancellationToken);
+        }
+
         var paymentMethodRecord = new PaymentMethodEntity
         {
             AccountId = account.Id,
@@ -65,6 +78,8 @@ public sealed class AddPaymentCommandHandler(
             CardExpMonth = card.ExpMonth,
             CardExpYear = card.ExpYear,
             FourLastCardNumbers = card.Last4,
+            IsActive = true,
+            IsDefault = isFirstPaymentMethod,
             CreatedAt = DateTime.UtcNow
         };
 

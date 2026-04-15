@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
@@ -11,6 +12,12 @@ public sealed class StripePaymentService(
     PaymentMethodService paymentMethodService,
     ILogger<StripePaymentService> logger) : IStripePaymentService
 {
+    private static readonly HashSet<string> AllowedCardBrands = new(StringComparer.OrdinalIgnoreCase)
+    {
+        BankCardTypeConstants.MasterCard,
+        BankCardTypeConstants.Visa
+    };
+
     public async Task<string> EnsureCustomerAsync(
         string? existingCustomerId,
         string fullName,
@@ -109,8 +116,8 @@ public sealed class StripePaymentService(
             throw new PaymentExceptions("Only card payment methods are supported.");
         }
 
-        var allowedCards = new[] { BankCardTypeConstants.MasterCard, BankCardTypeConstants.Visa };
-        bool isSupported = allowedCards.Any(x => string.Equals(x, pm.Card.Brand.Trim(), StringComparison.OrdinalIgnoreCase));
+        var cardBrand = pm.Card.Brand?.Trim();
+        bool isSupported = !string.IsNullOrWhiteSpace(cardBrand) && AllowedCardBrands.Contains(cardBrand);
 
         if (!isSupported)
         {

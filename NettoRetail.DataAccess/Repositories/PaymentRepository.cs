@@ -7,12 +7,21 @@ namespace NettoRetail.DataAccess.Repositories;
 
 public class PaymentRepository(AppDbContext dbContext) : BaseRepository<PaymentMethodEntity>(dbContext), IPaymentRepository
 {
-    public async Task<bool> ExistsByStripePaymentMethodIdAsync(
+    public async Task<bool> ExistsByAccountAndStripePaymentMethodIdAsync(
+        Guid accountId,
         string stripePaymentMethodId,
         CancellationToken cancellationToken)
     {
         return await dbContext.Set<PaymentMethodEntity>()
-            .AnyAsync(p => p.StripePaymentMethodId == stripePaymentMethodId, cancellationToken);
+            .AnyAsync(
+                p => p.AccountId == accountId && p.StripePaymentMethodId == stripePaymentMethodId,
+                cancellationToken);
+    }
+
+    public async Task<bool> HasAnyByAccountIdAsync(Guid accountId, CancellationToken cancellationToken)
+    {
+        return await dbContext.Set<PaymentMethodEntity>()
+            .AnyAsync(p => p.AccountId == accountId, cancellationToken);
     }
 
     public async Task<PaymentMethodEntity?> GetFallbackPaymentMethodAsync(Guid accountId, string excludedMethodId, CancellationToken cancellationToken)

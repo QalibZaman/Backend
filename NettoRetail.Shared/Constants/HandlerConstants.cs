@@ -24,6 +24,7 @@
         public static class Payment
         {
             public const string PaymentMethodAlreadyExistsMessage = "Payment method already exists.";
+            public const string CannotAddPaymentMethodForAnotherShopMessage = "You cannot add a payment method for a shop you do not belong to.";
 
             public const string PaymentMethodNotFoundMessage = "Payment method not found.";
             public const string PaymentMethodDoesntBelongMessage = "Payment method does not belong to this account.";
