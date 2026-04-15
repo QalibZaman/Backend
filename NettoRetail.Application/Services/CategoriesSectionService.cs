@@ -5,6 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Options;
@@ -181,7 +182,7 @@ public class CategoriesSectionService : ICategoriesSectionService
         var shop = await _shopRepository.GetByIdAsync(shopId, cancellationToken);
         if (shop is null)
         {
-            throw new NotFoundException($"Shop with id {shopId} not found");
+            throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, shopId));
         }
 
         return shop;
