@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using MapsterMapper;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.Response;
@@ -20,17 +19,19 @@ public class InventoryItemQueryService(
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
-        if (!string.IsNullOrWhiteSpace(model.UpcOrName))
-            return await HandleQuickSearchAsync(shopId, model, ct);
+        model.PageNumber = Math.Max(1, model.PageNumber);
+        model.PageSize = model.PageSize <= 0 ? 10 : model.PageSize;
 
-        if (model.SortOption.HasValue && model.SortingOptions is null)
-            return await HandleSimpleSortAsync(shopId, model, ct);
+        var builder = await BuildBaseSpecificationAsync(shopId, model, ct);
 
-        return await HandleFilteredAndSortedAsync(shopId, model, ct);
-    }
+        builder.AddInclude(x => x.Category);
+        builder.AddInclude(x => x.Brand!);
 
-    private PaginatedResponse<InventoryItemListResponse> CreateResponse(ICollection<InventoryItemEntity> items, int total)
-    {
+        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
+        var spec = builder.Skip(skip).Take(model.PageSize).Build();
+
+        var (items, total) = await inventoryRepo.GetAllPaginatedAsync(spec, ct);
+
         return new PaginatedResponse<InventoryItemListResponse>
         {
             Items = mapper.Map<List<InventoryItemListResponse>>(items),
@@ -38,87 +39,57 @@ public class InventoryItemQueryService(
         };
     }
 
-    private async Task<PaginatedResponse<InventoryItemListResponse>> HandleQuickSearchAsync(
+    private async Task<SpecificationBuilder<InventoryItemEntity>> BuildBaseSpecificationAsync(
         int shopId,
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
-        var builder = new SpecificationBuilder<InventoryItemEntity>()
-            .Add<GetInventoryItemsByShopIdSpecification>(shopId)
-            .AddInclude(x => x.Category)
-            .AddInclude(x => x.Brand!);
+        var builder = new SpecificationBuilder<InventoryItemEntity>();
 
-        if (Regex.IsMatch(model.UpcOrName, @"^\d{1,12}$"))
-            builder.Add<GetInventoryItemsByPartialUpcSpecification>(model.UpcOrName);
-        else
-            builder.Add<GetInventoryItemsByPartialNameSpecification>(model.UpcOrName);
+        if (!string.IsNullOrWhiteSpace(model.Upc))
+        {
+            return builder
+                .Add<GetInventoryItemsByShopIdSpecification>(shopId)
+                .Add<GetInventoryItemsByPartialUpcSpecification>(model.Upc);
+        }
 
-        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
-        var spec = builder.Skip(skip).Take(model.PageSize).Build();
+        if (model.SortOption.HasValue && model.SortingOptions == null)
+        {
+            return builder
+                .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption.Value);
+        }
 
-        var (items, total) = await inventoryRepo.GetAllPaginatedAsync(spec, ct);
-
-        return CreateResponse(items, total);
+        return await BuildComplexSpecificationAsync(shopId, model, ct);
     }
 
-    private async Task<PaginatedResponse<InventoryItemListResponse>> HandleSimpleSortAsync(
-        int shopId,
-        InventoryItemsSearchModel model,
-        CancellationToken ct)
-    {
-        var builder = new SpecificationBuilder<InventoryItemEntity>()
-           .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption!.Value)
-           .AddInclude(x => x.Category)
-           .AddInclude(x => x.Brand!);
-        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
-        var spec = builder.Skip(skip).Take(model.PageSize).Build();
-
-        var (sortedItems, total) = await inventoryRepo.GetAllPaginatedAsync(spec, ct);
-
-        return CreateResponse(sortedItems, total);
-    }
-
-    private async Task<PaginatedResponse<InventoryItemListResponse>> HandleFilteredAndSortedAsync(
+    private async Task<SpecificationBuilder<InventoryItemEntity>> BuildComplexSpecificationAsync(
         int shopId,
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
         var filter = mapper.Map<GetFilteredInventoryItemsModel>(model);
-        var skip = PaginationHelper.CalculateSkip(model.PageNumber, model.PageSize);
-
-        var categoryIds = Enumerable.Empty<int>();
-        if (filter.CategoryId != 0)
-        {
-            var categories = await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct);
-            categoryIds = categories.Select(c => c.Id);
-        }
+        var categoryIds = filter.CategoryId != 0
+            ? (await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct)).Select(c => c.Id)
+            : Enumerable.Empty<int>();
 
         var filterSpec = InventoryItemFilterBuilder.Build(filter, shopId, categoryIds);
-
-        var specBuilder = new SpecificationBuilder<InventoryItemEntity>();
-
-        specBuilder.AddCriteria(filterSpec.Criteria)
-            .AddInclude(x => x.Category)
-            .AddInclude(x => x.Brand!);
+        var builder = new SpecificationBuilder<InventoryItemEntity>()
+            .AddCriteria(filterSpec.Criteria);
 
         if (filter.SortingOptions is { Count: > 0 })
         {
             foreach (var option in filter.SortingOptions)
             {
-                specBuilder.AddOrderBy(
+                builder.AddOrderBy(
                     InventoryItemSortingHelper.GetSortingExpression(option.Field),
                     option.IsDescending);
             }
         }
         else
         {
-            specBuilder.AddOrderBy(i => i.Id, false);
+            builder.AddOrderBy(i => i.Id, false);
         }
 
-        var finalSpec = specBuilder.Skip(skip).Take(model.PageSize).Build();
-
-        var (items, total) = await inventoryRepo.GetAllPaginatedAsync(finalSpec, ct);
-
-        return CreateResponse(items, total);
+        return builder;
     }
 }
