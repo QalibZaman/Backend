@@ -49,7 +49,7 @@ public class CreateVariationsCommandHandlerTests
             .Returns(parent);
 
         _inventoryItemRepository.GetAllBySpecAsync(
-                Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdSpecification>(),
+                Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdAndShopIdSpecification>(),
                 Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity> { existingVariation });
 

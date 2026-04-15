@@ -26,7 +26,7 @@ public class CreateVariationsCommandHandler(
         if (parentItem.IsVariation)
             throw new BadRequestException("A variation cannot be used as a parent item.");
 
-        var existingSpec = new GetVariationsByParentIdSpecification(parentItem.Id, command.ShopId);
+        var existingSpec = new GetVariationsByParentIdAndShopIdSpecification(parentItem.Id, command.ShopId);
         var existingVariations = (await inventoryItemRepository.GetAllBySpecAsync(existingSpec, cancellationToken)).ToList();
         var existingNames = new HashSet<string>(existingVariations.Select(x => x.ProductName), StringComparer.OrdinalIgnoreCase);
 

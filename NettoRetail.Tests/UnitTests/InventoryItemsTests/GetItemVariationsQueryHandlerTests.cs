@@ -2,6 +2,7 @@ using NettoRetail.Application.CQRS.Variations.Queries;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItemsTests;
@@ -12,13 +13,14 @@ public class GetItemVariationsQueryHandlerTests
     public async Task Handle_ShouldMapParentIdAndFilterByShopInSpecification()
     {
         var repository = Substitute.For<IInventoryItemRepository>();
-        var handler = new GetItemVariationsQueryHandler(repository);
+        var mapper = MapperFactory.Create();
+        var handler = new GetItemVariationsQueryHandler(repository, mapper);
 
         var parentId = Guid.NewGuid();
         var shopId = 77;
 
         repository.GetAllBySpecAsync(
-                Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdSpecification>(),
+                Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdAndShopIdSpecification>(),
                 Arg.Any<CancellationToken>())
             .Returns(new List<InventoryItemEntity>
             {
@@ -32,13 +34,13 @@ public class GetItemVariationsQueryHandlerTests
         Assert.Equal("Black", model.ProductName);
 
         await repository.Received(1).GetAllBySpecAsync(
-            Arg.Is<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdSpecification>(spec =>
+            Arg.Is<NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdAndShopIdSpecification>(spec =>
                 MatchesShopAndParent(spec, parentId, shopId)),
             Arg.Any<CancellationToken>());
     }
 
     private static bool MatchesShopAndParent(
-        NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdSpecification spec,
+        NettoRetail.DataAccess.Specifications.Inventory.Variations.GetVariationsByParentIdAndShopIdSpecification spec,
         Guid parentId,
         int shopId)
     {

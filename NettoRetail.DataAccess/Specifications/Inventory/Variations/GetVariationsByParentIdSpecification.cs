@@ -5,6 +5,6 @@ namespace NettoRetail.DataAccess.Specifications.Inventory.Variations;
 
 public class GetVariationsByParentIdSpecification : Specification<InventoryItemEntity>
 {
-    public GetVariationsByParentIdSpecification(Guid parentId, int shopId)
-        : base(v => v.IsVariation && v.ParentItemId == parentId && v.ShopId == shopId) { }
+    public GetVariationsByParentIdSpecification(Guid parentId)
+        : base(v => v.IsVariation && v.ParentItemId == parentId) { }
 }
