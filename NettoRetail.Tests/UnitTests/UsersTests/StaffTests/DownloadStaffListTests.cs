@@ -5,11 +5,10 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
-using NettoRetail.Application.Services.IStaffService;
+using NettoRetail.Application.Services.IStaffCsvExportService;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Tests.Helpers;
@@ -20,33 +19,18 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
 public class DownloadStaffListTests
 {
     private readonly IStaffRepository _staffRepository;
-    private readonly IRoleRepository _roleRepository;
-    private readonly IEmailSender _emailSender;
-    private readonly IEmailBuilderService _emailBuilderService;
-    private readonly ISessionTerminationService _sessionTerminationService;
-    private readonly IMapper _mapper;
     private readonly ICsvFileService _csvFileService;
-    private readonly ILogger<StaffService> _logger;
-    private readonly StaffService _staffService;
+    private readonly ILogger<StaffCsvExportService> _logger;
+    private readonly StaffCsvExportService _staffCsvExportService;
 
     public DownloadStaffListTests()
     {
         _staffRepository = Substitute.For<IStaffRepository>();
-        _roleRepository = Substitute.For<IRoleRepository>();
-        _emailSender = Substitute.For<IEmailSender>();
-        _emailBuilderService = Substitute.For<IEmailBuilderService>();
-        _sessionTerminationService = Substitute.For<ISessionTerminationService>();
-        _mapper = MapperFactory.Create();
         _csvFileService = Substitute.For<ICsvFileService>();
-        _logger = Substitute.For<ILogger<StaffService>>();
+        _logger = Substitute.For<ILogger<StaffCsvExportService>>();
 
-        _staffService = new StaffService(
+        _staffCsvExportService = new StaffCsvExportService(
             _staffRepository,
-            _roleRepository,
-            _emailSender,
-            _emailBuilderService,
-            _sessionTerminationService,
-            _mapper,
             _csvFileService,
             _logger);
     }
@@ -57,7 +41,7 @@ public class DownloadStaffListTests
         _staffRepository.GetStaffAccounts(Arg.Any<GetFilteredStaffSpecification>(), Arg.Any<CancellationToken>())
             .Returns(Enumerable.Empty<StaffEntity>());
 
-        var act = () => _staffService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
+        var act = () => _staffCsvExportService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
 
         var exception = await Assert.ThrowsAsync<BadRequestException>(act);
         Assert.Equal(StaffDownloadErrors.EmptyFilteredList, exception.Message);
@@ -67,9 +51,9 @@ public class DownloadStaffListTests
     public async Task DownloadStaffCsvAsync_ShouldThrowBadRequest_WhenStaffDataIsIncomplete()
     {
         _staffRepository.GetStaffAccounts(Arg.Any<GetFilteredStaffSpecification>(), Arg.Any<CancellationToken>())
-            .Returns([CreateStaff(role: null)]);
+            .Returns([CreateStaff(new RoleEntity { Id = 1, Name = string.Empty })]);
 
-        var act = () => _staffService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
+        var act = () => _staffCsvExportService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
 
         var exception = await Assert.ThrowsAsync<BadRequestException>(act);
         Assert.Equal(StaffDownloadErrors.PartialDataUnavailable, exception.Message);
@@ -82,9 +66,9 @@ public class DownloadStaffListTests
         _staffRepository.GetStaffAccounts(Arg.Any<GetFilteredStaffSpecification>(), Arg.Any<CancellationToken>())
             .Returns(staff);
         _csvFileService.GetEntitiesCsvData<StaffCsvModel, StaffEntity>(Arg.Any<IEnumerable<StaffEntity>>(), Arg.Any<CancellationToken>())
-            .Returns(_ => throw new InvalidOperationException("CSV write failed"));
+            .Returns(Task.FromException<byte[]>(new InvalidOperationException("CSV write failed")));
 
-        var act = () => _staffService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
+        var act = () => _staffCsvExportService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
 
         var exception = await Assert.ThrowsAsync<BadRequestException>(act);
         Assert.Equal(StaffDownloadErrors.CsvGenerationFailed, exception.Message);
@@ -101,7 +85,7 @@ public class DownloadStaffListTests
         _csvFileService.GetEntitiesCsvData<StaffCsvModel, StaffEntity>(Arg.Any<IEnumerable<StaffEntity>>(), Arg.Any<CancellationToken>())
             .Returns(expected);
 
-        var result = await _staffService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
+        var result = await _staffCsvExportService.DownloadStaffCsvAsync(1, new GetFilteredStaffCsvRequest(), CancellationToken.None);
 
         Assert.Equal(expected, result);
     }
@@ -109,19 +93,19 @@ public class DownloadStaffListTests
     [Fact]
     public async Task DownloadStaffListQueryHandler_ShouldDelegateToStaffService()
     {
-        var staffService = Substitute.For<IStaffService>();
+        var staffCsvExportService = Substitute.For<IStaffCsvExportService>();
         var expected = new byte[] { 7, 8, 9 };
         var request = new GetFilteredStaffCsvRequest { FirstName = "Ann" };
 
-        staffService.DownloadStaffCsvAsync(10, request, Arg.Any<CancellationToken>())
+        staffCsvExportService.DownloadStaffCsvAsync(10, request, Arg.Any<CancellationToken>())
             .Returns(expected);
 
-        var handler = new DownloadStaffListQueryHandler(staffService);
+        var handler = new DownloadStaffListQueryHandler(staffCsvExportService);
 
         var result = await handler.Handle(new DownloadStaffListQuery(10, request), CancellationToken.None);
 
         Assert.Equal(expected, result);
-        await staffService.Received(1).DownloadStaffCsvAsync(10, request, Arg.Any<CancellationToken>());
+        await staffCsvExportService.Received(1).DownloadStaffCsvAsync(10, request, Arg.Any<CancellationToken>());
     }
 
     private static StaffEntity CreateStaff(RoleEntity? role = null)
