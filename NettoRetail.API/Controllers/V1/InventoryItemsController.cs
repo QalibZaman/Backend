@@ -191,16 +191,24 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
     /// <response code="200">
     /// Successfully returns a paginated list of inventory items.
     /// </response>
+    /// <response code="400">
+    /// The request data is invalid or fails validation rules.
+    /// </response>
     /// <response code="401">
     /// User is not authenticated.
     /// </response>
     /// <response code="403">
     /// User does not have permission to access the shop inventory.
     /// </response>
+    /// <response code="500">
+    /// An unexpected error occurred on the server.
+    /// </response>
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemListResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("getInventoryItems")]
     public async Task<IActionResult> GetInventoryItems([FromQuery] InventoryItemsSearchModel model, CancellationToken cancellationToken)
     {

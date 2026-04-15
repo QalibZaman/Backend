@@ -29,6 +29,7 @@
             public const string PaymentMethodNotFoundMessage = "Payment method not found.";
             public const string PaymentMethodDoesntBelongMessage = "Payment method does not belong to this account.";
             public const string AtLeastTwoPaymentMethodsRequiredMessage = "At least two payment methods are required to change default.";
+            public const string PaymentMethodExpiredMessage = "Payment method is expired.";
         }
 
         public static class Shop
@@ -52,9 +53,18 @@
             public const string StripeCustomerIsNotConfiguredMessage = "Stripe customer is not configured for this account.";
         }
 
+        public static class Subscription
+        {
+            public const string SubscriptionPlanNotFoundMessage = "Subscription plan not found.";
+        }
+
         public static class Role
         {
             public const string RoleNotFoundMessage = "Role with such Id does not exist.";
+        }
+        public static class Category
+        {
+            public const string CategoryNotFoundMessage = "Category with such Id does not exist.";
         }
     }
 }

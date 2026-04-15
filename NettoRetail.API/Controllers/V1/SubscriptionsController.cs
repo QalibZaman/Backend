@@ -2,6 +2,7 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Subscription.Commands;
@@ -48,6 +49,7 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
+    [RequiresPermission(Permissions.SUPERADMINS_MANAGEMENT)]
     [Authorize]
     [HttpPut("plan/{planId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -62,11 +64,7 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         var command = new UpdateSubscriptionPlanCommand(
         planId,
         userId,
-        request.Name,
-        request.Price,
-        request.Description,
-        request.Motto,
-        request.FeatureIds);
+        request);
 
         await mediator.Send(command);
         return NoContent();

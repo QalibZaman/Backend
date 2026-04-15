@@ -10,19 +10,29 @@ public static class ValidationErrorMessages
         public const int DescriptionMaxLength = 500;
         public const int ProductNameMinLength = 2;
         public const int ProductNameMaxLength = 50;
+
+        public const string ProductNameRegex = @"^[a-zA-Z0-9_\- ]+$";
+        public const string UpcCodeRegex = @"^\d{12}$";
+        public const string ProductLocationRegex = @"^(?! )[a-zA-Z0-9,\- ]*(?<! )$";
+
+        public const string ItemNotFoundErrorMessage = "There is no such item with this Id";
         public const string IsRequired = "Product name is required";
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
-        public const string ProductNameRegex = @"^[a-zA-Z0-9_\- ]+$";
         public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
-        public const string UpcNotEmpty = "Product UPC is required.";
-        public const string UpcCodeRegex = @"^\d{12}$";
-        public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
+        public const string UpcNotEmptyErrorMessage = "Product UPC is required.";
+        public const string UpcMinLengthErrorMessage = "Product UPC must be exactly 12 digits long.";
+        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, ',' and '-'. It cannot start or end with a space.";
         public const string InvalidPriceScaleMessage = "Price must not have more than 2 decimal places.";
+        public const string MaxPriceMaxLengthErrorMessage = "Max price must be greater than or equal to min price.";
         public const string DescriptionRegex = @"^[-a-zA-Z0-9.,!?;:'""()-]+( [a-zA-Z0-9.,!?;:'""()-]+)*$";
         public const string DescriptionInvalidFormatMessage = "Description must only contain letters, digits, and common punctuation, and cannot start or end with a space.";
         public const string PriceMinlength = "Price must be greater or equal to {ComparisonValue}.";
         public const string DescriptionMaxLengthMessage = "Description must be less than {MaxLength} characters long.";
+        public const string InvalidStatusErrorMessage = "Invalid status value provided.";
+        public const string MaxOnHandAmountMinLengthMessage = "Max on-hand amount must be greater than or equal to min on-hand amount.";
+        public const string MaxReservedAmountMinLengthMessage = "Max reserved amount must be greater than or equal to min reserved amount.";
+        public const string MaxAvailableAmountMinLengthMessage = "Max available amount must be greater than or equal to min available amount.";
 
         public const int FinancialPrecision = 18;
         public const int FinancialScale = 2;
@@ -94,5 +104,35 @@ public static class ValidationErrorMessages
         public const string IdNotEmpty = "AccountId cannot be an empty GUID";
         public const string TokenNotEmpty = "Token cannot be empty";
         public const string InvalidPaymentMethodIdFormat = "Invalid payment method ID format";
+    }
+
+    public static class Subscription
+    {
+        public const string TrimmedAlphanumericRegex = @"^[A-Za-z0-9_-](?:[A-Za-z0-9 _-]*[A-Za-z0-9_-])?$";
+        public const string ConsecutiveSpecialCharsRegex = @"(--|__|-_|_-)";
+
+        public const string NameFormatErrorMessage = "The name can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string NameConsecutiveSpecialCharsErrorMessage = "Name must not contain consecutive special characters: --, __, -_, or _-.";
+        public const string PriceRequiredErrorMessage = "\"Field price\" cannot be empty.";
+        public const string DescriptionFormatErrorMessage = "The description can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string MottoFormatErrorMessage = "The motto can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input.";
+        public const string FeatureIdsRequiredErrorMessage = "At least one feature must be enabled.";
+        public const string FeatureIdsPositiveErrorMessage = "Feature IDs must be positive integers.";
+        public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
+    }
+
+    public static class Brand
+    {
+        public const string BrandNameAllowedCharactersRegex = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
+    }
+
+    public static class Pagination
+    {
+        public const string PaginationTooLargeErrorMessage = "Pagination parameters are too large.";
+    }
+
+    public static class Sort
+    {
+        public const string SortingFieldRequiredMessage = "Sorting field is required.";
     }
 }

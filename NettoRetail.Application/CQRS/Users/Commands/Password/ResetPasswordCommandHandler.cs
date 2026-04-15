@@ -24,8 +24,7 @@ public class ResetPasswordCommandHandler(
 {
     public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.Validate(request.Model.Token) ??
-            throw new InvalidTokenCredentialsException("Invalid or expired reset token.");
+        var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
 
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ??
             throw new BadRequestException("Invalid token payload.");

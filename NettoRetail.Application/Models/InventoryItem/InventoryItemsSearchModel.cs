@@ -6,7 +6,7 @@ namespace NettoRetail.Application.Models.InventoryItem;
 
 public class InventoryItemsSearchModel
 {
-    public string? UpcOrName { get; set; }
+    public string? Upc { get; set; }
     public string? ProductName { get; set; }
     public string? ProductLocation { get; set; }
     public int? CategoryId { get; set; }

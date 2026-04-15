@@ -36,7 +36,7 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
         // Upload new logo
         if (request.Model.Logo != null)
         {
-            var blobPath = blobNameGenerator.GenerateBlobName(request.Model.Logo.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
+            var blobPath = blobNameGenerator.GenerateBlobName(request.Model.Logo.FileName, request.ShopId, false);
 
             var logoUrl = await azureBlobService.UploadAsync(
                 blobPath,

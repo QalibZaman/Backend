@@ -12,6 +12,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Brands.Commands;
 
@@ -23,6 +24,7 @@ public class CreateBrandCommandHandler(
     IAzureBlobService azureBlobService,
     IBlobNameGenerator blobNameGenerator,
     IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
+    IUnitOfWork unitOfWork,
     IMapper mapper) : IRequestHandler<CreateBrandCommand, BrandResponse>
 {
     public async Task<BrandResponse> Handle(CreateBrandCommand request, CancellationToken cancellationToken)
@@ -56,12 +58,14 @@ public class CreateBrandCommandHandler(
 
         brand.ShopId = request.ShopId;
 
+        using var transaction = unitOfWork.BeginTransaction();
+
         await brandRepository.AddAsync(brand, cancellationToken);
 
         if (request.Model.LogoFile is { Length: > 0 } file)
         {
             var fileName = blobNameGenerator.GenerateBlobName(
-                file.FileName, ImageCategoriesEnum.Brands, request.ShopId, false);
+                file.FileName, request.ShopId, false);
 
             await using var stream = file.OpenReadStream();
             brand.LogoImageUrl = await azureBlobService.UploadAsync(
@@ -70,6 +74,7 @@ public class CreateBrandCommandHandler(
             await brandRepository.UpdateAsync(brand, cancellationToken);
         }
 
+        transaction.Commit();
         return mapper.Map<BrandResponse>(brand);
     }
 }

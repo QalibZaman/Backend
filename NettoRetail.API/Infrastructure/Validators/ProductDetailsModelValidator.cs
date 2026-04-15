@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Domain.Enums;
@@ -9,6 +10,8 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
 {
     public ProductDetailsModelValidator()
     {
+        RuleLevelCascadeMode = CascadeMode.Stop;
+
         RuleFor(x => x.Name)
             .MinimumLength(2).WithMessage("Product detail name length must be at least 2 characters long.")
             .MaximumLength(50).WithMessage("Product detail name length must be less than 50 characters long.")
@@ -30,12 +33,6 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
             .NotNull().WithMessage("Value is required.")
             .Custom((value, context) =>
             {
-                if (context.InstanceToValidate.Type == null)
-                {
-                    context.AddFailure("Type must be set before validating Value.");
-                    return;
-                }
-
                 var typeEnum = context.InstanceToValidate.Type;
 
                 switch (typeEnum)
@@ -45,8 +42,8 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
                             context.AddFailure("Incorrect value.");
                         break;
                     case ProductDetailTypeEnum.Number:
-                        if (value is not decimal numValue || !Regex.IsMatch(numValue.ToString(), @"^[0-9]+(\.[0-9]{2})$^[0-9]+(\.[0-9]{2})$"))
-                            context.AddFailure("Incorrect value.");
+                        if (value is not decimal numValue || !Regex.IsMatch(numValue.ToString(CultureInfo.InvariantCulture), @"^[0-9]+(\.[0-9]{1,2})$"))
+                            context.AddFailure("Incorrect value. Must be a number");
                         break;
                     case ProductDetailTypeEnum.Color:
                         if (value is not string colorValue || !Regex.IsMatch(colorValue, "^#(?:[0-9a-fA-F]{3}){1,2}$"))
@@ -55,6 +52,9 @@ public class ProductDetailsModelValidator : AbstractValidator<IInventoryItemDeta
                     case ProductDetailTypeEnum.Logic:
                         if (value is not bool)
                             context.AddFailure("Incorrect value.");
+                        break;
+                    default:
+                        context.AddFailure("A valid Product type must be selected");
                         break;
                 }
             });

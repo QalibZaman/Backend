@@ -70,7 +70,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         [Fact]
         public async Task GetInventoryItemsAsync_ShouldUseQuickSearch_WhenUpcProvided()
         {
-            var model = new InventoryItemsSearchModel { UpcOrName = "1234567890", PageNumber = 1, PageSize = 10 };
+            var model = new InventoryItemsSearchModel { Upc = "1234567890", PageNumber = 1, PageSize = 10 };
 
             var expectedItems = new List<InventoryItemEntity> { CreateItem("Item1", "1234567890") };
 
@@ -81,20 +81,6 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
 
             Assert.Equal(1, result.TotalAmount);
             Assert.Single(result.Items);
-        }
-
-        [Fact]
-        public async Task GetInventoryItemsAsync_ShouldUseQuickSearch_WhenNameProvided()
-        {
-            var model = new InventoryItemsSearchModel { UpcOrName = "Laptop" };
-
-            _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
-
-            var result = await _service.GetInventoryItemsAsync(1, model, CancellationToken.None);
-
-            Assert.Empty(result.Items);
-            Assert.Equal(0, result.TotalAmount);
         }
 
         [Fact]
@@ -198,7 +184,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         [Fact]
         public async Task GetInventoryItemsAsync_ShouldTrimAndSearch_WhenUpcOrNameHasSpaces()
         {
-            var model = new InventoryItemsSearchModel { UpcOrName = "   Laptop   " };
+            var model = new InventoryItemsSearchModel { Upc = "   Laptop   " };
             var items = new List<InventoryItemEntity> { CreateItem("Laptop", "321", 100) };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -213,7 +199,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         public async Task GetInventoryItemsAsync_ShouldReturnEmpty_WhenRepositoryReturnsEmptyResult()
         {
             // Arrange
-            var model = new InventoryItemsSearchModel { UpcOrName = "Phone" };
+            var model = new InventoryItemsSearchModel { Upc = "Phone" };
 
             _inventoryRepo.GetAllPaginatedAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(((ICollection<InventoryItemEntity>)new List<InventoryItemEntity>(), 0)));
@@ -491,7 +477,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItems
         {
             var model = new InventoryItemsSearchModel
             {
-                UpcOrName = "123",
+                Upc = "123",
                 SortingOptions = new List<SortingOption> { new() { Field = "price", IsDescending = false } }
             };
 

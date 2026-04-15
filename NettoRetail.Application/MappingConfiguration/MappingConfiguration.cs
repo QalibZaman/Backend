@@ -346,7 +346,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Unavailable, src => src.InventoryItems
                 .Count(i => i.Status == InventoryItemStatusEnum.Unavailable))
             .Map(dest => dest.Incoming, src => src.InventoryItems
-                .Count(i => i.Status == InventoryItemStatusEnum.Incoming));
+                .Count(i => i.Status == InventoryItemStatusEnum.Incoming))
+            .Map(dest => dest.New, src => src.InventoryItems
+                .Count(i => i.Status == InventoryItemStatusEnum.New));
 
         config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
             .Map(dest => dest.RoleId, src => src.Id)
