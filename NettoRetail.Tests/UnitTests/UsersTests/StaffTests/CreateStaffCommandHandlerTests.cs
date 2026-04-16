@@ -1,4 +1,3 @@
-using MapsterMapper;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
@@ -11,12 +10,10 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
 public class CreateStaffCommandHandlerTests
 {
     private readonly IStaffService _staffService;
-    private readonly IMapper _mapper;
 
     public CreateStaffCommandHandlerTests()
     {
         _staffService = Substitute.For<IStaffService>();
-        _mapper = MapperFactory.Create();
     }
 
     [Fact]
@@ -40,7 +37,7 @@ public class CreateStaffCommandHandlerTests
             PasswordHash = "hash"
         };
         var command = new CreateStaffCommand(request, 3);
-        var handler = new CreateStaffCommandHandler(_staffService, _mapper);
+        var handler = new CreateStaffCommandHandler(_staffService, MapperFactory.Create());
 
         _staffService
             .CreateStaffAsync(request, 3, Arg.Any<CancellationToken>())

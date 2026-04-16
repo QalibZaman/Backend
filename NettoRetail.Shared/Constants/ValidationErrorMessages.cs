@@ -20,9 +20,8 @@ public static class ValidationErrorMessages
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
         public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
-        public const string UpcNotEmptyErrorMessage = "Product UPC is required.";
-        public const string UpcMinLengthErrorMessage = "Product UPC must be exactly 12 digits long.";
-        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, ',' and '-'. It cannot start or end with a space.";
+        public const string UpcNotEmpty = "Product UPC is required.";
+        public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
         public const string InvalidPriceScaleMessage = "Price must not have more than 2 decimal places.";
         public const string MaxPriceMaxLengthErrorMessage = "Max price must be greater than or equal to min price.";
         public const string DescriptionRegex = @"^[-a-zA-Z0-9.,!?;:'""()-]+( [a-zA-Z0-9.,!?;:'""()-]+)*$";
@@ -119,6 +118,33 @@ public static class ValidationErrorMessages
         public const string FeatureIdsRequiredErrorMessage = "At least one feature must be enabled.";
         public const string FeatureIdsPositiveErrorMessage = "Feature IDs must be positive integers.";
         public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
+    }
+
+    public static class StaffCsv
+    {
+        public const int NameMinLength = 2;
+        public const int NameMaxLength = 30;
+        public const int EmailMaxLength = 256;
+
+        public const string NamePattern = @"^([A-Z][a-z]*)( [A-Z][a-z]*)*$";
+        public const string EmailPattern = @"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$";
+
+        public const string FirstNameRequired = "First name is required.";
+        public const string FirstNameMinLength = "First name must be at least 2 characters.";
+        public const string FirstNameMaxLength = "First name must be no more than 30 characters.";
+        public const string FirstNameInvalidFormat = "First name must start with a capital letter and only contain Latin letters. Spaces are allowed between words.";
+
+        public const string LastNameRequired = "Last name is required.";
+        public const string LastNameMinLength = "Last name must be at least 2 characters.";
+        public const string LastNameMaxLength = "Last name must be no more than 30 characters.";
+        public const string LastNameInvalidFormat = "Last name must start with a capital letter and only contain Latin letters. Spaces are allowed between words.";
+
+        public const string EmailRequired = "Email is required.";
+        public const string EmailMaxLengthMessage = "Email must be no more than 256 characters.";
+        public const string EmailInvalidFormat = "Invalid email format. Must be a valid email like name@domain.com.";
+
+        public const string RoleRequired = "Role is required.";
+        public const string RoleInvalid = "Role must be a valid role id.";
     }
 
     public static class Brand

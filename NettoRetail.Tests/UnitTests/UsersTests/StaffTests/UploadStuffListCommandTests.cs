@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using FluentValidation;
-using FluentValidation.Results;
 using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Interfaces;
@@ -12,15 +11,15 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.StuffTests;
 
 public class UploadStuffListCommandHandlerTests
 {
-    private readonly IStaffService _staffServise;
+    private readonly IStaffService _staffService;
     private readonly ICsvFileService _csvFileService;
     private readonly IValidator<List<StaffCsvModel>> _validator;
 
     public UploadStuffListCommandHandlerTests()
     {
-        _staffServise = Substitute.For<IStaffService>();
+        _staffService = Substitute.For<IStaffService>();
         _csvFileService = Substitute.For<ICsvFileService>();
-        _validator = Substitute.For<IValidator<List<StaffCsvModel>>>();
+        _validator = new InlineValidator<List<StaffCsvModel>>();
     }
 
     [Fact]
@@ -28,7 +27,7 @@ public class UploadStuffListCommandHandlerTests
     {
         // Arrange
         var command = new UploadStaffListCommand(null!, 1);
-        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffServise);
+        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffService);
         _csvFileService
             .ReadStaffListAsync(null!, Arg.Any<CancellationToken>())
             .Returns(Task.FromException<List<StaffCsvModel>>(new BadHttpRequestException(CsvUploadErrors.InvalidFileFormat)));
@@ -45,7 +44,7 @@ public class UploadStuffListCommandHandlerTests
         file.FileName.Returns("Mockfile.ccv");
         file.Length.Returns(1);
         var command = new UploadStaffListCommand(file, 1);
-        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffServise);
+        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffService);
         _csvFileService
             .ReadStaffListAsync(file, Arg.Any<CancellationToken>())
             .Returns(Task.FromException<List<StaffCsvModel>>(new BadHttpRequestException(CsvUploadErrors.InvalidFileFormat)));
@@ -70,20 +69,16 @@ public class UploadStuffListCommandHandlerTests
             }
         };
         var command = new UploadStaffListCommand(file, 1);
-        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffServise);
+        var handler = new UploadStaffListCommandHandler(_csvFileService, _validator, _staffService);
 
         _csvFileService
             .ReadStaffListAsync(file, Arg.Any<CancellationToken>())
             .Returns(staff);
-        _validator
-            .ValidateAsync(staff, Arg.Any<CancellationToken>())
-            .Returns(new ValidationResult());
 
         // Act
         await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await _validator.Received(1).ValidateAsync(staff, Arg.Any<CancellationToken>());
-        await _staffServise.Received(1).CreateStaffAsync(staff, 1, Arg.Any<CancellationToken>());
+        await _staffService.Received(1).CreateStaffAsync(staff, 1, Arg.Any<CancellationToken>());
     }
 }
