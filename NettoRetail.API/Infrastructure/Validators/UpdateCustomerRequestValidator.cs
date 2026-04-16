@@ -48,8 +48,11 @@ public class UpdateCustomerRequestValidator : AbstractValidator<UpdateCustomerRe
             .WithMessage("CountryId is required when PhoneNumber is provided.");
 
         RuleFor(x => x.Remarks)
-            .NotEmpty().WithMessage("Remarks cannot be empty.")
-            .Length(2, 100).WithMessage("Remarks length must be between 2 and 100 characters.")
-            .Matches(@"^[\x20-\x7E]+$").WithMessage("Remarks must contain only Latin letters, digits, and allowed special characters.");
+            .Length(2, 100)
+            .When(x => x.Remarks is not null)
+            .WithMessage("Remarks length must be between 2 and 100 characters.")
+            .Matches(@"^[\x20-\x7E]+$")
+            .When(x => x.Remarks is not null)
+            .WithMessage("Remarks must contain only Latin letters, digits, and allowed special characters.");
     }
 }

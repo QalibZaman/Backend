@@ -1,12 +1,10 @@
-using Mapster;
 using MapsterMapper;
-using Microsoft.Extensions.DependencyInjection;
-using NettoRetail.Application.MappingConfiguration;
 using NettoRetail.Application.CQRS.Customers.Queries;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
+using NettoRetail.Tests.Helpers;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using System.Linq.Expressions;
@@ -23,15 +21,7 @@ public class GetCustomerInfoQueryHandlerTests
 
     private static IMapper CreateMapper()
     {
-        var config = new TypeAdapterConfig();
-        config.Apply(new MappingConfiguration());
-
-        var services = new ServiceCollection();
-        services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
-
-        var provider = services.BuildServiceProvider();
-        return provider.GetRequiredService<IMapper>();
+        return MapperFactory.Create();
     }
 
     [Fact]
@@ -285,13 +275,7 @@ public class GetCustomerInfoQueryHandlerTests
 
         // Assert
         Assert.NotNull(capturedSpec);
-
-        var includeNames = capturedSpec!.Includes
-            .Select(GetMemberName)
-            .ToList();
-
-        Assert.Contains(nameof(CustomerEntity), includeNames);
-        Assert.DoesNotContain(nameof(CustomerEntity.Order), includeNames);
+        Assert.Empty(capturedSpec!.Includes);
     }
 
     [Fact]
@@ -402,13 +386,7 @@ public class GetCustomerInfoQueryHandlerTests
 
         // Assert
         Assert.NotNull(capturedSpec);
-
-        var includeNames = capturedSpec!.Includes.Select(GetMemberName).ToList();
-
-        Assert.Single(includeNames);
-        Assert.Contains(nameof(CustomerEntity), includeNames);
-
-        Assert.DoesNotContain(nameof(CustomerEntity.Order), includeNames);
+        Assert.Empty(capturedSpec!.Includes);
     }
 
     [Fact]
@@ -486,6 +464,44 @@ public class GetCustomerInfoQueryHandlerTests
 
         // Assert
         Assert.Contains("no customer", ex.Message.ToLower());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnAllFieldsRequiredForEditCustomerPrefill()
+    {
+        // Arrange
+        var loyaltyId = "LOYALTY-PREFILL";
+        var customer = new CustomerEntity
+        {
+            Id = Guid.NewGuid(),
+            LoyaltyId = loyaltyId,
+            FirstName = "Jane",
+            LastName = "Doe",
+            Email = "jane@doe.com",
+            PhoneNumber = "+48 123 456 789",
+            Remarks = "Preferred customer",
+            PasswordHash = "hash"
+        };
+
+        var handler = new GetCustomerInfoQueryHandler(
+            _customerRepository,
+            CreateMapper());
+
+        _customerRepository
+            .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>())
+            .Returns(customer);
+
+        // Act
+        var result = await handler.Handle(new GetCustomerInfoQuery(loyaltyId), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(customer.Id, result.AccountId);
+        Assert.Equal(customer.FirstName, result.FirstName);
+        Assert.Equal(customer.LastName, result.LastName);
+        Assert.Equal(customer.Email, result.Email);
+        Assert.Equal(customer.PhoneNumber, result.PhoneNumber);
+        Assert.Equal(customer.LoyaltyId, result.LoyaltyId);
+        Assert.Equal(customer.Remarks, result.Remarks);
     }
 
 
