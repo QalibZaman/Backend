@@ -191,7 +191,8 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
+            .Map(dest => dest.Subscription, src => src.SubscriptionPlan != null ? src.SubscriptionPlan.Name : string.Empty);
 
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
