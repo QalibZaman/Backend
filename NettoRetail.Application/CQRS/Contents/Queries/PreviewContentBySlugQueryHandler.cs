@@ -1,9 +1,7 @@
 using MediatR;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Content;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.CQRS.Contents.Queries;
 
@@ -16,17 +14,6 @@ public class PreviewContentBySlugQueryHandler
     {
         var (shopId, sectionType) = ContentSlugParser.ParseContentSlug(request.Slug);
         var sanitizedContent = ContentBlockRules.Sanitize(request.Model.Content);
-
-        if (!ContentBlockRules.HasMeaningfulContent(sanitizedContent))
-        {
-            throw new BadRequestException(ValidationErrorMessages.Content.IsRequired);
-        }
-
-        var imageValidationError = ContentBlockRules.ValidateImages(sanitizedContent);
-        if (imageValidationError != null)
-        {
-            throw new BadRequestException(imageValidationError);
-        }
 
         return Task.FromResult(
             ContentResponseFactory.CreatePreview(

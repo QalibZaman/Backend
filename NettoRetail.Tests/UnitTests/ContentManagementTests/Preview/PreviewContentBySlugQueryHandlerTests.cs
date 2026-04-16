@@ -1,6 +1,5 @@
 using FluentAssertions;
 using NettoRetail.Application.CQRS.Contents.Queries;
-using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Content;
 
 namespace NettoRetail.Tests.UnitTests.ContentManagementTests.Preview;
@@ -26,22 +25,5 @@ public class PreviewContentBySlugQueryHandlerTests
         result.SectionType.Should().Be("OurShop");
         result.Content.Should().Be("<p>Hello</p>");
         result.IsVisible.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Handle_EmptyPreview_ThrowsBadRequest()
-    {
-        var action = () => _handler.Handle(
-            new PreviewContentBySlugQuery(
-                "1-OurShop",
-                new UpdateContentRequest
-                {
-                    Content = "<p><br></p>",
-                    IsVisible = true,
-                }),
-            CancellationToken.None);
-
-        var ex = await Assert.ThrowsAsync<BadRequestException>(action);
-        ex.Message.Should().Be("\"Field name\" cannot be empty.");
     }
 }
