@@ -1,4 +1,4 @@
-﻿using FluentValidation.TestHelper;
+using FluentValidation.TestHelper;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.CQRS.Payments.Commands;
 using NettoRetail.Shared.Constants;
@@ -8,6 +8,7 @@ namespace NettoRetail.Tests.UnitTests.PaymentTests.AddPayment;
 public class AddPaymentCommandValidatorTests
 {
     private readonly AddPaymentCommandValidator _validator;
+
     public AddPaymentCommandValidatorTests()
     {
         _validator = new AddPaymentCommandValidator();
@@ -94,6 +95,18 @@ public class AddPaymentCommandValidatorTests
 
         result.ShouldHaveValidationErrorFor(x => x.PaymentMethodId)
             .WithErrorMessage(ValidationErrorMessages.Payment.TokenNotEmpty);
+
+        Assert.True(result.Errors.Count == 1);
+    }
+
+    [Fact]
+    public void Validator_Should_Fail_When_ShopId_Is_Invalid()
+    {
+        var model = new AddPaymentCommand(Guid.NewGuid(), 0, "pm_card_mastercard");
+        var result = _validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.ShopId)
+            .WithErrorMessage(ValidationErrorMessages.Shop.ShopIdRequiredErrorMessage);
 
         Assert.True(result.Errors.Count == 1);
     }

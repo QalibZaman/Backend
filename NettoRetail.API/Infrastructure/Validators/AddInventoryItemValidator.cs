@@ -19,8 +19,8 @@ public class AddInventoryItemValidator : AbstractValidator<AddInventoryItemModel
         RuleFor(x => x.BrandId).GreaterThan(ValidationErrorMessages.Inventory.InvalidThreshold);
 
         RuleFor(x => x.ProductUpc)
-            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmpty)
-            .Matches(ValidationErrorMessages.Inventory.UpcCodeRegex).WithMessage(ValidationErrorMessages.Inventory.UpcMinLength);
+            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmptyErrorMessage)
+            .Matches(ValidationErrorMessages.Inventory.UpcCodeRegex).WithMessage(ValidationErrorMessages.Inventory.UpcMinLengthErrorMessage);
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(ValidationErrorMessages.Inventory.InvalidThreshold).WithMessage(ValidationErrorMessages.Inventory.PriceMinlength)

@@ -19,5 +19,5 @@ public interface IBlobNameGenerator
     /// <param name="shopId">The identifier of the shop that owns the image.</param>
     /// <param name="isPrivate">Determines whether the file is private (true = 1) or public (false = 0).</param>
     /// <returns>A uniquely structured blob file name including directory, GUID, shop ID, and privacy flag.</returns>
-    string GenerateBlobName(string fileName, ImageCategoriesEnum imageCategory, int shopId, bool isPrivate);
+    string GenerateBlobName(string fileName, int shopId, bool isPrivate);
 }

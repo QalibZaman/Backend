@@ -13,9 +13,14 @@ namespace NettoRetail.API.Infrastructure.Validators
             RuleFor(x => x.AccountId)
                 .NotEmpty().WithMessage(ValidationErrorMessages.Payment.IdNotEmpty);
 
+            RuleFor(x => x.ShopId)
+                .GreaterThan(0)
+                .WithMessage(ValidationErrorMessages.Shop.ShopIdRequiredErrorMessage);
+
             RuleFor(model => model.PaymentMethodId)
                 .NotEmpty().WithMessage(ValidationErrorMessages.Payment.TokenNotEmpty)
-                .Must(x => x.StartsWith("pm_")).WithMessage(ValidationErrorMessages.Payment.InvalidPaymentMethodIdFormat);
+                .Must(x => x.StartsWith("pm_", StringComparison.Ordinal))
+                .WithMessage(ValidationErrorMessages.Payment.InvalidPaymentMethodIdFormat);
         }
     }
 }

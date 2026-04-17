@@ -1,13 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using MediatR;
-using Microsoft.Extensions.Options;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Interfaces;
-using NettoRetail.Infrastructure.Options;
-using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password;
@@ -16,14 +11,10 @@ public record SendPasswordResetLinkCommand(string Email) : IRequest;
 
 public class SendPasswordResetLinkCommandHandler(
     IStaffRepository accountRepo,
-    IJwtManager jwtManager,
     IEmailBuilderService emailBuilder,
-    IEmailSender emailSender,
-    IOptions<ResetPasswordOptions> resetOpts
+    IEmailSender emailSender
 ) : IRequestHandler<SendPasswordResetLinkCommand>
 {
-    private readonly ResetPasswordOptions _opts = resetOpts.Value;
-
     public async Task Handle(
         SendPasswordResetLinkCommand request,
         CancellationToken cancellationToken)
@@ -36,25 +27,9 @@ public class SendPasswordResetLinkCommandHandler(
         if (account is null)
             throw new BadRequestException("No account with that email.");
 
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("type", AuthTokenTypes.Reset)
-        };
-
-        var resetToken = jwtManager.Generate(
-            claims,
-            TimeSpan.FromHours(_opts.ActivationTokenExpirationHours)
-        );
-
-        var link = string.Format(
-            _opts.ResetLink,
-            Uri.EscapeDataString(resetToken)
-        );
-
         var emailModel = await emailBuilder
-            .BuildPlatformAdminActivationEmailAsync(email, account.FirstName, link);
+            .BuildResetPasswordEmailAsync(account.Email, account.FirstName);
+
         await emailSender.SendAsync(emailModel, account.Id);
     }
 
