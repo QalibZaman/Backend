@@ -10,7 +10,5 @@ public class OrderProductsResponse
     public decimal Total { get; set; }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public required OrderDeliveryTypeEnum DeliveryType { get; set; }
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public OrderStatusEnum OrderStatus { get; set; }
     public ICollection<OrderItemResponse> OrderItems { get; set; } = new List<OrderItemResponse>();
 }
