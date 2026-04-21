@@ -20,6 +20,7 @@ public class CsvFileService : ICsvFileService
     {
         _mapper = mapper;
     }
+
     private static readonly string[] InventoryItemHeaders =
     [
         "Product UPC",
@@ -33,6 +34,14 @@ public class CsvFileService : ICsvFileService
         "Price",
         "Status",
         "Description"
+    ];
+
+    private static readonly string[] StaffHeaders =
+    [
+        "First Name",
+        "Last Name",
+        "Email",
+        "Role"
     ];
 
     public async Task<byte[]> GetEntitiesCsvData<T, TEntity>(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
@@ -118,6 +127,52 @@ public class CsvFileService : ICsvFileService
         }
     }
 
+    public async Task<List<StaffCsvModel>> ReadStaffListAsync(
+        IFormFile csvFile, CancellationToken cancellationToken)
+    {
+        if (csvFile == null)
+            throw new BadRequestException(CsvUploadErrors.InvalidFileFormat);
+
+        if (!csvFile.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            throw new BadRequestException(CsvUploadErrors.InvalidFileFormat);
+
+        if (csvFile.Length == 0)
+            throw new BadRequestException(CsvUploadErrors.StaffListEmpty);
+
+        try
+        {
+            using var stream = csvFile.OpenReadStream();
+            using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+            var delimiter = DetectDelimiter(streamReader);
+
+            stream.Position = 0;
+            streamReader.DiscardBufferedData();
+
+            var config = CreateCsvConfiguration(delimiter);
+            using var csvReader = new CsvReader(streamReader, config);
+
+            if (!await csvReader.ReadAsync() || !csvReader.ReadHeader())
+                throw new BadRequestException(BuildStaffListErrorMessage("CSV header is missing or invalid."));
+
+            ValidateStaffHeaders(csvReader.HeaderRecord);
+
+            var staff = new List<StaffCsvModel>();
+            await foreach (var item in csvReader.GetRecordsAsync<StaffCsvModel>().WithCancellation(cancellationToken))
+            {
+                staff.Add(item);
+            }
+
+            if (staff.Count == 0)
+                throw new BadRequestException(CsvUploadErrors.StaffListEmpty);
+
+            return staff;
+        }
+        catch (CsvHelperException ex)
+        {
+            throw new BadRequestException(BuildStaffListErrorMessage(DescribeCsvHelperError(ex)));
+        }
+    }
+
     private static CsvConfiguration CreateCsvConfiguration(string delimiter)
         => new(CultureInfo.InvariantCulture)
         {
@@ -159,8 +214,29 @@ public class CsvFileService : ICsvFileService
         }
     }
 
+    private static void ValidateStaffHeaders(string[]? headerRecord)
+    {
+        if (headerRecord == null || headerRecord.Length == 0)
+            throw new BadRequestException(BuildStaffListErrorMessage("CSV header is missing or invalid."));
+
+        var actualHeaders = headerRecord
+            .Take(StaffHeaders.Length)
+            .Select(NormalizeHeader)
+            .ToArray();
+
+        if (headerRecord.Length != StaffHeaders.Length ||
+            !actualHeaders.SequenceEqual(StaffHeaders, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new BadRequestException(
+                BuildStaffListErrorMessage($"CSV header must contain columns in this order: {string.Join(", ", StaffHeaders)}."));
+        }
+    }
+
     private static string BuildItemsListErrorMessage(string details)
         => $"{CsvUploadErrors.ItemsListValidationFailed} {details}".Trim();
+
+    private static string BuildStaffListErrorMessage(string details)
+        => $"{CsvUploadErrors.StaffListValidationFailed} {details}".Trim();
 
     private static string NormalizeHeader(string header)
         => header.Trim().TrimStart('\uFEFF');
