@@ -6,6 +6,6 @@ public class ContentBlockResponse
     public required string SectionType { get; set; }
     public string? Content { get; set; }
     public required bool IsVisible { get; set; }
-    public required DateTime LastUpdated { get; set; }
-    public required string UpdatedBy { get; set; }
+    public DateTime? LastUpdated { get; set; }
+    public string? UpdatedBy { get; set; }
 }

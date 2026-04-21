@@ -3,8 +3,8 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Role;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
@@ -89,19 +89,6 @@ public class StaffService(
         await UpdateActiveStatusAsync(request, staff, cancellationToken);
 
         mapper.Map(request, staff);
-    }
-
-    public StaffStatusEnum? ParseStaffStatus(string? statusString)
-    {
-        if (string.IsNullOrWhiteSpace(statusString))
-            return null;
-
-        if (Enum.TryParse<StaffStatusEnum>(statusString.Replace(" ", ""), true, out var status))
-        {
-            return status;
-        }
-
-        return null;
     }
 
     private async Task UpdateActiveStatusAsync(

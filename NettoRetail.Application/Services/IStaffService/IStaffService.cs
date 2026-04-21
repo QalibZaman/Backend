@@ -1,8 +1,6 @@
-﻿using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Models.CsvFileModel;
+﻿using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Domain.Entities;
-using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Services.IStaffService;
 
@@ -27,6 +25,4 @@ public interface IStaffService
         UpdateStaffRequest request,
         StaffEntity staff,
         CancellationToken token = default);
-
-    public StaffStatusEnum? ParseStaffStatus(string? statusString);
 }

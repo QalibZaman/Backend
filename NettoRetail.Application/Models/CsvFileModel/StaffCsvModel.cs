@@ -6,7 +6,6 @@ public class StaffCsvModel
 {
     [Name("First Name")]
     public required string FirstName { get; set; }
-
     [Name("Last Name")]
     public required string LastName { get; set; }
 
@@ -15,7 +14,6 @@ public class StaffCsvModel
 
     [Name("Role")]
     public required string Role { get; set; }
-
-    [Name("Status")]
+    [Name("Staff Member Status")]
     public string? Status { get; set; }
 }

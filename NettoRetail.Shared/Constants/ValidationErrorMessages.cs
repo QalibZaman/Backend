@@ -39,7 +39,16 @@ public static class ValidationErrorMessages
         public const int FinancialPrecision = 18;
         public const int FinancialScale = 2;
     }
+    public static class PasswordValidation
+    {
+        public const string PasswordSize = "Password must contain at least 8 characters";
+    }
+    
 
+    public static class Password
+    {
+        public const string PasswordSize = "Password must contain at least 8 characters";
+    }
     public static class Search
     {
         public const string InvalidSearchField = "Invalid search field.";
@@ -56,6 +65,10 @@ public static class ValidationErrorMessages
         public const string IsRequired = "Content is required.";
         public const string MaxContentLengthMessage = "Content cannot exceed {MaxLength} characters.";
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
+        public const string ImageLimitExceededMessage = "Image limits exceeded. Please remove excess images or check file sizes/formats.";
+        public const string InvalidImageFormatMessage = "Invalid file format.";
+        public const string ImageSizeTooSmallMessage = "File size must be at least 1KB.";
+        public const string ImageSizeTooLargeMessage = "File size exceeds 5MB limit.";
     }
 
     public static class Role

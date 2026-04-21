@@ -22,9 +22,9 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
         RuleLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.Upc)
-            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmptyErrorMessage)
+            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmpty)
             .Matches(ValidationErrorMessages.Inventory.UpcCodeRegex)
-            .WithMessage(ValidationErrorMessages.Inventory.UpcMinLengthErrorMessage)
+            .WithMessage(ValidationErrorMessages.Inventory.UpcMinLength)
             .When(x => !string.IsNullOrWhiteSpace(x.Upc));
 
         RuleFor(x => x.ProductName)
@@ -40,7 +40,7 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
             .MinimumLength(2)
             .MaximumLength(100)
             .Matches(ValidationErrorMessages.Inventory.ProductLocationRegex)
-            .WithMessage(ValidationErrorMessages.Inventory.ProductLocationInvalidFormatMessage)
+            .WithMessage(ValidationErrorMessages.Inventory.ProductLocationRegex)
             .When(x => !string.IsNullOrWhiteSpace(x.ProductLocation));
 
         RuleFor(x => x.CategoryId)
