@@ -38,6 +38,7 @@ using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.IShopSubscriptionService;
 using NettoRetail.Application.Services.IShopValidationService;
+using NettoRetail.Application.Services.IStaffCsvExportService;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Services.VariationService;
@@ -129,6 +130,7 @@ public static class ServiceExtensions
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
+        services.AddScoped<IStaffCsvExportService, StaffCsvExportService>();
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IFilteredOrderService, FilteredOrderService>();
         services.AddScoped<IFilteredFeedbackService, FilteredFeedbackService>();

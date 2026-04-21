@@ -5,15 +5,15 @@ namespace NettoRetail.Application.Models.CsvFileModel;
 
 public class StaffCsvModel
 {
-    [Name("First name")]
+    [Name("First Name")]
     public required string FirstName { get; set; }
-    [Name("Last name")]
+    [Name("Last Name")]
     public required string LastName { get; set; }
     [Name("Email")]
     public required string Email { get; set; }
     [Name("Role")]
     public required string Role { get; set; }
-    [Name("Status")]
+    [Name("Staff Member Status")]
     public string? Status { get; set; }
     public static bool IsValid(StaffCsvModel model)
     {
