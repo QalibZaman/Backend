@@ -31,12 +31,12 @@ namespace NettoRetail.API.Infrastructure.Validators
 
                 file.RuleFor(f => f.FileName)
                     .Must(fn => allowedExtensions.Contains(System.IO.Path.GetExtension(fn).ToLower()))
-                    .WithMessage("Only .jpg, .jpeg, .png files are allowed (EM-22).");
+                    .WithMessage("Unsupported file format. Please upload a JPEG or PNG.");
 
 
                 file.RuleFor(f => f.Length)
                     .InclusiveBetween(MinFileSize, MaxFileSize)
-                    .WithMessage("Each file must be between 1 MB and 5 MB (EM-23).");
+                    .WithMessage("File size too large. Maximum file size is 5MB.");
 
                 file.RuleFor(f => f)
                     .Must(f => HasValidDimensions(f))

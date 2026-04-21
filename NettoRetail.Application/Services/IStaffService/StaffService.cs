@@ -3,9 +3,8 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
-using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Role;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
@@ -43,7 +42,7 @@ public class StaffService(
         var initialPassword = Guid.NewGuid().ToString();
         account.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
-        var createdAccount = await accountRepository.AddAsync(account, cancelletionToken);
+        await accountRepository.AddAsync(account, cancelletionToken);
 
         var emailModel = await emailBuilderService
             .BuildResetPasswordEmailAsync(staffCsvModel.Email, staffCsvModel.FirstName);
@@ -63,19 +62,6 @@ public class StaffService(
         await UpdateActiveStatusAsync(request, staff, cancellationToken);
 
         mapper.Map(request, staff);
-    }
-
-    public StaffStatusEnum? ParseStaffStatus(string? statusString)
-    {
-        if (string.IsNullOrWhiteSpace(statusString))
-            return null;
-
-        if (Enum.TryParse<StaffStatusEnum>(statusString.Replace(" ", ""), true, out var status))
-        {
-            return status;
-        }
-
-        return null;
     }
 
     private async Task UpdateActiveStatusAsync(
@@ -125,4 +111,5 @@ public class StaffService(
             throw new BadRequestException("You cannot edit a deactivated staff member unless you are reactivating them.");
         }
     }
+
 }
