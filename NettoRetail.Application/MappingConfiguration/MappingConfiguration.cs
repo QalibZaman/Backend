@@ -330,7 +330,8 @@ public class MappingConfiguration : IRegister
             .Ignore(dest => dest.Role);
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
-            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString())
+            .Map(dest => dest.IsVisible, src => ContentBlockRules.ShouldBeVisible(src.IsVisible, src.Content));
 
         config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)

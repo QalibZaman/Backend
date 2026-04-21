@@ -30,7 +30,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.Upc)
-                .WithErrorMessage(ValidationErrorMessages.Inventory.UpcMinLengthErrorMessage);
+                .WithErrorMessage(ValidationErrorMessages.Inventory.UpcMinLength);
         }
 
         [Theory]
@@ -81,7 +81,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.ProductLocation)
-                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationInvalidFormatMessage);
+                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationRegex);
         }
 
         [Theory]

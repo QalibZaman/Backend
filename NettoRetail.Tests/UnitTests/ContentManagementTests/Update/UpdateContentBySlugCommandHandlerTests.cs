@@ -68,6 +68,8 @@ public class UpdateContentBySlugCommandHandlerTests
             .Received(1)
             .UpdateAsync(contentBlock, Arg.Any<CancellationToken>());
 
+        Assert.Equal("<p>Updated content</p>", updateModel.Content);
+
     }
     [Fact]
     public async Task Handle_AuthorNotFound_ReturnsBadRequest()
@@ -152,6 +154,54 @@ public class UpdateContentBySlugCommandHandlerTests
         await _contentRepositoryMock
             .Received(0)
             .UpdateAsync(Arg.Any<ContentEntity>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_SanitizedContent_Becomes_Empty_ThrowsBadRequest()
+    {
+        var authorId = Guid.NewGuid();
+        var slug = "1-OurStory";
+
+        MockStaffRepository(CreateStaff(authorId));
+
+        var request = new UpdateContentBySlugCommand(
+            slug,
+            authorId,
+            new UpdateContentRequest
+            {
+                Content = "<script>alert('xss')</script>",
+                IsVisible = true,
+            });
+
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal("\"Field name\" cannot be empty.", ex.Message);
+
+        await _contentRepositoryMock.DidNotReceive().AddAsync(Arg.Any<ContentEntity>(), Arg.Any<CancellationToken>());
+        await _contentRepositoryMock.DidNotReceive().UpdateAsync(Arg.Any<ContentEntity>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WhenImageCountExceedsLimit_ThrowsBadRequest()
+    {
+        var authorId = Guid.NewGuid();
+        var slug = "1-OurStory";
+        var images = string.Concat(Enumerable.Repeat("<img src=\"https://cdn.example.com/image.png\" />", 11));
+
+        MockStaffRepository(CreateStaff(authorId));
+
+        var request = new UpdateContentBySlugCommand(
+            slug,
+            authorId,
+            new UpdateContentRequest
+            {
+                Content = $"<div>{images}</div>",
+                IsVisible = true,
+            });
+
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal("Image limits exceeded. Please remove excess images or check file sizes/formats.", ex.Message);
     }
     private void MockStaffRepository(StaffEntity? staff)
     {
