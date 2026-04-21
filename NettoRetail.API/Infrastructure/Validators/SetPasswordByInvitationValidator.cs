@@ -13,14 +13,14 @@ public class SetPasswordByInvitationValidator : AbstractValidator<SetPasswordByI
             .NotEmpty().WithMessage("Your invitation link is invalid or expired.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .MinimumLength(8).WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .MaximumLength(20).WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .Matches("[A-Z]").WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .Matches("[a-z]").WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .Matches("[0-9]").WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage(ValidationErrorMessages.Password.PasswordSize)
-            .Matches(@"^\S*$").WithMessage(ValidationErrorMessages.Password.PasswordSize);
+            .NotEmpty().WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .MinimumLength(8).WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .MaximumLength(20).WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .Matches("[A-Z]").WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .Matches("[a-z]").WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .Matches("[0-9]").WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize)
+            .Matches(@"^\S*$").WithMessage(ValidationErrorMessages.PasswordValidation.PasswordSize);
 
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty().WithMessage("New password and confirmation password do not match. Please check your input.")

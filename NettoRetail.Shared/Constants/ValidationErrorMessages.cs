@@ -36,7 +36,7 @@ public static class ValidationErrorMessages
         public const int FinancialPrecision = 18;
         public const int FinancialScale = 2;
     }
-    public static class Password
+    public static class PasswordValidation
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
     }
