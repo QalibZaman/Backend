@@ -22,10 +22,13 @@ public static class ValidationErrorMessages
         public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
         public const string UpcNotEmpty = "Product UPC is required.";
         public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
+        public const string UpcNotEmptyErrorMessage = UpcNotEmpty;
+        public const string UpcMinLengthErrorMessage = UpcMinLength;
         public const string InvalidPriceScaleMessage = "Price must not have more than 2 decimal places.";
         public const string MaxPriceMaxLengthErrorMessage = "Max price must be greater than or equal to min price.";
         public const string DescriptionRegex = @"^[-a-zA-Z0-9.,!?;:'""()-]+( [a-zA-Z0-9.,!?;:'""()-]+)*$";
         public const string DescriptionInvalidFormatMessage = "Description must only contain letters, digits, and common punctuation, and cannot start or end with a space.";
+        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, hyphens, and commas, and cannot start or end with a space.";
         public const string PriceMinlength = "Price must be greater or equal to {ComparisonValue}.";
         public const string DescriptionMaxLengthMessage = "Description must be less than {MaxLength} characters long.";
         public const string InvalidStatusErrorMessage = "Invalid status value provided.";
