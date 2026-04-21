@@ -1,18 +1,17 @@
-using MediatR;
+﻿using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.DataAccess.Specifications.Inventory.Variations;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.Application.CQRS.Variations.Commands;
 
 public record CreateVariationsCommand(CreateVariationsRequest Model, int ShopId) : IRequest<Unit>;
-
-public class CreateVariationsCommandHandler(
-    IInventoryItemRepository inventoryItemRepository,
+public class CreateVariationsCommandHandler(IInventoryItemRepository inventoryItemRepository,
     IInventoryService inventoryService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateVariationsCommand, Unit>
@@ -23,57 +22,41 @@ public class CreateVariationsCommandHandler(
         var parentItem = await inventoryItemRepository.GetAsync(parentItemSpec, cancellationToken)
             ?? throw new BadRequestException("The parent variation does not exist");
 
-        if (parentItem.IsVariation)
-            throw new BadRequestException("A variation cannot be used as a parent item.");
+        ValidateParent(parentItem);
+        await ValidateUniqueUpcsAsync(command.Model, cancellationToken);
 
-        var existingSpec = new GetVariationsByParentIdAndShopIdSpecification(parentItem.Id, command.ShopId);
-        var existingVariations = (await inventoryItemRepository.GetAllBySpecAsync(existingSpec, cancellationToken)).ToList();
-        var existingNames = new HashSet<string>(existingVariations.Select(x => x.ProductName), StringComparer.OrdinalIgnoreCase);
+        var variations = inventoryService.BuildVariationInventoryItemEntities(command.Model.Variations, parentItem);
 
-        var incomingVariations = command.Model.Variations ?? [];
-        var normalizedRequestNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var newVariations = new List<VariationModel>();
-
-        foreach (var variation in incomingVariations)
-        {
-            if (variation == null)
-                continue;
-
-            if (string.IsNullOrWhiteSpace(variation.ProductName))
-                continue;
-
-            var normalizedName = variation.ProductName.Trim();
-
-            if (!normalizedRequestNames.Add(normalizedName))
-                continue;
-
-            if (existingNames.Contains(normalizedName))
-                continue;
-
-            newVariations.Add(new VariationModel
-            {
-                ProductName = normalizedName,
-                ProductUpc = variation.ProductUpc?.Trim() ?? string.Empty,
-                IsActive = variation.IsActive
-            });
-        }
-
-        var variations = inventoryService.BuildVariationInventoryItemEntities(newVariations, parentItem);
-
-        if (!variations.Any() && parentItem.HasVariations)
-            return Unit.Value;
-
-        parentItem.HasVariations = existingVariations.Any() || variations.Any();
+        parentItem.HasVariations = true;
+        parentItem.LastUpdatedDate = DateTime.UtcNow;
 
         using var transaction = unitOfWork.BeginTransaction();
 
         await inventoryItemRepository.UpdateAsync(parentItem, cancellationToken);
-
-        if (variations.Any())
-            await inventoryItemRepository.AddRangeAsync(variations, cancellationToken);
+        await inventoryItemRepository.AddRangeAsync(variations, cancellationToken);
 
         transaction.Commit();
 
         return Unit.Value;
+    }
+
+    private static void ValidateParent(InventoryItemEntity parentItem)
+    {
+        if (parentItem.IsVariation)
+            throw new BadRequestException("A variation cannot be used as a parent product.");
+
+        if (parentItem.HasVariations)
+            throw new BadRequestException("Variations have already been created for this product.");
+    }
+
+    private async Task ValidateUniqueUpcsAsync(CreateVariationsRequest request, CancellationToken cancellationToken)
+    {
+        foreach (var variation in request.Variations)
+        {
+            var spec = new GetProductByUpcSpecification(variation.ProductUpc);
+
+            if (await inventoryItemRepository.Exists(spec, cancellationToken))
+                throw new ConflictException($"This product UPC is already registered: {variation.ProductUpc}");
+        }
     }
 }

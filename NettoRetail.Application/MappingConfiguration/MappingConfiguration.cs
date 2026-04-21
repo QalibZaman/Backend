@@ -16,6 +16,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Application.Models.Response.Country;
+using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Utilities;
@@ -94,13 +95,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Unit, src => src.Unit.HasValue ? src.Unit.Value.ToString() : null);
 
         config.NewConfig<CustomerEntity, CustomerInfoResponse>()
-            .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
-            .Map(dest => dest.Email, src => src.Email)
-            .Map(dest => dest.PhoneNumber, src => src.PhoneNumber)
-            .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
-            .Map(dest => dest.Remarks, src => src.Remarks);
+            .Map(dest => dest.Email, src => src.Email);
 
         config.NewConfig<OrderEntity, OrderResponse>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)
@@ -185,7 +182,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<StaffEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
-            .Map(dest => dest.Status, src => Regex.Replace(src.Status.ToString(), "([a-z])([A-Z])", "$1 $2"))
+            .Map(dest => dest.Status, src => src.Status.ToString())
             .Map(dest => dest.Email, src => src.Email)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName);
@@ -203,8 +200,7 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
-            .Map(dest => dest.Subscription, src => src.SubscriptionPlan != null ? src.SubscriptionPlan.Name : string.Empty);
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
@@ -213,8 +209,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
             .Ignore(dest => dest.Role)
-            .Ignore(dest => dest.Status)
             .Ignore(dest => dest.PasswordHash);
 
         config.NewConfig<FeedbackEntity, FeedbackResponse>()
@@ -328,6 +324,9 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ImageUrl, src => src.InventoryItem.Images.FirstOrDefault().BlobUrl ?? string.Empty)
             .AfterMapping((src, dest) => dest.SubtotalPrice = dest.Price * dest.Quantity);
 
+        config.NewConfig<InventoryItemEntity, VariationResponse>()
+            .Map(dest => dest.ParentId, src => src.ParentItemId ?? Guid.Empty);
+
         config.NewConfig<CreatePlatformAdminModel, StaffEntity>()
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
@@ -341,8 +340,7 @@ public class MappingConfiguration : IRegister
             .Ignore(dest => dest.Role);
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
-            .Map(dest => dest.SectionType, src => src.SectionType.ToString())
-            .Map(dest => dest.IsVisible, src => ContentBlockRules.ShouldBeVisible(src.IsVisible, src.Content));
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
 
         config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)
