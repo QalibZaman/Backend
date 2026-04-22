@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
+using NettoRetail.Application.Services.BackgroundServices;
 using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.Application.Services.IBrandService;
@@ -157,5 +158,6 @@ public static class ServiceExtensions
 
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
+        services.AddHostedService<PromotionCleanupService>();
     }
 }
