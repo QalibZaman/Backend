@@ -307,18 +307,20 @@ public class InventoryItemsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
+    [RequiresPermission(Permissions.INVENTORY_MANAGEMENT)]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ToggleLinkProductsResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("parent/toggleLink")]
     public async Task<IActionResult> ToggleLinkProducts([FromBody] ToggleLinkProductsRequest request, CancellationToken cancellationToken)
     {
-        var data = await mediator.Send(new ToggleLinkProductsCommand(request.ParentId, request.ChildId), cancellationToken);
-        return Ok(data);
+        var shopId = HttpContext.GetUserShopId();
+        var data = await mediator.Send(new ToggleLinkProductsCommand(request.ParentId, request.ChildId, shopId, request.ConflictResolutions), cancellationToken);
+        return Ok(new ApiResponse<ToggleLinkProductsResponse>(data));
     }
 }
