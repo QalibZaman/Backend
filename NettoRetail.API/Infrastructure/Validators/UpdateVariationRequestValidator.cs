@@ -7,12 +7,7 @@ namespace NettoRetail.API.Infrastructure.Validators
     public class UpdateVariationRequestValidator : AbstractValidator<UpdateVariationRequest>
     {
         private static readonly string[] AllowedStatuses =
-        [
-            nameof(InventoryItemStatusEnum.Available),
-            nameof(InventoryItemStatusEnum.Committed),
-            nameof(InventoryItemStatusEnum.Unavailable),
-            nameof(InventoryItemStatusEnum.Incoming)
-        ];
+            Enum.GetNames<InventoryItemStatusEnum>();
 
         public UpdateVariationRequestValidator()
         {
