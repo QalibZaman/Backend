@@ -113,5 +113,21 @@ namespace NettoRetail.API.Controllers.V1
 
             return NoContent();
         }
+        
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<PaymentMethodsResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ViewPayemntMethods(CancellationToken cancellationToken)
+        {
+            var shopId = HttpContext.GetUserShopId();
+            var userId = HttpContext.GetUserId();
+
+            var command = new GetPaymentMethodsQuery(userId, shopId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponse<List<PaymentMethodsResponse>>(result));
+        }
     }
 }

@@ -30,7 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CQRS\Payments\Queries\" />
       <Folder Include="Models\Request\Feedback\" />
     </ItemGroup>
 
