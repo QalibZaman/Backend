@@ -1,3 +1,4 @@
+using Mapster;
 using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
@@ -49,6 +50,11 @@ public class UpdateProductCommandHandler(
             ValidatePrice(model.PriceInfo, item);
 
             mapper.Map(model.PriceInfo, item);
+        }
+
+        if (model.AvailabilityInfo is not null)
+        {
+            model.AvailabilityInfo.Adapt(item);
         }
 
         if (model.Details is not null)

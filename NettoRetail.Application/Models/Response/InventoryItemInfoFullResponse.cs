@@ -18,6 +18,7 @@ public class InventoryItemInfoFullResponse
     public required string Status { get; set; }
     public required int AvailableAmount { get; set; }
     public required int ReservedAmount { get; set; }
+    public required int IncomingAmount { get; set; }
     public required int OnHandAmount { get; set; }
     public required bool HasVariations { get; set; }
     public required BrandSummaryResponse Brand { get; set; }

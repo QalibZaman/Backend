@@ -46,6 +46,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
                 Status = InventoryItemStatusEnum.Available,
                 AvailableAmount = available,
                 ReservedAmount = 0,
+                IncomingAmount = 3,
                 OnHandAmount = Math.Max(available, 0),
                 ProductLocation = "A1",
                 Category = new CategoryEntity
@@ -62,7 +63,8 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
                 Brand = null,
                 Images = new List<InventoryItemImageEntity>
                 {
-                    new InventoryItemImageEntity { Id = Guid.NewGuid(), BlobUrl = "https://cdn.test/thumb.jpg", Order = 0 }
+                    new InventoryItemImageEntity
+                        { Id = Guid.NewGuid(), BlobUrl = "https://cdn.test/thumb.jpg", Order = 0 }
                 }
             };
 
@@ -88,7 +90,8 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             Assert.Empty(result.Items);
             Assert.Equal(0, result.AvailableItemCount);
             Assert.Equal(0m, result.TotalPriceAvailable);
-            await repo.Received(1).GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>());
+            await repo.Received(1).GetManyBySpecAsync(Arg.Any<Specification<FavouriteListItemEntity>>(),
+                Arg.Any<CancellationToken>());
         }
 
         [Fact]

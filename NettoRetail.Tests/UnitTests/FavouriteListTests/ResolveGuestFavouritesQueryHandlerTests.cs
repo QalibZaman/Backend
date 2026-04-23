@@ -46,6 +46,7 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
                 Status = InventoryItemStatusEnum.Available,
                 AvailableAmount = available,
                 ReservedAmount = 0,
+                IncomingAmount = 3,
                 OnHandAmount = Math.Max(available, 0),
                 ProductLocation = "A1",
                 Category = new CategoryEntity
@@ -62,7 +63,8 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
                 Brand = null,
                 Images = new List<InventoryItemImageEntity>
                 {
-                    new InventoryItemImageEntity { Id = Guid.NewGuid(), BlobUrl = "https://cdn.test/thumb.jpg", Order = 0 }
+                    new InventoryItemImageEntity
+                        { Id = Guid.NewGuid(), BlobUrl = "https://cdn.test/thumb.jpg", Order = 0 }
                 }
             };
 
@@ -72,14 +74,16 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
             var repo = Substitute.For<IInventoryItemRepository>();
             var handler = new ResolveGuestFavouritesQueryHandler(repo, CreateMapper());
 
-            var result = await handler.Handle(new ResolveGuestFavouritesQuery(Array.Empty<Guid>(), 9), CancellationToken.None);
+            var result = await handler.Handle(new ResolveGuestFavouritesQuery(Array.Empty<Guid>(), 9),
+                CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Empty(result.Items);
             Assert.Equal(0, result.AvailableItemCount);
             Assert.Equal(0m, result.TotalPriceAvailable);
 
-            await repo.DidNotReceive().GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>());
+            await repo.DidNotReceive().GetManyBySpecAsync(Arg.Any<Specification<InventoryItemEntity>>(),
+                Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -91,8 +95,8 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
 
             var itemsDb = new List<InventoryItemEntity>
             {
-                Item(id1, shopId, "iPhone 15",  "Smartphones", 999m, 899m, available: 2),
-                Item(id2, shopId, "Pixel 8",    "Smartphones", 699m, null,  available: 0)
+                Item(id1, shopId, "iPhone 15", "Smartphones", 999m, 899m, available: 2),
+                Item(id2, shopId, "Pixel 8", "Smartphones", 699m, null, available: 0)
             };
 
             var repo = Substitute.For<IInventoryItemRepository>();
@@ -101,7 +105,8 @@ namespace NettoRetail.Tests.UnitTests.FavouritesTests
 
             var handler = new ResolveGuestFavouritesQueryHandler(repo, CreateMapper());
 
-            var result = await handler.Handle(new ResolveGuestFavouritesQuery(new[] { id1, id2 }, shopId), CancellationToken.None);
+            var result = await handler.Handle(new ResolveGuestFavouritesQuery(new[] { id1, id2 }, shopId),
+                CancellationToken.None);
 
             Assert.Equal(2, result.Items.Count());
             Assert.True(result.Items.First(i => i.Id == id2).IsOutOfStock);

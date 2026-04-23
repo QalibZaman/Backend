@@ -30,7 +30,6 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
                 cartItemRepository: _cartItemRepo,
                 inventoryRepository: _invRepo,
                 unitOfWork: _unitOfWork
-
             );
         }
 
@@ -51,7 +50,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
 
             var cart = await _cartService.AddItemForUserAsync(customerId, product.Id, CancellationToken.None);
 
-            await _cartRepo.Received(1).AddAsync(Arg.Is<CartEntity>(c => c.CustomerId == customerId), Arg.Any<CancellationToken>());
+            await _cartRepo.Received(1).AddAsync(Arg.Is<CartEntity>(c => c.CustomerId == customerId),
+                Arg.Any<CancellationToken>());
 
             await _cartItemRepo.Received(1).AddAsync(
                 Arg.Is<CartItemEntity>(i =>
@@ -154,7 +154,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns(existingItem);
 
@@ -179,7 +180,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns((CartItemEntity?)null);
 
@@ -235,7 +237,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns(existingItem);
 
@@ -302,7 +305,8 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
             };
 
             _cartRepo.GetByCustomerIdAsync(customerId, Arg.Any<CancellationToken>()).Returns(cart);
-            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(product);
+            _invRepo.GetAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(product);
             _cartItemRepo.GetAsync(Arg.Any<GetCartItemByCartAndInventorySpecification>(), Arg.Any<CancellationToken>())
                 .Returns((CartItemEntity?)null);
 
@@ -384,6 +388,7 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
                 AvailableAmount = availableAmount,
                 ReservedAmount = 0,
                 OnHandAmount = availableAmount,
+                IncomingAmount = 3,
                 ProductLocation = "Shelf",
                 ShopId = 1,
                 BrandId = 1,
@@ -399,4 +404,3 @@ namespace NettoRetail.Tests.UnitTests.CartServiceTest
         }
     }
 }
-

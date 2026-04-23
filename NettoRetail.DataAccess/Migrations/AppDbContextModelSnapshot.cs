@@ -896,6 +896,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("HasVariations")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("IncomingAmount")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 

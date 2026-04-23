@@ -28,7 +28,8 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
             _orderRepository = Substitute.For<IOrderRepository>();
             _orderService = Substitute.For<IOrderService>();
             _pdfGenerator = Substitute.For<IPdfGenerator>();
-            _handler = new GetOrderDetailsForPrintingQueryHandler(_orderRepository, _orderService, _pdfGenerator, NullLogger<GetOrderDetailsForPrintingQueryHandler>.Instance);
+            _handler = new GetOrderDetailsForPrintingQueryHandler(_orderRepository, _orderService, _pdfGenerator,
+                NullLogger<GetOrderDetailsForPrintingQueryHandler>.Instance);
         }
 
         [Fact]
@@ -140,6 +141,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
                 IsActive = true,
                 AvailableAmount = 10,
                 ReservedAmount = 0,
+                IncomingAmount = 3,
                 OnHandAmount = 10,
                 ProductLocation = "Shelf A",
                 ShopId = 1,
@@ -149,7 +151,8 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
                 IsPromoted = false,
                 Status = InventoryItemStatusEnum.Available,
                 Brand = new BrandEntity { Id = 1, Name = "TestBrand", ShopId = 1 },
-                Category = new CategoryEntity { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
+                Category = new CategoryEntity
+                    { Id = 1, Name = "Cat", URL = "cat", Visibility = true, Level = 1, ShopId = 1 }
             };
 
             var orderItem = new OrderItemEntity
@@ -216,9 +219,11 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
                     ReservedAmount = orderItemEntity.InventoryItem.ReservedAmount,
                     OnHandAmount = orderItemEntity.InventoryItem.OnHandAmount
                 }).ToList(),
-                Subtotal = order.OrderItems.Sum(orderItemEntity => orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity),
+                Subtotal = order.OrderItems.Sum(orderItemEntity =>
+                    orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity),
                 TotalSale = 0m,
-                TotalAmount = order.OrderItems.Sum(orderItemEntity => orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity)
+                TotalAmount = order.OrderItems.Sum(orderItemEntity =>
+                    orderItemEntity.InventoryItem.Price * orderItemEntity.Quantity)
             };
         }
     }

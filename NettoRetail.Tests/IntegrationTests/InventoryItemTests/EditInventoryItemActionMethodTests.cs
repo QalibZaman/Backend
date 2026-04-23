@@ -617,6 +617,7 @@ public class EditInventoryItemActionMethodTests : IClassFixture<CustomWebApplica
                     AvailableAmount = 10,
                     ReservedAmount = 2,
                     OnHandAmount = 8,
+                    IncomingAmount = 3,
                     ProductLocation = "Test Location",
                     ShopId = 1,
                     BrandId = 1,
