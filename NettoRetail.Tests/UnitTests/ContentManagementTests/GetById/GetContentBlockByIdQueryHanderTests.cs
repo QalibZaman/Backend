@@ -82,4 +82,29 @@ public class GetContentBlockByIdQueryHanderTests
             .GetAsync(Arg.Any<GetContentBlockByShopIdSpecification>(), Arg.Any<CancellationToken>());
 
     }
+
+    [Fact]
+    public async Task GetUserById_EmptyContent_IsReturnedAsInvisible()
+    {
+        int id = 1;
+        int shopId = 5;
+        var content = new ContentEntity
+        {
+            Id = id,
+            ShopId = shopId,
+            Content = "<p><br></p>",
+            IsVisible = true,
+            LastUpdated = DateTime.UtcNow,
+            SectionType = SectionTypeEnum.PrivacyPolicy,
+            UpdatedBy = "TestUser",
+        };
+
+        _contentRepository
+            .GetAsync(Arg.Any<GetContentBlockByShopIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<ContentEntity?>(content));
+
+        var result = await _handler.Handle(new GetContentBlockByIdQuery(id, shopId), CancellationToken.None);
+
+        result.IsVisible.Should().BeFalse();
+    }
 }

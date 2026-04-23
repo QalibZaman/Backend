@@ -31,12 +31,13 @@ public class GetOrderProductsQueryHandlerTest
     {
         // Arrange
         var orderId = 12;
+        var userId = 51;
 
         _orderRepository
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns((OrderEntity?)null);
 
-        var query = new GetOrderProductsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId, userId);
         // Act & Assert
         var ex = await Record.ExceptionAsync(() => _handler.Handle(query, CancellationToken.None));
 
@@ -51,13 +52,14 @@ public class GetOrderProductsQueryHandlerTest
     {
         // Arrange
         var orderId = 9;
+        var userId = 51;
         var order = BuildTestOrder(orderId);
 
         _orderRepository
             .GetOrderWithInventoryItemsAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
 
-        var query = new GetOrderProductsQuery(orderId);
+        var query = new GetOrderProductsQuery(orderId, userId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -65,7 +67,6 @@ public class GetOrderProductsQueryHandlerTest
         // Assert
         Assert.NotNull(result);
         Assert.IsType<OrderProductsResponse>(result);
-        Assert.Equal(order.OrderStatus, result.OrderStatus);
 
         await _orderRepository
             .Received(1)

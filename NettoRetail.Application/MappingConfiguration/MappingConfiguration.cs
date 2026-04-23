@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Mapster;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
@@ -176,7 +177,7 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<StaffEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
-            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.Status, src => Regex.Replace(src.Status.ToString(), "([a-z])([A-Z])", "$1 $2"))
             .Map(dest => dest.Email, src => src.Email)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName);
@@ -191,7 +192,8 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
+            .Map(dest => dest.Subscription, src => src.SubscriptionPlan != null ? src.SubscriptionPlan.Name : string.Empty);
 
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
@@ -200,8 +202,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
-            .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
             .Ignore(dest => dest.Role)
+            .Ignore(dest => dest.Status)
             .Ignore(dest => dest.PasswordHash);
 
         config.NewConfig<FeedbackEntity, FeedbackResponse>()
@@ -328,7 +330,8 @@ public class MappingConfiguration : IRegister
             .Ignore(dest => dest.Role);
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
-            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString())
+            .Map(dest => dest.IsVisible, src => ContentBlockRules.ShouldBeVisible(src.IsVisible, src.Content));
 
         config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)

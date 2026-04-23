@@ -124,6 +124,20 @@ public class ContentController(IMediator mediator) : Controller
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("block/slug/{slug}")]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<ContentBlockResponse>), StatusCodes.Status500InternalServerError)]
+    [MapToApiVersion("1.0")]
+    public async Task<IActionResult> GetContentBlockBySlug(string slug, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetContentBlockBySlugQuery(slug), cancellationToken);
+        var response = new ApiResponse<ContentBlockResponse>(result);
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPut("block/{slug}")] // Slug format: shopId-ContentCategory; Example: 1-OurShop
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -138,5 +152,19 @@ public class ContentController(IMediator mediator) : Controller
         await mediator.Send(command);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost("block/{slug}/preview")]
+    [ProducesResponseType(typeof(ApiResponse<ContentPreviewResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ContentPreviewResponse>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<ContentPreviewResponse>), StatusCodes.Status500InternalServerError)]
+    [MapToApiVersion("1.0")]
+    public async Task<IActionResult> PreviewContentBySlug(string slug, [FromBody] UpdateContentRequest updateContentRequest, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new PreviewContentBySlugQuery(slug, updateContentRequest), cancellationToken);
+        var response = new ApiResponse<ContentPreviewResponse>(result);
+        return Ok(response);
     }
 }

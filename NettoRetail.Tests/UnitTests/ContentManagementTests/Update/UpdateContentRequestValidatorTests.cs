@@ -21,13 +21,12 @@ public class UpdateContentRequestValidatorTests
 
         result.ShouldHaveValidationErrorFor(x => x.Content)
             .WithErrorMessage(ValidationErrorMessages.Content.IsRequired);
-
-        Assert.True(result.Errors.Count == 2);
+        Assert.Single(result.Errors);
     }
     [Fact]
     public void Validator_Should_Fail_When_Content_Exceeds_Max_Length()
     {
-        var MaxContentLength = 50 * 1024;
+        var MaxContentLength = 50_000;
         var model = new UpdateContentRequest { Content = new string('a', MaxContentLength + 1), IsVisible = true };
         
         var result = _validator.TestValidate(model);
@@ -43,8 +42,31 @@ public class UpdateContentRequestValidatorTests
 
         var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(x => x.IsVisible)
-            .WithErrorMessage(ValidationErrorMessages.Content.ContentVisibilityRequiredMessage);
-        Assert.True(result.Errors.Count == 2);
+        result.ShouldHaveValidationErrorFor(x => x.Content)
+            .WithErrorMessage(ValidationErrorMessages.Content.IsRequired);
+        Assert.Single(result.Errors);
+    }
+
+    [Fact]
+    public void Validator_Should_Fail_When_Content_Has_Only_Empty_Html()
+    {
+        var model = new UpdateContentRequest { Content = "<p><br></p>", IsVisible = false };
+
+        var result = _validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.Content)
+            .WithErrorMessage(ValidationErrorMessages.Content.IsRequired);
+    }
+
+    [Fact]
+    public void Validator_Should_Fail_When_Image_Count_Exceeds_Limit()
+    {
+        var images = string.Concat(Enumerable.Repeat("<img src=\"https://cdn.example.com/image.png\" />", 11));
+        var model = new UpdateContentRequest { Content = $"<div>{images}</div>", IsVisible = true };
+
+        var result = _validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.Content)
+            .WithErrorMessage(ValidationErrorMessages.Content.ImageLimitExceededMessage);
     }
 }

@@ -10,7 +10,7 @@ public abstract class CategoryUpsertRequestValidator<TRequest> : AbstractValidat
     {
         RuleFor(model => model.Name)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Category name is required (EM-16).")
+            .NotEmpty().WithMessage("Category name cannot be empty.")
             .MinimumLength(2).WithMessage("Category name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Category name length must be less than 50 characters long.")
             .Matches(@"^[a-zA-Z0-9-_ ]+$").WithMessage("The name can only contain letters, numbers, spaces, hyphens, and underscores. Please check your input.");

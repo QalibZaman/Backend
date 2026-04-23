@@ -97,10 +97,12 @@ public class UpdateProductCommandHandler(
 
         if (modelsToUpdate.Any())
         {
+            var modelIds = modelsToUpdate
+                .Select(m => m.Id)
+                .ToHashSet();
             var entitiesToUpdate = entities
-                .Where(e => modelsToUpdate.Any(m => m.Id == e.Id))
+                .Where(e => modelIds.Contains(e.Id))
                 .ToList();
-
             foreach (var entity in entitiesToUpdate)
             {
                 var sourceModel = modelsToUpdate.First(m => m.Id == entity.Id);

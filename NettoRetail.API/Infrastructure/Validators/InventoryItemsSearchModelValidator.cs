@@ -29,11 +29,11 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
             .When(x => !string.IsNullOrWhiteSpace(x.ProductName));
 
         RuleFor(x => x.ProductLocation)
-            .NotEmpty().WithMessage("Product location is required.")
-            .MinimumLength(2).WithMessage("Product location must be at least 2 characters long.")
-            .MaximumLength(100).WithMessage("Product location must be at most 100 characters long.")
-            .Matches(@"^(?! )[a-zA-Z0-9,\- ]*(?<! )$")
-            .WithMessage("Product location may only contain letters, digits, spaces, hyphens (-), and commas (,), and cannot start or end with a space.")
+            .NotEmpty()
+            .MinimumLength(2)
+            .MaximumLength(100)
+            .Matches(ValidationErrorMessages.Inventory.ProductLocationRegex)
+            .WithMessage(ValidationErrorMessages.Inventory.ProductLocationInvalidFormatMessage)
             .When(x => !string.IsNullOrWhiteSpace(x.ProductLocation));
 
         RuleFor(x => x.CategoryId)

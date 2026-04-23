@@ -11,12 +11,12 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategories
     public UpdateCategoryCommandValidator(ICategoryRepository categoryRepository)
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Category name is required (EM-16).")
+            .NotEmpty().WithMessage("Category name cannot be empty.")
             .MinimumLength(2).WithMessage("Category name length must be greater than 2 characters long.")
             .MaximumLength(50).WithMessage("Category name length must be less than 50 characters long.");
 
         RuleFor(x => x.URL)
-            .NotEmpty().WithMessage("URL is required (EM-16).")
+            .NotEmpty().WithMessage("URL cannot be empty.")
             .Length(1, 50).WithMessage("The URL must be between 1 and 50 characters long.")
             .Matches("^[a-zA-Z0-9\\-._~]+$").WithMessage("Allowed characters: letters, digits, -, ., _, ~.")
             .Matches("^\\S.*\\S$").WithMessage("No leading or trailing spaces are allowed.");
@@ -82,17 +82,17 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategories
 
                     if (nameConflict && urlConflict)
                     {
-                        throw new ConflictException("Category name already exists (EM-17a). Category URL already exists (EM-17b).");
+                        throw new ConflictException("Category with this name already exists. Category with this name already exists");
                     }
 
                     if (nameConflict)
                     {
-                        throw new ConflictException("Category name already exists (EM-17a).");
+                        throw new ConflictException("Category with this name already exists");
                     }
 
                     if (urlConflict)
                     {
-                        throw new ConflictException("Category URL already exists (EM-17b).");
+                        throw new ConflictException("Category with this URL already exists");
                     }
                 }
             });
