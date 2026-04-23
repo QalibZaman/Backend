@@ -111,11 +111,29 @@ public class BrandsController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpGet("{id:int}/brand-logo")]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetBrandLogo([FromRoute] int id, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var query = new GetBrandImageQuery(id, shopId);
+        var sasUrl = await mediator.Send(query, cancellationToken);
+
+        return Redirect(sasUrl);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<BrandResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json", "multipart/form-data")]
     public async Task<IActionResult> CreateBrand([FromForm] CreateBrandRequest model, CancellationToken cancellationToken)

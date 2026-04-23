@@ -5,6 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 
@@ -76,7 +77,7 @@ public class InventoryItemQueryService(
 
             if (!subtree.Any())
             {
-                throw new NotFoundException("There is no category with such id.");
+                throw new NotFoundException(HandlerConstants.Category.CategoryNotFoundMessage);
             }
 
             categoryIds = subtree.Select(x => x.Id);

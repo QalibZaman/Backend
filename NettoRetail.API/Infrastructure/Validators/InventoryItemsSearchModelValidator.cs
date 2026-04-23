@@ -3,7 +3,6 @@ namespace NettoRetail.API.Infrastructure.Validators;
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Utilities;
 using NettoRetail.Shared.Constants;
 
