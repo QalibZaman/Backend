@@ -92,6 +92,7 @@ public class GetInventoryItemFullInfoQueryHandlerTests
         Assert.Equal(item.ProductName, result.ProductName);
         Assert.Equal(item.Price, result.Price);
         Assert.Equal(item.Status.ToString(), result.Status);
+        Assert.Equal(item.IncomingAmount, result.IncomingAmount);
 
         Assert.NotNull(result.ProductCategories);
         Assert.Equal(2, result.ProductCategories.Count());
