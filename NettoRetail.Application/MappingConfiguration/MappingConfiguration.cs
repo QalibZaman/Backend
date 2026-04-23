@@ -11,6 +11,7 @@ using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
@@ -184,6 +185,9 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
+
+        config.NewConfig<InventoryItemEntity, VariationResponse>()
+            .Map(dest => dest.ParentId, src => src.ParentItemId ?? Guid.Empty);
 
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
             .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())

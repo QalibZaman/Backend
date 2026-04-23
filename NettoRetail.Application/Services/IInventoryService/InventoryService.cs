@@ -13,6 +13,7 @@ using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
@@ -134,10 +135,17 @@ public class InventoryService(
             var variant = mapper.Map<InventoryItemEntity>(item);
 
             variant.AvailableAmount = 0;
+            variant.ReservedAmount = 0;
+            variant.OnHandAmount = 0;
             variant.IsVariation = true;
+            variant.Exists = true;
+            variant.IsActive = true;
+            variant.Status = InventoryItemStatusEnum.Available;
             variant.Price = parentItem.Price;
             variant.ShopId = parentItem.ShopId;
             variant.ParentItemId = parentItem.Id;
+            variant.ProductName = item.ProductName.Trim();
+            variant.ProductUpc = item.ProductUpc?.Trim() ?? string.Empty;
 
             variant.Description = parentItem.Description;
             variant.CategoryId = parentItem.CategoryId;
