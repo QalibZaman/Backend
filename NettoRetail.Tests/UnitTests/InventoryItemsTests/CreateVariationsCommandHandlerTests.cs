@@ -38,6 +38,7 @@ public class CreateVariationsCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCreateOnlyNewUniqueVariations()
     {
+        // Arrange
         var shopId = 11;
         var parent = BuildItem("Parent", isVariation: false);
 
@@ -77,8 +78,10 @@ public class CreateVariationsCommandHandlerTests
 
         var command = new CreateVariationsCommand(request, shopId);
 
+        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
+        // Assert
         Assert.Equal(Unit.Value, result);
         Assert.NotNull(capturedModels);
         Assert.Single(capturedModels!);
@@ -97,6 +100,7 @@ public class CreateVariationsCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldThrow_WhenParentItemIsVariation()
     {
+        // Arrange
         var parentVariation = BuildItem("Child", isVariation: true);
 
         _inventoryItemRepository.GetAsync(
@@ -112,6 +116,7 @@ public class CreateVariationsCommandHandlerTests
             },
             ShopId: 7);
 
+        // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));
 
         _unitOfWork.DidNotReceive().BeginTransaction();

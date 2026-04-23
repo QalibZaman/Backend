@@ -164,6 +164,7 @@ public class InventoryServiceTests
     [Fact]
     public void BuildVariationInventoryItemEntities_ShouldApplyDefaultVariationState()
     {
+        // Arrange
         var parent = new InventoryItemEntity
         {
             Id = Guid.NewGuid(),
@@ -201,8 +202,10 @@ public class InventoryServiceTests
             }
         };
 
+        // Act
         var created = _inventoryService.BuildVariationInventoryItemEntities(models, parent);
 
+        // Assert
         var variation = Assert.Single(created);
         Assert.Equal("White 128 GB", variation.ProductName);
         Assert.Equal("123456789012", variation.ProductUpc);

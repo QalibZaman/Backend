@@ -12,6 +12,7 @@ public class GetItemVariationsQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldMapParentIdAndFilterByShopInSpecification()
     {
+        // Arrage
         var repository = Substitute.For<IInventoryItemRepository>();
         var mapper = MapperFactory.Create();
         var handler = new GetItemVariationsQueryHandler(repository, mapper);
@@ -27,8 +28,10 @@ public class GetItemVariationsQueryHandlerTests
                 BuildVariation(parentId, shopId, "Black")
             });
 
+        // Act
         var response = await handler.Handle(new GetItemVariationsQuery(parentId, shopId), CancellationToken.None);
 
+        // Assert
         var model = Assert.Single(response);
         Assert.Equal(parentId, model.ParentId);
         Assert.Equal("Black", model.ProductName);
