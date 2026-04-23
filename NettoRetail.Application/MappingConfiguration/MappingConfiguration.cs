@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Staff;
@@ -386,5 +387,17 @@ public class MappingConfiguration : IRegister
         config.NewConfig<DetailModel, ProductDetailEntity>()
             .IgnoreNullValues(true)
             .Map(dest => dest.Unit, src => src.TypeEnum == ProductDetailTypeEnum.Number ? src.Unit : null);
+
+        config.NewConfig<PaymentMethodEntity, PaymentMethodsResponse>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.StripePaymentMethodId, src => src.StripePaymentMethodId)
+            .Map(dest => dest.FourLastCardNumbers, src => src.FourLastCardNumbers)
+            .Map(dest => dest.CardBrand, src => src.CardBrand)
+            .Map(dest => dest.CardExpMonth, src => src.CardExpMonth)
+            .Map(dest => dest.CardExpYear, src => src.CardExpYear)
+            .Map(dest => dest.IsDefault, src => src.IsDefault);
+
+
+
     }
 }
