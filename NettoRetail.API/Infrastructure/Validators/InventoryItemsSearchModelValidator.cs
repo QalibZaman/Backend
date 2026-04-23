@@ -14,9 +14,9 @@ public class InventoryItemsSearchModelValidator : AbstractValidator<InventoryIte
         RuleLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.Upc)
-            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmpty)
+            .NotEmpty().WithMessage(ValidationErrorMessages.Inventory.UpcNotEmptyErrorMessage)
             .Matches(ValidationErrorMessages.Inventory.UpcCodeRegex)
-            .WithMessage(ValidationErrorMessages.Inventory.UpcMinLength)
+            .WithMessage(ValidationErrorMessages.Inventory.UpcMinLengthErrorMessage)
             .When(x => !string.IsNullOrWhiteSpace(x.Upc));
 
         RuleFor(x => x.ProductName)
