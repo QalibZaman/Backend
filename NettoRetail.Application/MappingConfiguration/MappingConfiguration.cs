@@ -7,6 +7,7 @@ using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Application.Models.Request.Address;
 using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
@@ -14,6 +15,7 @@ using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Response.Country;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Utilities;
@@ -387,6 +389,15 @@ public class MappingConfiguration : IRegister
         config.NewConfig<DetailModel, ProductDetailEntity>()
             .IgnoreNullValues(true)
             .Map(dest => dest.Unit, src => src.TypeEnum == ProductDetailTypeEnum.Number ? src.Unit : null);
+
+        config.NewConfig<CreateAddressRequest, AddressEntity>()
+            .Map(dest => dest.City, src => src.City.Trim())
+            .Map(dest => dest.Street, src => src.Street.Trim())
+            .Map(dest => dest.BuildingNumber, src => src.BuildingNumber.Trim());
+
+        config.NewConfig<CountryEntity, CountryLookupDTO>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src => src.Name);
 
         config.NewConfig<PaymentMethodEntity, PaymentMethodsResponse>()
             .Map(dest => dest.Id, src => src.Id)

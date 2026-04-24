@@ -177,4 +177,21 @@ public static class ValidationErrorMessages
     {
         public const string SortingFieldRequiredMessage = "Sorting field is required.";
     }
+
+    public static class Country
+    {
+        public const string CountryNotFoundErrorMessage = "There is no such country.";
+        public const string InvalidZipCodeErrorMessage = "Invalid zip code format for the specified country.";
+    }
+
+    public static class Address
+    {
+        public const string MaxAddressesLimitErrorMessage = "You cannot have more than 10 addresses.";
+        public const string InvalidCityFormatErrorMessage = "City must start with an uppercase letter and contain only letters, spaces, or hyphens.";
+        public const string InvalidStreetFormatErrorMessage = "Street must start with an uppercase letter and contain valid address characters.";
+        public const string InvalidBuildingNumberFormatErrorMessage = "Building number can only contain letters, numbers, spaces, hyphens, or slashes.";
+        public const string OfficeNumberAndApartmentNumberConflictErrorMessage = "Cannot provide both Office and Apartment numbers.";
+        public const string InvalidAddressFormatErrorMessage = "The address contains invalid characters or restricted spaces.";
+        public const string InvalidCombinedAddressFormatErrorMessage = "The combined address (Street, Building, Floor, Entrance, Office/Apartment) must be between 5 and 90 characters long and contain only valid characters.";
+    }
 }

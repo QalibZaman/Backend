@@ -4,7 +4,6 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Brands;
 
-
 public class GetBrandsByPartialNameSpecification : Specification<BrandEntity>
 {
     public GetBrandsByPartialNameSpecification(string partialName)

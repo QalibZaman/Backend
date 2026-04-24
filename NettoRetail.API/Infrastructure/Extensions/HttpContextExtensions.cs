@@ -38,6 +38,4 @@ public static class HttpContextExtensions
     {
         return context?.User?.Identity?.Name ?? "system";
     }
-    
-    
 }

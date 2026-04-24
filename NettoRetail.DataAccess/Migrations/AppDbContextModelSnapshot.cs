@@ -64,6 +64,61 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("InventoryItemImages");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ApartmentNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BuildingNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Entrance")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Floor")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("OfficeNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Addresses");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2019,6 +2074,25 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("InventoryItem");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
+                        .WithMany("Addresses")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
@@ -2452,6 +2526,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
+                    b.Navigation("Addresses");
+
                     b.Navigation("CommunicationPreference");
 
                     b.Navigation("ComparedItems");
@@ -2490,6 +2566,8 @@ namespace NettoRetail.DataAccess.Migrations
             modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
                 {
                     b.Navigation("Accounts");
+
+                    b.Navigation("Addresses");
 
                     b.Navigation("Shops");
                 });
