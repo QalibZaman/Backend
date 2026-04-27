@@ -1,37 +1,16 @@
 ﻿using MediatR;
-using NettoRetail.Application.Interfaces;
-using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Request.Staff;
-using NettoRetail.Application.Services.IStaffService;
-using NettoRetail.DataAccess.Specifications.Staff;
-using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Application.Services.IStaffCsvExportService;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
 public record DownloadStaffListQuery(int UserShopId, GetFilteredStaffCsvRequest Model) : IRequest<byte[]>;
 
-public class DownloadStaffListQueryHandler(IStaffRepository accountRepository,
-    IStaffService staffService,
-    ICsvFileService csvFileService)
+public class DownloadStaffListQueryHandler(IStaffCsvExportService staffCsvExportService)
     : IRequestHandler<DownloadStaffListQuery, byte[]>
 {
     public async Task<byte[]> Handle(DownloadStaffListQuery request, CancellationToken cancellationToken)
     {
-        var staffStatus = staffService.ParseStaffStatus(request.Model.Status);
-
-        var spec = new GetFilteredStaffSpecification(
-            shopId: request.UserShopId,
-            firstName: request.Model.FirstName,
-            lastName: request.Model.LastName,
-            email: request.Model.Email,
-            roleId: request.Model.RoleId,
-            status: staffStatus);
-
-        var staff = await accountRepository.GetStaffAccounts(spec, cancellationToken);
-
-        var staffData = await csvFileService.GetEntitiesCsvData<StaffCsvModel, StaffEntity>(staff, cancellationToken);
-
-        return staffData;
+        return await staffCsvExportService.DownloadStaffCsvAsync(request.UserShopId, request.Model, cancellationToken);
     }
 }

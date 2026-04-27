@@ -7,7 +7,7 @@ namespace NettoRetail.API.Infrastructure.Helpers.ErrorHandlers;
 
 public static class ApiExceptionHandler
 {
-    public static ApiExceptionHandlerResponse Handle(Exception ex)
+    public static ApiExceptionHandlerResponse Handle(Exception ex, HttpContext? httpContext = null)
     {
         return ex switch
         {
@@ -21,12 +21,31 @@ public static class ApiExceptionHandler
             FluentValidation.ValidationException e => HandleFluentValidationException(e),
             System.ComponentModel.DataAnnotations.ValidationException e => HandleDataAnnotationsValidationException(e),
 
-            _ => HandleDefault()
+            _ => HandleDefault(httpContext)
         };
     }
 
-    private static ApiExceptionHandlerResponse HandleDefault()
+    private static ApiExceptionHandlerResponse HandleDefault(HttpContext? httpContext)
     {
+        if (IsContentEditorInitializationRequest(httpContext))
+        {
+            return new ApiExceptionHandlerResponse(
+                (int)HttpStatusCode.InternalServerError,
+                GenerateResponse(
+                    ContentEditorErrorCatalog.InitializationErrorMessage,
+                    BuildTimestampMeta()));
+        }
+
+        if (IsContentEditorRecoveryRequest(httpContext))
+        {
+            var timestamp = DateTime.UtcNow;
+            return new ApiExceptionHandlerResponse(
+                (int)HttpStatusCode.InternalServerError,
+                GenerateResponse(
+                    ContentEditorErrorCatalog.BuildRecoveryErrorMessage(timestamp),
+                    BuildTimestampMeta(timestamp)));
+        }
+
         return new ApiExceptionHandlerResponse(
             (int)HttpStatusCode.InternalServerError,
             GenerateResponse("Unexpected error happened on the server while trying to process the request"));
@@ -99,5 +118,50 @@ public static class ApiExceptionHandler
         return new ApiExceptionHandlerResponse((int)HttpStatusCode.BadRequest, GenerateResponse(ex.Message));
     }
 
-    private static ApiResponse GenerateResponse(string message) => new(message);
+    private static ApiResponse GenerateResponse(
+        string message,
+        Dictionary<string, string>? meta = null) => new(message, null, meta);
+
+    private static bool IsContentEditorInitializationRequest(HttpContext? httpContext)
+    {
+        if (httpContext == null)
+        {
+            return false;
+        }
+
+        var path = httpContext.Request.Path.Value ?? string.Empty;
+        var method = httpContext.Request.Method;
+
+        return path.Contains("/content/block/", StringComparison.OrdinalIgnoreCase)
+               && HttpMethods.IsGet(method);
+    }
+
+    private static bool IsContentEditorRecoveryRequest(HttpContext? httpContext)
+    {
+        if (httpContext == null)
+        {
+            return false;
+        }
+
+        var path = httpContext.Request.Path.Value ?? string.Empty;
+        var method = httpContext.Request.Method;
+
+        if (!path.Contains("/content/block/", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return HttpMethods.IsPut(method)
+               || (HttpMethods.IsPost(method) && path.EndsWith("/preview", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static Dictionary<string, string> BuildTimestampMeta(DateTime? timestampUtc = null)
+    {
+        var timestamp = timestampUtc ?? DateTime.UtcNow;
+
+        return new Dictionary<string, string>
+        {
+            ["timestamp"] = timestamp.ToString("O"),
+        };
+    }
 }

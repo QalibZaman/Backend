@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Mapster;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
@@ -6,11 +7,15 @@ using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Application.Models.Request.Address;
+using NettoRetail.Application.Models.Payments;
 using NettoRetail.Application.Models.Request.Brand;
 using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Category;
+using NettoRetail.Application.Models.Response.Country;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Utilities;
@@ -180,13 +185,16 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<StaffEntity, StaffCsvModel>()
             .Map(dest => dest.Role, src => src.Role.Name)
-            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.Status, src => Regex.Replace(src.Status.ToString(), "([a-z])([A-Z])", "$1 $2"))
             .Map(dest => dest.Email, src => src.Email)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName);
 
         config.NewConfig<InventoryItemEntity, InventoryItemInfoFullResponse>()
             .Map(dest => dest.Status, src => src.Status.ToString());
+
+        config.NewConfig<InventoryItemEntity, VariationResponse>()
+            .Map(dest => dest.ParentId, src => src.ParentItemId ?? Guid.Empty);
 
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
             .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
@@ -195,7 +203,8 @@ public class MappingConfiguration : IRegister
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy);
 
-        config.NewConfig<ShopEntity, AllShopsInfoResponse>();
+        config.NewConfig<ShopEntity, AllShopsInfoResponse>()
+            .Map(dest => dest.Subscription, src => src.SubscriptionPlan != null ? src.SubscriptionPlan.Name : string.Empty);
 
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
@@ -204,8 +213,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
             .Map(dest => dest.Email, src => src.Email)
-            .Map(dest => dest.Status, src => Enum.Parse<StaffStatusEnum>(src.Status, true))
             .Ignore(dest => dest.Role)
+            .Ignore(dest => dest.Status)
             .Ignore(dest => dest.PasswordHash);
 
         config.NewConfig<FeedbackEntity, FeedbackResponse>()
@@ -332,7 +341,8 @@ public class MappingConfiguration : IRegister
             .Ignore(dest => dest.Role);
 
         config.NewConfig<ContentEntity, ContentBlockResponse>()
-            .Map(dest => dest.SectionType, src => src.SectionType.ToString());
+            .Map(dest => dest.SectionType, src => src.SectionType.ToString())
+            .Map(dest => dest.IsVisible, src => ContentBlockRules.ShouldBeVisible(src.IsVisible, src.Content));
 
         config.NewConfig<StaffEntity, ClientsShopInfoResponse>()
             .Map(dest => dest.AdminsEmail, src => src.Email)
@@ -383,5 +393,26 @@ public class MappingConfiguration : IRegister
         config.NewConfig<DetailModel, ProductDetailEntity>()
             .IgnoreNullValues(true)
             .Map(dest => dest.Unit, src => src.TypeEnum == ProductDetailTypeEnum.Number ? src.Unit : null);
+
+        config.NewConfig<CreateAddressRequest, AddressEntity>()
+            .Map(dest => dest.City, src => src.City.Trim())
+            .Map(dest => dest.Street, src => src.Street.Trim())
+            .Map(dest => dest.BuildingNumber, src => src.BuildingNumber.Trim());
+
+        config.NewConfig<CountryEntity, CountryLookupDTO>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src => src.Name);
+
+        config.NewConfig<PaymentMethodEntity, PaymentMethodsResponse>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.StripePaymentMethodId, src => src.StripePaymentMethodId)
+            .Map(dest => dest.FourLastCardNumbers, src => src.FourLastCardNumbers)
+            .Map(dest => dest.CardBrand, src => src.CardBrand)
+            .Map(dest => dest.CardExpMonth, src => src.CardExpMonth)
+            .Map(dest => dest.CardExpYear, src => src.CardExpYear)
+            .Map(dest => dest.IsDefault, src => src.IsDefault);
+
+
+
     }
 }

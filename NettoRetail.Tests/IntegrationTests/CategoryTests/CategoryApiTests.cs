@@ -391,6 +391,72 @@ namespace NettoRetail.Tests.IntegrationTests.CategoryTests
         }
 
         [Fact]
+        public async Task UpdateCategoriesSection_ShouldIgnoreDeletedCategoryIds_AndSaveRemainingSelection()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var addCategoryRequest = new AddCategoryRequest
+            {
+                Name = "Temporary root",
+                URL = "temporary-root",
+                ParentId = null,
+                Visibility = true
+            };
+
+            var createResponse = await _client.PostAsJsonAsync("api/v1/categories", addCategoryRequest);
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var createdCategory = await createResponse.Content.ReadFromJsonAsync<ApiResponse<CategoryResponse>>();
+            Assert.NotNull(createdCategory);
+            Assert.NotNull(createdCategory.Data);
+            var deletedCategoryId = createdCategory.Data.Id;
+
+            var deleteResponse = await _client.DeleteAsync($"api/v1/categories/{deletedCategoryId}");
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+            var request = new EditCategoriesSectionRequest
+            {
+                Name = "Featured",
+                Visibility = true,
+                CategoryIds = new List<int> { 8, deletedCategoryId }
+            };
+
+            var response = await _client.PatchAsJsonAsync("api/v1/categories/section", request);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            var sectionResponse = await _client.GetAsync("api/v1/categories/section");
+            Assert.Equal(HttpStatusCode.OK, sectionResponse.StatusCode);
+            var section = await sectionResponse.Content.ReadFromJsonAsync<ApiResponse<GetCategoriesSectionResponse>>();
+            Assert.NotNull(section);
+            Assert.Single(section.Data.SelectedCategories);
+            Assert.Equal(8, section.Data.SelectedCategories[0].Id);
+        }
+
+        [Fact]
+        public async Task UpdateCategoriesSection_ShouldReturnBadRequest_WhenCategoryIsNotLevelOneOrNotVisible()
+        {
+            var email = "stringa@gmail.com";
+            var password = "Stringa1234!";
+
+            var tokenResponse = await GetTokenResponseAsync(email, password);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.AccessToken);
+
+            var request = new EditCategoriesSectionRequest
+            {
+                Name = "Featured",
+                Visibility = true,
+                CategoryIds = new List<int> { 8, 5 }
+            };
+
+            var response = await _client.PatchAsJsonAsync("api/v1/categories/section", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task SearchCategoriesForSection_ShouldReturnFilteredData_WithExcludeIds()
         {
             var email = "stringa@gmail.com";

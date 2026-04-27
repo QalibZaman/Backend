@@ -35,6 +35,7 @@ public class BaseUserEntity
     public ICollection<FavouriteListItemEntity> FavouriteListItems { get; set; } = [];
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
     public ICollection<RecentlyViewedProductEntity> RecentlyViewedProducts { get; set; } = [];
+    public ICollection<AddressEntity> Addresses { get; set; }
     public ItemComparisonEntity? ComparedItems { get; set; }
     public string FullName => FirstName + " " + LastName;
 

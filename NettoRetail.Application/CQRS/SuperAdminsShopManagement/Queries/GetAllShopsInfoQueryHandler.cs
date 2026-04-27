@@ -21,26 +21,26 @@ public class GetAllShopsInfoQueryHandler(
 {
     public async Task<PaginatedResponse<AllShopsInfoResponse>> Handle(GetAllShopsInfoQuery request, CancellationToken cancellationToken)
     {
-        var skip = PaginationHelper.CalculateSkip(request.PageModel.PageNumber, request.PageModel.PageSize);
-
-        var specificationBuilder = new SpecificationBuilder<ShopEntity>();
-        var specification = specificationBuilder
-        .Skip(skip)
-        .Take(request.PageModel.PageSize)
-        .Build();
+        var specification = BuildShopsSpecification(request.PageModel);
 
         var (shops, totalAmount) = await shopRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
         var response = mapper.Map<List<AllShopsInfoResponse>>(shops);
+        var adminsByShopId = await GetAdminsByShopIdAsync(shops, cancellationToken);
 
         foreach (var shop in response)
         {
-            var adminSpec = new GetStaffByShopIdAndRoleSpecification(shop.Id, RoleConstants.Admin);
-            var admin = await accountRepository.GetAsync(adminSpec, cancellationToken);
+            if (!adminsByShopId.TryGetValue(shop.Id, out var admin))
+            {
+                shop.AdminFullName = string.Empty;
+                shop.AdminEmail = string.Empty;
+                shop.AdminPhoneNumber = string.Empty;
+                continue;
+            }
 
-            shop.AdminFullName = admin != null ? $"{admin.FirstName} {admin.LastName}" : null;
-            shop.AdminEmail = admin?.Email;
-            shop.AdminPhoneNumber = admin?.PhoneNumber;
+            shop.AdminFullName = admin.FullName;
+            shop.AdminEmail = admin.Email;
+            shop.AdminPhoneNumber = admin.PhoneNumber ?? string.Empty;
         }
 
         return new PaginatedResponse<AllShopsInfoResponse>
@@ -48,5 +48,43 @@ public class GetAllShopsInfoQueryHandler(
             Items = response,
             TotalAmount = totalAmount
         };
+    }
+
+    private static Specification<ShopEntity> BuildShopsSpecification(PaginationRequest pageModel)
+    {
+        var skip = PaginationHelper.CalculateSkip(pageModel.PageNumber, pageModel.PageSize);
+
+        var specificationBuilder = new SpecificationBuilder<ShopEntity>();
+
+        specificationBuilder
+            .AddInclude(shop => shop.SubscriptionPlan!)
+            .AddOrderBy(shop => shop.Id)
+            .Skip(skip)
+            .Take(pageModel.PageSize);
+
+        return specificationBuilder.Build();
+    }
+
+    private async Task<Dictionary<int, StaffEntity>> GetAdminsByShopIdAsync(
+        ICollection<ShopEntity> shops,
+        CancellationToken cancellationToken)
+    {
+        var shopIds = shops
+            .Select(shop => shop.Id)
+            .Distinct()
+            .ToArray();
+
+        if (shopIds.Length == 0)
+        {
+            return new Dictionary<int, StaffEntity>();
+        }
+
+        var adminSpecification = new GetStaffByShopIdsAndRoleSpecification(shopIds, RoleConstants.Admin);
+        var admins = await accountRepository.GetManyBySpecAsync(adminSpecification, cancellationToken);
+
+        return admins
+            .Where(admin => admin.ShopId.HasValue)
+            .GroupBy(admin => admin.ShopId!.Value)
+            .ToDictionary(group => group.Key, group => group.OrderBy(admin => admin.DateCreated).First());
     }
 }

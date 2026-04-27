@@ -3,8 +3,10 @@ using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.Request.Variation;
 using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Tests.Helpers;
@@ -157,5 +159,68 @@ public class InventoryServiceTests
 
         // Assert
         Assert.False(result);
+    }
+
+    [Fact]
+    public void BuildVariationInventoryItemEntities_ShouldApplyDefaultVariationState()
+    {
+        // Arrange
+        var parent = new InventoryItemEntity
+        {
+            Id = Guid.NewGuid(),
+            ProductName = "Parent",
+            ProductUpc = "999999999999",
+            Price = 199.99m,
+            Description = "Parent description",
+            CategoryId = 2,
+            LastUpdatedDate = DateTime.UtcNow,
+            IsActive = true,
+            Status = InventoryItemStatusEnum.Available,
+            AvailableAmount = 5,
+            ReservedAmount = 1,
+            OnHandAmount = 6,
+            ProductLocation = "Warehouse",
+            ShopId = 4,
+            HasVariations = false,
+            IsVariation = false,
+            Exists = true,
+            Category = null!,
+            BrandId = 3,
+            Brand = null!,
+            Images = [],
+            OrderItems = [],
+            ComparisonItems = []
+        };
+
+        var models = new List<VariationModel>
+        {
+            new()
+            {
+                ProductName = "  White 128 GB  ",
+                ProductUpc = " 123456789012 ",
+                IsActive = false
+            }
+        };
+
+        // Act
+        var created = _inventoryService.BuildVariationInventoryItemEntities(models, parent);
+
+        // Assert
+        var variation = Assert.Single(created);
+        Assert.Equal("White 128 GB", variation.ProductName);
+        Assert.Equal("123456789012", variation.ProductUpc);
+        Assert.Equal(parent.Price, variation.Price);
+        Assert.Equal(parent.Description, variation.Description);
+        Assert.Equal(parent.CategoryId, variation.CategoryId);
+        Assert.Equal(parent.BrandId, variation.BrandId);
+        Assert.Equal(parent.ShopId, variation.ShopId);
+        Assert.Equal(parent.Id, variation.ParentItemId);
+        Assert.True(variation.IsVariation);
+        Assert.True(variation.IsActive);
+        Assert.True(variation.Exists);
+        Assert.Equal(InventoryItemStatusEnum.Available, variation.Status);
+        Assert.Equal(0, variation.AvailableAmount);
+        Assert.Equal(0, variation.ReservedAmount);
+        Assert.Equal(0, variation.OnHandAmount);
     }
 }

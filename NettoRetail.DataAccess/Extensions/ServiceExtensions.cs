@@ -96,6 +96,7 @@ public static class ServiceExtensions
         services.AddScoped<IItemComparisonRepository, ItemComparisonRepository>();
         services.AddScoped<IEntityLockRepository,  EntityLockRepository>();
         services.AddScoped<IOrderStatusHistoryRepository, OrderStatusHistoryRepository>();
+        services.AddScoped<IAddressRepository, AddressRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

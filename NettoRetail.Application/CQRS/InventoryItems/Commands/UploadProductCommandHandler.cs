@@ -1,3 +1,4 @@
+using Mapster;
 using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
@@ -32,7 +33,8 @@ public class UpdateProductCommandHandler(
 
         var productSpec = new GetInventoryItemByIdAndShopIdSpecification(productId, shopId);
 
-        var item = await inventoryItemRepository.GetAsync(productSpec, cancellationToken) ?? throw new NotFoundException("The product does not exist.");
+        var item = await inventoryItemRepository.GetAsync(productSpec, cancellationToken) ??
+                   throw new NotFoundException("The product does not exist.");
 
         var transaction = unitOfWork.BeginTransaction();
 
@@ -48,6 +50,11 @@ public class UpdateProductCommandHandler(
             ValidatePrice(model.PriceInfo, item);
 
             mapper.Map(model.PriceInfo, item);
+        }
+
+        if (model.AvailabilityInfo is not null)
+        {
+            model.AvailabilityInfo.Adapt(item);
         }
 
         if (model.Details is not null)
@@ -68,7 +75,8 @@ public class UpdateProductCommandHandler(
         transaction.Commit();
     }
 
-    private async Task PerformDeletionOfNecessaryDetails(IList<DetailModel> models, IList<ProductDetailEntity> entities, CancellationToken cancellationToken)
+    private async Task PerformDeletionOfNecessaryDetails(IList<DetailModel> models, IList<ProductDetailEntity> entities,
+        CancellationToken cancellationToken)
     {
         var detailIdsForDeletion = models.Where((m) => m.IsDelete)
             .Select((m) => m.Id)
@@ -82,16 +90,19 @@ public class UpdateProductCommandHandler(
         }
     }
 
-    private async Task PerformUpdateOfNecessaryDetails(IList<DetailModel> models, IList<ProductDetailEntity> entities, CancellationToken cancellationToken)
+    private async Task PerformUpdateOfNecessaryDetails(IList<DetailModel> models, IList<ProductDetailEntity> entities,
+        CancellationToken cancellationToken)
     {
         var modelsToUpdate = models.Where(m => !m.IsDelete).ToList();
 
         if (modelsToUpdate.Any())
         {
+            var modelIds = modelsToUpdate
+                .Select(m => m.Id)
+                .ToHashSet();
             var entitiesToUpdate = entities
-                .Where(e => modelsToUpdate.Any(m => m.Id == e.Id))
+                .Where(e => modelIds.Contains(e.Id))
                 .ToList();
-
             foreach (var entity in entitiesToUpdate)
             {
                 var sourceModel = modelsToUpdate.First(m => m.Id == entity.Id);
@@ -103,7 +114,8 @@ public class UpdateProductCommandHandler(
         }
     }
 
-    private async Task PerformAdditionOfNecessaryDetails(IList<DetailModel> details, InventoryItemEntity item, CancellationToken cancellationToken)
+    private async Task PerformAdditionOfNecessaryDetails(IList<DetailModel> details, InventoryItemEntity item,
+        CancellationToken cancellationToken)
     {
         int order = 0;
         var detailsToAdd = details
@@ -128,7 +140,8 @@ public class UpdateProductCommandHandler(
         }
     }
 
-    private async Task<IList<ProductDetailEntity>> TryFetchDetailsAsync(IList<DetailModel> details, CancellationToken cancellationToken)
+    private async Task<IList<ProductDetailEntity>> TryFetchDetailsAsync(IList<DetailModel> details,
+        CancellationToken cancellationToken)
     {
         var incomingIds = details
             .Where((m) => m.Id is not null)
@@ -158,8 +171,8 @@ public class UpdateProductCommandHandler(
     private static void ValidatePrice(PriceModel model, InventoryItemEntity item)
     {
         if (!model.Price.HasValue &&
-        model.IsPromoted.HasValue && model.IsPromoted.Value &&
-        (item.Price <= model.PromotionPrice))
+            model.IsPromoted.HasValue && model.IsPromoted.Value &&
+            (item.Price <= model.PromotionPrice))
         {
             throw new BadRequestException("Promotion price must be smaller than the actual price.");
         }

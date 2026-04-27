@@ -1,8 +1,6 @@
-﻿using FluentValidation;
 using FluentValidation.TestHelper;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.Models.InventoryItem;
-using NettoRetail.Application.Models.Request;
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Tests.UnitTests.InventoryItemTests
@@ -12,8 +10,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
         private readonly InventoryItemsSearchModelValidator _validator;
         public InventoryItemsSearchModelValidatorTests()
         {
-            var _sortingOptionValidator = new InlineValidator<SortingOption>();
-            _validator = new InventoryItemsSearchModelValidator(_sortingOptionValidator);
+            _validator = new InventoryItemsSearchModelValidator();
         }
 
         [Fact]
@@ -30,7 +27,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.Upc)
-                .WithErrorMessage(ValidationErrorMessages.Inventory.UpcMinLengthErrorMessage);
+                .WithErrorMessage(ValidationErrorMessages.Inventory.UpcMinLength);
         }
 
         [Theory]
@@ -81,7 +78,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.ProductLocation)
-                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationInvalidFormatMessage);
+                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationRegex);
         }
 
         [Theory]
@@ -399,3 +396,4 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
         }
     }
 }
+

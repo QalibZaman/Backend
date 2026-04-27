@@ -30,7 +30,7 @@ public class GlobalExceptionHandlingMiddleware(RequestDelegate next, ILogger<Glo
     private static async Task HandleException(Exception ex, HttpContext ctx)
     {
         if (ctx.Response.HasStarted) return;
-        var error = ApiExceptionHandler.Handle(ex);
+        var error = ApiExceptionHandler.Handle(ex, ctx);
         var serializedError = JsonSerializer.Serialize(error.Result, SerializerOptions);
 
         ctx.Response.StatusCode = error.Status;

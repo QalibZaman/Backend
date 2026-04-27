@@ -40,6 +40,7 @@ public class InventoryItemEntity
     public ICollection<InventoryItemEntity>? ChildItems { get; set; } = [];
     public DateOnly? PromotionStartDate { get; set; }
     public DateOnly? PromotionEndDate { get; set; }
+    public int IncomingAmount { get; set; }
 
     public void UpdateStatus()
     {

@@ -115,6 +115,15 @@ public static class AuthenticationExtensions
                         return roleId == RoleConstants.Admin.ToString() ||
                                roleId == SuperAdminConstants.SuperAdminRoleId;
                     }));
+
+            options.AddPolicy(PolicyNames.CustomerOnlyPolicy, policy =>
+                policy.RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(AuthSchemes.Default)
+                    .RequireAssertion(context =>
+                    {
+                        var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
+                        return roleId == RoleConstants.Customer.ToString();
+                    }));
         });
 
         return services;

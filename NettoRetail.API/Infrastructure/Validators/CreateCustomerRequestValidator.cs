@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using NettoRetail.Application.Models.Request.Customer;
 
 namespace NettoRetail.API.Infrastructure.Validators;
@@ -10,16 +10,16 @@ public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRe
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")
             .Length(2, 30).WithMessage("First name length must be between 2 and 30 characters long.")
-            .Matches("^[A-Za-z]+$").WithMessage("First name must contain only Latin characters.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("First name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("First name must not start or end with spaces.");
+            .Matches(@"^[A-Za-z]+(?: [A-Za-z]+)*$").WithMessage(
+                "First name must contain only Latin letters and single spaces between words.")
+            .Must(x => x == x.Trim()).WithMessage("First name must not start or end with spaces.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.")
             .Length(2, 30).WithMessage("Last name length must be between 2 and 30 characters long.")
-            .Matches("^[A-Za-z]+$").WithMessage("Last name must contain only Latin characters.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Last name must start with a single uppercase letter followed by lowercase letters only.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("Last name must not start or end with spaces.");
+            .Matches(@"^[A-Za-z]+(?: [A-Za-z]+)*$").WithMessage(
+                "Last name must contain only Latin letters and single spaces between words.")
+            .Must(x => x == x.Trim()).WithMessage("Last name must not start or end with spaces.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -36,5 +36,10 @@ public class CreateCustomerRequestValidator : AbstractValidator<CreateCustomerRe
             .GreaterThan(0)
             .When(x => !string.IsNullOrEmpty(x.PhoneNumber))
             .WithMessage("CountryId is required when PhoneNumber is provided.");
+
+        RuleFor(x => x.Remarks)
+            .Length(2, 100).WithMessage("Remarks length must be between 2 and 100 characters.")
+            .Matches(@"^[\x20-\x7E]+$").WithMessage("Remarks must contain only Latin letters, digits, and allowed special characters.")
+            .When(x => !string.IsNullOrEmpty(x.Remarks));
     }
 }

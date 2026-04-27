@@ -20,13 +20,15 @@ public static class ValidationErrorMessages
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
         public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
-        public const string UpcNotEmptyErrorMessage = "Product UPC is required.";
-        public const string UpcMinLengthErrorMessage = "Product UPC must be exactly 12 digits long.";
-        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, ',' and '-'. It cannot start or end with a space.";
+        public const string UpcNotEmpty = "Product UPC is required.";
+        public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
+        public const string UpcNotEmptyErrorMessage = UpcNotEmpty;
+        public const string UpcMinLengthErrorMessage = UpcMinLength;
         public const string InvalidPriceScaleMessage = "Price must not have more than 2 decimal places.";
         public const string MaxPriceMaxLengthErrorMessage = "Max price must be greater than or equal to min price.";
         public const string DescriptionRegex = @"^[-a-zA-Z0-9.,!?;:'""()-]+( [a-zA-Z0-9.,!?;:'""()-]+)*$";
         public const string DescriptionInvalidFormatMessage = "Description must only contain letters, digits, and common punctuation, and cannot start or end with a space.";
+        public const string ProductLocationInvalidFormatMessage = "Product location must only contain letters, digits, spaces, hyphens, and commas, and cannot start or end with a space.";
         public const string PriceMinlength = "Price must be greater or equal to {ComparisonValue}.";
         public const string DescriptionMaxLengthMessage = "Description must be less than {MaxLength} characters long.";
         public const string InvalidStatusErrorMessage = "Invalid status value provided.";
@@ -37,7 +39,16 @@ public static class ValidationErrorMessages
         public const int FinancialPrecision = 18;
         public const int FinancialScale = 2;
     }
+    public static class PasswordValidation
+    {
+        public const string PasswordSize = "Password must contain at least 8 characters";
+    }
+    
 
+    public static class Password
+    {
+        public const string PasswordSize = "Password must contain at least 8 characters";
+    }
     public static class Search
     {
         public const string InvalidSearchField = "Invalid search field.";
@@ -54,6 +65,10 @@ public static class ValidationErrorMessages
         public const string IsRequired = "Content is required.";
         public const string MaxContentLengthMessage = "Content cannot exceed {MaxLength} characters.";
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
+        public const string ImageLimitExceededMessage = "Image limits exceeded. Please remove excess images or check file sizes/formats.";
+        public const string InvalidImageFormatMessage = "Invalid file format.";
+        public const string ImageSizeTooSmallMessage = "File size must be at least 1KB.";
+        public const string ImageSizeTooLargeMessage = "File size exceeds 5MB limit.";
     }
 
     public static class Role
@@ -121,6 +136,33 @@ public static class ValidationErrorMessages
         public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
     }
 
+    public static class StaffCsv
+    {
+        public const int NameMinLength = 2;
+        public const int NameMaxLength = 30;
+        public const int EmailMaxLength = 256;
+
+        public const string NamePattern = @"^([A-Z][a-z]*)( [A-Z][a-z]*)*$";
+        public const string EmailPattern = @"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$";
+
+        public const string FirstNameRequired = "First name is required.";
+        public const string FirstNameMinLength = "First name must be at least 2 characters.";
+        public const string FirstNameMaxLength = "First name must be no more than 30 characters.";
+        public const string FirstNameInvalidFormat = "First name must start with a capital letter and only contain Latin letters. Spaces are allowed between words.";
+
+        public const string LastNameRequired = "Last name is required.";
+        public const string LastNameMinLength = "Last name must be at least 2 characters.";
+        public const string LastNameMaxLength = "Last name must be no more than 30 characters.";
+        public const string LastNameInvalidFormat = "Last name must start with a capital letter and only contain Latin letters. Spaces are allowed between words.";
+
+        public const string EmailRequired = "Email is required.";
+        public const string EmailMaxLengthMessage = "Email must be no more than 256 characters.";
+        public const string EmailInvalidFormat = "Invalid email format. Must be a valid email like name@domain.com.";
+
+        public const string RoleRequired = "Role is required.";
+        public const string RoleInvalid = "Role must be a valid role id.";
+    }
+
     public static class Brand
     {
         public const string BrandNameAllowedCharactersRegex = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
@@ -134,5 +176,22 @@ public static class ValidationErrorMessages
     public static class Sort
     {
         public const string SortingFieldRequiredMessage = "Sorting field is required.";
+    }
+
+    public static class Country
+    {
+        public const string CountryNotFoundErrorMessage = "There is no such country.";
+        public const string InvalidZipCodeErrorMessage = "Invalid zip code format for the specified country.";
+    }
+
+    public static class Address
+    {
+        public const string MaxAddressesLimitErrorMessage = "You cannot have more than 10 addresses.";
+        public const string InvalidCityFormatErrorMessage = "City must start with an uppercase letter and contain only letters, spaces, or hyphens.";
+        public const string InvalidStreetFormatErrorMessage = "Street must start with an uppercase letter and contain valid address characters.";
+        public const string InvalidBuildingNumberFormatErrorMessage = "Building number can only contain letters, numbers, spaces, hyphens, or slashes.";
+        public const string OfficeNumberAndApartmentNumberConflictErrorMessage = "Cannot provide both Office and Apartment numbers.";
+        public const string InvalidAddressFormatErrorMessage = "The address contains invalid characters or restricted spaces.";
+        public const string InvalidCombinedAddressFormatErrorMessage = "The combined address (Street, Building, Floor, Entrance, Office/Apartment) must be between 5 and 90 characters long and contain only valid characters.";
     }
 }

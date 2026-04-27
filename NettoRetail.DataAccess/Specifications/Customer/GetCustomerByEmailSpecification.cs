@@ -1,10 +1,10 @@
-﻿using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Specifications;
+    using NettoRetail.Domain.Entities;
+    using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Customer;
+    namespace NettoRetail.DataAccess.Specifications.Customer;
 
-public class GetCustomerByEmailSpecification : Specification<CustomerEntity>
-{
-    public GetCustomerByEmailSpecification(string email)
-        : base(customer => customer.Email.ToLower() == email.ToLower()) { }
-}
+    public class GetCustomerByEmailSpecification : Specification<CustomerEntity>
+    {
+        public GetCustomerByEmailSpecification(string email)
+            : base(customer => customer.Email.ToLower() == email.ToLower()) { }
+    }

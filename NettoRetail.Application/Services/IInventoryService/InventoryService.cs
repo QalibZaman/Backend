@@ -13,6 +13,7 @@ using NettoRetail.DataAccess.Specifications.Brands;
 using NettoRetail.DataAccess.Specifications.Categories;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Specifications;
@@ -134,10 +135,17 @@ public class InventoryService(
             var variant = mapper.Map<InventoryItemEntity>(item);
 
             variant.AvailableAmount = 0;
+            variant.ReservedAmount = 0;
+            variant.OnHandAmount = 0;
             variant.IsVariation = true;
+            variant.Exists = true;
+            variant.IsActive = true;
+            variant.Status = InventoryItemStatusEnum.Available;
             variant.Price = parentItem.Price;
             variant.ShopId = parentItem.ShopId;
             variant.ParentItemId = parentItem.Id;
+            variant.ProductName = item.ProductName.Trim();
+            variant.ProductUpc = item.ProductUpc?.Trim() ?? string.Empty;
 
             variant.Description = parentItem.Description;
             variant.CategoryId = parentItem.CategoryId;
@@ -178,37 +186,113 @@ public class InventoryService(
         return true;
     }
 
-    public async Task<ToggleLinkProductsResponse> ToggleLinkProductsAsync(Guid parentId, Guid childId, CancellationToken cancellationToken)
+    public async Task<ToggleLinkProductsResponse> ToggleLinkProductsAsync(Guid parentId, Guid childId, int shopId, Dictionary<string, string>? conflictResolutions, CancellationToken cancellationToken)
     {
         bool isLinkedNow = false;
         if (parentId == childId)
             throw new ConflictException("Product cannot be parent and child of itself");
 
-        var parentExists = await inventoryItemRepository.Exists(new GetInventoryItemByIdSpecification(parentId), cancellationToken);
-        if (!parentExists)
-            throw new BadRequestException("Parent product not found");
+        var parent = await inventoryItemRepository.GetAsync(
+            new GetInventoryItemByIdSpecification(parentId),
+            cancellationToken) ?? throw new NotFoundException("Parent product not found");
 
         var child = await inventoryItemRepository.GetAsync(
             new GetInventoryItemWithChildrenSpecification(childId),
-            cancellationToken) ?? throw new BadRequestException("Child product not found");
+            cancellationToken) ?? throw new NotFoundException("Child product not found");
+
+        if (parent.ShopId != shopId || child.ShopId != shopId)
+            throw new BadRequestException("Both products must belong to your shop");
+
+        if (parent.ParentItemId.HasValue)
+            throw new ConflictException("A child product cannot be used as a parent");
 
         if (child.ParentItemId.HasValue && child.ParentItemId.Value != parentId)
             throw new ConflictException("Child product already belongs to another parent");
 
         if (child.ChildItems!.Any())
             throw new ConflictException("A parent product cannot be linked as a child");
+
         if (child.ParentItemId == parentId)
         {
+            // Unlink
             child.ParentItemId = null;
         }
         else if (child.ParentItemId is null)
         {
+            // Link — detect conflicts (AC#4, AC#5)
+            var conflicts = DetectAttributeConflicts(parent, child);
+
+            if (conflicts.Count > 0 && conflictResolutions is null)
+            {
+                // Return conflicts for frontend to display conflict resolution UI (ID-242)
+                return new ToggleLinkProductsResponse(childId, child.ProductName, child.ProductUpc, false, true, conflicts);
+            }
+
+            // Apply attribute inheritance with conflict resolution
+            ApplyAttributeInheritance(parent, child, conflicts, conflictResolutions);
+
             child.ParentItemId = parentId;
             isLinkedNow = true;
         }
 
         await inventoryItemRepository.UpdateAsync(child, cancellationToken);
         return new ToggleLinkProductsResponse(childId, child.ProductName, child.ProductUpc, isLinkedNow);
+    }
+
+    private static List<AttributeConflict> DetectAttributeConflicts(InventoryItemEntity parent, InventoryItemEntity child)
+    {
+        var conflicts = new List<AttributeConflict>();
+
+        if (parent.CategoryId != child.CategoryId)
+            conflicts.Add(new AttributeConflict("CategoryId", parent.CategoryId.ToString(), child.CategoryId.ToString()));
+
+        if (parent.BrandId != child.BrandId)
+            conflicts.Add(new AttributeConflict("BrandId", parent.BrandId?.ToString(), child.BrandId?.ToString()));
+
+        if (parent.Price != child.Price)
+            conflicts.Add(new AttributeConflict("Price", parent.Price.ToString(), child.Price.ToString()));
+
+        if (parent.Description != child.Description)
+            conflicts.Add(new AttributeConflict("Description", parent.Description, child.Description));
+
+        return conflicts;
+    }
+
+    private static void ApplyAttributeInheritance(InventoryItemEntity parent, InventoryItemEntity child, List<AttributeConflict> conflicts, Dictionary<string, string>? resolutions)
+    {
+        if (conflicts.Count == 0)
+        {
+            // No conflicts — inherit all from parent (AC#4)
+            child.CategoryId = parent.CategoryId;
+            child.BrandId = parent.BrandId;
+            child.Price = parent.Price;
+            child.Description = parent.Description;
+            return;
+        }
+
+        // Apply user's chosen resolutions (AC#5)
+        foreach (var conflict in conflicts)
+        {
+            var useParentValue = resolutions != null
+                && resolutions.TryGetValue(conflict.AttributeName, out var choice)
+                && choice.Equals("parent", StringComparison.OrdinalIgnoreCase);
+
+            switch (conflict.AttributeName)
+            {
+                case "CategoryId" when useParentValue:
+                    child.CategoryId = parent.CategoryId;
+                    break;
+                case "BrandId" when useParentValue:
+                    child.BrandId = parent.BrandId;
+                    break;
+                case "Price" when useParentValue:
+                    child.Price = parent.Price;
+                    break;
+                case "Description" when useParentValue:
+                    child.Description = parent.Description;
+                    break;
+            }
+        }
     }
 
     private async Task ValidateBrandExists(int brandId, int shopId, CancellationToken ct)

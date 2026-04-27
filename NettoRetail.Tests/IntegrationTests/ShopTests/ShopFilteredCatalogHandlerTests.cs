@@ -45,7 +45,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.Equal(3, result.TotalAmount); 
+            Assert.Equal(3, result.TotalAmount);
         }
 
         [Fact]
@@ -73,10 +73,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True(item.IsOnSale);
-            });
+            Assert.All(result.Items, item => { Assert.True(item.IsOnSale); });
         }
 
         [Fact]
@@ -104,10 +101,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.False(item.IsOnSale);
-            });
+            Assert.All(result.Items, item => { Assert.False(item.IsOnSale); });
         }
 
         [Fact]
@@ -135,10 +129,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True(item.Price >= 500);
-            });
+            Assert.All(result.Items, item => { Assert.True(item.Price >= 500); });
         }
 
         [Fact]
@@ -166,10 +157,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True(item.Price <= 500);
-            });
+            Assert.All(result.Items, item => { Assert.True(item.Price <= 500); });
         }
 
         [Fact]
@@ -199,10 +187,12 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True((item.PromotionPrice >= 400 && item.PromotionPrice <= 550) || (item.Price >= 400 && item.Price <= 550));
-            });
+            Assert.All(result.Items,
+                item =>
+                {
+                    Assert.True((item.PromotionPrice >= 400 && item.PromotionPrice <= 550) ||
+                                (item.Price >= 400 && item.Price <= 550));
+                });
         }
 
         [Fact]
@@ -230,10 +220,8 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.True(item.ProductName.Contains("amsung", StringComparison.OrdinalIgnoreCase));
-            });
+            Assert.All(result.Items,
+                item => { Assert.True(item.ProductName.Contains("amsung", StringComparison.OrdinalIgnoreCase)); });
         }
 
         [Fact]
@@ -261,10 +249,12 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.Contains(query.FilteredCatalogModel.BrandsNames, b => item.BrandName.Contains(b, StringComparison.OrdinalIgnoreCase));
-            });
+            Assert.All(result.Items,
+                item =>
+                {
+                    Assert.Contains(query.FilteredCatalogModel.BrandsNames,
+                        b => item.BrandName.Contains(b, StringComparison.OrdinalIgnoreCase));
+                });
         }
 
         [Fact]
@@ -292,10 +282,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.All(result.Items, item =>
-            {
-                Assert.Equal("Available", item.Status);
-            });
+            Assert.All(result.Items, item => { Assert.Equal("Available", item.Status); });
         }
 
         public void Dispose()
@@ -526,7 +513,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                 };
 
                 var categories2 = new List<CategoryEntity>()
-                { 
+                {
                     // First category tree
                     new CategoryEntity
                     {
@@ -729,6 +716,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         AvailableAmount = 15,
                         ReservedAmount = 3,
                         OnHandAmount = 18,
+                        IncomingAmount = 3,
                         ProductLocation = "Aisle 3, Shelf B",
                         ShopId = 1,
                         Category = categories[2],
@@ -748,6 +736,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Status = InventoryItemStatusEnum.Available,
                         AvailableAmount = 25,
                         ReservedAmount = 5,
+                        IncomingAmount = 3,
                         OnHandAmount = 30,
                         ProductLocation = "Aisle 1, Shelf A",
                         ShopId = 1,
@@ -768,6 +757,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Status = InventoryItemStatusEnum.Committed,
                         AvailableAmount = 8,
                         ReservedAmount = 12,
+                        IncomingAmount = 3,
                         OnHandAmount = 20,
                         ProductLocation = "Aisle 2, Shelf C",
                         ShopId = 1,
@@ -792,6 +782,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Status = InventoryItemStatusEnum.Available,
                         AvailableAmount = 18,
                         ReservedAmount = 2,
+                        IncomingAmount = 3,
                         OnHandAmount = 20,
                         ProductLocation = "Section 1, Row A",
                         ShopId = 2,
@@ -812,6 +803,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Status = InventoryItemStatusEnum.Incoming,
                         AvailableAmount = 0,
                         ReservedAmount = 0,
+                        IncomingAmount = 3,
                         OnHandAmount = 0,
                         ProductLocation = "Warehouse",
                         ShopId = 2,
@@ -834,6 +826,7 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
                         Status = InventoryItemStatusEnum.Unavailable,
                         AvailableAmount = 0,
                         ReservedAmount = 0,
+                        IncomingAmount = 3,
                         OnHandAmount = 0,
                         ProductLocation = "Storage Room",
                         ShopId = 2,

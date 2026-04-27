@@ -29,14 +29,15 @@ public class OrdersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetOrderProductsAndPayments(int orderId, CancellationToken cancellationToken)
     {
-        var orderCreationCommand = new GetOrderProductsQuery(orderId);
+        var userShopId = HttpContext.GetUserShopId();
+        var orderCreationCommand = new GetOrderProductsQuery(orderId, userShopId);
 
         var data = await mediator.Send(orderCreationCommand, cancellationToken);
         var response = new ApiResponse<OrderProductsResponse>(data);
 
         return Ok(response);
     }
-    
+
         /// <summary>
     /// Creates a new order for a customer in the current shop.
     /// </summary>
@@ -60,7 +61,6 @@ public class OrdersController(IMediator mediator) : ControllerBase
     /// }
     /// </code>
     /// </remarks>
-
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<OrderResponse>), StatusCodes.Status201Created)]

@@ -444,6 +444,11 @@ public class StaffController(
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("csv-file")]
     public async Task<IActionResult> DownloadStaffList([FromQuery] GetFilteredStaffCsvRequest getFilteredStaffCsvRequest, CancellationToken cancellationToken)
     {
@@ -453,17 +458,19 @@ public class StaffController(
 
         var response = await mediator.Send(staffListDownloadQuery, cancellationToken);
 
-        return File(response, "text/csv", $"Staff-{DateTime.UtcNow}.csv");
+        var fileName = $"staff-list-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+        return File(response, "text/csv", fileName);
     }
 
-    [Authorize]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadStaffList(IFormFile file, int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> UploadStaffList(IFormFile file, CancellationToken cancellationToken)
     {
-        var command = new UploadStaffListCommand(file, id);
+        var userShopId = HttpContext.GetUserShopId();
+        var command = new UploadStaffListCommand(file, userShopId);
         await mediator.Send(command, cancellationToken);
 
         return NoContent();

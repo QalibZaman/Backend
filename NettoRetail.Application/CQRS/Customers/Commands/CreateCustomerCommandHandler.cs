@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Country;
@@ -30,6 +30,8 @@ public class CreateCustomerCommandHandler(
 {
     public async Task<CreateCustomerResponse> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
+        CountryEntity? country = null;
+
         if (!string.IsNullOrEmpty(request.Model.PhoneNumber))
         {
             var countryValidationModel = new CountryValidationModel
@@ -45,6 +47,9 @@ public class CreateCustomerCommandHandler(
             };
 
             await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+
+            var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
+            country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
         }
 
         var emailSpecification = new GetCustomerByEmailSpecification(request.Model.Email);
@@ -66,11 +71,8 @@ public class CreateCustomerCommandHandler(
         var initialPassword = Guid.NewGuid().ToString();
         customerEntity.PasswordHash = PasswordHasher.HashPassword(initialPassword);
 
-        customerEntity.LoyaltyId = UserUtility.GenerateLoyaltyId();
+        customerEntity.LoyaltyId = await GenerateUniqueLoyaltyIdAsync(cancellationToken);
         customerEntity.IsActive = true;
-
-        var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
-        var country = await countryRepository.GetAsync(countrySpecification, cancellationToken);
 
         if (request.Model.PhoneNumber != null)
         {
@@ -86,5 +88,20 @@ public class CreateCustomerCommandHandler(
         response.Country = country == null ? null : mapper.Map<CountryResponse>(country);
 
         return response;
+    }
+
+    private async Task<string> GenerateUniqueLoyaltyIdAsync(CancellationToken cancellationToken)
+    {
+        var loyaltyId = UserUtility.GenerateLoyaltyId();
+
+        var specification = new GetCustomerByLoyaltyIdSpecification(loyaltyId);
+        var exists = await customerRepository.Exists(specification, cancellationToken);
+
+        if (exists)
+        {
+            throw new ConflictException("Generated Loyalty ID already exists.");
+        }
+
+        return loyaltyId;
     }
 }
