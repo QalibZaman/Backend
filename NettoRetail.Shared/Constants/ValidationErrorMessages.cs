@@ -80,6 +80,7 @@ public static class ValidationErrorMessages
         public const string CannotDeleteAdminRoleErrorMessage = "The admin role cannot be deleted.";
         public const string RoleInUseErrorMessage = "Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.";
         public const string RoleExistsErrorMessage = "Role with such name already exists in your shop";
+        public const string RoleNotFoundErrorMessage = "There is no such role with this Id";
 
         public const string NameLengthErrorMessage = "Role name length must be more than 2 and  less than 50 characters long.";
         public const string NameAllowedCharactersRegex = "Role name must only contain letters, digits, '-' and '_'.";
@@ -176,6 +177,24 @@ public static class ValidationErrorMessages
     public static class Sort
     {
         public const string SortingFieldRequiredMessage = "Sorting field is required.";
+    }
+    public static class Staff
+    {
+        public const string AtLeastOneFieldErrorMessage = "At least one field must be provided to update.";
+        public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
+    }
+
+    public static class Name
+    {
+        public const string TooShortErrorMessage = "Must be at least {0} characters.";
+        public const string TooLongErrorMessage = "Must be no more than {0} characters.";
+        public const string PatternErrorMessage = "Must start with a capital letter and contain only Latin letters. Spaces are allowed between words.";
+    }
+
+    public static class Email
+    {
+        public const string TooLongErrorMessage = "Email must be no more than {0} characters.";
+        public const string PatternErrorMessage = "Must be a valid email address like name@domain.com.";
     }
 
     public static class Country
