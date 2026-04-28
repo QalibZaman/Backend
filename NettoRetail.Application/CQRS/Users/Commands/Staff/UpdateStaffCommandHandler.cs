@@ -2,17 +2,18 @@
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Role;
+using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record UpdateStaffCommand(Guid Id, UpdateStaffRequest Model, int ShopId) : IRequest;
 public class UpdateStaffCommandHandler(
-    IStaffRepository accountRepository,
+    IStaffRepository staffRepository,
     IRoleRepository roleRepository,
     IStaffService staffService,
     IUnitOfWork unitOfWork)
@@ -20,43 +21,43 @@ public class UpdateStaffCommandHandler(
 {
     public async Task Handle(UpdateStaffCommand request, CancellationToken cancellationToken)
     {
-        var staffSpecification = new GetStaffByIdSpecification(request.Id);
-        var staff = await accountRepository.GetAsync(staffSpecification, cancellationToken)
-            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
+        var staff = await FetchAndAuthorizeStaffAsync(request.Id, request.ShopId, cancellationToken);
 
-        if (staff.ShopId != request.ShopId)
-            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
-
-        await CheckRoleExistenceAsync(request.Model, request.ShopId, cancellationToken);
+        await EnsureRoleExistsAsync(request.Model.RoleId, request.ShopId, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
-        try
-        {
-            await staffService.UpdateStaffAsync(request.Model, staff, cancellationToken);
 
-            await accountRepository.UpdateAsync(staff, cancellationToken);
+        await staffService.UpdateStaffAsync(request.Model, staff, cancellationToken);
 
-            transaction.Commit();
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
+        await staffRepository.UpdateAsync(staff, cancellationToken);
+
+        transaction.Commit();
     }
 
-    private async Task CheckRoleExistenceAsync(
-        UpdateStaffRequest request,
+    private async Task<StaffEntity> FetchAndAuthorizeStaffAsync(Guid staffId, int shopId, CancellationToken cancellationToken)
+    {
+        var spec = new GetStaffByIdSpecification(staffId);
+        var staff = await staffRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException(StaffConstants.StaffMemberNotFound);
+
+        if (staff.ShopId != shopId)
+            throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
+
+        return staff;
+    }
+
+    private async Task EnsureRoleExistsAsync(
+        int? roleId,
         int shopId,
         CancellationToken cancellationToken)
     {
-        if (request.RoleId != null)
+        if (roleId != null)
         {
-            var roleSpec = new GetRoleByShopIdOrAdminIdSpecification(request.RoleId, shopId);
-            var roleExists = await roleRepository.Exists(roleSpec, cancellationToken);
+            var spec = new GetRoleByShopIdOrAdminIdSpecification(roleId, shopId);
+            var exists = await roleRepository.Exists(spec, cancellationToken);
 
-            if (!roleExists)
-                throw new NotFoundException("Role not found.");
+            if (!exists)
+                throw new NotFoundException(ValidationErrorMessages.Role.RoleNotFoundErrorMessage);
         }
     }
 }

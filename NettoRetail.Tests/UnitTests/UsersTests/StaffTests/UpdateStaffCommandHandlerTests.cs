@@ -3,103 +3,144 @@ using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Staff;
 using NettoRetail.Application.Services.IStaffService;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Role;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Specifications;
 using NSubstitute;
-using StackExchange.Redis;
 using System.Data;
+using static NettoRetail.Shared.Constants.ValidationErrorMessages;
 
 namespace NettoRetail.Tests.UnitTests.UsersTests.StaffTests;
 
 public class UpdateStaffCommandHandlerTests
 {
     private readonly IStaffService _staffService;
-    private readonly IStaffRepository _accountRepository;
+    private readonly IStaffRepository _staffRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UpdateStaffCommandHandler _handler;
+    private readonly IDbTransaction _transaction;
 
     public UpdateStaffCommandHandlerTests()
     {
         _staffService = Substitute.For<IStaffService>();
-        _accountRepository = Substitute.For<IStaffRepository>();
+        _staffRepository = Substitute.For<IStaffRepository>();
         _roleRepository = Substitute.For<IRoleRepository>();
         _unitOfWork = Substitute.For<IUnitOfWork>();
+
+        _transaction = _unitOfWork.BeginTransaction();
+
+        _unitOfWork.BeginTransaction().Returns(_transaction);
+
+        _handler = new UpdateStaffCommandHandler(_staffRepository, _roleRepository, _staffService, _unitOfWork);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnSuccess_WhenDataIsValid()
+    {
+        //Arrange
+        var staffId = Guid.NewGuid();
+        var roleId = 10;
+        var shopid = 1;
+        var staff = BuildDefaultStaff(shopid);
+        staff.Id = staffId;
+        var role = new RoleEntity { Id = roleId, Name = "Role", ShopId = staff.ShopId };
+
+        _staffRepository
+            .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(staff);
+
+        _roleRepository
+            .Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var command = BuildCommand(staffId, shopid, roleId);
+
+        //Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        await _staffRepository.Received(1).UpdateAsync(Arg.Is<StaffEntity>(s =>
+            s.Id == staffId), Arg.Any<CancellationToken>());
+
+        _transaction.Received(1).Commit();
     }
 
     [Fact]
     public async Task Handle_ShouldThrowNotFound_WhenRoleDoesNotExist()
     {
-        var request = new UpdateStaffRequest()
-        {
-            RoleId = 1,
-        };
+        // Arrange
+        var staffFromAnotherShop = BuildDefaultStaff();
 
-        var user = new StaffEntity()
-        {
-            FirstName = "Name",
-            LastName = "Lastname",
-            Email = "email@gmail.com",
-            PasswordHash = "passwordHash@",
-            ShopId = 1
-        };
+        _staffRepository
+            .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(staffFromAnotherShop);
 
-        var id = Guid.NewGuid();
-        var shopId = 1;
-
-        var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
-        var command = new UpdateStaffCommand(id, request, shopId);
-
-        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(user);
-
-        _roleRepository.Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
+        _roleRepository
+            .Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
-        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+        // Act
+        var act = () => _handler.Handle(BuildCommand(shopId: 1, roleId: 99), CancellationToken.None);
+
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(act);
+        _transaction.DidNotReceive().Commit();
     }
 
     [Fact]
-    public async Task Handle_ShouldThrowBadRequest_WhenStaffIsFromAnotherShop()
+    public async Task Handle_ShouldThrowForbidden_WhenStaffIsFromAnotherShop()
     {
-        var request = new UpdateStaffRequest();
+        // Arrange
+        var staffFromAnotherShop = BuildDefaultStaff(shopId: 2);
 
-        var id = Guid.NewGuid();
-        var shopId = 1;
-        var user = new StaffEntity()
-        {
-            FirstName = "Name",
-            LastName = "Lastname",
-            Email = "email@gmail.com",
-            PasswordHash = "passwordHash@",
-            ShopId = 2
-        };
+        _staffRepository
+            .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(staffFromAnotherShop);
 
-        var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
-        var command = new UpdateStaffCommand(id, request, shopId);
+        // Act
+        var act = () => _handler.Handle(BuildCommand(shopId: 1), CancellationToken.None);
 
-        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(user);
-
-        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+        // Assert
+        await Assert.ThrowsAsync<ForbiddenException>(act);
+        _transaction.DidNotReceive().Commit();
     }
 
     [Fact]
     public async Task Handle_ShouldThrowNotFound_WhenStaffDoesNotExist()
     {
-        var request = new UpdateStaffRequest();
+        // Arrange
+        _staffRepository
+            .GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns((StaffEntity?)null);
 
-        var id = Guid.NewGuid();
-        var shopId = 1;
+        // Act
+        var act = () => _handler.Handle(BuildCommand(), CancellationToken.None);
 
-        var handler = new UpdateStaffCommandHandler(_accountRepository, _roleRepository, _staffService, _unitOfWork);
-        var command = new UpdateStaffCommand(id, request, shopId);
+        // Assert
+        await Assert.ThrowsAsync<NotFoundException>(act);
+        _transaction.DidNotReceive().Commit();
+    }
+    private UpdateStaffCommand BuildCommand(Guid? id = null, int shopId = 1, int? roleId = null)
+    {
+        var staffId = id ?? Guid.NewGuid();
+        var request = new UpdateStaffRequest { RoleId = roleId };
 
-        _accountRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<StaffEntity?>(null));
+        return new UpdateStaffCommand(staffId, request, shopId);
+    }
 
-        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+    private StaffEntity BuildDefaultStaff(int shopId = 1)
+    {
+        return new StaffEntity
+        {
+            FirstName = "Name",
+            LastName = "Lastname",
+            Email = "email@gmail.com",
+            PasswordHash = "passwordHash@",
+            ShopId = shopId
+        };
     }
 }
