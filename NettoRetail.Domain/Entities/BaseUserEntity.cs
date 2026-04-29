@@ -18,7 +18,7 @@ public class BaseUserEntity
     public int RoleId { get; set; }
     public string? ProfileImageUrl { get; set; }
     public StaffStatusEnum Status { get; set; } = StaffStatusEnum.CreatePassword;
-    public DateTime PasswordUpdatedAt { get; set; }
+    public DateTime? PasswordUpdatedAt { get; set; }
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }

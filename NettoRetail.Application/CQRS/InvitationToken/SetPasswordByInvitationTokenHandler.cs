@@ -67,9 +67,9 @@ public class SetPasswordByInvitationTokenHandler(
                 throw new ConflictException("Your invitation link is invalid or expired.");
         }
 
-        if (account.PasswordUpdatedAt != default)
+        if (account.PasswordUpdatedAt.HasValue)
         {
-            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt).ToUnixTimeSeconds();
+            var passwordUpdatedAtSeconds = new DateTimeOffset(account.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
             if (issuedAtSeconds <= passwordUpdatedAtSeconds)
                 throw new ConflictException("Your invitation link is invalid or expired.");
         }
