@@ -94,9 +94,13 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Unit, src => src.Unit.HasValue ? src.Unit.Value.ToString() : null);
 
         config.NewConfig<CustomerEntity, CustomerInfoResponse>()
+            .Map(dest => dest.AccountId, src => src.Id)
             .Map(dest => dest.FirstName, src => src.FirstName)
             .Map(dest => dest.LastName, src => src.LastName)
-            .Map(dest => dest.Email, src => src.Email);
+            .Map(dest => dest.Email, src => src.Email)
+            .Map(dest => dest.PhoneNumber, src => src.PhoneNumber)
+            .Map(dest => dest.LoyaltyId, src => src.LoyaltyId)
+            .Map(dest => dest.Remarks, src => src.Remarks);
 
         config.NewConfig<OrderEntity, OrderResponse>()
             .Map(dest => dest.CustomerFirstName, src => src.Customer.FirstName)

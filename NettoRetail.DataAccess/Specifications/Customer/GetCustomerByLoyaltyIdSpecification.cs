@@ -6,8 +6,6 @@ namespace NettoRetail.DataAccess.Specifications.Customer;
 public class GetCustomerByLoyaltyIdSpecification : Specification<CustomerEntity>
 {
     public GetCustomerByLoyaltyIdSpecification(string loyaltyId)
-        : base(customer => customer.LoyaltyId != null && customer.LoyaltyId.ToLower().Contains(loyaltyId.ToLower())) 
-    {
-        AddInclude(x => x.Order!);
-    }
+        : base(customer => customer.LoyaltyId != null && customer.LoyaltyId.ToLower() == loyaltyId.ToLower())
+    { }
 }
