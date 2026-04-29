@@ -165,7 +165,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime>("PasswordUpdatedAt")
+                    b.Property<DateTime?>("PasswordUpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("timestamp with time zone");
 

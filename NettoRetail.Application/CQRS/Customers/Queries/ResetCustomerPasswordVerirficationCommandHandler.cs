@@ -39,9 +39,13 @@ public class ResetCustomerPasswordVerirficationCommandHandler(
 
         var issuedAtSeconds = GetIssuedAtSeconds(principal);
 
-        var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt).ToUnixTimeSeconds();
-        if (issuedAtSeconds <= passwordUpdatedAtSeconds)
-            throw new NotFoundException("Invalid token.");
+        if (customer.PasswordUpdatedAt.HasValue)
+        {
+            var passwordUpdatedAtSeconds = new DateTimeOffset(customer.PasswordUpdatedAt.Value).ToUnixTimeSeconds();
+
+            if (issuedAtSeconds <= passwordUpdatedAtSeconds)
+                throw new NotFoundException("Invalid token.");
+        }
 
         var claims = new List<Claim>
         {
