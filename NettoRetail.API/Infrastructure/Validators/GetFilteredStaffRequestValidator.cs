@@ -1,73 +1,47 @@
 ﻿using FluentValidation;
-using NettoRetail.Application.CQRS.Users.Queries.Staff;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Staff;
+using NettoRetail.Shared.Constants;
 
-namespace NettoRetail.Application.Validators.Staff;
+namespace NettoRetail.API.Infrastructure.Validators;
 
-public class GetStaffListQueryValidator : AbstractValidator<GetStaffListQuery>
+public class GetFilteredStaffRequestValidator : AbstractValidator<GetFilteredStaffRequest>
 {
-    public GetStaffListQueryValidator()
+    private const int EmailMaxLength = 256;
+
+    private readonly IValidator<SortingOption> _validator;
+
+    public GetFilteredStaffRequestValidator(IValidator<SortingOption> validator)
     {
-        RuleFor(x => x.Model)
-            .NotNull()
-            .WithMessage("Request model must be provided.")
-            .DependentRules(() =>
-            {
-                RuleFor(x => x.Model!.FirstName)
-                    .Must(BeValidName)
-                    .When(x => !string.IsNullOrWhiteSpace(x.Model!.FirstName))
-                    .WithMessage("Invalid First/Last Name. Please check format or length.");
-
-                RuleFor(x => x.Model!.LastName)
-                    .Must(BeValidName)
-                    .When(x => !string.IsNullOrWhiteSpace(x.Model!.LastName))
-                    .WithMessage("Invalid First/Last Name. Please check format or length.");
-
-                When(x => x.Model!.SortingOptions != null, () =>
-                {
-                    RuleForEach(x => x.Model!.SortingOptions!)
-                        .ChildRules(opt =>
-                        {
-                            opt.RuleFor(o => o.Field)
-                                .Must(BeValidSortingField)
-                                .WithMessage("Invalid sorting field. Allowed options: FirstName, LastName, Email, Role, Status.");
-                        });
-
-                    RuleFor(x => x.Model!.SortingOptions!)
-                        .Must(NoDuplicateSortingFields)
-                        .When(x => x.Model!.SortingOptions!.Any())
-                        .WithMessage("Duplicate sorting fields are not allowed.");
-                });
-            });
+        _validator = validator;
+        ConfigureRules();
     }
 
-    private static bool BeValidName(string? value)
+    private void ConfigureRules()
     {
-        if (string.IsNullOrWhiteSpace(value)) return false;
-        if (value != value.Trim()) return false;
-        if (value.Length < 2) return false;
-        return value.All(c => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
-    }
+        RuleFor(x => x.FirstName)
+            .MinimumLength(2).WithMessage(ValidationErrorMessages.Staff.InvalidFirstNameErrorMessage)
+            .MaximumLength(30).WithMessage(ValidationErrorMessages.Staff.InvalidFirstNameErrorMessage)
+            .Matches("^[A-Za-z]+$").WithMessage(ValidationErrorMessages.Staff.InvalidFirstNameErrorMessage)
+            .Matches("^[A-Z][a-z]*$").WithMessage(ValidationErrorMessages.Staff.InvalidFirstNameErrorMessage)
+            .Matches(@"^\S.*\S$|^\S$").WithMessage(ValidationErrorMessages.Staff.InvalidFirstNameErrorMessage);
 
-    private static bool BeValidSortingField(string? field)
-    {
-        if (string.IsNullOrWhiteSpace(field)) return false;
-        if (field != field.Trim()) return false;
-        if (!field.All(c => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) return false;
+        RuleFor(x => x.LastName)
+            .MinimumLength(2).WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage)
+            .MaximumLength(30).WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage)
+            .Matches("^[A-Za-z]+$").WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage)
+            .Matches("^[A-Z][a-z]*$").WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage)
+            .Matches(@"^\S.*\S$|^\S$").WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage);
 
-        var f = field.ToLower();
-        return f == "firstname" || f == "lastname" || f == "email" || f == "role" || f == "status";
-    }
+        RuleFor(x => x.Email)
+            .MaximumLength(EmailMaxLength).WithMessage(string.Format(ValidationErrorMessages.Common.InvalidEmailLengthErrorMessage, EmailMaxLength))
+            .EmailAddress().WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
 
-    private static bool NoDuplicateSortingFields(List<SortingOption>? options)
-    {
-        if (options == null || options.Count == 0) return true;
+        RuleFor(x => x.Status)
+            .MustBeAValidAccountStatus().WithMessage(ValidationErrorMessages.Staff.InvalidStatusErrorMessage);
 
-        var normalized = options
-            .Where(o => !string.IsNullOrWhiteSpace(o.Field))
-            .Select(o => o.Field!.Trim().ToLower())
-            .ToList();
-
-        return normalized.Distinct().Count() == normalized.Count;
+        RuleForEach(x => x.SortingOptions)
+            .SetValidator(_validator);
     }
 }

@@ -64,7 +64,7 @@ public class SearchFieldModelValidatorTests
         var failures = result.ShouldHaveValidationErrorFor(x => x.SearchTerm)
             .Where(x => x.ErrorMessage == ValidationErrorMessages.Search.InvalidCharacters
             || x.ErrorMessage == ValidationErrorMessages.Search.InvalidNumericValue
-            || x.ErrorMessage == ValidationErrorMessages.Search.InvalidEmailFormat);
+            || x.ErrorMessage == ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
 
         Assert.NotEmpty(failures);
     }

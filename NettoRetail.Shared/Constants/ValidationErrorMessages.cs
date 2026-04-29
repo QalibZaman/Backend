@@ -4,6 +4,12 @@ public static class ValidationErrorMessages
 {
     public const string ANY_PROP_UPDATE_ERROR_MESSAGE = "At least one property for update must be supplied.";
 
+    public static class Common
+    {
+        public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
+        public const string InvalidEmailLengthErrorMessage = "Email length must be less than {0} characters long.";
+    }
+
     public static class Inventory
     {
         public const int InvalidThreshold = 0;
@@ -39,16 +45,17 @@ public static class ValidationErrorMessages
         public const int FinancialPrecision = 18;
         public const int FinancialScale = 2;
     }
+
     public static class PasswordValidation
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
     }
-    
 
     public static class Password
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
     }
+
     public static class Search
     {
         public const string InvalidSearchField = "Invalid search field.";
@@ -56,7 +63,6 @@ public static class ValidationErrorMessages
         public const string SearchTermMaxLength = "Search term must be less than 100 characters.";
         public const string InvalidCharacters = "Invalid characters.";
         public const string InvalidNumericValue = "Invalid numeric value.";
-        public const string InvalidEmailFormat = "Invalid email format.";
     }
 
     public static class Content
@@ -137,6 +143,21 @@ public static class ValidationErrorMessages
         public const string FeatureIdsUniqueErrorMessage = "Feature IDs must be unique.";
     }
 
+    public static class Staff
+    {
+        public const string InvalidFirstNameErrorMessage = "Invalid First Name. Please check format or length.";
+        public const string InvalidLastNameErrorMessage = "Invalid Last Name. Please check format or length.";
+        public const string InvalidStatusErrorMessage = "Invalid status value provided.";
+        public const string AtLeastOneFieldErrorMessage = "At least one field must be provided to update.";
+        public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
+    }
+
+    public static class Sort
+    {
+        public const string InvalidSortFieldErrorMessage = "Invalid sort field provided.";
+        public const string SortingFieldRequiredMessage = "Sorting field is required.";
+    }
+
     public static class StaffCsv
     {
         public const int NameMinLength = 2;
@@ -172,16 +193,6 @@ public static class ValidationErrorMessages
     public static class Pagination
     {
         public const string PaginationTooLargeErrorMessage = "Pagination parameters are too large.";
-    }
-
-    public static class Sort
-    {
-        public const string SortingFieldRequiredMessage = "Sorting field is required.";
-    }
-    public static class Staff
-    {
-        public const string AtLeastOneFieldErrorMessage = "At least one field must be provided to update.";
-        public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
     }
 
     public static class Name
