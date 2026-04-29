@@ -13,18 +13,34 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 
-public record GetStaffListQuery(PaginationRequest PaginationModel, GetFilteredStaffRequest Model, int ShopId) : IRequest<PaginatedResponse<StaffListResponse>>;
+public record GetStaffListQuery(
+    PaginationRequest PaginationModel,
+    GetFilteredStaffRequest Model,
+    int ShopId) : IRequest<PaginatedResponse<StaffListResponse>>;
 
 public class GetStaffListQueryHandler(
-    IStaffRepository accountRepository,
-    IMapper mapper)
-    : IRequestHandler<GetStaffListQuery, PaginatedResponse<StaffListResponse>>
+    IStaffRepository staffRepository,
+    IMapper mapper) : IRequestHandler<GetStaffListQuery, PaginatedResponse<StaffListResponse>>
 {
     public async Task<PaginatedResponse<StaffListResponse>> Handle(GetStaffListQuery request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<StaffEntity>();
+        var specificationBuilder = BuildSpecification(request);
 
-        specificationBuilder.Add<GetStaffByShopIdSpecification>(request.ShopId)
+        var (items, totalCount) = await staffRepository.GetStaffAccountsPaginated(specificationBuilder.Build(), cancellationToken);
+
+        return new PaginatedResponse<StaffListResponse>
+        {
+            Items = mapper.Map<ICollection<StaffListResponse>>(items),
+            TotalAmount = totalCount
+        };
+    }
+
+    private static SpecificationBuilder<StaffEntity> BuildSpecification(GetStaffListQuery request)
+    {
+        var builder = new SpecificationBuilder<StaffEntity>();
+
+        builder
+            .Add<GetStaffByShopIdSpecification>(request.ShopId)
             .Add<GetStaffByPartialFirstNameSpecification>(request.Model.FirstName)
             .Add<GetStaffByPartialLastNameSpecification>(request.Model.LastName)
             .Add<GetStaffByPartialEmailSpecification>(request.Model.Email)
@@ -33,32 +49,24 @@ public class GetStaffListQueryHandler(
 
         if (Enum.TryParse(request.Model.Status, true, out StaffStatusEnum status))
         {
-            specificationBuilder.Add<GetStaffByStatusSpecification>(status);
+            builder.Add<GetStaffByStatusSpecification>(status);
         }
 
         if (request.Model.SortingOptions != null && request.Model.SortingOptions.Any())
         {
             foreach (var sortingOption in request.Model.SortingOptions)
             {
-                specificationBuilder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
+                builder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
             }
         }
 
-        specificationBuilder.Skip(PaginationHelper.CalculateSkip(
+        builder
+            .Skip(PaginationHelper.CalculateSkip(
                 request.PaginationModel.PageNumber,
                 request.PaginationModel.PageSize))
             .Take(request.PaginationModel.PageSize);
 
-        var staffEntitiesTuple = await accountRepository.GetStaffAccountsPaginated(specificationBuilder.Build(), cancellationToken);
-        var staffCollection = mapper.Map<ICollection<StaffListResponse>>(staffEntitiesTuple.Items);
-
-        var paginatedResponse = new PaginatedResponse<StaffListResponse>()
-        {
-            Items = staffCollection,
-            TotalAmount = staffEntitiesTuple.TotalCount
-        };
-
-        return paginatedResponse;
+        return builder;
     }
 
     private static Expression<Func<StaffEntity, object>> GetSortingExpression(string fieldName)

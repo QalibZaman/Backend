@@ -45,7 +45,7 @@ public class SearchFieldModelValidator : AbstractValidator<SearchFieldModel>
                 When(x => IsEmailField(x.Field), () =>
                 {
                     RuleFor(x => x.SearchTerm)
-                        .EmailAddress().WithMessage(ValidationErrorMessages.Search.InvalidEmailFormat);
+                        .EmailAddress().WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
                 });
             });
     }

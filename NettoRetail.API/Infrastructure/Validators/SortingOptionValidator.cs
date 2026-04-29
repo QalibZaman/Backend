@@ -8,8 +8,12 @@ public class SortingOptionValidator : AbstractValidator<SortingOption>
 {
     public SortingOptionValidator()
     {
+        ConfigureRules();
+    }
+
+    private void ConfigureRules()
+    {
         RuleFor(x => x.Field)
-            .NotEmpty()
-            .WithMessage(ValidationErrorMessages.Sort.SortingFieldRequiredMessage);
+            .NotEmpty().WithMessage(ValidationErrorMessages.Sort.InvalidSortFieldErrorMessage);
     }
 }
