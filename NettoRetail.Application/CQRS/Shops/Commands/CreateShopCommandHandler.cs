@@ -35,6 +35,7 @@ public class CreateShopCommandHandler(
 
         var shop = mapper.Map<ShopEntity>(request.Model);
         shop.SubscriptionPlanId = SubscriptionConstants.Free;
+        shop.Url.ToLower();
 
         var specification = new GetStaffByIdSpecification(request.AccountId);
         var accountToUpdate = await accountRepository.GetAsync(specification, cancellationToken) ??
