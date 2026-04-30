@@ -114,7 +114,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerName, src => $"{src.Customer.FirstName} {src.Customer.LastName}")
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(
                 dest => dest.CanEditData,
                 src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
@@ -130,7 +130,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderItems, src => src.OrderItems);
 
@@ -166,7 +166,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.InventoryItems, src => src.OrderItems)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty);
 
         config.NewConfig<OrderEntity, OrderResponse>()
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
@@ -307,7 +307,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Creator, src => src.Creator)
             .Map(dest => dest.OrderId, src => src.Id)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(dest => dest.DateCreated, src => src.CreationDate)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.FirstName, src => src.Customer.FirstName)

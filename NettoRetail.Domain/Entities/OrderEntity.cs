@@ -9,10 +9,10 @@ public class OrderEntity
     public required DateTime CreationDate { get; set; } = DateTime.UtcNow;
     public required string Creator { get; set; }
     public required OrderStatusEnum OrderStatus { get; set; } = OrderStatusEnum.New;
-    public required OrderDeliveryTypeEnum DeliveryType { get; set; }
     public required Guid CustomerId { get; set; }
     public int ShopId { get; set; }
-    public ICollection<OrderStatusHistoryEntity> StatusHistory { get; set; }
+    public DeliveryEntity? Delivery { get; set; }
+    public ICollection<OrderStatusHistoryEntity> StatusHistory { get; set; } = [];
     public ICollection<OrderItemEntity> OrderItems { get; set; } = null!;
     public CustomerEntity Customer { get; set; } = null!;
 }

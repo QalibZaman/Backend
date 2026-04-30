@@ -45,7 +45,7 @@ public class OrdersController(IMediator mediator) : ControllerBase
     /// <para>Request body fields:</para>
     /// <list type="bullet">
     ///   <item><description><c>customerId</c> — customer GUID.</description></item>
-    ///   <item><description><c>deliveryType</c> — enum value: 0 = Courier, 1 = SelfDelivery, 2 = InShop.</description></item>
+    ///   <item><description><c>deliveryType</c> — enum value: 0 = Courier, 1 = InShop.</description></item>
     ///   <item><description><c>products</c> — array of items with <c>inventoryItemId</c> and <c>amount</c>.</description></item>
     /// </list>
     /// Example request:

@@ -744,6 +744,51 @@ namespace NettoRetail.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.DeliveryEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("DeliveryFee")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("DeliveryType")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PaymentTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Deliveries");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
                 {
                     b.Property<string>("ResourceType")
@@ -1364,10 +1409,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("DeliveryType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("OrderStatus")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1861,6 +1902,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<decimal>("StandardDeliveryFee")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<string>("State")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -2182,6 +2227,31 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.DeliveryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.AddressEntity", "Address")
+                        .WithMany("Deliveries")
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
+                        .WithOne("Delivery")
+                        .HasForeignKey("NettoRetail.Domain.Entities.DeliveryEntity", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
+                        .WithOne("Delivery")
+                        .HasForeignKey("NettoRetail.Domain.Entities.DeliveryEntity", "OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
@@ -2524,6 +2594,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
+                {
+                    b.Navigation("Deliveries");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.Navigation("Addresses");
@@ -2606,6 +2681,8 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
                 {
+                    b.Navigation("Delivery");
+
                     b.Navigation("OrderItems");
 
                     b.Navigation("StatusHistory");
@@ -2645,6 +2722,8 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Navigation("Cart")
                         .IsRequired();
+
+                    b.Navigation("Delivery");
 
                     b.Navigation("Order");
                 });

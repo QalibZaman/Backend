@@ -16,4 +16,5 @@ public class AddressEntity
     public int? OfficeNumber { get; set; }
     public int? ApartmentNumber { get; set; }
     public bool IsDefault { get; set; }
+    public ICollection<DeliveryEntity> Deliveries { get; set; } = [];
 }
