@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Application.Utilities;
@@ -18,6 +19,6 @@ public static class InventoryItemSortingHelper
             "onhandamount" => item => item.OnHandAmount,
             "status" => item => item.Status,
             "lastupdateddate" => item => item.LastUpdatedDate,
-            _ => throw new ArgumentException($"Unknown sorting field: {fieldName}", nameof(fieldName))
+            _ => throw new BadRequestException($"Unknown sorting field: {fieldName}")
         };
 }

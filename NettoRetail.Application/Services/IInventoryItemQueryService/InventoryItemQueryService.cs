@@ -5,6 +5,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
@@ -46,22 +47,16 @@ public class InventoryItemQueryService(
         InventoryItemsSearchModel model,
         CancellationToken ct)
     {
-        var builder = new SpecificationBuilder<InventoryItemEntity>();
+        var builder = await BuildComplexSpecificationAsync(shopId, model, ct);
 
         if (!string.IsNullOrWhiteSpace(model.Upc))
         {
-            return builder
+            builder
                 .Add<GetInventoryItemsByShopIdSpecification>(shopId)
                 .Add<GetInventoryItemsByPartialUpcSpecification>(model.Upc);
         }
 
-        if (model.SortOption.HasValue && model.SortingOptions == null)
-        {
-            return builder
-                .Add<GetInventoryItemPriceSortingSpecification>(shopId, model.SortOption.Value);
-        }
-
-        return await BuildComplexSpecificationAsync(shopId, model, ct);
+        return builder;
     }
 
     private async Task<SpecificationBuilder<InventoryItemEntity>> BuildComplexSpecificationAsync(
@@ -71,6 +66,7 @@ public class InventoryItemQueryService(
     {
         IEnumerable<int> categoryIds = Enumerable.Empty<int>();
         var filter = mapper.Map<GetFilteredInventoryItemsModel>(model);
+
         if (filter.CategoryId != 0)
         {
             var subtree = await categoryRepo.GetCategorySubtreeAsync(filter.CategoryId, ct);
@@ -96,9 +92,25 @@ public class InventoryItemQueryService(
                     option.IsDescending);
             }
         }
+        else if (model.SortOption.HasValue)
+        {
+            switch (model.SortOption.Value)
+            {
+                case InventoryItemSortingEnum.PriceLowToHigh:
+                    builder.AddOrderBy(x => x.Price, false);
+                    break;
+                case InventoryItemSortingEnum.PriceHighToLow:
+                    builder.AddOrderBy(x => x.Price, true);
+                    break;
+                case InventoryItemSortingEnum.Newest:
+                default:
+                    builder.AddOrderBy(x => x.LastUpdatedDate, true);
+                    break;
+            }
+        }
         else
         {
-            builder.AddOrderBy(i => i.Id, false);
+            builder.AddOrderBy(x => x.Id, false);
         }
 
         return builder;
