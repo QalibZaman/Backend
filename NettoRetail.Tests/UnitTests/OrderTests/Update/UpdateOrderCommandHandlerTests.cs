@@ -178,7 +178,7 @@ public class UpdateOrderCommandHandlerTests
         var command = new UpdateOrderCommand(
             new UpdateOrderModel
             {
-                DeliveryType = OrderDeliveryTypeEnum.SelfDelivery,
+                DeliveryType = OrderDeliveryTypeEnum.Courier,
                 CustomerId = Guid.NewGuid(),
                 ItemsToUpsert = new Dictionary<Guid, int> { { itemId, 10 } },
                 ItemsToDelete = new List<Guid>()
@@ -215,7 +215,7 @@ public class UpdateOrderCommandHandlerTests
         var command = new UpdateOrderCommand(
             new UpdateOrderModel
             {
-                DeliveryType = OrderDeliveryTypeEnum.SelfDelivery, CustomerId = Guid.NewGuid(),
+                DeliveryType = OrderDeliveryTypeEnum.Courier, CustomerId = Guid.NewGuid(),
                 ItemsToUpsert = new Dictionary<Guid, int> { { itemId, 0 } }
             },
             10, Guid.NewGuid(), 100);
@@ -242,13 +242,23 @@ public class UpdateOrderCommandHandlerTests
     [Fact]
     public async Task Should_UpdateDeliveryType_WhenValidRequest()
     {
+        var delivery = new DeliveryEntity
+        {
+            Id = Guid.NewGuid(),
+            DeliveryType = OrderDeliveryTypeEnum.Courier,
+            DeliveryFee = 12,
+            PaymentTotal = 100,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+            
+        };
         // Arrange
         var command = SetupValidUpdateOrder();
         var newDeliveryType = OrderDeliveryTypeEnum.Courier;
         command.Model.DeliveryType = newDeliveryType;
         command.Model.ItemsToDelete = null;
         var order = CreateDefaultOrder(command.Model.CustomerId);
-        order.DeliveryType = OrderDeliveryTypeEnum.SelfDelivery;
+        delivery.DeliveryType = OrderDeliveryTypeEnum.SelfDelivery;
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
@@ -257,7 +267,7 @@ public class UpdateOrderCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        order.DeliveryType.Should().Be(newDeliveryType);
+        delivery.DeliveryType.Should().Be(newDeliveryType);
         await _orderRepository.Received(1).UpdateAsync(order, Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();
@@ -305,12 +315,22 @@ public class UpdateOrderCommandHandlerTests
 
     private OrderEntity CreateDefaultOrder(Guid customerId, Guid? existingItemId = null)
     {
+        var delivery = new DeliveryEntity
+        {
+            Id = Guid.NewGuid(),
+            DeliveryType = OrderDeliveryTypeEnum.SelfDelivery,
+            DeliveryFee = 12,
+            PaymentTotal = 100,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+            
+        };
         var order = new OrderEntity
         {
             CustomerId = customerId,
             OrderStatus = OrderStatusEnum.New,
             OrderItems = new List<OrderItemEntity>(),
-            DeliveryType = OrderDeliveryTypeEnum.SelfDelivery,
+            Delivery = delivery,
             CreationDate = DateTime.UtcNow,
             Creator = "test",
         };

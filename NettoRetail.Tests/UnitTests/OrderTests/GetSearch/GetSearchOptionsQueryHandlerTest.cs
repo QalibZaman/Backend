@@ -14,20 +14,34 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetSearch
 {
     public class GetSearchOptionsQueryHandlerTest
     {
-        private static OrderEntity Order(int id, DateTime creationDate, string creator, OrderStatusEnum orderStatus, 
-            OrderDeliveryTypeEnum deliveryType, Guid custimerId, int shopId) =>
-            new OrderEntity
+        private static OrderEntity Order(int id, DateTime creationDate, string creator, OrderStatusEnum orderStatus,
+            OrderDeliveryTypeEnum deliveryType, Guid custimerId, int shopId)
+        {
+            var delivery = new DeliveryEntity
+            {
+                Id = Guid.NewGuid(),
+                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                DeliveryFee = 12,
+                PaymentTotal = 100,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            
+            };
+           return new OrderEntity
             {
                 Id = id,
                 CreationDate = creationDate,
                 Creator = creator,
                 OrderStatus = orderStatus,
-                DeliveryType = deliveryType,
+                Delivery = delivery,
                 CustomerId = custimerId,
                 ShopId = shopId,
                 OrderItems = Substitute.For<ICollection<OrderItemEntity>>(),
                 Customer = Substitute.For<CustomerEntity>()
             };
+            
+        }
+
 
         private readonly CustomerEntity _customer;
         private readonly OrderEntity _orderEntity;
@@ -35,7 +49,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetSearch
         public GetSearchOptionsQueryHandlerTest() 
         {
             _orderEntity = Order(id: 1, DateTime.Now, creator: "Hleb Malusheu", OrderStatusEnum.InProgress,
-            OrderDeliveryTypeEnum.SelfDelivery, Guid.NewGuid(), shopId: 1);
+            OrderDeliveryTypeEnum.Courier, Guid.NewGuid(), shopId: 1);
             _customer = Substitute.For<CustomerEntity>();
             _customer.Id = Guid.NewGuid();
             _orderEntity.Customer = _customer;

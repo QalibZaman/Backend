@@ -121,13 +121,24 @@ public class GetOrderProductsQueryHandlerTest
             RoleId = 1
         };
 
+        var delivery = new DeliveryEntity
+        {
+            Id = Guid.NewGuid(),
+            CustomerId = customer.Id,
+            DeliveryType = OrderDeliveryTypeEnum.Courier,
+            DeliveryFee = 12,
+            PaymentTotal = 100,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+            
+        };
         var order = new OrderEntity
         {
             Id = id,
             CreationDate = DateTime.UtcNow,
             Creator = "Tester",
             OrderStatus = OrderStatusEnum.Processing,
-            DeliveryType = OrderDeliveryTypeEnum.Courier,
+            Delivery = delivery,
             CustomerId = customer.Id,
             Customer = customer,
             ShopId = 1,
