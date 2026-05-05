@@ -1,53 +1,65 @@
-﻿using Azure.Storage.Sas;
+using Azure.Storage.Sas;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.ProductBanners.Commands
 {
     public record AddInventoryItemBannersCommand(
-    Guid InventoryItemId,
-    IFormFile[] Files) : IRequest<List<GetInventoryItemBannerResponse>>;
+        Guid InventoryItemId,
+        IFormFile[] Files) : IRequest<List<GetInventoryItemBannerResponse>>;
 
-    public class AddInventoryItemBannerCommandHandler : IRequestHandler<AddInventoryItemBannersCommand, List<GetInventoryItemBannerResponse>>
+    public class AddInventoryItemBannerCommandHandler(
+        IInventoryItemBannerRepository bannerRepository,
+        IInventoryItemRepository inventoryItemRepository,
+        IAzureBlobService blobService)
+        : IRequestHandler<AddInventoryItemBannersCommand, List<GetInventoryItemBannerResponse>>
     {
-        private readonly IInventoryItemBannerRepository _bannerRepository;
-        private readonly IAzureBlobService _blobService;
-
-        public AddInventoryItemBannerCommandHandler(
-            IInventoryItemBannerRepository bannerRepository,
-            IAzureBlobService blobService)
-        {
-            _bannerRepository = bannerRepository;
-            _blobService = blobService;
-        }
+        private const int MaxImagesPerProduct = 8;
 
         public async Task<List<GetInventoryItemBannerResponse>> Handle(AddInventoryItemBannersCommand request, CancellationToken cancellationToken)
         {
             if (request.Files == null || !request.Files.Any())
                 return new List<GetInventoryItemBannerResponse>();
 
+            var itemSpec = new GetItemByIdSpecification(request.InventoryItemId);
+            if (!await inventoryItemRepository.Exists(itemSpec, cancellationToken))
+            {
+                throw new NotFoundException("The product does not exist.");
+            }
+
+            var existingImages = await bannerRepository.GetByInventoryItemIdAsync(
+                request.InventoryItemId,
+                new Specification<InventoryItemBannerEntity>(b => true),
+                cancellationToken) ?? [];
+            if (existingImages.Count + request.Files.Length > MaxImagesPerProduct)
+            {
+                throw new BadRequestException($"Limit to {MaxImagesPerProduct} images per product.");
+            }
+
             var responses = new List<GetInventoryItemBannerResponse>();
-            string containerName = "dot-net";
+            const string containerName = "dot-net";
+            var nextOrderIndex = await bannerRepository
+                .GetMaxOrderIndexAsync(request.InventoryItemId, cancellationToken) + 1;
 
             foreach (var file in request.Files)
             {
                 var uniqueId = Guid.NewGuid().ToString();
 
                 using var stream = file.OpenReadStream();
-                await _blobService.UploadAsync(
+                await blobService.UploadAsync(
                     uniqueId,
                     stream,
                     containerName,
                     BlobContentCategoryEnum.Image,
                     contentType: file.ContentType);
-
-                var nextOrderIndex = await _bannerRepository
-                    .GetMaxOrderIndexAsync(request.InventoryItemId, cancellationToken) + 1;
 
                 var banner = new InventoryItemBannerEntity
                 {
@@ -56,14 +68,14 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
                     FileName = file.FileName,
                     ContentType = file.ContentType,
                     FileSize = file.Length,
-                    OrderIndex = nextOrderIndex
+                    OrderIndex = nextOrderIndex++
                 };
 
-                var addedBanner = await _bannerRepository.AddAsync(banner, cancellationToken);
+                var addedBanner = await bannerRepository.AddAsync(banner, cancellationToken);
 
                 string blobPath = $"images/{addedBanner.FileIdentifier}";
-                var blobUrl = _blobService.GetBlobUrl(containerName, blobPath);
-                var sasToken = _blobService.GenerateBlobSasToken(
+                var blobUrl = blobService.GetBlobUrl(containerName, blobPath);
+                var sasToken = blobService.GenerateBlobSasToken(
                     containerName,
                     blobPath,
                     BlobSasPermissions.Read);

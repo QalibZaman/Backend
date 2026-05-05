@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
@@ -29,33 +29,26 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
             if (existingBanner == null)
                 throw new NotFoundException($"ProductBanner with Id {request.Id} not found.");
 
-            try
+            if (!string.IsNullOrWhiteSpace(existingBanner.FileIdentifier))
             {
-                if (!string.IsNullOrWhiteSpace(existingBanner.FileIdentifier))
-                {
-                    await _blobService.DeleteBlobAsync(existingBanner.FileIdentifier);
-                }
-
-                await _bannerRepository.DeleteAsync(existingBanner, cancellationToken);
-
-                var bannersToReorder = await _bannerRepository
-                                    .GetByInventoryItemIdAsync(
-                                     existingBanner.InventoryItemId,
-                                     new Specification<InventoryItemBannerEntity>(b => b.OrderIndex > existingBanner.OrderIndex),
-                                     cancellationToken);
-
-                foreach (var banner in bannersToReorder)
-                {
-                    banner.OrderIndex -= 1;
-                }
-
-                await _bannerRepository.UpdateManyAsync(bannersToReorder, cancellationToken);
-
+                var blobPath = $"images/{existingBanner.FileIdentifier}";
+                await _blobService.DeleteBlobAsync(blobPath);
             }
-            catch (Exception ex)
+
+            await _bannerRepository.DeleteAsync(existingBanner, cancellationToken);
+
+            var bannersToReorder = await _bannerRepository
+                .GetByInventoryItemIdAsync(
+                    existingBanner.InventoryItemId,
+                    new Specification<InventoryItemBannerEntity>(b => b.OrderIndex > existingBanner.OrderIndex),
+                    cancellationToken);
+
+            foreach (var banner in bannersToReorder)
             {
-                throw new BadRequestException($"Failed to delete banner: {ex.Message}");
+                banner.OrderIndex -= 1;
             }
+
+            await _bannerRepository.UpdateManyAsync(bannersToReorder, cancellationToken);
 
             return Unit.Value;
         }

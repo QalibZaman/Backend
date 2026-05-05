@@ -1,8 +1,7 @@
-﻿using FluentValidation;
+using FluentValidation;
 using NettoRetail.Application.Models.Request.ProductBanner;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-
 
 namespace NettoRetail.API.Infrastructure.Validators
 {
@@ -12,10 +11,11 @@ namespace NettoRetail.API.Infrastructure.Validators
         private const long MinFileSize = 1 * 1024 * 1024;
         private const long MaxFileSize = 5 * 1024 * 1024;
         private const int MinWidth = 800;
-        private const int MinHeight = 600;
+        private const int MinHeight = 800;
         private const int MaxWidth = 2000;
-        private const int MaxHeight = 1500;
+        private const int MaxHeight = 2000;
         private const float MinDpi = 72f;
+        private const int MaxFilesPerProduct = 8;
 
         public AddInventoryItemBannerRequestValidator()
         {
@@ -23,20 +23,19 @@ namespace NettoRetail.API.Infrastructure.Validators
                 .NotEmpty().WithMessage("Inventory item ID is required.");
 
             RuleFor(x => x.Files)
-                .Must(files => files.Count <= 5)
-                .WithMessage("You can upload a maximum of 5 banners per product.");
+                .NotEmpty().WithMessage("At least one image is required.")
+                .Must(files => files.Count <= MaxFilesPerProduct)
+                .WithMessage($"You can upload a maximum of {MaxFilesPerProduct} images per product.");
 
             RuleForEach(x => x.Files).ChildRules(file =>
             {
-
                 file.RuleFor(f => f.FileName)
                     .Must(fn => allowedExtensions.Contains(System.IO.Path.GetExtension(fn).ToLower()))
                     .WithMessage("Unsupported file format. Please upload a JPEG or PNG.");
 
-
                 file.RuleFor(f => f.Length)
                     .InclusiveBetween(MinFileSize, MaxFileSize)
-                    .WithMessage("File size too large. Maximum file size is 5MB.");
+                    .WithMessage("File size must be between 1MB and 5MB.");
 
                 file.RuleFor(f => f)
                     .Must(f => HasValidDimensions(f))
