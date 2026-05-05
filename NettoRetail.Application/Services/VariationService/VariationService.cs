@@ -18,42 +18,38 @@ namespace NettoRetail.Application.Services.VariationService
         IImageValidatorService imageValidatorService)
         : IVariationService
     {
+        private static readonly InventoryItemStatusEnum[] EditableInventoryStatuses =
+        [
+            InventoryItemStatusEnum.Available,
+            InventoryItemStatusEnum.Incoming
+        ];
+
         public async Task UpdateVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken cancellationToken)
         {
             var variation = await LoadVariationAsync(model, shopId, cancellationToken);
             var parent = await LoadParentAsync(variation, shopId, cancellationToken);
 
             await ValidateUpcAsync(variation, model, cancellationToken);
-            UpdateDescription(variation, parent, model);
-            UpdatePrice(variation, model);
+            ApplyGeneralChanges(variation, parent, model);
+            await UpdateImagesAsync(variation, parent, model, shopId, cancellationToken);
+            await ReplaceDetailsAsync(variation, BuildVariationDetails(variation.Id, parent, model), cancellationToken);
+            ApplyStatusAndInventory(variation, model);
 
-            if (model.ApplyImagesFromParent)
-            {
-                InheritImagesFromParent(variation, parent);
-            }
-            else
-            {
-                var hasExisting = model.ImageIds?.Any() == true;
-                var hasUploads = model.NewImages?.Any() == true;
+            variation.LastUpdatedDate = DateTime.UtcNow;
 
-                if (hasExisting)
-                    FilterExistingImages(variation, model.ImageIds!);
+            await inventoryItemRepository.UpdateAsync(variation, cancellationToken);
+        }
 
-                if (hasUploads)
-                {
-                    var prefix = $"shops/{shopId}/products/{variation.Id}";
-                    await AddUploadedImagesAsync(variation, model.NewImages!, prefix, cancellationToken);
-                }
-            }
-
-            await UpdateDetailsAsync(variation, parent, model, cancellationToken);
-
-            UpdateStatusAndAmounts(variation, model);
-
+        private void ApplyGeneralChanges(
+            InventoryItemEntity variation,
+            InventoryItemEntity parent,
+            UpdateVariationRequest model)
+        {
             variation.ProductUpc = model.ProductUpc;
             variation.IsActive = model.IsActive;
 
-            await inventoryItemRepository.UpdateAsync(variation, cancellationToken);
+            ApplyDescription(variation, parent, model);
+            ApplyPricing(variation, model);
         }
 
         private void InheritImagesFromParent(
@@ -68,9 +64,40 @@ namespace NettoRetail.Application.Services.VariationService
                 {
                     InventoryItemId = variation.Id,
                     BlobUrl = parentImage.BlobUrl,
-                    Order = parentImage.Order
+                    Order = parentImage.Order,
+                    Description = parentImage.Description
                 });
             }
+        }
+
+        private async Task UpdateImagesAsync(
+            InventoryItemEntity variation,
+            InventoryItemEntity parent,
+            UpdateVariationRequest model,
+            int shopId,
+            CancellationToken cancellationToken)
+        {
+            if (model.ApplyImagesFromParent)
+            {
+                InheritImagesFromParent(variation, parent);
+                return;
+            }
+
+            var hasExisting = model.ImageIds?.Any() == true;
+            var hasUploads = model.NewImages?.Any() == true;
+
+            if (hasExisting)
+            {
+                FilterExistingImages(variation, model.ImageIds!);
+            }
+
+            if (!hasUploads)
+            {
+                return;
+            }
+
+            var prefix = $"shops/{shopId}/products/{variation.Id}";
+            await AddUploadedImagesAsync(variation, model.NewImages!, prefix, cancellationToken);
         }
 
         private void FilterExistingImages(
@@ -116,31 +143,33 @@ namespace NettoRetail.Application.Services.VariationService
             }
         }
 
-        private void UpdateDescription(
+        private void ApplyDescription(
             InventoryItemEntity variation,
             InventoryItemEntity parent,
             UpdateVariationRequest model)
         {
-            if (string.IsNullOrWhiteSpace(model.Description))
-                throw new BadRequestException("Description is required when not applying from parent.");
             if (model.ApplyDescriptionFromParent)
             {
                 variation.Description = parent.Description;
                 return;
             }
-            else
-            {
-                variation.Description = model.Description.Trim();
-            }
+
+            if (string.IsNullOrWhiteSpace(model.Description))
+                throw new BadRequestException("Description is required when not applying from parent.");
+
+            variation.Description = model.Description.Trim();
         }
 
-        private void UpdatePrice(InventoryItemEntity variation, UpdateVariationRequest model)
+        private void ApplyPricing(InventoryItemEntity variation, UpdateVariationRequest model)
         {
             variation.Price = model.Price;
+            variation.IsPromoted = model.ApplyPromotion;
 
             if (!model.ApplyPromotion)
             {
                 variation.PromotionPrice = null;
+                variation.PromotionStartDate = null;
+                variation.PromotionEndDate = null;
                 return;
             }
 
@@ -150,25 +179,18 @@ namespace NettoRetail.Application.Services.VariationService
             variation.PromotionPrice = model.PromotionPrice.Value;
         }
 
-        private async Task UpdateDetailsAsync(
-             InventoryItemEntity variation,
-             InventoryItemEntity parent,
-             UpdateVariationRequest model,
-             CancellationToken cancellationToken)
+        private List<ProductDetailEntity> BuildVariationDetails(
+            Guid variationId,
+            InventoryItemEntity parent,
+            UpdateVariationRequest model)
         {
-            var deleteIds = variation.ProductDetails
-                .Select(x => x.Id)
-                .ToList();
-
-            List<ProductDetailEntity> upsertedDetails;
-
             if (model.ApplyDetailsFromParent)
             {
-                upsertedDetails = parent.ProductDetails
+                return parent.ProductDetails
                     .OrderBy(x => x.OrderIndex)
                     .Select(x => new ProductDetailEntity
                     {
-                        InventoryItemId = variation.Id,
+                        InventoryItemId = variationId,
                         Name = x.Name,
                         TypeEnum = x.TypeEnum,
                         Unit = x.Unit,
@@ -177,28 +199,48 @@ namespace NettoRetail.Application.Services.VariationService
                     })
                     .ToList();
             }
-            else
-            {
-                if (model.CustomParameters == null || !model.CustomParameters.Any())
-                    throw new BadRequestException("Custom parameters are required when not inheriting from parent.");
 
-                upsertedDetails = model.CustomParameters
-                    .OrderBy(x => x.OrderIndex)
-                    .Select(x => new ProductDetailEntity
-                    {
-                        InventoryItemId = variation.Id,
-                        Name = x.Name,
-                        TypeEnum = x.TypeEnum,
-                        Unit = x.Unit,
-                        Value = ConvertToString(x.Value),
-                        OrderIndex = x.OrderIndex
-                    })
-                    .ToList();
+            if (model.CustomParameters == null || !model.CustomParameters.Any())
+                throw new BadRequestException("Custom parameters are required when not inheriting from parent.");
+
+            return model.CustomParameters
+                .OrderBy(x => x.OrderIndex)
+                .Select(x => new ProductDetailEntity
+                {
+                    InventoryItemId = variationId,
+                    Name = x.Name,
+                    TypeEnum = x.TypeEnum,
+                    Unit = x.Unit,
+                    Value = ConvertToString(x.Value),
+                    OrderIndex = x.OrderIndex
+                })
+                .ToList();
+        }
+
+        private async Task ReplaceDetailsAsync(
+            InventoryItemEntity variation,
+            List<ProductDetailEntity> replacementDetails,
+            CancellationToken cancellationToken)
+        {
+            var existingDetails = variation.ProductDetails.ToList();
+
+            if (existingDetails.Any())
+            {
+                await detailRepository.DeleteRangeAsync(existingDetails, cancellationToken);
+                variation.ProductDetails.Clear();
             }
 
-            await detailRepository.UpdateDetailsAsync(
-                upsertedDetails,
-                cancellationToken);
+            if (!replacementDetails.Any())
+            {
+                return;
+            }
+
+            await detailRepository.AddRangeAsync(replacementDetails, cancellationToken);
+
+            foreach (var detail in replacementDetails)
+            {
+                variation.ProductDetails.Add(detail);
+            }
         }
 
         private string ConvertToString(object value)
@@ -214,19 +256,30 @@ namespace NettoRetail.Application.Services.VariationService
             };
         }
 
-        private void UpdateStatusAndAmounts(InventoryItemEntity variation, UpdateVariationRequest model)
+        private void ApplyStatusAndInventory(InventoryItemEntity variation, UpdateVariationRequest model)
         {
             if (!Enum.TryParse<InventoryItemStatusEnum>(model.Status, true, out var status))
                 throw new BadRequestException($"Invalid status: '{model.Status}'.");
 
+            ValidateInventoryAmounts(model);
+
             variation.Status = status;
 
-            if (status is InventoryItemStatusEnum.Available or InventoryItemStatusEnum.Incoming)
+            if (EditableInventoryStatuses.Contains(status))
             {
                 variation.AvailableAmount = model.AvailableAmount;
                 variation.ReservedAmount = model.ReservedAmount;
                 variation.OnHandAmount = model.OnHandAmount;
             }
+        }
+
+        private static void ValidateInventoryAmounts(UpdateVariationRequest model)
+        {
+            if (model.ReservedAmount > model.AvailableAmount)
+                throw new BadRequestException("Reserved amount cannot exceed the available amount.");
+
+            if (model.ReservedAmount + model.AvailableAmount > model.OnHandAmount)
+                throw new BadRequestException("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
         }
 
         private async Task<InventoryItemEntity> LoadVariationAsync(UpdateVariationRequest model, int shopId, CancellationToken cancellationToken)

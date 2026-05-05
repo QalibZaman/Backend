@@ -1,4 +1,4 @@
-using MapsterMapper;
+﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.DataAccess.Specifications.Inventory.Variations;
@@ -17,10 +17,12 @@ public class GetItemVariationsQueryHandler(
         GetItemVariationsQuery request,
         CancellationToken cancellationToken)
     {
-        var spec = new GetVariationsByParentIdAndShopIdSpecification(request.ParentId, request.ShopId);
+        var spec = new GetVariationsByParentIdSpecification(request.ParentId, request.ShopId);
 
         var variations = await inventoryItemRepository.GetAllBySpecAsync(spec, cancellationToken);
 
-        return mapper.Map<List<VariationResponse>>(variations);
+        var response = mapper.Map<List<VariationResponse>>(variations);
+
+        return response;
     }
 }

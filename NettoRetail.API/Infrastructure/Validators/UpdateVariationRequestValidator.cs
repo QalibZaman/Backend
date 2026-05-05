@@ -1,10 +1,14 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Variation;
+using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.API.Infrastructure.Validators
 {
     public class UpdateVariationRequestValidator : AbstractValidator<UpdateVariationRequest>
     {
+        private static readonly string[] AllowedStatuses =
+            Enum.GetNames<InventoryItemStatusEnum>();
+
         public UpdateVariationRequestValidator()
         {
             RuleFor(x => x.ProductUpc)
@@ -53,18 +57,28 @@ namespace NettoRetail.API.Infrastructure.Validators
             RuleFor(x => x.OnHandAmount)
                 .GreaterThanOrEqualTo(0).WithMessage("On-hand amount must be greater or equal to 0.");
 
+            RuleFor(x => x)
+                .Must(x => x.ReservedAmount <= x.AvailableAmount)
+                .WithMessage("Reserved amount cannot exceed the available amount.");
+
+            RuleFor(x => x)
+                .Must(x => x.ReservedAmount + x.AvailableAmount <= x.OnHandAmount)
+                .WithMessage("The sum of Reserved Amount and Available Amount should not exceed the On-hand Amount.");
+
             When(x => !x.ApplyDetailsFromParent, () =>
             {
                 RuleFor(x => x.CustomParameters)
                     .Cascade(CascadeMode.Stop)
                     .NotNull().WithMessage("Custom parameters are required when not inherited from parent.")
                     .Must(list => list!.Count > 0).WithMessage("Custom parameters cannot be empty.");
+
+                RuleForEach(x => x.CustomParameters!)
+                    .SetValidator(new VariationCustomDetailModelValidator());
             });
 
             RuleFor(x => x.Status)
                  .NotEmpty().WithMessage("Status is required.")
-                 .Must(s => new[] { "Available", "Committed", "Unavailable", "Incoming" }
-                 .Contains(s))
+                 .Must(s => AllowedStatuses.Contains(s, StringComparer.OrdinalIgnoreCase))
                  .WithMessage("Status must be one of: Available, Committed, Unavailable, Incoming.");
         }
     }
