@@ -10,6 +10,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Customer;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Customer;
+using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -148,6 +149,24 @@ public class CustomersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> UpdateCustomer(string loyaltyId, [FromBody] UpdateCustomerRequest model, CancellationToken cancellationToken)
     {
         var command = new UpdateCustomerCommand(loyaltyId, model);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.CustomerOnlyPolicy)]
+    [HttpPut("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new ChangeCustomerPasswordCommand(userId, request);
+
         await mediator.Send(command, cancellationToken);
 
         return NoContent();
