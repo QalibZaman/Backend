@@ -1,4 +1,4 @@
-﻿using Azure.Storage.Sas;
+using Azure.Storage.Sas;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.CQRS.ProductBanners.Commands;
@@ -51,7 +51,7 @@ namespace NettoRetail.Tests.UnitTests
                     Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("mock-sas-token");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, CreateInventoryItemRepository(), blobService);
 
             var fileMock = Substitute.For<IFormFile>();
             var content = "Fake image content";
@@ -115,7 +115,7 @@ namespace NettoRetail.Tests.UnitTests
                     Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("sas");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, CreateInventoryItemRepository(), blobService);
 
             var fileMock = Substitute.For<IFormFile>();
             var content = "content";
@@ -143,7 +143,7 @@ namespace NettoRetail.Tests.UnitTests
             // Arrange
             var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
             var blobService = Substitute.For<IAzureBlobService>();
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, CreateInventoryItemRepository(), blobService);
 
             var command = new AddInventoryItemBannersCommand(Guid.NewGuid(), Array.Empty<IFormFile>());
 
@@ -193,7 +193,7 @@ namespace NettoRetail.Tests.UnitTests
                     Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null)
                 .Returns("mock-sas-token");
 
-            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, blobService);
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, CreateInventoryItemRepository(), blobService);
 
             var files = Enumerable.Range(1, 2).Select(i =>
             {
@@ -228,6 +228,70 @@ namespace NettoRetail.Tests.UnitTests
             blobService.Received(2).GenerateBlobSasToken(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<BlobSasPermissions>(), null, null);
         }
 
+        [Fact]
+        public async Task Handle_InventoryItemDoesNotExist_ThrowsNotFoundException()
+        {
+            // Arrange
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var inventoryRepo = Substitute.For<IInventoryItemRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+            var inventoryItemId = Guid.NewGuid();
+
+            inventoryRepo.Exists(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(false);
+
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, inventoryRepo, blobService);
+
+            var fileMock = Substitute.For<IFormFile>();
+            var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Fake image content"));
+            fileMock.OpenReadStream().Returns(ms);
+            fileMock.FileName.Returns("test.png");
+            fileMock.ContentType.Returns("image/png");
+            fileMock.Length.Returns(ms.Length);
+
+            var command = new AddInventoryItemBannersCommand(inventoryItemId, new[] { fileMock });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+            await bannerRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+        }
+
+        [Fact]
+        public async Task Handle_TotalImagesWouldExceedLimit_ThrowsBadRequestException()
+        {
+            // Arrange
+            var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
+            var blobService = Substitute.For<IAzureBlobService>();
+            var inventoryItemId = Guid.NewGuid();
+
+            bannerRepo.GetByInventoryItemIdAsync(
+                    inventoryItemId,
+                    Arg.Any<Specification<InventoryItemBannerEntity>>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(Enumerable.Range(1, 8).Select(i => new InventoryItemBannerEntity
+                {
+                    Id = Guid.NewGuid(),
+                    InventoryItemId = inventoryItemId,
+                    FileIdentifier = $"file-{i}",
+                    OrderIndex = i
+                }).ToList());
+
+            var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, CreateInventoryItemRepository(), blobService);
+
+            var fileMock = Substitute.For<IFormFile>();
+            var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Fake image content"));
+            fileMock.OpenReadStream().Returns(ms);
+            fileMock.FileName.Returns("test.png");
+            fileMock.ContentType.Returns("image/png");
+            fileMock.Length.Returns(ms.Length);
+
+            var command = new AddInventoryItemBannersCommand(inventoryItemId, new[] { fileMock });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+            await bannerRepo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+        }
+
 
         [Fact]
         public async Task Handle_WithValidBanner_DeletesBannerAndReorders_1Based()
@@ -260,7 +324,7 @@ namespace NettoRetail.Tests.UnitTests
                 Arg.Any<Specification<InventoryItemBannerEntity>>(),
                 Arg.Any<CancellationToken>()).Returns(bannersToReorder);
 
-            blobService.DeleteBlobAsync(existingBanner.FileIdentifier!).Returns(Task.CompletedTask);
+            blobService.DeleteBlobAsync($"images/{existingBanner.FileIdentifier}").Returns(Task.CompletedTask);
 
             var handler = new DeleteInventoryItemBannerCommandHandler(bannerRepo, blobService);
             var command = new DeleteInventoryItemBannerCommand(bannerId);
@@ -272,7 +336,7 @@ namespace NettoRetail.Tests.UnitTests
             Assert.Equal(Unit.Value, result);
 
             await bannerRepo.Received(1).GetByIdAsync(bannerId, Arg.Any<CancellationToken>());
-            await blobService.Received(1).DeleteBlobAsync("file-123");
+            await blobService.Received(1).DeleteBlobAsync("images/file-123");
             await bannerRepo.Received(1).DeleteAsync(existingBanner, Arg.Any<CancellationToken>());
             await bannerRepo.Received(1).UpdateManyAsync(Arg.Any<IEnumerable<InventoryItemBannerEntity>>(), Arg.Any<CancellationToken>());
 
@@ -341,7 +405,7 @@ namespace NettoRetail.Tests.UnitTests
 
 
         [Fact]
-        public async Task Handle_WhenExceptionOccurs_ThrowsBadRequestException()
+        public async Task Handle_WhenExceptionOccurs_ThrowsOriginalException()
         {
             // Arrange
             var bannerRepo = Substitute.For<IInventoryItemBannerRepository>();
@@ -364,10 +428,10 @@ namespace NettoRetail.Tests.UnitTests
             var command = new DeleteInventoryItemBannerCommand(bannerId);
 
             // Act & Assert
-            var ex = await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<Exception>(() => handler.Handle(command, CancellationToken.None));
             Assert.Contains("blob service failure", ex.Message);
 
-            await blobService.Received(1).DeleteBlobAsync("file-123");
+            await blobService.Received(1).DeleteBlobAsync("images/file-123");
             await bannerRepo.DidNotReceiveWithAnyArgs().DeleteAsync(Arg.Any<InventoryItemBannerEntity>(), Arg.Any<CancellationToken>());
         }
 
@@ -602,6 +666,15 @@ namespace NettoRetail.Tests.UnitTests
             blobService.DidNotReceiveWithAnyArgs().GetBlobUrl(default!, default!);
             blobService.DidNotReceiveWithAnyArgs().GenerateBlobSasToken(default!, default!, default, default, default);
         }
+
+        private static IInventoryItemRepository CreateInventoryItemRepository()
+        {
+            var inventoryRepo = Substitute.For<IInventoryItemRepository>();
+            inventoryRepo.Exists(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+                .Returns(true);
+            return inventoryRepo;
+        }
     }
 }
+
 

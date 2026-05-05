@@ -1,12 +1,10 @@
-﻿using Azure.Storage.Sas;
+using Azure.Storage.Sas;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.UOW;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.ProductBanners.Commands
@@ -14,7 +12,6 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
     public record ReorderInventoryItemBannerOrderCommand(
         Guid BannerId,
         int NewOrderIndex) : IRequest<List<GetInventoryItemBannerResponse>>;
-
 
     public class ReorderInventoryItemBannerOrderCommandHandler : IRequestHandler<ReorderInventoryItemBannerOrderCommand, List<GetInventoryItemBannerResponse>>
     {
@@ -43,11 +40,19 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
                 .OrderBy(b => b.OrderIndex)
                 .ToList();
 
-            if (request.NewOrderIndex < 0 || request.NewOrderIndex > banners.Count)
+            var bannerToMove = banners.FirstOrDefault(b => b.Id == request.BannerId)
+                ?? throw new NotFoundException($"ProductBanner with Id {request.BannerId} not found.");
+
+            if (request.NewOrderIndex < 1 || request.NewOrderIndex > banners.Count)
                 throw new BadRequestException("New order index is out of range.");
 
-            banners.Remove(banner);
-            banners.Insert(request.NewOrderIndex - 1, banner);
+            if (bannerToMove.OrderIndex == request.NewOrderIndex)
+            {
+                return BuildResponses(banners);
+            }
+
+            banners.Remove(bannerToMove);
+            banners.Insert(request.NewOrderIndex - 1, bannerToMove);
 
             for (int i = 0; i < banners.Count; i++)
             {
@@ -56,7 +61,13 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
 
             await _bannerRepository.UpdateManyAsync(banners, cancellationToken);
 
+            return BuildResponses(banners);
+        }
+
+        private List<GetInventoryItemBannerResponse> BuildResponses(IEnumerable<InventoryItemBannerEntity> banners)
+        {
             var responses = new List<GetInventoryItemBannerResponse>();
+
             foreach (var b in banners)
             {
                 string blobPath = $"images/{b.FileIdentifier}";
