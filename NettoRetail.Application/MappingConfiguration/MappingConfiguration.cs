@@ -4,6 +4,7 @@ using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Customer;
+using NettoRetail.Application.Models.Delivery;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
@@ -31,6 +32,8 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<DeliveryEntity, DeliveryResponse>();
+
         config.NewConfig<OrderEntity, SearchOrderResponse>()
             .Map(dest => dest.Email, src => src.Customer.Email)
             .Map(dest => dest.FullName, src => src.Customer.FullName)

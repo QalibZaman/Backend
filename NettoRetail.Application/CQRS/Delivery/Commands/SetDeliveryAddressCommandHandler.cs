@@ -1,4 +1,5 @@
 using MediatR;
+using MapsterMapper;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Delivery;
 using NettoRetail.DataAccess.Specifications.Address;
@@ -19,7 +20,8 @@ public class SetDeliveryAddressCommandHandler(
     ICustomerRepository customerRepository,
     IAddressRepository addressRepository,
     ICartRepository cartRepository,
-    IShopRepository shopRepository) : IRequestHandler<SetDeliveryAddressCommand, DeliveryResponse>
+    IShopRepository shopRepository,
+    IMapper mapper) : IRequestHandler<SetDeliveryAddressCommand, DeliveryResponse>
 {
     public async Task<DeliveryResponse> Handle(SetDeliveryAddressCommand request, CancellationToken cancellationToken)
     {
@@ -49,7 +51,7 @@ public class SetDeliveryAddressCommandHandler(
 
         delivery = await deliveryRepository.UpdateAsync(delivery, cancellationToken);
 
-        return MapResponse(delivery);
+        return mapper.Map<DeliveryResponse>(delivery);
     }
 
     private async Task EnsureCustomerExistsAsync(Guid customerId, CancellationToken cancellationToken)
@@ -67,20 +69,5 @@ public class SetDeliveryAddressCommandHandler(
         var totalSale = cart?.Items.Sum(item => (item.Price - item.GetEffectivePrice()) * item.Quantity) ?? 0m;
 
         return subtotal + deliveryFee - totalSale;
-    }
-
-    private static DeliveryResponse MapResponse(DeliveryEntity delivery)
-    {
-        return new DeliveryResponse
-        {
-            CustomerId = delivery.CustomerId,
-            OrderId = delivery.OrderId,
-            AddressId = delivery.AddressId,
-            DeliveryType = delivery.DeliveryType,
-            DeliveryFee = delivery.DeliveryFee,
-            PaymentTotal = delivery.PaymentTotal,
-            CreatedAt = delivery.CreatedAt,
-            UpdatedAt = delivery.UpdatedAt
-        };
     }
 }

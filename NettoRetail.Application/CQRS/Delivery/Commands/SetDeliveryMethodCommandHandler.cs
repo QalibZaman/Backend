@@ -1,4 +1,5 @@
 using MediatR;
+using MapsterMapper;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Delivery;
 using NettoRetail.DataAccess.Specifications.Address;
@@ -19,7 +20,8 @@ public class SetDeliveryMethodCommandHandler(
     ICustomerRepository customerRepository,
     IAddressRepository addressRepository,
     ICartRepository cartRepository,
-    IShopRepository shopRepository) : IRequestHandler<SetDeliveryMethodCommand, DeliveryResponse>
+    IShopRepository shopRepository,
+    IMapper mapper) : IRequestHandler<SetDeliveryMethodCommand, DeliveryResponse>
 {
     public async Task<DeliveryResponse> Handle(SetDeliveryMethodCommand request, CancellationToken cancellationToken)
     {
@@ -29,13 +31,8 @@ public class SetDeliveryMethodCommandHandler(
             ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
 
         var cart = await cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
-        var delivery = await deliveryRepository.GetAsync(new GetDeliveryByCustomerIdSpecification(request.CustomerId), cancellationToken);
-        var isNew = delivery == null;
-
-        delivery ??= new DeliveryEntity
-        {
-            CustomerId = request.CustomerId
-        };
+        var delivery = await deliveryRepository.GetAsync(new GetDeliveryByCustomerIdSpecification(request.CustomerId), cancellationToken)
+            ?? throw new NotFoundException("Delivery was not created for the current customer.");
 
         switch (request.Request.DeliveryType)
         {
@@ -56,11 +53,9 @@ public class SetDeliveryMethodCommandHandler(
         delivery.PaymentTotal = CalculatePaymentTotal(cart, delivery.DeliveryFee);
         delivery.UpdatedAt = DateTime.UtcNow;
 
-        delivery = isNew
-            ? await deliveryRepository.AddAsync(delivery, cancellationToken)
-            : await deliveryRepository.UpdateAsync(delivery, cancellationToken);
+        delivery = await deliveryRepository.UpdateAsync(delivery, cancellationToken);
 
-        return MapResponse(delivery);
+        return mapper.Map<DeliveryResponse>(delivery);
     }
 
     private async Task EnsureCustomerExistsAsync(Guid customerId, CancellationToken cancellationToken)
@@ -85,20 +80,5 @@ public class SetDeliveryMethodCommandHandler(
         var totalSale = cart?.Items.Sum(item => (item.Price - item.GetEffectivePrice()) * item.Quantity) ?? 0m;
 
         return subtotal + deliveryFee - totalSale;
-    }
-
-    private static DeliveryResponse MapResponse(DeliveryEntity delivery)
-    {
-        return new DeliveryResponse
-        {
-            CustomerId = delivery.CustomerId,
-            OrderId = delivery.OrderId,
-            AddressId = delivery.AddressId,
-            DeliveryType = delivery.DeliveryType,
-            DeliveryFee = delivery.DeliveryFee,
-            PaymentTotal = delivery.PaymentTotal,
-            CreatedAt = delivery.CreatedAt,
-            UpdatedAt = delivery.UpdatedAt
-        };
     }
 }

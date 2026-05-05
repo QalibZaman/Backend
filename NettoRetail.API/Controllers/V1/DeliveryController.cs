@@ -18,6 +18,24 @@ public class DeliveryController(IMediator mediator) : ControllerBase
     private readonly IMediator _mediator = mediator;
 
     [Authorize]
+    [HttpPost("current")]
+    [ProducesResponseType(typeof(ApiResponse<DeliveryResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public async Task<IActionResult> CreateDelivery(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var command = new CreateCurrentDeliveryCommand(userId);
+        var response = await _mediator.Send(command, cancellationToken);
+
+        return Created(string.Empty, new ApiResponse<DeliveryResponse>(response));
+    }
+
+    [Authorize]
     [HttpGet("current")]
     [ProducesResponseType(typeof(ApiResponse<DeliveryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -28,9 +46,8 @@ public class DeliveryController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
-        var shopId = HttpContext.GetUserShopId();
 
-        var query = new GetCurrentDeliveryQuery(userId, shopId);
+        var query = new GetCurrentDeliveryQuery(userId);
         var response = await _mediator.Send(query, cancellationToken);
 
         return Ok(new ApiResponse<DeliveryResponse>(response));
