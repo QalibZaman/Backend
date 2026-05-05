@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
@@ -14,8 +15,8 @@ public class ChangePasswordValidator : AbstractValidator<ChangePasswordRequest>
         RuleFor(x => x.NewPassword)
            .NotEmpty().WithMessage("Password is required.")
            .NotNull().WithMessage("Password is required.")
-           .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
-           .MaximumLength(20).WithMessage("Password must be less than 20 characters long.")
+           .MinimumLength(8).WithMessage(ValidationErrorMessages.Password.PasswordSize)
+           .MaximumLength(20).WithMessage(ValidationErrorMessages.Password.PasswordMaxSize)
            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase character.")
            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase character.")
            .Matches("[0-9]").WithMessage("Password must contain at least one numeric character.")
@@ -25,6 +26,6 @@ public class ChangePasswordValidator : AbstractValidator<ChangePasswordRequest>
         RuleFor(x => x.ConfirmPassword)
            .NotEmpty().WithMessage("Confirmation password is required.")
            .NotNull().WithMessage("Confirmation password is required.")
-           .Equal(x => x.NewPassword).WithMessage("Passwords aren't matching.");
+           .Equal(x => x.NewPassword).WithMessage(ValidationErrorMessages.Password.PasswordConfirmationMismatchErrorMessage);
     }
 }

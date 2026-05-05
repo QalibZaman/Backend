@@ -54,6 +54,10 @@ public static class ValidationErrorMessages
     public static class Password
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
+        public const string PasswordMaxSize = "Password must be less than 20 characters long.";
+        public const string PasswordConfirmationMismatchErrorMessage = "New password and confirmation password do not match. Please check your input.";
+        public const string CurrentPasswordIncorrectErrorMessage = "The current password you entered is incorrect.";
+        public const string NewPasswordMatchesCurrentErrorMessage = "New password cannot match the current one.";
     }
 
     public static class Search

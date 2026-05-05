@@ -2,4 +2,5 @@
 public interface IPasswordService
 {
     Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken);
+    Task ChangeCustomerPasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken);
 }
