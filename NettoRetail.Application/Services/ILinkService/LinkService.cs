@@ -12,7 +12,8 @@ namespace NettoRetail.Application.Services.ILinkService;
 public class LinkService(IJwtManager jwtManager,
     IOptions<EmailVerificationOptions> emailVerificationOptions,
     IOptions<CustomerPasswordResetOptions> customerResetPasswordOptions,
-    IOptions<NewsletterOptions> newsletterOptions) : ILinkService
+    IOptions<NewsletterOptions> newsletterOptions,
+    IOptions<CustomerEmailChangeOptions> customerEmailChangeOptions) : ILinkService
 {
     // Creates a verification link for customer account activation in swagger.
     public string CreateCustomerAccountVerificationLink(string email, int shopId)
@@ -45,6 +46,19 @@ public class LinkService(IJwtManager jwtManager,
 
         var link = string.Format(customerResetPasswordOptions.Value.ResetPasswordLink, Uri.EscapeDataString(resetToken));
 
+        return link;
+    }
+
+    public string CreateCustomerEmailChangeLink(string email, int shopId)
+    {
+        var claims = new List<Claim>()
+        {
+            new(ClaimTypes.Email, email),
+            new(AuthClaims.ShopId, shopId.ToString()),
+            new(AuthClaims.TokenType, AuthTokenTypes.CustomerEmailChange)
+        };
+        var emailChangeToken = jwtManager.Generate(claims, TimeSpan.FromHours(customerEmailChangeOptions.Value.TokenExpirationHours));
+        var link = string.Format(customerEmailChangeOptions.Value.EmailChangeLink, Uri.EscapeDataString(emailChangeToken));
         return link;
     }
 

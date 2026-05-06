@@ -9,6 +9,7 @@ public interface IJwtManager
     string GenerateWihoutTime(List<Claim> claims);
     ClaimsPrincipal? Validate(string refreshToken);
     ClaimsPrincipal ValidateResetToken(string resetToken);
+    ClaimsPrincipal ValidateChangeEmailToken(string token);
     string GenerateTempToken(string userId);
     ClaimsPrincipal ValidateEmailActivation(string emailActivationToken);
     ClaimsPrincipal ValidatePlatformAdminActivationToken(string activationToken);
