@@ -9,4 +9,5 @@ public static class EmailSubjects
     public const string FeedbackRejectionNotification = "Your FeedBack rejected";
     public const string PlatformAdminActivated = "Your account has been activated";
     public const string ActivateCustomerAccount = "NettoRetail account acivation";
+    public const string CustomerEmailChangeConfirmation = "Confirm your new email for {0}";
 }

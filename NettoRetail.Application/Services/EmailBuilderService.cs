@@ -15,6 +15,7 @@ public class EmailBuilderService(
     IOptions<EmailVerificationOptions> verificationOptions,
     IOptions<ResetPasswordOptions> passwordOptions,
     IOptions<CustomerPasswordResetOptions> customerPasswordResetOptions,
+    IOptions<CustomerEmailChangeOptions> customerEmailChangeOptions,
     ILinkService.ILinkService linkService) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
@@ -69,7 +70,6 @@ public class EmailBuilderService(
             Message = emailBody
         };
     }
-
 
     public async Task<EmailModel> BuildShopDeactivationWarningEmailAsync(string email, string shopName, DateTime deactivationDate, string reason)
     {
@@ -188,6 +188,25 @@ public class EmailBuilderService(
         {
             Email = email,
             Subject = EmailSubjects.ResetPassword,
+            Message = emailBody
+        };
+    }
+
+    public async Task<EmailModel> BuildCustomerEmailChangeConfirmationEmailAsync(string email, string firstName, string link, string shopName)
+    {
+        var model = new
+        {
+            first_name = firstName,
+            shop_name = shopName,
+            confirmation_link = link
+        };
+
+        var emailBody = await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.CustomerEmailChangeConfirmation, model);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = string.Format(EmailSubjects.CustomerEmailChangeConfirmation, shopName),
             Message = emailBody
         };
     }

@@ -30,7 +30,7 @@ public static class RuleBuilderOptionsExtensions
     {
         return ruleBuilder.Must(filename =>
         {
-            string[] permittedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+            string[] permittedExtensions = [".jpg", ".jpeg", ".png"];
             var extension = Path.GetExtension(filename).ToLowerInvariant();
             return permittedExtensions.Contains(extension);
         });

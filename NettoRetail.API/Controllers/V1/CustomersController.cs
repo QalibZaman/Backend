@@ -113,10 +113,10 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CustomerContactInfoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCustomerContactInfo([FromRoute] Guid accountId,CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCustomerContactInfo([FromRoute] Guid accountId, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var query = new GetCustomerContactInfoQuery(accountId,shopId);
+        var query = new GetCustomerContactInfoQuery(accountId, shopId);
         var result = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<CustomerContactInfoResponse>(result);
         return Ok(response);
@@ -127,12 +127,12 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetOrdersFortheCustomer([FromRoute] Guid customerId,[FromQuery]PaginationRequest paginationRequest,CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetOrdersFortheCustomer([FromRoute] Guid customerId, [FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var query = new GetOrdersForTheCustomeQuery(shopId,customerId,paginationRequest);
-        var result = await mediator.Send(query,cancellationToken);
+        var query = new GetOrdersForTheCustomeQuery(shopId, customerId, paginationRequest);
+        var result = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<PaginatedResponse<CustomerOrderHistoryResponse>>(result);
         return Ok(response);
     }
@@ -192,7 +192,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SendResetPasswordLink(
-        [FromBody]SendResetPasswordLinkRequest request,
+        [FromBody] SendResetPasswordLinkRequest request,
         CancellationToken cancellationToken)
     {
         var query = new SendResetPasswordLinkCommand(request);
@@ -230,6 +230,53 @@ public class CustomersController(IMediator mediator) : ControllerBase
         var query = new ResetCustomerPasswordCommand(request);
         await mediator.Send(query, cancellationToken);
 
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateCustomerProfile([FromBody] UpdateSelfCustomerRequest request, CancellationToken cancellationToken)
+    {
+        var customerId = HttpContext.GetUserId();
+        var command = new UpdateSelfCustomerCommand(customerId, request);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("confirm-email-change")]
+    public async Task<IActionResult> ConfirmEmailChange([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        var command = new ConfirmEmailChangeCommand(token);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.CustomerOnlyPolicy)]
+    [HttpPatch("profile-image")]
+    public async Task<IActionResult> UpdateProfileImage(IFormFile image, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new UpdateCustomerProfileImageCommand(userId, image);
+
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize(Policy = PolicyNames.CustomerOnlyPolicy)]
+    [HttpDelete("profile-image")]
+    public async Task<IActionResult> DeleteProfileImage(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new DeleteCustomerProfileImageCommand(userId);
+
+        await mediator.Send(command, cancellationToken);
         return NoContent();
     }
 }

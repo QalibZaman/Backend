@@ -11,4 +11,5 @@ public class EmailTemplates
     public const string PlatformAdminActivated = "platform-admin-activated.html";
     public const string ActivateCustomerAccount = "customer-activation.html";
     public const string CustomerPasswordReset = "customer-password-reset.html";
+    public const string CustomerEmailChangeConfirmation = "customer-email-change-confirmation.html";
 }
