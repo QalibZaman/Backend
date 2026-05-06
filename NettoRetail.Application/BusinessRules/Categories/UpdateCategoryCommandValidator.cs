@@ -18,7 +18,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategories
         RuleFor(x => x.URL)
             .NotEmpty().WithMessage("URL cannot be empty.")
             .Length(1, 50).WithMessage("The URL must be between 1 and 50 characters long.")
-            .Matches("^[a-zA-Z0-9\\-._~]+$").WithMessage("Allowed characters: letters, digits, -, ., _, ~.")
+            .Matches("^/?[a-zA-Z0-9\\-._~]+$").WithMessage("Allowed characters: optional leading '/', letters, digits, -, ., _, ~.")
             .Matches("^\\S.*\\S$").WithMessage("No leading or trailing spaces are allowed.");
 
         RuleFor(x => x.ParentId)
