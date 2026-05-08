@@ -15,7 +15,7 @@ public class GetBrandImageQueryHandler(
 {
     public async Task<string> Handle(GetBrandImageQuery request, CancellationToken cancellationToken)
     {
-        var spec = new GetBrandsByIdAndShopIdSpecification(request.Id, request.ShopId);
+        var spec = new GetBrandByIdAndShopIdSpecification(request.Id, request.ShopId);
 
         var brand = await brandRepository.GetAsync(spec, cancellationToken)
             ?? throw new NotFoundException($"Brand with ID {request.Id} not found.");

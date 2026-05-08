@@ -7,11 +7,10 @@ using NettoRetail.Application.Models.Response.Brand;
 using NettoRetail.Application.Services.IBlobNameGenerator;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Specifications.Brands;
-using NettoRetail.Domain.Entities;
 using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
-using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Brands.Commands;
 
@@ -25,22 +24,20 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
 {
     public async Task<BrandResponse> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
-        var specificationBuilder = new SpecificationBuilder<BrandEntity>();
-        specificationBuilder.Add<GetBrandsByIdSpecification>(request.Id)
-                            .Add<GetBrandsByShopIdSpecification>(request.ShopId);
-        var spec = specificationBuilder.Build();
+        var specification = new GetBrandByIdAndShopIdSpecification(request.Id, request.ShopId);
 
-        var brand = await brandRepository.GetAsync(spec, cancellationToken)
-                   ?? throw new NotFoundException("Brand not found.");
+        var brand = await brandRepository.GetAsync(specification, cancellationToken)
+                   ?? throw new NotFoundException(HandlerConstants.Brand.BrandNotFoundMessage);
 
-        // Upload new logo
-        if (request.Model.Logo != null)
+        mapper.Map(request.Model, brand);
+
+        if (request.Model.LogoFile is { Length: > 0 })
         {
-            var blobPath = blobNameGenerator.GenerateBlobName(request.Model.Logo.FileName, request.ShopId, false);
+            var blobPath = blobNameGenerator.GenerateBlobName(request.Model.LogoFile.FileName, request.ShopId, false);
 
             var logoUrl = await azureBlobService.UploadAsync(
                 blobPath,
-                request.Model.Logo.OpenReadStream(),
+                request.Model.LogoFile.OpenReadStream(),
                 azureBlobStorageOptions.Value.ContainerName,
                 BlobContentCategoryEnum.Image,
                 true);
@@ -48,7 +45,6 @@ public class UpdateBrandCommandHandler(IBrandRepository brandRepository,
             brand.LogoImageUrl = logoUrl;
         }
 
-        mapper.Map(request.Model, brand);
         await brandRepository.UpdateAsync(brand, cancellationToken);
 
         return mapper.Map<BrandResponse>(brand);
