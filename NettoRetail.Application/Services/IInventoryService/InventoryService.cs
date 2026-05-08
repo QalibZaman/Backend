@@ -297,7 +297,7 @@ public class InventoryService(
 
     private async Task ValidateBrandExists(int brandId, int shopId, CancellationToken ct)
     {
-        var spec = new GetBrandsByIdAndShopIdSpecification(brandId, shopId);
+        var spec = new GetBrandByIdAndShopIdSpecification(brandId, shopId);
         if (!await brandRepository.Exists(spec, ct))
             throw new NotFoundException("There is no brand with such id.");
     }
@@ -324,7 +324,7 @@ public class InventoryService(
     {
         if (model.BrandId is null) return;
 
-        var spec = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
+        var spec = new GetBrandByIdAndShopIdSpecification(model.BrandId.Value, shopId);
         if (!await brandRepository.Exists(spec, cancellationToken))
             throw new NotFoundException("There is no brand with such id.");
     }

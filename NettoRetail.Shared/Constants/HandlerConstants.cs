@@ -69,6 +69,12 @@
             public const string AtLeastTwoAddressesRequiredMessage = "At least two addresses are required to change the default.";
             public const string AddressAlreadyDefaultMessage = "This address is already a default address.";
         }
+
+        public static class Brand
+        {
+            public const string BrandNotFoundMessage = "Brand with such Id does not exist.";
+        }
+
         public static class Category
         {
             public const string CategoryNotFoundMessage = "Category with such Id does not exist.";

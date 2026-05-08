@@ -182,7 +182,7 @@ public class UpdateProductCommandHandler(
     {
         if (model.BrandId.HasValue)
         {
-            var brandSpec = new GetBrandsByIdAndShopIdSpecification(model.BrandId.Value, shopId);
+            var brandSpec = new GetBrandByIdAndShopIdSpecification(model.BrandId.Value, shopId);
 
             if (!await brandRepository.Exists(brandSpec, cancellationToken))
             {

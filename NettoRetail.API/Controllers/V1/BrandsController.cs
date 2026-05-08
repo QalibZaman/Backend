@@ -67,7 +67,7 @@ public class BrandsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> GetShopBrands([FromQuery] PaginationRequest pagination ,CancellationToken cancellationToken)
+    public async Task<IActionResult> GetShopBrands([FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
 
