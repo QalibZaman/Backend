@@ -24,6 +24,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
+using NettoRetail.Application.Models.Request;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -410,7 +411,8 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CardExpYear, src => src.CardExpYear)
             .Map(dest => dest.IsDefault, src => src.IsDefault);
 
-
+        config.NewConfig<InventoryItemsSearchModel, GetFilteredInventoryItemsModel>()
+            .Map(dest => dest.SortingOptions, src => src.SortingOptions);
 
     }
 }

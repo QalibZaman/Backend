@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 
@@ -26,6 +28,8 @@ public class InventoryItemsSearchModel
     public int? MaxOnHandAmount { get; set; }
 
     public InventoryItemSortingEnum? SortOption { get; set; }
+
+    [ModelBinder(BinderType = typeof(SortingOptionsModelBinder))]
     public List<SortingOption>? SortingOptions { get; set; }
 
     public int PageNumber { get; set; } = 1;

@@ -2,6 +2,7 @@
 using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.Application.Services.IInventoryItemQueryService;
+
 public interface IInventoryItemQueryService
 {
     Task<PaginatedResponse<InventoryItemListResponse>> GetInventoryItemsAsync(
