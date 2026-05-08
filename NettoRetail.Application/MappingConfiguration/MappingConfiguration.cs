@@ -16,7 +16,6 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Category;
 using NettoRetail.Application.Models.Response.Country;
-using NettoRetail.Application.Models.Response.InventoryItem.Variations;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Application.Models.Subscriptions;
 using NettoRetail.Application.Utilities;
@@ -194,7 +193,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.ParentId, src => src.ParentItemId ?? Guid.Empty);
 
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryResponse>()
-            .Map(dest => dest.OrderStatus, src => src.NewStatus.ToString())
+            .Map(dest => dest.Status, src => src.NewStatus.ToString())
             .Map(dest => dest.UpdatedBy, src => src.UpdatedBy.FullName);
 
         config.NewConfig<OrderStatusHistoryEntity, OrderStatusHistoryDto>()

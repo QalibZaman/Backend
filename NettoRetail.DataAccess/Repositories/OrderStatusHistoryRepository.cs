@@ -10,8 +10,11 @@ public class OrderStatusHistoryRepository(AppDbContext dbContext)
 {
     public async Task<IEnumerable<OrderStatusHistoryEntity>> GetOrderHistoryIncludingAccount(int id, CancellationToken cancellationToken)
     {
-        var history = await _dbSet.Where(x => x.OrderId == id)
+        var history = await _dbSet
+            .AsNoTracking()
+            .Where(x => x.OrderId == id)
             .Include(x => x.UpdatedBy)
+            .OrderByDescending(x => x.UpdatedAt)
             .ToListAsync(cancellationToken);
 
         return history;
