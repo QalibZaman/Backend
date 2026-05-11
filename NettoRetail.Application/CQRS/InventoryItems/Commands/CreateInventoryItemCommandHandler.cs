@@ -59,6 +59,7 @@ public class CreateInventoryItemCommandHandler(
     private async Task<InventoryItemResponse> AddItemAndDetailsAsync(CreateInventoryItemCommand request, string categoryName, string brandName, CancellationToken cancellationToken)
     {
         var inventoryItem = mapper.Map<InventoryItemEntity>(request.Model);
+        inventoryItem.Id = Guid.NewGuid();
         inventoryItem.ShopId = request.ShopId;
 
         var productDetails = mapper.Map<List<ProductDetailEntity>>(request.Model.ProductDetails);
