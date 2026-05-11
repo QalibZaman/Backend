@@ -34,6 +34,19 @@ public class MappingConfiguration : IRegister
     {
         config.NewConfig<DeliveryEntity, DeliveryResponse>();
 
+        config.NewConfig<SetDeliveryAddressMappingModel, DeliveryEntity>()
+            .Map(dest => dest.AddressId, src => src.AddressId)
+            .Map(dest => dest.DeliveryFee, src => src.DeliveryFee)
+            .Map(dest => dest.PaymentTotal, src => src.PaymentTotal)
+            .Map(dest => dest.UpdatedAt, _ => DateTime.UtcNow);
+
+        config.NewConfig<SetDeliveryMethodMappingModel, DeliveryEntity>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.AddressId, src => src.AddressId)
+            .Map(dest => dest.DeliveryFee, src => src.DeliveryFee)
+            .Map(dest => dest.PaymentTotal, src => src.PaymentTotal)
+            .Map(dest => dest.UpdatedAt, _ => DateTime.UtcNow);
+
         config.NewConfig<OrderEntity, SearchOrderResponse>()
             .Map(dest => dest.Email, src => src.Customer.Email)
             .Map(dest => dest.FullName, src => src.Customer.FullName)

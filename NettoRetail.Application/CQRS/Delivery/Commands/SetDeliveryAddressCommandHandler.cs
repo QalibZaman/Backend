@@ -37,17 +37,22 @@ public class SetDeliveryAddressCommandHandler(
 
         var cart = await cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
         var delivery = await deliveryRepository.GetAsync(new GetDeliveryByCustomerIdSpecification(request.CustomerId), cancellationToken)
-            ?? throw new BadRequestException("Courier delivery method must be selected before setting an address.");
+            ?? throw new BadRequestException(ValidationErrorMessages.Delivery.MethodSelectionObligatory);
 
         if (delivery.DeliveryType != OrderDeliveryTypeEnum.Courier)
         {
-            throw new BadRequestException("Courier delivery method must be selected before setting an address.");
+            throw new BadRequestException(ValidationErrorMessages.Delivery.MethodSelectionObligatory);
         }
 
-        delivery.AddressId = address.Id;
-        delivery.DeliveryFee = shop.StandardDeliveryFee;
-        delivery.PaymentTotal = CalculatePaymentTotal(cart, delivery.DeliveryFee);
-        delivery.UpdatedAt = DateTime.UtcNow;
+        var deliveryFee = shop.StandardDeliveryFee;
+        mapper.Map(
+            new SetDeliveryAddressMappingModel
+            {
+                AddressId = address.Id,
+                DeliveryFee = deliveryFee,
+                PaymentTotal = CalculatePaymentTotal(cart, deliveryFee),
+            },
+            delivery);
 
         delivery = await deliveryRepository.UpdateAsync(delivery, cancellationToken);
 

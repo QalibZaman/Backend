@@ -13,9 +13,8 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class DeliveryController(IMediator mediator) : ControllerBase
+public class DeliveryController(IMediator _mediator) : ControllerBase
 {
-    private readonly IMediator _mediator = mediator;
 
     [Authorize]
     [HttpPost("current")]
@@ -28,8 +27,9 @@ public class DeliveryController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> CreateDelivery(CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
+        var shopId = HttpContext.GetUserShopId();
 
-        var command = new CreateCurrentDeliveryCommand(userId);
+        var command = new CreateCurrentDeliveryCommand(userId, shopId);
         var response = await _mediator.Send(command, cancellationToken);
 
         return Created(string.Empty, new ApiResponse<DeliveryResponse>(response));

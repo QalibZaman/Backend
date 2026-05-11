@@ -4,39 +4,60 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Delivery;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Delivery;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Delivery.Commands;
 
-public record CreateCurrentDeliveryCommand(Guid CustomerId) : IRequest<DeliveryResponse>;
+public record CreateCurrentDeliveryCommand(Guid CustomerId, int ShopId) : IRequest<DeliveryResponse>;
 
 public class CreateCurrentDeliveryCommandHandler(
     IDeliveryRepository deliveryRepository,
     ICustomerRepository customerRepository,
     ICartRepository cartRepository,
+    IShopRepository shopRepository,
     IMapper mapper) : IRequestHandler<CreateCurrentDeliveryCommand, DeliveryResponse>
 {
     public async Task<DeliveryResponse> Handle(CreateCurrentDeliveryCommand request, CancellationToken cancellationToken)
     {
         await EnsureCustomerExistsAsync(request.CustomerId, cancellationToken);
 
+        var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
+            ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
+
         var existingDelivery = await deliveryRepository.GetAsync(
             new GetDeliveryByCustomerIdSpecification(request.CustomerId),
             cancellationToken);
 
+        var cart = await cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
+
         if (existingDelivery != null)
         {
+            var expectedFee = existingDelivery.DeliveryType == OrderDeliveryTypeEnum.Courier
+                ? shop.StandardDeliveryFee
+                : 0m;
+            var expectedTotal = CalculatePaymentTotal(cart, expectedFee);
+
+            if (existingDelivery.DeliveryFee != expectedFee || existingDelivery.PaymentTotal != expectedTotal)
+            {
+                existingDelivery.DeliveryFee = expectedFee;
+                existingDelivery.PaymentTotal = expectedTotal;
+                existingDelivery.UpdatedAt = DateTime.UtcNow;
+
+                existingDelivery = await deliveryRepository.UpdateAsync(existingDelivery, cancellationToken);
+            }
+
             return mapper.Map<DeliveryResponse>(existingDelivery);
         }
 
-        var cart = await cartRepository.GetByCustomerIdAsync(request.CustomerId, cancellationToken);
         var delivery = new DeliveryEntity
         {
             CustomerId = request.CustomerId,
             DeliveryFee = 0m,
-            PaymentTotal = CalculatePaymentTotal(cart, 0m)
+            PaymentTotal = CalculatePaymentTotal(cart, 0m),
         };
 
         delivery = await deliveryRepository.AddAsync(delivery, cancellationToken);

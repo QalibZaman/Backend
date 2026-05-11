@@ -34,24 +34,34 @@ public class SetDeliveryMethodCommandHandler(
         var delivery = await deliveryRepository.GetAsync(new GetDeliveryByCustomerIdSpecification(request.CustomerId), cancellationToken)
             ?? throw new NotFoundException("Delivery was not created for the current customer.");
 
+        SetDeliveryMethodMappingModel mappingModel;
+
         switch (request.Request.DeliveryType)
         {
             case OrderDeliveryTypeEnum.InShop:
-                delivery.DeliveryType = OrderDeliveryTypeEnum.InShop;
-                delivery.AddressId = null;
-                delivery.DeliveryFee = 0m;
+                mappingModel = new SetDeliveryMethodMappingModel
+                {
+                    DeliveryType = OrderDeliveryTypeEnum.InShop,
+                    AddressId = null,
+                    DeliveryFee = 0m,
+                    PaymentTotal = CalculatePaymentTotal(cart, 0m),
+                };
                 break;
             case OrderDeliveryTypeEnum.Courier:
-                delivery.DeliveryType = OrderDeliveryTypeEnum.Courier;
-                delivery.AddressId ??= await GetDefaultAddressIdAsync(request.CustomerId, cancellationToken);
-                delivery.DeliveryFee = shop.StandardDeliveryFee;
+                var deliveryFee = shop.StandardDeliveryFee;
+                mappingModel = new SetDeliveryMethodMappingModel
+                {
+                    DeliveryType = OrderDeliveryTypeEnum.Courier,
+                    AddressId = delivery.AddressId ?? await GetDefaultAddressIdAsync(request.CustomerId, cancellationToken),
+                    DeliveryFee = deliveryFee,
+                    PaymentTotal = CalculatePaymentTotal(cart, deliveryFee),
+                };
                 break;
             default:
                 throw new BadRequestException(ValidationErrorMessages.Order.InvalidDelivery);
         }
 
-        delivery.PaymentTotal = CalculatePaymentTotal(cart, delivery.DeliveryFee);
-        delivery.UpdatedAt = DateTime.UtcNow;
+        mapper.Map(mappingModel, delivery);
 
         delivery = await deliveryRepository.UpdateAsync(delivery, cancellationToken);
 
