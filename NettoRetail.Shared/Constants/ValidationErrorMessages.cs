@@ -8,6 +8,7 @@ public static class ValidationErrorMessages
     {
         public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
         public const string InvalidEmailLengthErrorMessage = "Email length must be less than {0} characters long.";
+        public const string EmailAlreadyExistsErrorMessage = "Another account with this email is already exists";
     }
 
     public static class Inventory
@@ -116,6 +117,8 @@ public static class ValidationErrorMessages
     public static class Customer
     {
         public const string CustomerNotFoundErrorMessage = "There is no such customer.";
+        public const string CannotEditDeactivatedCustomerErrorMessage = "You cannot edit a deactivated customer unless you are reactivating them";
+        public const string CustomerHasOrdersErrorMessage = "This customer has active orders. Please complete or cancel them before deactivating";
     }
 
     public static class Order

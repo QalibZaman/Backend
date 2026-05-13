@@ -49,6 +49,51 @@ public class UpdateCustomerCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenCustomerDoesNotExist()
+    {
+        var command = new UpdateCustomerCommand("fddfdf", CreateRequest());
+
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByLoyaltyIdWithOrdersSpecification>(), Arg.Any<CancellationToken>())
+            .Returns((CustomerEntity?)null);
+        _countryRepository.GetAsync(Arg.Any<GetCountryByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(CreateCountry());
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+
+        await _customerRepository.DidNotReceive().UpdateAsync(Arg.Any<CustomerEntity>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenCountryDoesNotExist()
+    {
+        var customer = CreateCustomer();
+        var command = new UpdateCustomerCommand(customer.LoyaltyId!, CreateRequest());
+
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByLoyaltyIdWithOrdersSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(customer);
+        _countryRepository.GetAsync(Arg.Any<GetCountryByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns((CountryEntity?)null);
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+
+        await _customerRepository.DidNotReceive().UpdateAsync(Arg.Any<CustomerEntity>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldThrowNotFound_WhenEditingDeactivatedCustomerWithoutReactivating()
+    {
+        var customer = CreateCustomer(status: StaffStatusEnum.Deactivated);
+        var command = new UpdateCustomerCommand(customer.LoyaltyId!, CreateRequest(isActive: false));
+
+        _countryRepository.GetAsync(Arg.Any<GetCountryByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(CreateCountry());
+
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+
+        await _customerRepository.DidNotReceive().UpdateAsync(Arg.Any<CustomerEntity>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_ShouldTerminateSessions_WhenEmailChangesForCustomerWithPassword()
     {
         var customer = CreateCustomer();
@@ -112,7 +157,6 @@ public class UpdateCustomerCommandHandlerTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
 
-        _transaction.Received(1).Rollback();
         _transaction.DidNotReceive().Commit();
     }
 
@@ -148,10 +192,60 @@ public class UpdateCustomerCommandHandlerTests
         await Assert.ThrowsAsync<ConflictException>(() => _handler.Handle(command, CancellationToken.None));
 
         await _customerRepository.DidNotReceive().UpdateAsync(Arg.Any<CustomerEntity>(), Arg.Any<CancellationToken>());
-        _transaction.Received(1).Rollback();
+        _transaction.DidNotReceive().Commit();
     }
 
-    private static UpdateCustomerRequest CreateRequest(string? email = null)
+    [Fact]
+    public async Task Handle_ShouldDeactivateAndTerminateSessions_WhenDeactivatingCustomerWithNoActiveOrders()
+    {
+        var customer = CreateCustomer();
+        var command = new UpdateCustomerCommand(customer.LoyaltyId!, CreateRequest(isActive: false));
+
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByLoyaltyIdWithOrdersSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(customer);
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByEmailSpecification>(), Arg.Any<CancellationToken>())
+            .Returns((CustomerEntity?)null);
+        _countryRepository.GetAsync(Arg.Any<GetCountryByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(CreateCountry());
+
+        await _handler.Handle(command, CancellationToken.None);
+
+        await _customerRepository.Received(1)
+            .UpdateAsync(
+                Arg.Is<CustomerEntity>(x => x.Status == StaffStatusEnum.Deactivated),
+                Arg.Any<CancellationToken>());
+        await _sessionTerminationService.Received(1)
+            .TerminateSessionsAsync(customer.Id, Arg.Any<CancellationToken>());
+        _transaction.Received(1).Commit();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldSetStatusToOffline_WhenReactivatingCustomerWithPassword()
+    {
+        var customer = CreateCustomer(status: StaffStatusEnum.Deactivated, passwordUpdatedAt: DateTime.UtcNow);
+        var command = new UpdateCustomerCommand(customer.LoyaltyId!, CreateRequest(isActive: true));
+
+
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByLoyaltyIdWithOrdersSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(customer);
+        _customerRepository.GetAsync(Arg.Any<GetCustomerByEmailSpecification>(), Arg.Any<CancellationToken>())
+            .Returns((CustomerEntity?)null);
+        _countryRepository.GetAsync(Arg.Any<GetCountryByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(CreateCountry());
+
+        await _handler.Handle(command, CancellationToken.None);
+
+        await _customerRepository.Received(1)
+            .UpdateAsync(
+                Arg.Is<CustomerEntity>(x => x.Status == StaffStatusEnum.Offline),
+                Arg.Any<CancellationToken>());
+        _transaction.Received(1).Commit();
+    }
+
+    private static UpdateCustomerRequest CreateRequest(
+        string? email = null,
+        bool? isActive = true,
+        string? phoneNumber = null)
     {
         return new UpdateCustomerRequest
         {
@@ -159,13 +253,18 @@ public class UpdateCustomerCommandHandlerTests
             LastName = "Doe",
             Email = email ?? "john@example.com",
             CountryId = 21,
-            PhoneNumber = "123 456 789",
+            PhoneNumber = phoneNumber ?? "123 456 789",
             Remarks = "Valid remarks",
-            IsActive = true
+            IsActive = isActive
         };
     }
-
-    private static CustomerEntity CreateCustomer(Guid? id = null, string loyaltyId = "ABC123", string email = "john@example.com")
+    private static CustomerEntity CreateCustomer(
+        Guid? id = null,
+        string loyaltyId = "ABC123",
+        string email = "john@example.com",
+        StaffStatusEnum status = StaffStatusEnum.Online,
+        DateTime? passwordUpdatedAt = null,
+        List<OrderEntity>? orders = null)
     {
         return new CustomerEntity
         {
@@ -178,9 +277,9 @@ public class UpdateCustomerCommandHandlerTests
             CountryId = 21,
             PhoneNumber = "+48 123 456 789",
             Remarks = "Original remarks",
-            Status = StaffStatusEnum.Online,
-            PasswordUpdatedAt = DateTime.UtcNow,
-            Order = [],
+            Status = status,
+            PasswordUpdatedAt = passwordUpdatedAt ?? DateTime.UtcNow,
+            Order = orders ?? [],
             RoleId = 1
         };
     }

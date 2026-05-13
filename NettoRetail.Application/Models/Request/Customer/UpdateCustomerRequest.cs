@@ -1,12 +1,6 @@
 ﻿namespace NettoRetail.Application.Models.Request.Customer;
 
-public class UpdateCustomerRequest
+public class UpdateCustomerRequest : CreateCustomerRequest
 {
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Email { get; set; }
-    public required int CountryId { get; set; }
-    public string? PhoneNumber { get; set; }
-    public string? Remarks { get; set; }
     public bool? IsActive { get; set; }
 }

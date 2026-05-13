@@ -7,9 +7,12 @@ using NettoRetail.Application.Models.Request.Customer;
 using NettoRetail.Application.Services.ICountryValidationService;
 using NettoRetail.DataAccess.Specifications.Country;
 using NettoRetail.DataAccess.Specifications.Customer;
+using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using Stripe;
 
 namespace NettoRetail.Application.CQRS.Customers.Commands;
 
@@ -25,98 +28,123 @@ public class UpdateCustomerCommandHandler(
 {
     public async Task Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customerLoyaltyIdSpecification = new GetCustomerByLoyaltyIdWithOrdersSpecification(request.LoyaltyId);
-        var customer = await customerRepository.GetAsync(customerLoyaltyIdSpecification, cancellationToken)
-            ?? throw new NotFoundException("There is no customer with such loyalty id.");
-
-        var countrySpecification = new GetCountryByIdSpecification(request.Model.CountryId);
-        var country = await countryRepository.GetAsync(countrySpecification, cancellationToken)
-            ?? throw new NotFoundException("There is no country with such id.");
+        var customer = await GetCustomerOrThrowAsync(request.LoyaltyId, cancellationToken);
+        var country = await GetCountryOrThrowAsync(request.Model.CountryId, cancellationToken);
 
         await CheckPhoneNumberAsync(request.Model.PhoneNumber, request.Model.CountryId, cancellationToken);
+        ValidateCustomerEditable(customer, request.Model);
 
-        if (customer.Status == StaffStatusEnum.Deactivated &&
-            (!request.Model.IsActive.HasValue || request.Model.IsActive.Value == false))
-        {
-            throw new BadRequestException("You cannot edit a deactivated customer unless you are reactivating them.");
-        }
-
-        var emailChanged = !string.Equals(customer.Email, request.Model.Email, StringComparison.OrdinalIgnoreCase);
+        var emailChanged = HasEmailChanged(customer.Email, request.Model.Email);
         if (emailChanged)
-        {
-            var emailSpecification = new GetCustomerByEmailSpecification(request.Model.Email);
-            var customerWithSameEmail = await customerRepository.GetAsync(emailSpecification, cancellationToken);
-            if (customerWithSameEmail is not null && customerWithSameEmail.Id != customer.Id)
-            {
-                throw new ConflictException("Another account with this email already exists.");
-            }
-        }
+            await EnsureEmailIsUniqueAsync(customer.Id, request.Model.Email, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
+
         mapper.Map(request.Model, customer);
 
         if (request.Model.PhoneNumber != null)
-        {
-                customer.PhoneNumber = $"{country.PhoneCode} {request.Model.PhoneNumber}";
-        }
+            customer.PhoneNumber = $"{country.PhoneCode} {request.Model.PhoneNumber}";
 
         if (emailChanged && customer.PasswordUpdatedAt != default)
         {
-                await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
-                customer.Status = StaffStatusEnum.Offline;
+            await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
+            customer.Status = StaffStatusEnum.Offline;
         }
 
         if (request.Model.IsActive.HasValue)
         {
-                if (request.Model.IsActive.Value && customer.Status == StaffStatusEnum.Deactivated)
-                {
-                    customer.Status = customer.PasswordUpdatedAt == default
-                        ? StaffStatusEnum.CreatePassword
-                        : StaffStatusEnum.Offline;
-                }
-                else if (!request.Model.IsActive.Value && customer.Status != StaffStatusEnum.Deactivated)
-                {
-                    var activeStatuses = new[]
-                    {
-                        OrderStatusEnum.New,
-                        OrderStatusEnum.Processing,
-                        OrderStatusEnum.InProgress
-                    };
-
-                    var hasActiveOrders = customer.Order?.Any(order => activeStatuses.Contains(order.OrderStatus)) == true;
-                    if (hasActiveOrders)
-                    {
-                        throw new ConflictException("This customer has active orders. Please complete or cancel them before deactivating.");
-                    }
-
-                    customer.Status = StaffStatusEnum.Deactivated;
-                    await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
-                }
+            await ApplyActiveStatusChangeAsync(customer, request.Model.IsActive.Value, cancellationToken);
         }
 
         await customerRepository.UpdateAsync(customer, cancellationToken);
-
         transaction.Commit();
-        
+    }
+
+    private async Task<CustomerEntity> GetCustomerOrThrowAsync(string loyaltyId, CancellationToken cancellationToken)
+    {
+        var spec = new GetCustomerByLoyaltyIdWithOrdersSpecification(loyaltyId);
+        return await customerRepository.GetAsync(spec, cancellationToken)
+            ?? throw new NotFoundException(ValidationErrorMessages.Customer.CustomerNotFoundErrorMessage);
+    }
+
+    private async Task<CountryEntity> GetCountryOrThrowAsync(int countryId, CancellationToken cancellationToken)
+    {
+        var specification = new GetCountryByIdSpecification(countryId);
+        return await countryRepository.GetAsync(specification, cancellationToken)
+            ?? throw new NotFoundException(ValidationErrorMessages.Country.CountryNotFoundErrorMessage);
     }
 
     private async Task CheckPhoneNumberAsync(string? phoneNumber, int countryId, CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrEmpty(phoneNumber))
+        if (string.IsNullOrEmpty(phoneNumber))
+            return;
+
+        var countryValidationModel = new CountryValidationModel
         {
-            var countryValidationModel = new CountryValidationModel
-            {
-                CountryId = countryId,
-                PhoneNumber = phoneNumber
-            };
+            CountryId = countryId,
+            PhoneNumber = phoneNumber,
+        };
 
-            var countryValidationOptions = new CountryValidationOptions
-            {
-                CheckForPhoneNumber = true,
-                CheckForZipCode = false
-            };
+        var countryValidationOptions = new CountryValidationOptions
+        {
+            CheckForPhoneNumber = true,
+        };
 
-            await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+        await countryValidator.ValidateAsync(countryValidationModel, cancellationToken, countryValidationOptions);
+    }
+
+    private static void ValidateCustomerEditable(CustomerEntity customer, UpdateCustomerRequest model)
+    {
+        if (customer.Status == StaffStatusEnum.Deactivated &&
+            (!model.IsActive.HasValue || model.IsActive.Value == false))
+        {
+            throw new BadRequestException(ValidationErrorMessages.Customer.CannotEditDeactivatedCustomerErrorMessage);
         }
+    }
+
+    private static bool HasEmailChanged(string current, string updated)
+    {
+        return !string.Equals(current, updated, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task EnsureEmailIsUniqueAsync(Guid customerId, string email, CancellationToken cancellationToken)
+    {
+        var specification = new GetCustomerByEmailSpecification(email);
+        var existing = await customerRepository.GetAsync(specification, cancellationToken);
+        if (existing is not null && existing.Id != customerId)
+            throw new ConflictException(ValidationErrorMessages.Common.EmailAlreadyExistsErrorMessage);
+    }
+
+    private async Task ApplyActiveStatusChangeAsync(CustomerEntity customer, bool isActive, CancellationToken cancellationToken)
+    {
+        if (isActive && customer.Status == StaffStatusEnum.Deactivated)
+        {
+            customer.Status = customer.PasswordUpdatedAt == default
+                ? StaffStatusEnum.CreatePassword
+                : StaffStatusEnum.Offline;
+
+            return;
+        }
+
+        if (!isActive && customer.Status != StaffStatusEnum.Deactivated)
+        {
+            EnsureNoActionOrders(customer);
+            customer.Status = StaffStatusEnum.Deactivated;
+            await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
+        }
+    }
+
+    private static void EnsureNoActionOrders(CustomerEntity customer)
+    {
+        var activeStatuses = new[]
+        {
+            OrderStatusEnum.New,
+            OrderStatusEnum.Processing,
+            OrderStatusEnum.InProgress
+        };
+
+        var hasActiveOrders = customer.Order?.Any(x => activeStatuses.Contains(x.OrderStatus)) == true;
+        if (hasActiveOrders)
+            throw new ConflictException(ValidationErrorMessages.Customer.CustomerHasOrdersErrorMessage);
     }
 }
