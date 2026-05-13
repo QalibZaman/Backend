@@ -60,7 +60,7 @@ public class ChangeSubscriptionCommandValidator : AbstractValidator<ChangeSubscr
         var shop = await _shopRepository.GetAsync(new GetShopByIdSpecification(command.ShopId), cancellationToken)
             ?? throw new NotFoundException($"Shop with ID {command.ShopId} not found.");
 
-        if (shop.SubscriptionPlanId == plan.Id) throw new ConflictException("Shop already has this subscription plan.");
+        if (shop.SubscriptionPlanId == plan.Id) throw new BadRequestException("Shop already has this subscription plan.");
     }
 
     private async Task ValidateShopAdminAccessAsync(
