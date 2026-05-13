@@ -27,72 +27,37 @@ public class FilteredOrderService : IFilteredOrderService
         string? searchTerm,
         PaginationRequest pagination)
     {
-        var specBuilder = new SpecificationBuilder<OrderEntity>();
+        var builder = new SpecificationBuilder<OrderEntity>();
 
-        specBuilder.Add<GetOrdersByShopIdSpecification>(shopId);
+        builder.Add<GetOrdersByShopIdSpecification>(shopId);
+        builder.AddInclude(x => x.Customer);
 
-        ApplyCustomerFilters(specBuilder, model);
+        ApplyCustomerFilters(builder, model);
+        ApplyOrderFilters(builder, model);
+        ApplyDateFilter(builder, model.StartDate, model.EndDate);
+        ApplyEnumFilters(builder, model);
 
-        ApplyOrderFilters(specBuilder, model);
+        if (string.IsNullOrEmpty(searchTerm))
+            builder.Add<GetOrderSearchSpecification>(searchTerm);
 
-        if (model.StartDate != null || model.EndDate != null)
-            ApplyDateRangeFilter(specBuilder, model);
+        ApplySorting(builder, model.SortingOptions);
+        ApplyPaging(builder, pagination);
 
-        ApplyEnumFilters(specBuilder, model);
-
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            specBuilder.Add<GetOrderSearchSpecification>(searchTerm.Trim().ToLower());
-        }
-
-        ApplySorting(specBuilder, model);
-
-        specBuilder.AddInclude(x => x.Customer);
-
-        var skip = PaginationHelper.CalculateSkip(pagination.PageNumber, pagination.PageSize);
-        specBuilder.Skip(skip).Take(pagination.PageSize);
-
-        return specBuilder.Build();
+        return builder.Build();
     }
 
     private static void ApplyCustomerFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
-        if (model.CustomerIds?.Any() == true)
-        {
-            builder.Add<GetOrdersByCustomerIdsSpecification>(model.CustomerIds);
-        }
-
-        var firstNames = NormalizeTextFilters(model.CustomerFirstNames);
-        if (firstNames.Count > 0)
-        {
-            builder.Add<GetOrdersByFirstNamesSpecification>(firstNames);
-        }
-
-        var lastNames = NormalizeTextFilters(model.CustomerLastNames);
-        if (lastNames.Count > 0)
-        {
-            builder.Add<GetOrdersByLastNamesSpecification>(lastNames);
-        }
-
-        var emails = NormalizeTextFilters(model.CustomerEmails);
-        if (emails.Count > 0)
-        {
-            builder.Add<GetOrdersByEmailsSpecification>(emails);
-        }
+        builder.Add<GetOrdersByCustomerIdsSpecification>(model.CustomerIds);
+        builder.Add<GetOrdersByFirstNamesSpecification>(model.CustomerFirstNames);
+        builder.Add<GetOrdersByLastNamesSpecification>(model.CustomerLastNames);
+        builder.Add<GetOrdersByEmailsSpecification>(model.CustomerEmails);
     }
 
     private static void ApplyOrderFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
-        if (model.OrderIds?.Any() == true)
-        {
-            builder.Add<GetOrdersByOrderIdsSpecification>(model.OrderIds);
-        }
-
-        var creators = NormalizeTextFilters(model.Creators);
-        if (creators.Count > 0)
-        {
-            builder.Add<GetOrdersByCreatorSpecification>(creators);
-        }
+        builder.Add<GetOrdersByOrderIdsSpecification>(model.OrderIds);
+        builder.Add<GetOrdersByCreatorSpecification>(model.Creators);
     }
 
     private static void ApplyEnumFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
@@ -110,36 +75,36 @@ public class FilteredOrderService : IFilteredOrderService
         }
     }
 
-    private static void ApplyDateRangeFilter(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
+    private static void ApplyDateFilter(SpecificationBuilder<OrderEntity> builder, DateTime? start, DateTime? end)
     {
-        var startDate = model.StartDate.HasValue
-          ? DateTime.SpecifyKind(model.StartDate.Value.Date, DateTimeKind.Utc)
-          : DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+        if (!start.HasValue && !end.HasValue)
+            return;
 
-        var endDate = model.EndDate.HasValue
-            ? DateTime.SpecifyKind(model.EndDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc)
-            : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+        var from = start?.ToUniversalTime() ?? DateTime.MinValue.ToUniversalTime();
+        var to = end?.ToUniversalTime() ?? DateTime.MaxValue.ToUniversalTime();
 
-        builder.Add<GetOrdersByDateRangeSpecification>(startDate, endDate);
+        builder.Add<GetOrdersByDateRangeSpecification>(from, to);
     }
 
-    private static void ApplySorting(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
+    private static void ApplySorting(SpecificationBuilder<OrderEntity> builder, List<SortingOption>? options)
     {
-        if (model.SortingOptions?.Any() == true)
+        if (options == null || !options.Any())
         {
-            foreach (var option in model.SortingOptions)
-            {
-                var expression = SortExpressions.TryGetValue(option.Field, out var exp)
-                    ? exp
-                    : SortExpressions[OrderSortingFieldConstants.CreationDate];
+            builder.AddOrderBy(x => x.CreationDate, isDesc: true);
+            return;
+        }
 
-                builder.AddOrderBy(expression, option.IsDescending);
-            }
-        }
-        else
+        foreach (var option in options)
         {
-            builder.AddOrderBy(o => o.CreationDate, isDesc: true);
+            var expr = SortExpressions.GetValueOrDefault(option.Field, x => x.CreationDate);
+            builder.AddOrderBy(expr, option.IsDescending);
         }
+    }
+
+    private static void ApplyPaging(SpecificationBuilder<OrderEntity> builder, PaginationRequest request)
+    {
+        var skip = PaginationHelper.CalculateSkip(request.PageNumber, request.PageSize);
+        builder.Skip(skip).Take(request.PageSize);
     }
 
     private static List<TEnum> ParseEnums<TEnum>(List<string>? source)
@@ -151,19 +116,6 @@ public class FilteredOrderService : IFilteredOrderService
             .Select(s => Enum.TryParse<TEnum>(s, true, out var parsed) ? (TEnum?)parsed : null)
             .Where(x => x.HasValue)
             .Select(x => x!.Value)
-            .ToList();
-    }
-
-    private static List<string> NormalizeTextFilters(List<string>? source)
-    {
-        if (source == null || source.Count == 0)
-        {
-            return [];
-        }
-
-        return source
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(value => value.Trim())
             .ToList();
     }
 }

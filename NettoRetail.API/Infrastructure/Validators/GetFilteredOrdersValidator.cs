@@ -2,56 +2,56 @@
 using FluentValidation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Infrastructure.Validators;
 
 public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersModel>
 {
     private static readonly Regex LatinTextRegex = LatinTextRegexGenerated();
-    private static readonly Regex EmailFilterRegex = EmailFilterRegexGenerated();
 
     [GeneratedRegex("^[a-zA-Z0-9\\s\\-._',]*$", RegexOptions.CultureInvariant)]
     private static partial Regex LatinTextRegexGenerated();
-
-    [GeneratedRegex("^[a-zA-Z0-9\\s@._+\\-',]*$", RegexOptions.CultureInvariant)]
-    private static partial Regex EmailFilterRegexGenerated();
 
     public GetFilteredOrdersValidator()
     {
         RuleForEach(x => x.CustomerFirstNames).ChildRules(r =>
         {
             r.RuleFor(v => v)
+                .MinimumLength(2)
                 .MaximumLength(30)
                 .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
-                .WithMessage("Invalid first name characters.");
+                .WithMessage(ValidationErrorMessages.Name.PatternErrorMessage);
         });
 
         RuleForEach(x => x.CustomerLastNames).ChildRules(r =>
         {
             r.RuleFor(v => v)
+                .MinimumLength(2)
                 .MaximumLength(30)
                 .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
-                .WithMessage("Invalid last name characters.");
+                .WithMessage(ValidationErrorMessages.Name.PatternErrorMessage);
         });
 
         RuleForEach(x => x.CustomerEmails).ChildRules(r =>
         {
             r.RuleFor(v => v)
+                .MinimumLength(2)
                 .MaximumLength(256)
                 .When(v => !string.IsNullOrWhiteSpace(v));
 
             r.RuleFor(v => v)
-                .Must(v => string.IsNullOrWhiteSpace(v) || EmailFilterRegex.IsMatch(v))
+                .EmailAddress()
                 .When(v => !string.IsNullOrWhiteSpace(v))
-                .WithMessage("Invalid email characters.");
+                .WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
         });
 
         RuleForEach(x => x.Creators).ChildRules(r =>
         {
             r.RuleFor(v => v)
-                .MaximumLength(50)
+                .MaximumLength(61)
                 .Must(v => string.IsNullOrWhiteSpace(v) || LatinTextRegex.IsMatch(v))
-                .WithMessage("Invalid characters in creator.");
+                .WithMessage(ValidationErrorMessages.Name.PatternErrorMessage);
         });
 
         RuleForEach(x => x.OrderStatuses).ChildRules(r =>
@@ -59,7 +59,7 @@ public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredO
             r.RuleFor(v => v)
                 .MustBeAValidOrderStatus()
                 .When(v => !string.IsNullOrWhiteSpace(v))
-                .WithMessage("Invalid order status.");
+                .WithMessage(ValidationErrorMessages.Order.InvalidOrderStatusErrorMessage);
         });
 
         RuleForEach(x => x.DeliveryTypes).ChildRules(r =>
@@ -67,23 +67,25 @@ public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredO
             r.RuleFor(v => v)
                 .MustBeAValidOrderDeliveryType()
                 .When(v => !string.IsNullOrWhiteSpace(v))
-                .WithMessage("Invalid delivery type.");
+                .WithMessage(ValidationErrorMessages.Order.InvalidDeliveryErrorMessage);
         });
 
-        RuleForEach(x => x.OrderIds)
-            .GreaterThan(0)
-            .WithMessage("Order ID must be greater than zero.");
+        RuleForEach(x => x.OrderIds).ChildRules(r =>
+        {
+            r.RuleFor(x => x)
+                .GreaterThan(0);
+        });
 
         RuleFor(x => x.StartDate)
             .LessThanOrEqualTo(x => x.EndDate)
             .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
-            .WithMessage("Start date must be before or equal to end date.");
+            .WithMessage(ValidationErrorMessages.Common.InvalidDateRangeErrorMessage);
 
         RuleForEach(x => x.SortingOptions).ChildRules(s =>
         {
             s.RuleFor(x => x.Field)
                 .NotEmpty()
-                .WithMessage("Sorting field required.");
+                .WithMessage(ValidationErrorMessages.Sort.SortingFieldRequiredMessage);
         });
     }
 }
