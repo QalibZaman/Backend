@@ -8,9 +8,13 @@ namespace NettoRetail.API.Infrastructure.Validators;
 public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredOrdersModel>
 {
     private static readonly Regex LatinTextRegex = LatinTextRegexGenerated();
+    private static readonly Regex EmailFilterRegex = EmailFilterRegexGenerated();
 
-    [GeneratedRegex("^[a-zA-Z0-9\\s-]*$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^[a-zA-Z0-9\\s\\-._',]*$", RegexOptions.CultureInvariant)]
     private static partial Regex LatinTextRegexGenerated();
+
+    [GeneratedRegex("^[a-zA-Z0-9\\s@._+\\-',]*$", RegexOptions.CultureInvariant)]
+    private static partial Regex EmailFilterRegexGenerated();
 
     public GetFilteredOrdersValidator()
     {
@@ -37,9 +41,9 @@ public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredO
                 .When(v => !string.IsNullOrWhiteSpace(v));
 
             r.RuleFor(v => v)
-                .EmailAddress()
+                .Must(v => string.IsNullOrWhiteSpace(v) || EmailFilterRegex.IsMatch(v))
                 .When(v => !string.IsNullOrWhiteSpace(v))
-                .WithMessage("Invalid email format.");
+                .WithMessage("Invalid email characters.");
         });
 
         RuleForEach(x => x.Creators).ChildRules(r =>

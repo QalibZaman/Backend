@@ -42,7 +42,7 @@ public class FilteredOrderService : IFilteredOrderService
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            specBuilder.Add<GetOrderSearchSpecification>(searchTerm);
+            specBuilder.Add<GetOrderSearchSpecification>(searchTerm.Trim().ToLower());
         }
 
         ApplySorting(specBuilder, model);
@@ -57,16 +57,42 @@ public class FilteredOrderService : IFilteredOrderService
 
     private static void ApplyCustomerFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
-        builder.Add<GetOrdersByCustomerIdsSpecification>(model.CustomerIds);
-        builder.Add<GetOrdersByFirstNamesSpecification>(model.CustomerFirstNames);
-        builder.Add<GetOrdersByLastNamesSpecification>(model.CustomerLastNames);
-        builder.Add<GetOrdersByEmailsSpecification>(model.CustomerEmails);
+        if (model.CustomerIds?.Any() == true)
+        {
+            builder.Add<GetOrdersByCustomerIdsSpecification>(model.CustomerIds);
+        }
+
+        var firstNames = NormalizeTextFilters(model.CustomerFirstNames);
+        if (firstNames.Count > 0)
+        {
+            builder.Add<GetOrdersByFirstNamesSpecification>(firstNames);
+        }
+
+        var lastNames = NormalizeTextFilters(model.CustomerLastNames);
+        if (lastNames.Count > 0)
+        {
+            builder.Add<GetOrdersByLastNamesSpecification>(lastNames);
+        }
+
+        var emails = NormalizeTextFilters(model.CustomerEmails);
+        if (emails.Count > 0)
+        {
+            builder.Add<GetOrdersByEmailsSpecification>(emails);
+        }
     }
 
     private static void ApplyOrderFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
-        builder.Add<GetOrdersByOrderIdsSpecification>(model.OrderIds);
-        builder.Add<GetOrdersByCreatorSpecification>(model.Creators);
+        if (model.OrderIds?.Any() == true)
+        {
+            builder.Add<GetOrdersByOrderIdsSpecification>(model.OrderIds);
+        }
+
+        var creators = NormalizeTextFilters(model.Creators);
+        if (creators.Count > 0)
+        {
+            builder.Add<GetOrdersByCreatorSpecification>(creators);
+        }
     }
 
     private static void ApplyEnumFilters(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
@@ -87,15 +113,11 @@ public class FilteredOrderService : IFilteredOrderService
     private static void ApplyDateRangeFilter(SpecificationBuilder<OrderEntity> builder, GetFilteredOrdersModel model)
     {
         var startDate = model.StartDate.HasValue
-
-          ? DateTime.SpecifyKind(model.StartDate.Value, DateTimeKind.Utc)
-
+          ? DateTime.SpecifyKind(model.StartDate.Value.Date, DateTimeKind.Utc)
           : DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
 
         var endDate = model.EndDate.HasValue
-
-            ? DateTime.SpecifyKind(model.EndDate.Value, DateTimeKind.Utc)
-
+            ? DateTime.SpecifyKind(model.EndDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc)
             : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
 
         builder.Add<GetOrdersByDateRangeSpecification>(startDate, endDate);
@@ -129,6 +151,19 @@ public class FilteredOrderService : IFilteredOrderService
             .Select(s => Enum.TryParse<TEnum>(s, true, out var parsed) ? (TEnum?)parsed : null)
             .Where(x => x.HasValue)
             .Select(x => x!.Value)
+            .ToList();
+    }
+
+    private static List<string> NormalizeTextFilters(List<string>? source)
+    {
+        if (source == null || source.Count == 0)
+        {
+            return [];
+        }
+
+        return source
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
             .ToList();
     }
 }
