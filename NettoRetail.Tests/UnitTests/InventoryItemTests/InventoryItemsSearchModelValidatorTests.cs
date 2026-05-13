@@ -330,7 +330,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.BrandName)
-                .WithErrorMessage(ValidationErrorMessages.Brand.BrandNameAllowedCharactersRegex);
+                .WithErrorMessage(ValidationErrorMessages.Brand.InvalidBrandNameErrorMessage);
         }
 
         [Fact]

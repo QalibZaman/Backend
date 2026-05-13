@@ -73,6 +73,7 @@
         public static class Brand
         {
             public const string BrandNotFoundMessage = "Brand with such Id does not exist.";
+            public const string WebsiteUrlUniqueMessage = "Brand's website url must be unique";
         }
 
         public static class Category

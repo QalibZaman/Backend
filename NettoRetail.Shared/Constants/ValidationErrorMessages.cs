@@ -11,6 +11,11 @@ public static class ValidationErrorMessages
         public const string EmailAlreadyExistsErrorMessage = "Another account with this email is already exists";
     }
 
+    public static class Website
+    {
+        public const string InvalidWebsiteUrlErrorMessage = "Website URL must be a valid URL including protocol (e.g., https://)";
+    }
+
     public static class Inventory
     {
         public const int InvalidThreshold = 0;
@@ -194,7 +199,9 @@ public static class ValidationErrorMessages
 
     public static class Brand
     {
-        public const string BrandNameAllowedCharactersRegex = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
+
+        public const string InvalidBrandNameErrorMessage = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
+        public const string InvalidBrandDescriptionErrorMessage = "Brand description contains invalid characters";
     }
 
     public static class Pagination
@@ -230,5 +237,11 @@ public static class ValidationErrorMessages
         public const string OfficeNumberAndApartmentNumberConflictErrorMessage = "Cannot provide both Office and Apartment numbers.";
         public const string InvalidAddressFormatErrorMessage = "The address contains invalid characters or restricted spaces.";
         public const string InvalidCombinedAddressFormatErrorMessage = "The combined address (Street, Building, Floor, Entrance, Office/Apartment) must be between 5 and 90 characters long and contain only valid characters.";
+    }
+
+    public static class File
+    {
+        public const string InvalidFileSizeErrorMessage = "File size must be 5MB or less.";
+        public const string UnsupportedFileFormatErrorMessage = "Unsupported file format. Only JPG, JPEG or PNG allowed.";
     }
 }
