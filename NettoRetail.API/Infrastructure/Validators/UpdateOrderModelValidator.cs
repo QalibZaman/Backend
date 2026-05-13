@@ -17,6 +17,6 @@ public class UpdateOrderModelValidator : AbstractValidator<UpdateOrderModel>
 
         RuleFor(x => x.DeliveryType)
             .IsInEnum()
-            .WithMessage(ValidationErrorMessages.Order.InvalidDelivery);
+            .WithMessage(ValidationErrorMessages.Order.InvalidDeliveryErrorMessage);
     }
 }

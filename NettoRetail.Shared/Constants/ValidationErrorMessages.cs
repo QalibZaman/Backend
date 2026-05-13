@@ -8,6 +8,7 @@ public static class ValidationErrorMessages
     {
         public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
         public const string InvalidEmailLengthErrorMessage = "Email length must be less than {0} characters long.";
+        public const string InvalidDateRangeErrorMessage = "Start date must be before or equal to end date.";
         public const string EmailAlreadyExistsErrorMessage = "Another account with this email is already exists";
     }
 
@@ -130,7 +131,8 @@ public static class ValidationErrorMessages
     {
         public const string ItemGreaterThanZeroErrorMessage = "Item quantity must be greater than 0.";
         public const string ItemUpsertDeleteConflictErrorMessage = "Items cannot be both upserted and deleted";
-        public const string InvalidDelivery = "The selected delivery type is invalid";
+        public const string InvalidDeliveryErrorMessage = "The selected delivery type is invalid";
+        public const string InvalidOrderStatusErrorMessage = "The selected order status is invalid";
     }
 
     public static class Payment
