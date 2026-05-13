@@ -8,6 +8,7 @@ using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.JunctionEntities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -18,6 +19,7 @@ public record CreateOrderCommand(CreateOrderModel Model, int ShopId, Guid UserId
 public class CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
+        IStaffRepository staffRepository,
         IInventoryItemRepository inventoryItemRepository,
         IUnitOfWork unitOfWork,
         IMapper mapper) : IRequestHandler<CreateOrderCommand, OrderResponse>
@@ -25,7 +27,7 @@ public class CreateOrderCommandHandler(
     public async Task<OrderResponse> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         var requestedQuantities = BuildRequestedQuantities(request.Model.Products);
-        var inventoryItems = await GetInventoryItemsAsync(requestedQuantities.Keys, cancellationToken);
+        var inventoryItems = await GetInventoryItemsAsync(requestedQuantities.Keys, request.ShopId, cancellationToken);
 
         using var transaction = unitOfWork.BeginTransaction();
 
@@ -33,11 +35,11 @@ public class CreateOrderCommandHandler(
         {
             ReserveInventory(inventoryItems, requestedQuantities);
 
-            var account = await GetCustomerAsync(request.UserId, cancellationToken);
-            var customer = await GetCustomerAsync(request.Model.CustomerId, cancellationToken);
+            var creator = await GetCreatorAsync(request.UserId, cancellationToken);
+            var customer = await GetCustomerAsync(request.Model.CustomerId, request.ShopId, cancellationToken);
 
             await inventoryItemRepository.UpdateManyAsync(inventoryItems, cancellationToken);
-            var data = await AddOrderAsync(request, customer, requestedQuantities, cancellationToken);
+            var data = await AddOrderAsync(request, customer, creator, requestedQuantities, cancellationToken);
 
             transaction.Commit();
 
@@ -57,14 +59,15 @@ public class CreateOrderCommandHandler(
 
     private async Task<List<InventoryItemEntity>> GetInventoryItemsAsync(
         IEnumerable<Guid> itemIds,
+        int shopId,
         CancellationToken cancellationToken)
     {
         var ids = itemIds.ToArray();
 
-        var getItemsByIdsSpecification = new GetItemsByIdsSpecification(ids);
+        var getItemsByIdsSpecification = new GetInventoryItemsByIdsAndShopSpecification(ids, shopId);
         var inventoryItemsAsync = inventoryItemRepository
             .GetRangeByIdsAsync(getItemsByIdsSpecification, cancellationToken)
-            ?? throw new NotFoundException("There are no such item.");
+            ?? throw new NotFoundException(HandlerConstants.Inventory.InventoryItemsNotFoundMessage);
 
         var inventoryItems = new List<InventoryItemEntity>();
         await foreach (var item in inventoryItemsAsync)
@@ -74,7 +77,7 @@ public class CreateOrderCommandHandler(
 
         if (inventoryItems.Count == 0 || inventoryItems.Count != ids.Length)
         {
-            throw new NotFoundException("There are no such item.");
+            throw new NotFoundException(HandlerConstants.Inventory.InventoryItemsNotFoundMessage);
         }
 
         return inventoryItems;
@@ -93,7 +96,7 @@ public class CreateOrderCommandHandler(
 
             if (item.AvailableAmount < requestedQuantity)
             {
-                throw new ConflictException("Available amount of items is less then requested.");
+                throw new ConflictException($"Item is not available in this quantity. (Available {item.AvailableAmount})");
             }
 
             item.AvailableAmount -= requestedQuantity;
@@ -103,9 +106,16 @@ public class CreateOrderCommandHandler(
 
 
 
-    private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, CancellationToken cancellationToken)
+    private async Task<StaffEntity> GetCreatorAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var customerByIdSpecification = new GetCustomerByIdSpecification(customerId);
+        var staffByIdSpecification = new GetStaffByIdSpecification(userId);
+        return await staffRepository.GetAsync(staffByIdSpecification, cancellationToken)
+               ?? throw new NotFoundException(string.Format(HandlerConstants.Account.AccountNotFoundMessage, userId));
+    }
+
+    private async Task<CustomerEntity> GetCustomerAsync(Guid customerId, int shopId, CancellationToken cancellationToken)
+    {
+        var customerByIdSpecification = new GetCustomerByIdAndShopIdSpecification(customerId, shopId);
         return await customerRepository.GetWithRelatedDataAsync(customerByIdSpecification, cancellationToken)
                ?? throw new NotFoundException("There is no customer with such id.");
     }
@@ -113,12 +123,13 @@ public class CreateOrderCommandHandler(
     private async Task<OrderResponse> AddOrderAsync(
         CreateOrderCommand request,
         CustomerEntity customer,
+        StaffEntity creator,
         IReadOnlyDictionary<Guid, int> requestedQuantities,
         CancellationToken cancellationToken)
     {
         var order = mapper.Map<OrderEntity>(request.Model);
         order.ShopId = request.ShopId;
-        order.Creator = $"{customer.FirstName} {customer.LastName}";
+        order.Creator = creator.FullName;
 
         var orderItems = requestedQuantities.Select(item =>
             new OrderItemEntity { OrderId = order.Id, ItemId = item.Key, Quantity = item.Value }).ToList();
