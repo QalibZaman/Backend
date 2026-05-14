@@ -77,7 +77,6 @@ public static class ServiceExtensions
         typeAdapterConfig.Apply(new MappingConfiguration.MappingConfiguration());
         services.AddSingleton(typeAdapterConfig);
         services.AddScoped<IMapper, ServiceMapper>();
-        services.AddMapster();
 
         //Background
         services.AddHostedService<SessionCleanupService>();
