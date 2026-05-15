@@ -2,6 +2,15 @@
 {
     public class HandlerConstants
     {
+
+
+        public static class Customer
+        {
+            public const string CustomerNotFoundMessage = "Customer {0} not found.";
+            public const string CustomerHasActiveOrdersMessage = "Cannot delete the customer with orders in progress, close the orders first.";
+            public const string CannotDeleteCustomerFromAnotherShopMessage = "Cannot delete customer from another shop.";
+        }
+
         public static class Order
         {
             public const string OrderNotFoundMessage = "There is no such order.";
