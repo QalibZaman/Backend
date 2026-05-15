@@ -3,6 +3,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.Domain.Enums;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
@@ -20,23 +21,28 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
             specification.AddInclude(x => x.Order);
 
             var customer = await customerRepository.GetAsync(specification, cancellationToken)
-                ?? throw new NotFoundException("Customer not found");
+                ?? throw new NotFoundException(HandlerConstants.Customer.CustomerNotFoundMessage);
 
             if (customer.ShopId != request.ShopId)
-                throw new ForbiddenException("Cannot delete customer from another shop");
+               throw new ForbiddenException(HandlerConstants.Customer.CannotDeleteCustomerFromAnotherShopMessage);
 
             var hasActiveOrders = customer.Order?.Any(o =>
                 o.OrderStatus != OrderStatusEnum.Done &&
                 o.OrderStatus != OrderStatusEnum.Cancelled) == true;
 
             if (hasActiveOrders)
-                throw new BadRequestException("Cannot delete, customer has active orders");
+                throw new BadRequestException(HandlerConstants.Customer.CustomerHasActiveOrdersMessage);
 
             using var transaction = unitOfWork.BeginTransaction();
 
             await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
-            await customerRepository.DeleteAsync(customer, cancellationToken);
+            
 
+            customer.IsDeleted =  true;
+            customer.IsActive = false;
+            customer.LoyaltyId = null;
+            await customerRepository.UpdateAsync(customer, cancellationToken);
+            
             transaction.Commit();
         }
     }

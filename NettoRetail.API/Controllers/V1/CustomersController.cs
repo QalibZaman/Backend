@@ -175,6 +175,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCustomer(Guid id, CancellationToken cancellationToken)
