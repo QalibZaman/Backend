@@ -88,7 +88,7 @@ public class FilteredOrderServiceTests
             {
                 Id = 1001,
                 CustomerId = Guid.NewGuid(),
-                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                Delivery = new DeliveryEntity { DeliveryType = OrderDeliveryTypeEnum.Courier },
                 Creator = "Vugar Aliyev",
                 OrderStatus = OrderStatusEnum.New,
                 CreationDate = new DateTime(2026, 05, 04, 23, 59, 59, DateTimeKind.Utc),
@@ -107,7 +107,7 @@ public class FilteredOrderServiceTests
             {
                 Id = 1002,
                 CustomerId = Guid.NewGuid(),
-                DeliveryType = OrderDeliveryTypeEnum.SelfDelivery,
+                Delivery = new DeliveryEntity { DeliveryType = OrderDeliveryTypeEnum.SelfDelivery },
                 Creator = "Leyla Mammadova",
                 OrderStatus = OrderStatusEnum.Processing,
                 CreationDate = new DateTime(2026, 05, 05, 10, 0, 0, DateTimeKind.Utc),

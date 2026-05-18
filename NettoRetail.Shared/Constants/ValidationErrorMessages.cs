@@ -4,6 +4,14 @@ public static class ValidationErrorMessages
 {
     public const string ANY_PROP_UPDATE_ERROR_MESSAGE = "At least one property for update must be supplied.";
 
+    public static class Common
+    {
+        public const string EmailAlreadyExistsErrorMessage = "An account with this email already exists.";
+        public const string InvalidDateRangeErrorMessage = "Start date must be earlier than or equal to end date.";
+        public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
+        public const string InvalidEmailLengthErrorMessage = "Email must be no more than {0} characters.";
+    }
+
     public static class Inventory
     {
         public const int InvalidThreshold = 0;
@@ -120,6 +128,7 @@ public static class ValidationErrorMessages
     {
         public const string ItemGreaterThanZeroErrorMessage = "Item quantity must be greater than 0.";
         public const string ItemUpsertDeleteConflictErrorMessage = "Items cannot be both upserted and deleted";
+        public const string InvalidDelivery = InvalidDeliveryErrorMessage;
         public const string InvalidDeliveryErrorMessage = "The selected delivery type is invalid";
         public const string InvalidOrderStatusErrorMessage = "The selected order status is invalid";
     }
@@ -229,10 +238,16 @@ public static class ValidationErrorMessages
         public const string InvalidAddressFormatErrorMessage = "The address contains invalid characters or restricted spaces.";
         public const string InvalidCombinedAddressFormatErrorMessage = "The combined address (Street, Building, Floor, Entrance, Office/Apartment) must be between 5 and 90 characters long and contain only valid characters.";
     }
-     public static class Delivery
-        {
-            public const string MethodSelectionObligatory = "Courier delivery method must be selected before setting an address.";
-        }
+
+    public static class Delivery
+    {
+        public const string MethodSelectionObligatory = "Courier delivery method must be selected before setting an address.";
+    }
+
+    public static class Website
+    {
+        public const string InvalidWebsiteUrlErrorMessage = "Website URL must be a valid URL including protocol (e.g., https://).";
+    }
 
     public static class File
     {

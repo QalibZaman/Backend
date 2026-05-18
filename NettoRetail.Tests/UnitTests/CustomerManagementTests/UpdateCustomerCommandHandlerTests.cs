@@ -172,7 +172,7 @@ public class UpdateCustomerCommandHandlerTests
                 CreationDate = DateTime.UtcNow,
                 Creator = "system",
                 OrderStatus = OrderStatusEnum.Processing,
-                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                Delivery = new DeliveryEntity { DeliveryType = OrderDeliveryTypeEnum.Courier },
                 CustomerId = customer.Id,
                 OrderItems = []
             }
