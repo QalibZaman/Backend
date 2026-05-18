@@ -17,7 +17,7 @@ public class FilteredOrderService : IFilteredOrderService
         { OrderSortingFieldConstants.CreationDate, o => o.CreationDate },
         { OrderSortingFieldConstants.OrderId, o => o.Id },
         { OrderSortingFieldConstants.OrderStatus, o => o.OrderStatus },
-        { OrderSortingFieldConstants.DeliveryType, o => o.DeliveryType },
+        { OrderSortingFieldConstants.DeliveryType, o => o.Delivery != null ? o.Delivery.DeliveryType : null },
         { OrderSortingFieldConstants.Creator, o => o.Creator }
     };
 

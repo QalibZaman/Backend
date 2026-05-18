@@ -10,9 +10,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
     {
         builder.HasKey(p => p.Id);
 
-        builder.Property(p => p.DeliveryType)
-            .HasConversion<string>();
-
         builder.Property(p => p.OrderStatus)
             .HasConversion<string>();
 

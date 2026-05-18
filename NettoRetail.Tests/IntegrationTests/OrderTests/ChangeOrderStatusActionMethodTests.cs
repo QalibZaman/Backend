@@ -576,7 +576,6 @@ public class ChangeOrderStatusActionMethodTests : IClassFixture<CustomWebApplica
             CreationDate = DateTime.UtcNow,
             Creator = "Tester",
             OrderStatus = OrderStatusEnum.New,
-            DeliveryType = OrderDeliveryTypeEnum.Courier,
             CustomerId = accounts[0].Id,
             Customer = customers[0],
             ShopId = 1,

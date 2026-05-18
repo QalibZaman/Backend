@@ -42,7 +42,7 @@ public class GetOrdersForTheCustomeQueryHandler(
             OrderId: o.Id,
             DateCreated: o.CreationDate,
             OrderStatus: o.OrderStatus,
-            DeliveryType: o.DeliveryType,
+            DeliveryType: o.Delivery.DeliveryType!.Value,
             Creator: o.Creator
         )).ToList();
 

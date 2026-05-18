@@ -47,6 +47,9 @@ public class ShopConfiguration : IEntityTypeConfiguration<ShopEntity>
         builder.Property(s => s.SubscriptionPlanId)
             .HasDefaultValue(SubscriptionConstants.Free);
 
+        builder.Property(s => s.StandardDeliveryFee)
+            .HasPrecision(18, 2);
+
         builder.HasOne(s => s.Country)
             .WithMany(c => c.Shops)
             .HasForeignKey(p => p.CountryId)

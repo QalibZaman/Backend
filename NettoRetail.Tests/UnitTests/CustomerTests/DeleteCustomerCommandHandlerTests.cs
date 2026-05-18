@@ -120,7 +120,7 @@ namespace NettoRetail.Tests.UnitTests.CustomerTests
                             Creator = "Example",
                             CustomerId = command.Id,
                             OrderStatus = OrderStatusEnum.InProgress,
-                            DeliveryType = default(OrderDeliveryTypeEnum)
+                            Delivery = new DeliveryEntity { DeliveryType = default(OrderDeliveryTypeEnum) }
                         }
                     }
                 });

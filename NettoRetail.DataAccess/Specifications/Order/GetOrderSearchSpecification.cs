@@ -14,7 +14,9 @@ public class GetOrderSearchSpecification : Specification<OrderEntity>
                     EF.Functions.Like(x.Customer.FirstName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.Customer.LastName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.OrderStatus.ToString().ToLower(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.DeliveryType.ToString().ToLower(), $"%{searchTerm}%") ||
+                    (x.Delivery != null &&
+                     x.Delivery.DeliveryType.HasValue &&
+                     EF.Functions.Like(x.Delivery.DeliveryType.Value.ToString().ToLower(), $"%{searchTerm}%")) ||
                     EF.Functions.Like(x.CreationDate.ToString().ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(x.Creator.ToLower(), $"%{searchTerm}%")))
     {

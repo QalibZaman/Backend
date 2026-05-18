@@ -2,6 +2,6 @@
 public enum OrderDeliveryTypeEnum
 {
     Courier,
-    SelfDelivery,
-    InShop
+    InShop,
+    SelfDelivery
 }

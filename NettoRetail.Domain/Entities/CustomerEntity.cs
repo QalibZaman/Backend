@@ -7,5 +7,6 @@ public class CustomerEntity : BaseUserEntity
     public string? LoyaltyId { get; set; }
     public string? Remarks { get; set; }
     public CartEntity Cart { get; set; } = null!;
+    public DeliveryEntity? Delivery { get; set; }
     public ICollection<OrderEntity>? Order { get; set; }
 }

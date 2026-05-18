@@ -175,14 +175,24 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
                     UpdatedBy = staff
                 }
             };
-
+            var delivery = new DeliveryEntity
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customer.Id,
+                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                DeliveryFee = 12,
+                PaymentTotal = 100,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            
+            };
             var order = new OrderEntity
             {
                 Id = id,
                 CreationDate = DateTime.UtcNow,
                 Creator = "Tester",
                 OrderStatus = OrderStatusEnum.Processing,
-                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                Delivery = delivery,
                 CustomerId = customer.Id,
                 Customer = customer,
                 ShopId = 1,
@@ -196,6 +206,16 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
 
         private static PrintOrderDetailsModel BuildPrintOrderDetailsModel(OrderEntity order)
         {
+            var delivery = new DeliveryEntity
+            {
+                Id = Guid.NewGuid(),
+                DeliveryType = OrderDeliveryTypeEnum.Courier,
+                DeliveryFee = 12,
+                PaymentTotal = 100,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            
+            };
             return new PrintOrderDetailsModel
             {
                 Id = order.Id,
@@ -205,7 +225,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
                 CustomerLastName = order.Customer.LastName,
                 CustomerEmail = order.Customer.Email,
                 OrderStatus = order.OrderStatus.ToString(),
-                DeliveryType = order.DeliveryType.ToString(),
+                DeliveryType = delivery.DeliveryType.ToString(),
                 TotalProducts = order.OrderItems.Count,
                 InventoryItems = order.OrderItems.Select(orderItemEntity => new InventoryItemDto
                 {

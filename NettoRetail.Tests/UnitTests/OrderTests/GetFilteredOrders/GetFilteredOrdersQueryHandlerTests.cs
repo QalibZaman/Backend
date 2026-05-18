@@ -41,7 +41,7 @@ public class GetFilteredOrdersQueryHandlerTests
             new()
             {
                 Id = 1,
-                DeliveryType = OrderDeliveryTypeEnum.SelfDelivery,
+                Delivery = new DeliveryEntity { DeliveryType = OrderDeliveryTypeEnum.SelfDelivery },
                 CreationDate = DateTime.Now,
                 Creator = "Test",
                 OrderStatus = OrderStatusEnum.InProgress,

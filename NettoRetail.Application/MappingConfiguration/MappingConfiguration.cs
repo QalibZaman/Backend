@@ -4,6 +4,7 @@ using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.CsvFileModel;
 using NettoRetail.Application.Models.Customer;
+using NettoRetail.Application.Models.Delivery;
 using NettoRetail.Application.Models.InventoryItem;
 using NettoRetail.Application.Models.NewProductsSection;
 using NettoRetail.Application.Models.Order;
@@ -31,6 +32,21 @@ public class MappingConfiguration : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
+        config.NewConfig<DeliveryEntity, DeliveryResponse>();
+
+        config.NewConfig<SetDeliveryAddressMappingModel, DeliveryEntity>()
+            .Map(dest => dest.AddressId, src => src.AddressId)
+            .Map(dest => dest.DeliveryFee, src => src.DeliveryFee)
+            .Map(dest => dest.PaymentTotal, src => src.PaymentTotal)
+            .Map(dest => dest.UpdatedAt, _ => DateTime.UtcNow);
+
+        config.NewConfig<SetDeliveryMethodMappingModel, DeliveryEntity>()
+            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.AddressId, src => src.AddressId)
+            .Map(dest => dest.DeliveryFee, src => src.DeliveryFee)
+            .Map(dest => dest.PaymentTotal, src => src.PaymentTotal)
+            .Map(dest => dest.UpdatedAt, _ => DateTime.UtcNow);
+
         config.NewConfig<OrderEntity, SearchOrderResponse>()
             .Map(dest => dest.Email, src => src.Customer.Email)
             .Map(dest => dest.FullName, src => src.Customer.FullName)
@@ -114,7 +130,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerName, src => $"{src.Customer.FirstName} {src.Customer.LastName}")
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(
                 dest => dest.CanEditData,
                 src => src.OrderStatus == OrderStatusEnum.New || src.OrderStatus == OrderStatusEnum.Processing);
@@ -130,7 +146,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerLastName, src => src.Customer.LastName)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString())
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.OrderItems, src => src.OrderItems);
 
@@ -166,7 +182,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
             .Map(dest => dest.InventoryItems, src => src.OrderItems)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString())
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType.ToString());
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty);
 
         config.NewConfig<OrderEntity, OrderResponse>()
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
@@ -307,7 +323,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Creator, src => src.Creator)
             .Map(dest => dest.OrderId, src => src.Id)
             .Map(dest => dest.CustomerEmail, src => src.Customer.Email)
-            .Map(dest => dest.DeliveryType, src => src.DeliveryType)
+            .Map(dest => dest.DeliveryType, src => src.Delivery != null ? src.Delivery.DeliveryType.ToString() : string.Empty)
             .Map(dest => dest.DateCreated, src => src.CreationDate)
             .Map(dest => dest.OrderStatus, src => src.OrderStatus)
             .Map(dest => dest.FirstName, src => src.Customer.FirstName)

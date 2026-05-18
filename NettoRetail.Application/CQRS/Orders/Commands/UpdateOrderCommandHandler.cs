@@ -46,7 +46,7 @@ public class UpdateOrderCommandHandler(
         var inventoryById = inventoryItems.ToDictionary(x => x.Id);
         var itemsToUpdate = new HashSet<InventoryItemEntity>();
 
-        order.DeliveryType = (OrderDeliveryTypeEnum)request.Model.DeliveryType!;
+        order.Delivery.DeliveryType = (OrderDeliveryTypeEnum)request.Model.DeliveryType!;
 
         using var transaction = unitOfWork.BeginTransaction();
         if (request.Model.ItemsToDelete != null)

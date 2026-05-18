@@ -51,7 +51,7 @@ public class CreateOrderCommandHandlerTests
                 {
                     Id = 0,
                     CustomerId = model.CustomerId,
-                    DeliveryType = model.DeliveryType,
+                    Delivery = new DeliveryEntity { DeliveryType = model.DeliveryType },
                     Creator = string.Empty,
                     OrderStatus = OrderStatusEnum.New,
                     CreationDate = DateTime.UtcNow,
@@ -70,7 +70,7 @@ public class CreateOrderCommandHandlerTests
                     CustomerLastName = string.Empty,
                     CustomerEmail = string.Empty,
                     CreationDate = source.CreationDate,
-                    DeliveryType = source.DeliveryType.ToString(),
+                    DeliveryType = source.Delivery?.DeliveryType.ToString(),
                     Creator = source.Creator,
                     OrderStatus = source.OrderStatus.ToString(),
                     CustomerId = source.CustomerId,
