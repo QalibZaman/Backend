@@ -21,16 +21,28 @@ public sealed class AddPaymentCommandHandler(
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
-        var cardBrand = request.PaymentMethodId.Split('_')[2].Trim().ToLower();
-        bool isSupported = !string.IsNullOrWhiteSpace(cardBrand) && AllowedCardBrands.Contains(cardBrand);
+        var cardBrand = string.Empty;
+        if (!string.IsNullOrWhiteSpace(request.PaymentMethodId))
+        {
+            var parts = request.PaymentMethodId.Split('_');
+            if (parts.Length > 2 && parts[1].Equals("card", StringComparison.OrdinalIgnoreCase))
+            {
+                cardBrand = parts[2].Trim().ToLower();
+            }
+            else
+            {
+                cardBrand = "unknown";
+            }
+        }
+
+        bool isSupported = AllowedCardBrands.Contains(cardBrand) || cardBrand == "unknown";
 
         if (!isSupported)
         {
             throw new PaymentExceptions("Only mastercard and visa cards are supported.");
         }
-
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
-            ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
+        ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
 
         var account = await accountRepository.GetAsync(
             new GetStaffByIdSpecification(request.AccountId),
