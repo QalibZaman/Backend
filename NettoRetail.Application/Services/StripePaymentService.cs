@@ -12,11 +12,6 @@ public sealed class StripePaymentService(
     PaymentMethodService paymentMethodService,
     ILogger<StripePaymentService> logger) : IStripePaymentService
 {
-    private static readonly HashSet<string> AllowedCardBrands = new(StringComparer.OrdinalIgnoreCase)
-    {
-        BankCardTypeConstants.MasterCard,
-        BankCardTypeConstants.Visa
-    };
 
     public async Task<string> EnsureCustomerAsync(
         string? existingCustomerId,
@@ -114,14 +109,6 @@ public sealed class StripePaymentService(
         if (pm.Card is null)
         {
             throw new PaymentExceptions("Only card payment methods are supported.");
-        }
-
-        var cardBrand = pm.Card.Brand?.Trim();
-        bool isSupported = !string.IsNullOrWhiteSpace(cardBrand) && AllowedCardBrands.Contains(cardBrand);
-
-        if (!isSupported)
-        {
-            throw new PaymentExceptions("Only mastercard and visa cards are supported.");
         }
     }
 }

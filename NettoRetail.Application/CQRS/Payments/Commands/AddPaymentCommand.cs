@@ -21,6 +21,14 @@ public sealed class AddPaymentCommandHandler(
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
+        var cardBrand = request.PaymentMethodId.Split('_')[2].Trim().ToLower();
+        bool isSupported = !string.IsNullOrWhiteSpace(cardBrand) && AllowedCardBrands.Contains(cardBrand);
+
+        if (!isSupported)
+        {
+            throw new PaymentExceptions("Only mastercard and visa cards are supported.");
+        }
+
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
             ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
 
@@ -89,4 +97,10 @@ public sealed class AddPaymentCommandHandler(
 
         return Unit.Value;
     }
+
+    private static readonly HashSet<string> AllowedCardBrands = new(StringComparer.OrdinalIgnoreCase)
+    {
+        BankCardTypeConstants.MasterCard,
+        BankCardTypeConstants.Visa
+    };
 }
