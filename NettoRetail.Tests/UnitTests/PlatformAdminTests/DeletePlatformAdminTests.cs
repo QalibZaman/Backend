@@ -7,6 +7,7 @@ using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using System.Data;
 
 namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
 {
@@ -15,8 +16,9 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         private readonly IStaffRepository _accRepo;
         private readonly IRoleRepository _roleRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDbTransaction _mockTransaction;
 
-        private readonly StaffEntity admin;
+        private readonly StaffEntity _currentAdmin;
 
 
         public DeletePlatformAdminTests()
@@ -24,43 +26,23 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             _accRepo = Substitute.For<IStaffRepository>();
             _roleRepo = Substitute.For<IRoleRepository>();
             _unitOfWork = Substitute.For<IUnitOfWork>();
+            _mockTransaction = Substitute.For<IDbTransaction>();
+            _unitOfWork.BeginTransaction().Returns(_mockTransaction);
 
-            admin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Platform",
-                LastName = "Admin",
-                Email = "platformadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Active
-            };
+            _currentAdmin = CreateTestStaff(Guid.NewGuid(), StaffStatusEnum.Active);
         }
 
         [Fact]
         public async Task DeletePlatformAdmin_ShouldCallDeleteMethods_WhenAdminIsDeactivated()
         {
             // Arrange
-            var inactiveAdmin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Platform",
-                LastName = "Admin",
-                Email = "platformadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Deactivated,
-                Role = new RoleEntity
-                {
-                    Name = "PlatformAdmin",
-                    Description = "Role description",
-                }
-            };
+            var inactiveAdmin = CreateTestStaff(Guid.NewGuid(), StaffStatusEnum.Deactivated, "PlatformAdmin");
+            var handler = CreateHandler();
 
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
-
-            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(inactiveAdmin);
 
-            var command = new DeletePlatformAdminCommand(inactiveAdmin.Id, admin.Id);
+            var command = new DeletePlatformAdminCommand(inactiveAdmin.Id, _currentAdmin.Id);
 
             // Act
             await handler.Handle(command, CancellationToken.None);
@@ -68,52 +50,42 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
             // Assert
             await _accRepo.Received(1).DeleteAsync(inactiveAdmin, Arg.Any<CancellationToken>());
             await _roleRepo.Received(1).DeleteAsync(inactiveAdmin.Role, Arg.Any<CancellationToken>());
+            _unitOfWork.Received(1).BeginTransaction();
+            _mockTransaction.Received(1).Commit();
         }
 
         [Fact]
         public async Task DeletePlatformAdmin_ShouldCallDeleteMethods_WhenAdminHasPendingStatus()
         {
             // Arrange
-            var inactiveAdmin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Platform",
-                LastName = "Admin",
-                Email = "platformadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Pending,
-                Role = new RoleEntity
-                {
-                    Name = "PlatformAdmin",
-                    Description = "Role description",
-                }
-            };
+            var pendingAdmin = CreateTestStaff(Guid.NewGuid(), StaffStatusEnum.Pending, "PlatformAdmin");
+            var handler = CreateHandler();
 
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
+            _accRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
+                 .Returns(pendingAdmin);
 
-            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-                 .Returns(inactiveAdmin);
-
-            var command = new DeletePlatformAdminCommand(inactiveAdmin.Id, admin.Id);
+            var command = new DeletePlatformAdminCommand(pendingAdmin.Id, _currentAdmin.Id);
 
             // Act
             await handler.Handle(command, CancellationToken.None);
 
             // Assert
-            await _accRepo.Received(1).DeleteAsync(inactiveAdmin, Arg.Any<CancellationToken>());
-            await _roleRepo.Received(1).DeleteAsync(inactiveAdmin.Role, Arg.Any<CancellationToken>());
+            await _accRepo.Received(1).DeleteAsync(pendingAdmin, Arg.Any<CancellationToken>());
+            await _roleRepo.Received(1).DeleteAsync(pendingAdmin.Role, Arg.Any<CancellationToken>());
+            _unitOfWork.Received(1).BeginTransaction();
+            _mockTransaction.Received(1).Commit();
         }
 
         [Fact]
         public async Task DeletePlatformAdmin_ShouldReturnNotFoundException_WhenAdminIsNotFound()
         {
             // Arrange
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
+            var handler = CreateHandler();
 
             _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
-            var command = new DeletePlatformAdminCommand(Guid.NewGuid(), admin.Id);
+            var command = new DeletePlatformAdminCommand(Guid.NewGuid(), _currentAdmin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -126,27 +98,13 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnNotFoundException_WhenAdminIsNotPlatformAdmin()
         {
             // Arrange
-            var notAdmin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Not",
-                LastName = "Admin",
-                Email = "notadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Online,
-                Role = new RoleEntity
-                {
-                    Name = "TestRole",
-                    Description = "Test role description",
-                }
-            };
 
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
+            var handler = CreateHandler();
 
             _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
                  .ReturnsNull();
 
-            var command = new DeletePlatformAdminCommand(notAdmin.Id, admin.Id);
+            var command = new DeletePlatformAdminCommand(Guid.NewGuid(), _currentAdmin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -159,40 +117,29 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnBadRequestException_WhenAdminsIdsIsMatches()
         {
             // Arrange
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
-
-            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
-                 .Returns(admin);
-
-            var command = new DeletePlatformAdminCommand(admin.Id, admin.Id);
+            var handler = CreateHandler();
+            var command = new DeletePlatformAdminCommand(_currentAdmin.Id, _currentAdmin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
 
             // Assert
             await Assert.ThrowsAsync<BadRequestException>(act);
+
+            await _accRepo.DidNotReceiveWithAnyArgs().GetAsync(default!, default);
         }
 
         [Fact]
         public async Task DeletePlatformAdmin_ShouldReturnBadRequestException_WhenAdminHasActiveStatus()
         {
             // Arrange
-            var activeAdmin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Platform",
-                LastName = "Admin",
-                Email = "platformadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Active
-            };
+            var activeAdmin = CreateTestStaff(Guid.NewGuid(), StaffStatusEnum.Active);
+            var handler = CreateHandler();
 
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
-
-            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(activeAdmin);
 
-            var command = new DeletePlatformAdminCommand(activeAdmin.Id, admin.Id);
+            var command = new DeletePlatformAdminCommand(activeAdmin.Id, _currentAdmin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
@@ -205,28 +152,42 @@ namespace NettoRetail.Tests.UnitTests.PlatformAdminTests
         public async Task DeletePlatformAdmin_ShouldReturnBadRequestException_WhenAdminHasOnlineStatus()
         {
             // Arrange
-            var onlineAdmin = new StaffEntity
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Platform",
-                LastName = "Admin",
-                Email = "platformadmin@gmail.com",
-                PasswordHash = "hashedpassword",
-                Status = StaffStatusEnum.Online
-            };
+            var onlineAdmin = CreateTestStaff(Guid.NewGuid(), StaffStatusEnum.Online);
+            var handler = CreateHandler();
 
-            var handler = new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
-
-            _accRepo.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>())
+            _accRepo.GetAsync(Arg.Any<GetPlatformAdminByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(onlineAdmin);
 
-            var command = new DeletePlatformAdminCommand(onlineAdmin.Id, admin.Id);
+            var command = new DeletePlatformAdminCommand(onlineAdmin.Id, _currentAdmin.Id);
 
             // Act
             var act = async () => await handler.Handle(command, CancellationToken.None);
 
             // Assert
             await Assert.ThrowsAsync<BadRequestException>(act);
+        }
+
+        private DeletePlatformAdminCommandHandler CreateHandler()
+        {
+            return new DeletePlatformAdminCommandHandler(_accRepo, _roleRepo, _unitOfWork);
+        }
+
+        private StaffEntity CreateTestStaff(Guid id, StaffStatusEnum status, string? roleName = null)
+        {
+            return new StaffEntity
+            {
+                Id = id,
+                FirstName = "Test",
+                LastName = "User",
+                Email = $"{id}@gmail.com",
+                PasswordHash = "hashedpassword",
+                Status = status,
+                Role = roleName == null ? null! : new RoleEntity
+                {
+                    Name = roleName,
+                    Description = $"{roleName} Description"
+                }
+            };
         }
     }
 }

@@ -36,13 +36,12 @@ namespace NettoRetail.Application.CQRS.Customers.Commands
             using var transaction = unitOfWork.BeginTransaction();
 
             await sessionTerminationService.TerminateSessionsAsync(customer.Id, cancellationToken);
-            
 
-            customer.IsDeleted =  true;
+            customer.IsDeleted = true;
             customer.IsActive = false;
             customer.LoyaltyId = null;
             await customerRepository.UpdateAsync(customer, cancellationToken);
-            
+
             transaction.Commit();
         }
     }
