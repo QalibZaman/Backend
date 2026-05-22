@@ -12,10 +12,8 @@ namespace NettoRetail.DataAccess.Repositories
 {
     public class ProductReviewRepository : BaseRepository<ProductReviewEntity>, IProductReviewRepository
     {
-        private readonly AppDbContext dbContext;
         public ProductReviewRepository(AppDbContext dbContext) : base(dbContext)
         {
-            this.dbContext = dbContext;
         }
     }
 }
