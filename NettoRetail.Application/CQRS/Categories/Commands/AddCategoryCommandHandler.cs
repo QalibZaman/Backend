@@ -67,6 +67,11 @@ public class AddCategoryCommandHandler(
         }
 
         stringBuilder.Append(categoryName.ToLower().Trim());
+        if (stringBuilder.Length > 255)
+        {
+            throw new BadRequestException("Generated URL is too long. Please choose a shorter name or a different parent category.");
+        }
+
         return stringBuilder.ToString();
     }
 

@@ -13,8 +13,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<CategoryEntity>
         builder.Property(p => p.Name)
             .HasMaxLength(50);
 
-        builder.Property(p => p.URL)
-            .HasMaxLength(50);
+        builder.Property(p => p.URL);
 
         builder.Property(p => p.Visibility);
 
