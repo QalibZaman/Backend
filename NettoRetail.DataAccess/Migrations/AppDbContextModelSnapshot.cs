@@ -381,8 +381,7 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("URL")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("Visibility")
                         .HasColumnType("boolean");
