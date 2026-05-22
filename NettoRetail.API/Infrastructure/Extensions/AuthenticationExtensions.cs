@@ -124,6 +124,15 @@ public static class AuthenticationExtensions
                         var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
                         return roleId == RoleConstants.Customer.ToString();
                     }));
+
+            options.AddPolicy(PolicyNames.SuperAdminOnlyPolicy, policy =>
+                policy.RequireAuthenticatedUser()
+                .AddAuthenticationSchemes(AuthSchemes.Default)
+                .RequireAssertion(context =>
+                {
+                    var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
+                    return roleId == SuperAdminConstants.SuperAdminRoleId;
+                }));
         });
 
         return services;

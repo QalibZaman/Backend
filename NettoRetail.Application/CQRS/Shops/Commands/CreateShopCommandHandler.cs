@@ -18,7 +18,7 @@ public record CreateShopCommand(Guid AccountId, ShopModel Model) : IRequest<Shop
 
 public class CreateShopCommandHandler(
     IShopRepository shopRepository,
-    IStaffRepository accountRepository,
+    IStaffRepository staffRepository,
     IUnitOfWork unitOfWork,
     ICountryDetailsValidationService countryDetailsValidator,
     IShopValidationService shopValidator,
@@ -38,12 +38,12 @@ public class CreateShopCommandHandler(
         shop.Url.ToLower();
 
         var specification = new GetStaffByIdSpecification(request.AccountId);
-        var accountToUpdate = await accountRepository.GetAsync(specification, cancellationToken) ??
-            throw new NotFoundException($"Staff member with ID {request.AccountId} not found.");
+        var accountToUpdate = await staffRepository.GetAsync(specification, cancellationToken) ??
+            throw new NotFoundException(string.Format(HandlerConstants.Staff.StaffNotFoundMessage, request.AccountId));
 
         if (accountToUpdate.ShopId != null)
         {
-            throw new BadRequestException($"Account already has a shop");
+            throw new BadRequestException(HandlerConstants.Shop.AccountAlreadyHasShopMessage);
         }
 
         var shopValidationModel = mapper.Map<ShopValidationModel>(request.Model);
@@ -54,7 +54,7 @@ public class CreateShopCommandHandler(
         {
             var returnedShop = await shopRepository.AddAsync(shop, cancellationToken);
             accountToUpdate.ShopId = returnedShop.Id;
-            await accountRepository.UpdateAsync(accountToUpdate, cancellationToken);
+            await staffRepository.UpdateAsync(accountToUpdate, cancellationToken);
             transaction.Commit();
 
             return mapper.Map<ShopResponse>(returnedShop);
@@ -62,7 +62,7 @@ public class CreateShopCommandHandler(
         catch (Exception ex)
         {
             transaction.Rollback();
-            throw new BadRequestException($"Failed to create shop: {ex.Message}");
+            throw new BadRequestException(string.Format(HandlerConstants.Shop.FailedToCreateShopMessage, ex.Message));
         }
     }
 }
