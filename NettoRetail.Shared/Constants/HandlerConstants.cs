@@ -11,6 +11,11 @@
             public const string CannotDeleteCustomerFromAnotherShopMessage = "Cannot delete customer from another shop.";
         }
 
+        public static class Staff
+        {
+            public const string StaffNotFoundMessage = "Staff member with ID {0} not found.";
+        }
+
         public static class Order
         {
             public const string OrderNotFoundMessage = "There is no such order.";
@@ -44,6 +49,8 @@
         public static class Shop
         {
             public const string ShopNotFoundMessage = "Shop {0} not found";
+            public const string AccountAlreadyHasShopMessage = "Account already has a shop.";
+            public const string FailedToCreateShopMessage = "Failed to create shop. {0}";
         }
 
         public static class Account

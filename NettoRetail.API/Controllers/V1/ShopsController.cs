@@ -35,8 +35,7 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize]
-    [RequiresPermission(Permissions.SYSTEM_MANAGEMENT)]
+    [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<ShopResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
