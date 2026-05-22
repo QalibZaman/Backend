@@ -161,7 +161,7 @@ public class GetOrderPrintingDetailsHandlerTests : IClassFixture<CustomWebApplic
         {
             return Task.FromResult<OrderEntity?>(_order);
         }
-
+        
         #region NotImplementedStubs
 
         public Task<OrderEntity> AddAsync(OrderEntity model, CancellationToken cancellationToken) =>

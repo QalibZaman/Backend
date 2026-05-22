@@ -434,5 +434,11 @@ public class MappingConfiguration : IRegister
         config.NewConfig<InventoryItemsSearchModel, GetFilteredInventoryItemsModel>()
             .Map(dest => dest.SortingOptions, src => src.SortingOptions);
 
-    }
+        config.NewConfig<ProductReviewEntity, CreateProductReviewRequest>()
+            .Map(dest => dest.Rating, src => src.Rating)
+            .Map(dest => dest.Title, src => src.Title)
+            .Map(dest => dest.VariantInfo, src => src.VariantInfo)
+            .Map(dest => dest.PhotoUrls, src => src.PhotoUrls)
+            .Map(dest => dest.ReviewText, src => src.ReviewText);
+     }
 }
