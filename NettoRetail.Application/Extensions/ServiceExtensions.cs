@@ -43,6 +43,7 @@ using NettoRetail.Application.Services.IStaffCsvExportService;
 using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Services.VariationService;
+using NettoRetail.Application.Services.IProductReviewService;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
@@ -141,6 +142,8 @@ public static class ServiceExtensions
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IVariationService, VariationService>();
         services.AddScoped<IEntityLockService, EntityLockService>();
+        services.AddScoped<IProductReviewService, ProductReviewService>();
+      
 
         var featureToggleOptions = configuration
             .GetSection(nameof(FeatureToggleOptions))
