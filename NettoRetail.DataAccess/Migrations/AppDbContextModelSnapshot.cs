@@ -1137,6 +1137,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -1684,18 +1687,12 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsVerifiedPurchase")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
                     b.Property<string>("PhotoUrls")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("ProductUpc")
                         .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("character varying(12)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
@@ -1705,17 +1702,14 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ReviewText")
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("VariantInfo")
-                        .HasColumnType("text")
-                        .HasColumnName("text");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -2582,7 +2576,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductReviews_Accounts_CustomerId");
 
                     b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
                         .WithMany()
