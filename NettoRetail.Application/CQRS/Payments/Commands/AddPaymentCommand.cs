@@ -29,18 +29,13 @@ public sealed class AddPaymentCommandHandler(
             {
                 cardBrand = parts[2].Trim().ToLower();
             }
-            else
-            {
-                cardBrand = "unknown";
-            }
         }
 
-        bool isSupported = AllowedCardBrands.Contains(cardBrand) || cardBrand == "unknown";
-
-        if (!isSupported)
+        if (!AllowedCardBrands.Contains(cardBrand))
         {
-            throw new PaymentExceptions("Only mastercard and visa cards are supported.");
+            throw new PaymentExceptions(HandlerConstants.Payment.PaymentMethodCardBrandNotAllowedMessage);
         }
+
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
         ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
 
