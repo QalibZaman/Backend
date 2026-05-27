@@ -2,8 +2,6 @@
 {
     public class HandlerConstants
     {
-
-
         public static class Customer
         {
             public const string CustomerNotFoundMessage = "Customer {0} not found.";
@@ -44,6 +42,7 @@
             public const string PaymentMethodDoesntBelongMessage = "Payment method does not belong to this account.";
             public const string AtLeastTwoPaymentMethodsRequiredMessage = "At least two payment methods are required to change default.";
             public const string PaymentMethodExpiredMessage = "Payment method is expired.";
+            public const string PaymentMethodCardBrandNotAllowedMessage = "Only mastercard and visa cards are supported.";
         }
 
         public static class Shop

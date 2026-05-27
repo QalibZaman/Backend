@@ -21,8 +21,23 @@ public sealed class AddPaymentCommandHandler(
 {
     public async Task<Unit> Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
+        var cardBrand = string.Empty;
+        if (!string.IsNullOrWhiteSpace(request.PaymentMethodId))
+        {
+            var parts = request.PaymentMethodId.Split('_');
+            if (parts.Length > 2 && parts[1].Equals("card", StringComparison.OrdinalIgnoreCase))
+            {
+                cardBrand = parts[2].Trim().ToLower();
+            }
+        }
+
+        if (!AllowedCardBrands.Contains(cardBrand))
+        {
+            throw new PaymentExceptions(HandlerConstants.Payment.PaymentMethodCardBrandNotAllowedMessage);
+        }
+
         var shop = await shopRepository.GetAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken)
-            ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
+        ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, request.ShopId));
 
         var account = await accountRepository.GetAsync(
             new GetStaffByIdSpecification(request.AccountId),
@@ -89,4 +104,10 @@ public sealed class AddPaymentCommandHandler(
 
         return Unit.Value;
     }
+
+    private static readonly HashSet<string> AllowedCardBrands = new(StringComparer.OrdinalIgnoreCase)
+    {
+        BankCardTypeConstants.MasterCard,
+        BankCardTypeConstants.Visa
+    };
 }
