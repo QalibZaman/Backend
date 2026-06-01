@@ -21,6 +21,7 @@ public class GetCategoriesQueryHandler(ICategoryRepository categoryRepository, I
 
         var specification = new SpecificationBuilder<CategoryEntity>()
             .Add<GetCategoriesByShopIdSpecification>(request.ShopId)
+            .AddOrderBy(p=>p.Name)
             .Skip(skip)
             .Take(request.Model.PageSize)
             .AddInclude(p => p.InventoryItems)
