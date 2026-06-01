@@ -1,15 +1,19 @@
-﻿using System.Net.Http.Json;
-using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
-using NettoRetail.API.Models.Response;
-using NettoRetail.Application.Models.Authentication;
-using NettoRetail.Application.Models.Response;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NettoRetail.DataAccess.Context;
+using NettoRetail.API.Models.Response;
 using NettoRetail.Application.Models.Admin;
-using System.Net.Http.Headers;
-using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.TwoFactorAuth;
+using NettoRetail.DataAccess.Context;
+using NettoRetail.Shared.Constants;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace NettoRetail.Tests.IntegrationTests.AccountTests;
 
@@ -279,6 +283,64 @@ public class AccountApiTests : IClassFixture<CustomWebApplicationFactory>, IDisp
 
             // Assert
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+        finally
+        {
+            _testEmails.Add(email);
+        }
+    }
+
+    [Fact]
+    public async Task SuperAdminLogin_ShouldContainSuperAdminRoleClaim()
+    {
+        // Arrange
+        var email = "superadminlogin@gmail.com";
+        var password = "String1234!";
+
+        try
+        {
+
+            await RegisterUserAsync(email, password);
+
+            await Task.Delay(2000);
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var dbContext =
+                    scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var user = await dbContext.Staff.FirstAsync(u => u.Email == email);
+
+                user.RoleId = int.Parse(
+                    SuperAdminConstants.SuperAdminRoleId);
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            var loginModel = new LoginModel(email, password);
+
+
+            //Act
+            var response = await _client.PostAsJsonAsync("api/v1/staff/log-in", loginModel);
+            var responseData = await response.Content.ReadFromJsonAsync<ApiResponse<TokenResponse>>();
+
+           
+            Console.WriteLine(response.Content);
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            Assert.NotNull(responseData);
+            Assert.NotNull(responseData.Data);
+
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwt = handler.ReadJwtToken(
+                responseData.Data.AccessToken);
+
+            Assert.Contains(
+                jwt.Claims,
+                c => c.Type ==  "role" &&
+                     c.Value == SuperAdminConstants.SuperAdminRoleId);
         }
         finally
         {
