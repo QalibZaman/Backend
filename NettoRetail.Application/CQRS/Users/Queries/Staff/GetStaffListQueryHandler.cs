@@ -22,6 +22,15 @@ public class GetStaffListQueryHandler(
     IStaffRepository staffRepository,
     IMapper mapper) : IRequestHandler<GetStaffListQuery, PaginatedResponse<StaffListResponse>>
 {
+    private static readonly Dictionary<string, Expression<Func<StaffEntity, object>>> SortingExpressions = new()
+    {
+        ["firstname"] = item => item.FirstName,
+        ["lastname"] = item => item.LastName,
+        ["email"] = item => item.Email,
+        ["role"] = item => item.Role.Name,
+        ["status"] = item => item.Status
+    };
+
     public async Task<PaginatedResponse<StaffListResponse>> Handle(GetStaffListQuery request, CancellationToken cancellationToken)
     {
         var specificationBuilder = BuildSpecification(request);
@@ -37,9 +46,10 @@ public class GetStaffListQueryHandler(
 
     private static SpecificationBuilder<StaffEntity> BuildSpecification(GetStaffListQuery request)
     {
-        var builder = new SpecificationBuilder<StaffEntity>();
+        var filter = request.Model;
+        var pagination = request.PaginationModel;
 
-        builder
+        var builder = new SpecificationBuilder<StaffEntity>()
             .Add<GetStaffByShopIdSpecification>(request.ShopId)
             .Add<GetStaffByPartialFirstNameSpecification>(request.Model.FirstName)
             .Add<GetStaffByPartialLastNameSpecification>(request.Model.LastName)
@@ -52,33 +62,17 @@ public class GetStaffListQueryHandler(
             builder.Add<GetStaffByStatusSpecification>(status);
         }
 
-        if (request.Model.SortingOptions != null && request.Model.SortingOptions.Any())
+        foreach (var sort in filter.SortingOptions ?? [])
         {
-            foreach (var sortingOption in request.Model.SortingOptions)
-            {
-                builder.AddOrderBy(GetSortingExpression(sortingOption.Field), sortingOption.IsDescending);
-            }
+            var expr = SortingExpressions.GetValueOrDefault(sort.Field) ?? (x => x.FirstName);
+            builder.AddOrderBy(expr, sort.IsDescending);
         }
 
         builder
-            .Skip(PaginationHelper.CalculateSkip(
-                request.PaginationModel.PageNumber,
-                request.PaginationModel.PageSize))
-            .Take(request.PaginationModel.PageSize);
+            .Skip(PaginationHelper.CalculateSkip(pagination.PageNumber, pagination.PageSize))
+            .Take(pagination.PageSize)
+            .Build();
 
         return builder;
-    }
-
-    private static Expression<Func<StaffEntity, object>> GetSortingExpression(string fieldName)
-    {
-        return fieldName.ToLower() switch
-        {
-            "firstname" => item => item.FirstName,
-            "lastname" => item => item.LastName,
-            "email" => item => item.Email,
-            "role" => item => item.Role.Name,
-            "status" => item => item.Status,
-            _ => item => item.FirstName
-        };
     }
 }
