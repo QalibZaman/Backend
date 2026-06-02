@@ -1,6 +1,8 @@
 using MediatR;
 using MapsterMapper;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Responses.TeaserSection;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.CQRS.TeaserSection.Queries;
 
@@ -16,9 +18,6 @@ public class GetTeaserSectionQueryHandler(
         var spec = new GetTeaserSectionByShopIdSpecification(request.ShopId);
         var teaser = await teaserSectionRepository.GetAsync(spec, cancellationToken);
 
-        if (teaser == null)
-            throw new KeyNotFoundException($"Teaser section not found for shop {request.ShopId}");
-
-        return mapper.Map<TeaserSectionResponse>(teaser);
+        return teaser == null ? throw new NotFoundException(string.Format(ValidationErrorMessages.TeaserSection.TeaserSectionNotFoundErrorMessage, request.ShopId)) : mapper.Map<TeaserSectionResponse>(teaser);
     }
 }

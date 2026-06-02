@@ -9,7 +9,7 @@ public class TeaserSectionEntity
     public int ShopId { get; set; }
     public bool IsVisible { get; set; }
 
-    public string Heading { get; set; }
+    public required string Heading { get; set; }
     public string? AdditionalText { get; set; }
 
     public string? Link { get; set; }

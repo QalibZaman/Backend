@@ -31,32 +31,44 @@ public class TeaserSectionController(IMediator mediator) : ControllerBase
         var query = new GetTeaserSectionQuery(shopId);
         var data = await mediator.Send(query, cancellationToken);
 
-        if (data is null)
-            return NotFound();
-
         var response = new ApiResponse<TeaserSectionResponse>(data);
 
         return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ApiResponse<TeaserSectionResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> UpdateTeaserSection([FromForm] TeaserSectionRequest model, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateTeaserSection(Guid id, UpdateTeaserSectionRequest model, CancellationToken cancellationToken)
     {
         var shopId = HttpContext.GetUserShopId();
-        var updatedBy = User?.Identity?.Name ?? "system";
+        var updatedBy = HttpContext.GetUpdatedByName();
 
-        var command = new UpdateTeaserSectionCommand(model, shopId, updatedBy);
+        var command = new UpdateTeaserSectionCommand(id, model, shopId, updatedBy);
         var data = await mediator.Send(command, cancellationToken);
-
         var response = new ApiResponse<TeaserSectionResponse>(data);
 
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<TeaserSectionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateTeaserSection(CreateTeaserSectionRequest model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var command = new CreateTeaserSectionCommand(model, shopId);
+        var data =await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<TeaserSectionResponse>(data);
         return Ok(response);
     }
 }
