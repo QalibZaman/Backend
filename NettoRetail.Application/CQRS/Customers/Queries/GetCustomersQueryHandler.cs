@@ -37,7 +37,9 @@ public class GetCustomersQueryHandler(ICustomerRepository customerRepository, IM
 
         specificationBuilder.Add<GetCustomerBySearchSpecification>(request.Model?.Search);
 
-        specificationBuilder.Skip(skip)
+        specificationBuilder
+            .AddOrderBy(x => x.DateCreated, isDesc: true)
+            .Skip(skip)
             .Take(request.PageModel.PageSize);
 
 
