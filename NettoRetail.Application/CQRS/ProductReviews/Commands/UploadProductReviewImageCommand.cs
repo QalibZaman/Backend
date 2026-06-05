@@ -29,7 +29,6 @@ namespace NettoRetail.Application.CQRS.ProductReviews.Commands
 {
     public record UploadProductReviewImageCommand(IFormFile Image, Guid ProductReviewId) : IRequest;
     public class UploadProductReviewImageCommandHandler(IProductReviewRepository productReviewRepository,
-        IUnitOfWork unitOfWork,
         IOptions<AzureBlobStorageOptions> azureBlobStorageOptions,
         IAzureBlobService azureBlobService) : IRequestHandler<UploadProductReviewImageCommand>
     {
@@ -52,7 +51,6 @@ namespace NettoRetail.Application.CQRS.ProductReviews.Commands
 
             existingUrls.Add(imageUrl);
             review.PhotoUrls = JsonSerializer.Serialize(existingUrls);
-            using var transaction = unitOfWork.BeginTransaction();
             await productReviewRepository.UpdateAsync(review, cancellationToken);
         }
     }
