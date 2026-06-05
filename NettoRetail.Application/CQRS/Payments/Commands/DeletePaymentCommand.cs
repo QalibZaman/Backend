@@ -1,22 +1,26 @@
-using System.ComponentModel.DataAnnotations;
 using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Payment;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Services;
 using NettoRetail.Shared.Interfaces.Utilities;
+using System.ComponentModel.DataAnnotations;
 
 namespace NettoRetail.Application.CQRS.Payments.Commands;
 
-public record DeletePaymentCommand(Guid AccountId, string PaymentMethodId) : IRequest<PaymentMethodDeleteResponse>;
+public record DeletePaymentCommand(Guid AccountId, string PaymentMethodId, int ShopId) : IRequest<PaymentMethodDeleteResponse>;
 
 public class DeletePaymentCommandHandler(
     IPaymentRepository paymentRepository,
     IStripePaymentService stripePaymentService,
+    ISubscriptionPlanRepository subscriptionPlanRepository,
+    IShopRepository shopRepository,
     IUnitOfWork unitOfWork,
     IStripeService stripeService) : IRequestHandler<DeletePaymentCommand, PaymentMethodDeleteResponse>
 {
@@ -43,6 +47,11 @@ public class DeletePaymentCommandHandler(
         {
             fallbackMethod.IsDefault = true;
             await paymentRepository.UpdateAsync(fallbackMethod, cancellationToken);
+        }
+
+        if (isLastMethod)
+        {
+            await RevertToDefaultPlanAsync(request.ShopId, cancellationToken);
         }
 
         await stripePaymentService.DetachPaymentMethodAsync(request.PaymentMethodId);
@@ -96,5 +105,28 @@ public class DeletePaymentCommandHandler(
             customerId,
             fallbackMethod.StripePaymentMethodId,
             cancellationToken);
+    }
+
+    private async Task RevertToDefaultPlanAsync(int shopId, CancellationToken cancellationToken)
+    {
+        const int DefaultPlanId = 1;
+        var specification = new GetShopByIdSpecification(shopId);
+        var shop = await shopRepository.GetAsync(specification, cancellationToken)
+            ?? throw new NotFoundException(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, shopId));
+
+        if (shop.SubscriptionPlanId == DefaultPlanId || string.IsNullOrEmpty(shop.StripeCustomerId))
+        {
+            return;
+        }
+
+        var freePlan = await subscriptionPlanRepository.GetByTypeAsync(SubscriptionTypeEnum.Free, cancellationToken)
+            ?? throw new NotFoundException(HandlerConstants.Subscription.SubscriptionPlanNotFoundMessage);
+
+        var stripeSubscriptionId = await stripeService.CreateSubscriptionAsync(shop.StripeCustomerId, freePlan.SubscriptionId, cancellationToken);
+
+        shop.SubscriptionPlanId = DefaultPlanId;
+        shop.StripeSubscriptionId = stripeSubscriptionId;
+        await shopRepository.UpdateAsync(shop, cancellationToken);
+
     }
 }

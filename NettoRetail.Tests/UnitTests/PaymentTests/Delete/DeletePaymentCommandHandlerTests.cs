@@ -6,6 +6,7 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Specifications.Payment;
+using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -22,6 +23,8 @@ public class DeletePaymentCommandHandlerTests
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStripeService _stripeService;
     private readonly IDbTransaction _transaction;
+    private readonly IShopRepository _shopRepository;
+    private readonly ISubscriptionPlanRepository _subscriptionPlanRepository;
     private readonly DeletePaymentCommandHandler _handler;
 
     public DeletePaymentCommandHandlerTests()
@@ -31,12 +34,16 @@ public class DeletePaymentCommandHandlerTests
         _unitOfWork = Substitute.For<IUnitOfWork>();
         _stripeService = Substitute.For<IStripeService>();
         _transaction = Substitute.For<IDbTransaction>();
+        _shopRepository = Substitute.For<IShopRepository>();
+        _subscriptionPlanRepository = Substitute.For<ISubscriptionPlanRepository>();
 
         _unitOfWork.BeginTransaction().Returns(_transaction);
 
         _handler = new DeletePaymentCommandHandler(
             _paymentRepository,
             _stripePaymentService,
+            _subscriptionPlanRepository,
+            _shopRepository,
             _unitOfWork,
             _stripeService);
     }
@@ -59,7 +66,7 @@ public class DeletePaymentCommandHandlerTests
             .Returns(true);
 
         // Act
-        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
+        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId, 23), CancellationToken.None);
 
         // Assert
         result.Should().BeEquivalentTo(new PaymentMethodDeleteResponse { IsLastPaymentMethod = false });
@@ -98,7 +105,7 @@ public class DeletePaymentCommandHandlerTests
             .Returns(fallback);
 
         // Act
-        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
+        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId, 23), CancellationToken.None);
 
         // Assert
         result.IsLastPaymentMethod.Should().BeFalse();
@@ -118,6 +125,7 @@ public class DeletePaymentCommandHandlerTests
     {
         // Arrange
         var accountId = Guid.NewGuid();
+        var shop = CreateShop();
         var account = CreateAccount("cus_123");
         var paymentToDelete = CreatePayment(accountId, "pm_only", account, isDefault: true);
         account.PaymentMethods = new List<PaymentMethodEntity> { paymentToDelete };
@@ -131,9 +139,12 @@ public class DeletePaymentCommandHandlerTests
         _paymentRepository
             .GetFallbackPaymentMethodAsync(accountId, paymentToDelete.StripePaymentMethodId, Arg.Any<CancellationToken>())
             .Returns((PaymentMethodEntity?)null);
+        _shopRepository
+            .GetAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(shop);
 
         // Act
-        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
+        var result = await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId, shop.Id), CancellationToken.None);
 
         // Assert
         result.IsLastPaymentMethod.Should().BeTrue();
@@ -157,7 +168,7 @@ public class DeletePaymentCommandHandlerTests
             .Returns((PaymentMethodEntity?)null);
 
         // Act
-        var act = async () => await _handler.Handle(new DeletePaymentCommand(Guid.NewGuid(), "pm_missing"), CancellationToken.None);
+        var act = async () => await _handler.Handle(new DeletePaymentCommand(Guid.NewGuid(), "pm_missing", 23), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>()
@@ -185,7 +196,7 @@ public class DeletePaymentCommandHandlerTests
             .Returns(false);
 
         // Act
-        var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
+        var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId, 23), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>()
@@ -219,7 +230,7 @@ public class DeletePaymentCommandHandlerTests
             .Returns(fallback);
 
         // Act
-        var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId), CancellationToken.None);
+        var act = async () => await _handler.Handle(new DeletePaymentCommand(accountId, paymentToDelete.StripePaymentMethodId, 23), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<ValidationException>()
@@ -264,6 +275,20 @@ public class DeletePaymentCommandHandlerTests
             CardExpYear = DateTime.UtcNow.Year + 1,
             IsDefault = isDefault,
             IsActive = true
+        };
+    }
+
+    private static ShopEntity CreateShop()
+    {
+        return new ShopEntity
+        {
+            Id = 23,
+            Name = "Test Shop",
+            Email = "test@gmail.com",
+            IsActive = true,
+            PhoneNumber = "1234567890",
+            SubscriptionPlanId = 1,
+            Url = "http://testshop.com"
         };
     }
 }
