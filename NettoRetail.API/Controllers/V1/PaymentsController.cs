@@ -89,8 +89,9 @@ namespace NettoRetail.API.Controllers.V1
         public async Task<IActionResult> DeletePayment(string paymentMethodId, CancellationToken cancellationToken)
         {
             var userId = HttpContext.GetUserId();
+            var shopid = HttpContext.GetUserShopId();
 
-            var command = new DeletePaymentCommand(userId, paymentMethodId);
+            var command = new DeletePaymentCommand(userId, paymentMethodId, shopid);
 
             var response = await mediator.Send(command, cancellationToken);
 
