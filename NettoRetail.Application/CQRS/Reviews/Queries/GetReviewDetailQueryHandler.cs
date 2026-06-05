@@ -1,8 +1,8 @@
 ﻿using MapsterMapper;
 using MediatR;
 using NettoRetail.Application.Exceptions;
-using NettoRetail.DataAccess.Specifications.Reviews;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.DataAccess.Specifications.Reviews;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Reviews.Queries;
@@ -21,6 +21,5 @@ public class GetReviewDetailQueryHandler(IReviewRepository reviewRepository, IMa
         var reviewDetail = mapper.Map<ReviewDetailResponse>(review);
 
         return reviewDetail;
-
     }
 }

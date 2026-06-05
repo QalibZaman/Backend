@@ -24,5 +24,3 @@ public class ProductReviewEntity
     public Guid InventoryItemId { get; set; }
     public InventoryItemEntity InventoryItem { get; set; } = null!;
 }
-
-
