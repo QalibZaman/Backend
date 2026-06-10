@@ -76,7 +76,7 @@ public class UpdateTeaserSectionCommandHandler(
             return;
 
         var spec = new GetTeaserSectionByUrlExcludingCurrentSpecification(url, id);
-        if (await teaserSectionRepository.Exists(spec, cancellationToken))
+        if (await teaserSectionRepository.ExistsAsync(spec, cancellationToken))
             throw new ConflictException("Teaser section with such URL already exists");
     }
 }

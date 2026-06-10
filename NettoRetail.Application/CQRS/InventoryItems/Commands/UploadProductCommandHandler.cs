@@ -184,7 +184,7 @@ public class UpdateProductCommandHandler(
         {
             var brandSpec = new GetBrandByIdAndShopIdSpecification(model.BrandId.Value, shopId);
 
-            if (!await brandRepository.Exists(brandSpec, cancellationToken))
+            if (!await brandRepository.ExistsAsync(brandSpec, cancellationToken))
             {
                 throw new NotFoundException("The brand does not exist.");
             }
@@ -194,7 +194,7 @@ public class UpdateProductCommandHandler(
         {
             var categorySpec = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
 
-            if (!await categoryRepository.Exists(categorySpec, cancellationToken))
+            if (!await categoryRepository.ExistsAsync(categorySpec, cancellationToken))
             {
                 throw new NotFoundException("The category does not exist.");
             }

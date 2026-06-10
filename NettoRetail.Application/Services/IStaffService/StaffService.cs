@@ -121,7 +121,7 @@ public class StaffService(
             return;
 
         var emailConflictSpec = new GetStaffByEmailSpecification(request.Email);
-        var existingWithEmail = await accountRepository.Exists(emailConflictSpec, cancellationToken);
+        var existingWithEmail = await accountRepository.ExistsAsync(emailConflictSpec, cancellationToken);
         if (existingWithEmail)
             throw new ConflictException("Another account with this email already exists.");
 

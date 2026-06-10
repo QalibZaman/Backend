@@ -54,7 +54,7 @@ public class UpdateStaffCommandHandler(
         if (roleId != null)
         {
             var spec = new GetRoleByShopIdOrAdminIdSpecification(roleId, shopId);
-            var exists = await roleRepository.Exists(spec, cancellationToken);
+            var exists = await roleRepository.ExistsAsync(spec, cancellationToken);
 
             if (!exists)
                 throw new NotFoundException(ValidationErrorMessages.Role.RoleNotFoundErrorMessage);

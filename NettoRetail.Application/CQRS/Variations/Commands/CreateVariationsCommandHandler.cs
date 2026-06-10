@@ -55,7 +55,7 @@ public class CreateVariationsCommandHandler(IInventoryItemRepository inventoryIt
         {
             var spec = new GetProductByUpcSpecification(variation.ProductUpc);
 
-            if (await inventoryItemRepository.Exists(spec, cancellationToken))
+            if (await inventoryItemRepository.ExistsAsync(spec, cancellationToken))
                 throw new ConflictException($"This product UPC is already registered: {variation.ProductUpc}");
         }
     }

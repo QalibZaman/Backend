@@ -1001,6 +1001,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsOutOfStock")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsPromoted")
                         .HasColumnType("boolean");
 

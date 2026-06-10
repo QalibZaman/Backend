@@ -45,7 +45,7 @@ public class AddCategoryCommandHandler(
     private async Task ValidateCategoryUniquenessAsync(string name, string url, int shopId, CancellationToken cancellationToken)
     {
         var specification = new GetCategoriesByNameOrUrlSpecification(name, url, shopId);
-        var conflictExists = await categoryRepository.Exists(specification, cancellationToken);
+        var conflictExists = await categoryRepository.ExistsAsync(specification, cancellationToken);
 
         if (conflictExists)
             throw new ConflictException("Category with such name already exists");
@@ -77,7 +77,7 @@ public class AddCategoryCommandHandler(
 
     private async Task ValidateShopExistsAsync(int shopId, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(
+        var shopExists = await shopRepository.ExistsAsync(
             new GetShopByIdSpecification(shopId),
             cancellationToken);
 

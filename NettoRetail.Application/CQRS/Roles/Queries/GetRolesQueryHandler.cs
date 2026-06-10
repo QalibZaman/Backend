@@ -20,7 +20,7 @@ public class GetRolesQueryHandler(IRoleRepository roleRepository, IShopRepositor
 {
     public async Task<PaginatedResponse<RoleResponse>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        var shopExists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken);
         if (!shopExists)
         {
             throw new NotFoundException($"No shop with Id: {request.ShopId}");

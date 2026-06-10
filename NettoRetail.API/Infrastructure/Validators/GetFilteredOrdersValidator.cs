@@ -43,7 +43,7 @@ public partial class GetFilteredOrdersValidator : AbstractValidator<GetFilteredO
             r.RuleFor(v => v)
                 .EmailAddress()
                 .When(v => !string.IsNullOrWhiteSpace(v))
-                .WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+                .WithMessage(ValidationErrorMessages.Email.PatternErrorMessage);
         });
 
         RuleForEach(x => x.Creators).ChildRules(r =>

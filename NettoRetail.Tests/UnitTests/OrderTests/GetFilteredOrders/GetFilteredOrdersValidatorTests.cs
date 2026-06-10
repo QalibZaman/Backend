@@ -41,7 +41,7 @@ public class GetFilteredOrdersValidatorTests
 
         // Assert
         result.ShouldHaveAnyValidationError()
-            .WithErrorMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+            .WithErrorMessage(ValidationErrorMessages.Email.PatternErrorMessage);
     }
 
     [Fact]

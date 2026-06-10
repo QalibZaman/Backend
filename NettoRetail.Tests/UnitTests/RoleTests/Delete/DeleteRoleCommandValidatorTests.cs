@@ -29,7 +29,7 @@ public class DeleteRoleCommandValidatorTests
         //Arrange
         var command = new DeleteRoleCommand(2, 1);
         _shopRepository
-            .Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
         //Act
@@ -46,7 +46,7 @@ public class DeleteRoleCommandValidatorTests
         //Arrange
         var command = new DeleteRoleCommand(-23, 1);
         _shopRepository
-            .Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         //Act
@@ -62,10 +62,10 @@ public class DeleteRoleCommandValidatorTests
         //Arrange
         var command = new DeleteRoleCommand(2, 1);
         _shopRepository
-            .Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
         _staffReposirory
-            .Exists(Arg.Any<GetStaffByRoleIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetStaffByRoleIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         //Act
@@ -96,10 +96,10 @@ public class DeleteRoleCommandValidatorTests
         //Arrange
         var command = new DeleteRoleCommand(2, 1);
         _shopRepository
-            .Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
         _staffReposirory
-            .Exists(Arg.Any<GetStaffByRoleIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetStaffByRoleIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
         //Act

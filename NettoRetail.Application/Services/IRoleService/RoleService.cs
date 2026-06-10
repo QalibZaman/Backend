@@ -38,7 +38,7 @@ namespace NettoRetail.Application.Services.IRoleService
             model.Normalize();
 
             var emailSpec = new GetStaffByEmailSpecification(model.Email);
-            if (await accountRepository.Exists(emailSpec, cancellationToken))
+            if (await accountRepository.ExistsAsync(emailSpec, cancellationToken))
                 throw new ValidationException("Email is already in use");
 
             if (model.Permissions == null || !model.Permissions.Any())

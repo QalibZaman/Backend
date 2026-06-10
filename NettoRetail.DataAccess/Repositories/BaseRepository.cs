@@ -132,7 +132,7 @@ public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRep
         return await _dbSet.Where(specification.Criteria).CountAsync(cancellationToken);
     }
 
-    public async Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken)
+    public async Task<bool> ExistsAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         return await _dbSet.AnyAsync(specification.Criteria, cancellationToken);
     }

@@ -102,7 +102,7 @@ public class UpdateOffersSectionCommandHandler(
 
         foreach (var item in itemIds)
         {
-            if (!await inventoryItemRepository.Exists(new GetInventoryItemByIdAndShopIdSpecification(item, shopId), cancellationToken))
+            if (!await inventoryItemRepository.ExistsAsync(new GetInventoryItemByIdAndShopIdSpecification(item, shopId), cancellationToken))
                 throw new NotFoundException("This item is not in your shop.");
         }
     }

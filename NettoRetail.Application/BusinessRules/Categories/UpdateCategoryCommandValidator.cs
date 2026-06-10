@@ -44,7 +44,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategories
                         throw new BadRequestException("Category cannot be its own parent.");
                     }
 
-                    var parentExists = await categoryRepository.Exists(
+                    var parentExists = await categoryRepository.ExistsAsync(
                         new GetCategoryByIdAndShopIdSpecification(command.ParentId.Value, command.ShopId),
                         ct);
 

@@ -22,7 +22,7 @@ public class GetShopProductDetailsQueryHandler(
     public async Task<InventoryItemDetailsResponse> Handle(GetShopProductDetailsQuery request, CancellationToken cancellationToken)
     {
         var shopSpec = new GetShopByIdSpecification(request.ShopId);
-        var isShopExists = await shopRepository.Exists(shopSpec, cancellationToken);
+        var isShopExists = await shopRepository.ExistsAsync(shopSpec, cancellationToken);
         if (!isShopExists)
             throw new NotFoundException("There is no shop with such id.");
 

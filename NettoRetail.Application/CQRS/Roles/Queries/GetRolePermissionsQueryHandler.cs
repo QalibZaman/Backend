@@ -17,7 +17,7 @@ public class GetRolePermissionsQueryHandler(IRoleRepository roleRepository,
     {
         if (request.ShopId <= 0) throw new BadRequestException("Shop Id cant be 0 or negative");
 
-        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(request.ShopId), cancellationToken);
+        var shopExists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken);
         if (!shopExists) throw new NotFoundException($"No shop with Id: {request.ShopId}");
 
         var spec = new GetRolesByShopIdSpecification(request.ShopId);

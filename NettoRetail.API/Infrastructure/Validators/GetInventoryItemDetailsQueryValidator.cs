@@ -28,7 +28,7 @@ namespace NettoRetail.API.Infrastructure.Validators
         {
             var itemSpecification = new GetItemByIdSpecification(id);
 
-            var itemExists = await _inventoryItemRepository.Exists(itemSpecification, cancellationToken);
+            var itemExists = await _inventoryItemRepository.ExistsAsync(itemSpecification, cancellationToken);
 
             if (!itemExists)
             {

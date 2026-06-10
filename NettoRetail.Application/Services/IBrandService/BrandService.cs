@@ -62,16 +62,16 @@ public class BrandService(IShopRepository shopRepository, IBrandRepository brand
 
     public async Task EnsureBrandCanBeCreatedAsync(int shopId, string name, string? websiteUrl, CancellationToken cancellationToken)
     {
-        var shopExists = await shopRepository.Exists(new GetShopByIdSpecification(shopId), cancellationToken);
+        var shopExists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(shopId), cancellationToken);
 
         if (!shopExists)
             throw new BadRequestException($"Shop with id '{shopId}' does not exist.");
 
-        if (await brandRepository.Exists(new GetBrandsByNameSpecification(name), cancellationToken))
+        if (await brandRepository.ExistsAsync(new GetBrandsByNameSpecification(name), cancellationToken))
             throw new BadRequestException("Brand's name must be unique");
 
         if (websiteUrl != null &&
-            await brandRepository.Exists(new GetBrandsByWebsiteUrlSpecification(websiteUrl), cancellationToken))
+            await brandRepository.ExistsAsync(new GetBrandsByWebsiteUrlSpecification(websiteUrl), cancellationToken))
             throw new BadRequestException("Brand's website url must be unique");
     }
 

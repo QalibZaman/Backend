@@ -18,7 +18,7 @@ namespace NettoRetail.API.Controllers.V1
     [Route("/api/v{version:apiVersion}/[controller]")]
     public class PaymentsController(IMediator mediator) : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
         [HttpGet("history")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<PaymentHistoryResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -29,14 +29,7 @@ namespace NettoRetail.API.Controllers.V1
             [FromQuery] bool? sortDescending,
             CancellationToken cancellationToken)
         {
-            var roleId = HttpContext.GetRoleId().ToString();
-
-            if (roleId != SuperAdminConstants.SuperAdminRoleId)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
-
-            var query = new GetPaymentHistoryQuery(pageModel, accountId, sortDescending);
+            var query = new GetPaymentHistoryQuery(pageModel, accountId, sortDescending.GetValueOrDefault(true));
 
             var result = await mediator.Send(query, cancellationToken);
 

@@ -65,7 +65,7 @@ public class UpdateStaffServiceTests
 
         var userId = Guid.NewGuid();
 
-        _accountRepository.Exists(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.ExistsAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         await Assert.ThrowsAsync<ConflictException>(() =>

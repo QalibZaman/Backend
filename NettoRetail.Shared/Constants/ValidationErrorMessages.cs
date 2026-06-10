@@ -6,10 +6,7 @@ public static class ValidationErrorMessages
 
     public static class Common
     {
-        public const string EmailAlreadyExistsErrorMessage = "An account with this email already exists.";
-        public const string InvalidDateRangeErrorMessage = "Start date must be earlier than or equal to end date.";
-        public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
-        public const string InvalidEmailLengthErrorMessage = "Email must be no more than {0} characters.";
+        public const string InvalidDateRangeErrorMessage = "Start date must be before or equal to end date.";
     }
 
     public static class Inventory
@@ -164,6 +161,11 @@ public static class ValidationErrorMessages
         public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
     }
 
+    public static class Account
+    {
+        public const string AccountNotFoundErrorMessage = "There is no such account.";
+    }
+
     public static class Sort
     {
         public const string InvalidSortFieldErrorMessage = "Invalid sort field provided.";
@@ -199,7 +201,6 @@ public static class ValidationErrorMessages
 
     public static class Brand
     {
-
         public const string InvalidBrandNameErrorMessage = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
         public const string InvalidBrandDescriptionErrorMessage = "Brand description contains invalid characters";
     }
@@ -220,6 +221,7 @@ public static class ValidationErrorMessages
     {
         public const string TooLongErrorMessage = "Email must be no more than {0} characters.";
         public const string PatternErrorMessage = "Must be a valid email address like name@domain.com.";
+        public const string AlreadyExistsErrorMessage = "Another account with this email is already exists";
     }
 
     public static class Country

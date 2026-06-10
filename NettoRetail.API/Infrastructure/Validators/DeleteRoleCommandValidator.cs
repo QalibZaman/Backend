@@ -43,7 +43,7 @@ public class DeleteRoleCommandValidator : AbstractValidator<DeleteRoleCommand>
     private async Task ValidateAccount(int id, ValidationContext<DeleteRoleCommand> context, CancellationToken cancellationToken)
     {
         var accountExistsSpecification = new GetStaffByRoleIdSpecification(id);
-        var accountExists = await _accountRepository.Exists(accountExistsSpecification, cancellationToken);
+        var accountExists = await _accountRepository.ExistsAsync(accountExistsSpecification, cancellationToken);
         if (accountExists)
         {
             throw new ConflictException(ValidationErrorMessages.Role.RoleInUseErrorMessage);
@@ -52,7 +52,7 @@ public class DeleteRoleCommandValidator : AbstractValidator<DeleteRoleCommand>
 
     private async Task ValidateShop(int shopId, ValidationContext<DeleteRoleCommand> context, CancellationToken cancellationToken)
     {
-        var shopExists = await _shopRepository.Exists(new GetShopByIdSpecification(shopId), cancellationToken);
+        var shopExists = await _shopRepository.ExistsAsync(new GetShopByIdSpecification(shopId), cancellationToken);
         if (!shopExists)
         {
             throw new NotFoundException(string.Format(ValidationErrorMessages.Shop.ShopDoesntExistErrorMessage, shopId));
