@@ -78,7 +78,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
 
             //Assert
             result.ShouldHaveValidationErrorFor(x => x.ProductLocation)
-                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationRegex);
+                .WithErrorMessage(ValidationErrorMessages.Inventory.ProductLocationInvalidFormatMessage);
         }
 
         [Theory]
@@ -332,6 +332,7 @@ namespace NettoRetail.Tests.UnitTests.InventoryItemTests
             result.ShouldHaveValidationErrorFor(x => x.BrandName)
                 .WithErrorMessage(ValidationErrorMessages.Brand.InvalidBrandNameErrorMessage);
         }
+      
 
         [Fact]
         public void Validate_ShouldFail_WhenPageNumberIsLessThanOne()

@@ -53,7 +53,8 @@ public class CreateVariationsRequestValidator : AbstractValidator<CreateVariatio
         {
             RuleFor(x => x.ProductName)
                 .NotEmpty().WithMessage("Variation name is required.")
-                .Length(2, 50).WithMessage("Variation name must be between 2 and 50 characters.");
+                .Length(2, 50).WithMessage("Variation name must be between 2 and 50 characters.")
+                .Matches("^[a-zA-Z0-9_]+$").WithMessage("Variation name contains invalid characters.");
 
             RuleFor(x => x.ProductUpc)
                 .Matches("^\\d{12}$")

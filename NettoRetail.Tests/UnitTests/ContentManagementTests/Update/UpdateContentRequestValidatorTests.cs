@@ -26,13 +26,12 @@ public class UpdateContentRequestValidatorTests
     [Fact]
     public void Validator_Should_Fail_When_Content_Exceeds_Max_Length()
     {
-        var MaxContentLength = 50_000;
-        var model = new UpdateContentRequest { Content = new string('a', MaxContentLength + 1), IsVisible = true };
+        var model = new UpdateContentRequest { Content = new string('a', ValidationErrorMessages.Content.MaxContentLength + 1), IsVisible = true };
         
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Content)
-            .WithErrorMessage($"Content cannot exceed {MaxContentLength} characters.");
+            .WithErrorMessage($"Content cannot exceed {ValidationErrorMessages.Content.MaxContentLength} characters.");
         Assert.True(result.Errors.Count == 1);
     }
     [Fact]

@@ -77,6 +77,8 @@ public class ChangeDefaultPaymentCommandHandlerTests
         var account = GenerateAccount();
 
         var paymentMethod = GeneratePaymentMethodEntity(accountId, "pm_23223233223232323", account);
+        paymentMethod.CardExpYear = DateTime.UtcNow.Year + 1;
+        paymentMethod.CardExpMonth = DateTime.UtcNow.Month;
         account.PaymentMethods!.Add(paymentMethod);
 
         _paymentRepository
@@ -103,6 +105,11 @@ public class ChangeDefaultPaymentCommandHandlerTests
 
         var first = GeneratePaymentMethodEntity(accountId, "pm_232323223323232", account);
         var second = GeneratePaymentMethodEntity(accountId, "pm_23233232544554", account);
+        
+        first.CardExpYear = DateTime.UtcNow.Year + 1;
+        first.CardExpMonth = DateTime.UtcNow.Month;
+        second.CardExpYear = DateTime.UtcNow.Year + 1;
+        second.CardExpMonth = DateTime.UtcNow.Month;
 
         account.PaymentMethods!.Add(first);
         account.PaymentMethods!.Add(second);
@@ -150,6 +157,11 @@ public class ChangeDefaultPaymentCommandHandlerTests
         var first = GeneratePaymentMethodEntity(accountId, stripePaymentMethodId, account);
         var second = GeneratePaymentMethodEntity(accountId, stripePaymentMethodIdSecond, account);
 
+        first.CardExpYear = DateTime.UtcNow.Year + 1;
+        first.CardExpMonth = DateTime.UtcNow.Month;
+        second.CardExpYear = DateTime.UtcNow.Year + 1;
+        second.CardExpMonth = DateTime.UtcNow.Month;
+
         account.PaymentMethods!.Add(first);
         account.PaymentMethods!.Add(second);
 
@@ -179,7 +191,7 @@ public class ChangeDefaultPaymentCommandHandlerTests
         {
             AccountId = accountId,
             Account = account,
-            StripePaymentMethodId = stripePaymentMethodId,
+            StripePaymentMethodId = stripePaymentMethodId
         };
     }
 }

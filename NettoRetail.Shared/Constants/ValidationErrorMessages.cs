@@ -200,7 +200,7 @@ public static class ValidationErrorMessages
     public static class Brand
     {
 
-        public const string InvalidBrandNameErrorMessage = "Brand name must only contain letters, digits, spaces, '-' and '_'.";
+        public const string InvalidBrandNameErrorMessage = "Brand name must only contain letters, digits, '-' and '_'.";
         public const string InvalidBrandDescriptionErrorMessage = "Brand description contains invalid characters";
     }
 

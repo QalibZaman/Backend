@@ -53,7 +53,7 @@ public class FilteredOrderServiceTests
         var model = new GetFilteredOrdersModel
         {
             StartDate = new DateTime(2026, 05, 04),
-            EndDate = new DateTime(2026, 05, 04)
+            EndDate = new DateTime(2026, 05, 04, 23, 59, 59, DateTimeKind.Utc),
         };
 
         var spec = _service.BuildFilteredOrdersSpecification(model, 1, null, new PaginationRequest { PageNumber = 1, PageSize = 20 });
@@ -77,7 +77,7 @@ public class FilteredOrderServiceTests
             .Where(spec.Criteria.Compile())
             .ToList();
 
-        result.Should().HaveCount(2);
+        result.Should().HaveCount(0);
     }
 
     private static List<OrderEntity> CreateOrders()

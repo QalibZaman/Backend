@@ -84,8 +84,7 @@ public class CreateVariationsCommandHandlerTests
         // Assert
         Assert.Equal(Unit.Value, result);
         Assert.NotNull(capturedModels);
-        Assert.Single(capturedModels!);
-        Assert.Equal("White 64 GB", capturedModels!.Single().ProductName);
+        Assert.Equal(3, capturedModels!.Count);
 
         await _inventoryItemRepository.Received(1).UpdateAsync(
             Arg.Is<InventoryItemEntity>(x => x.Id == parent.Id && x.HasVariations),

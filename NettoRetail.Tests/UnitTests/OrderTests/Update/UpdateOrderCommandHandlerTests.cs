@@ -258,7 +258,7 @@ public class UpdateOrderCommandHandlerTests
         command.Model.DeliveryType = newDeliveryType;
         command.Model.ItemsToDelete = null;
         var order = CreateDefaultOrder(command.Model.CustomerId);
-        delivery.DeliveryType = OrderDeliveryTypeEnum.SelfDelivery;
+        order.Delivery = delivery;
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>())
             .Returns(order);
@@ -267,7 +267,7 @@ public class UpdateOrderCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        delivery.DeliveryType.Should().Be(newDeliveryType);
+        order.Delivery.DeliveryType.Should().Be(newDeliveryType);
         await _orderRepository.Received(1).UpdateAsync(order, Arg.Any<CancellationToken>());
 
         _unitOfWork.Received(1).BeginTransaction();

@@ -2,6 +2,7 @@ using FluentAssertions;
 using FluentValidation.TestHelper;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.Models.Order;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Tests.UnitTests.OrderTests.Filter;
 
@@ -14,7 +15,7 @@ public class GetFilteredOrdersValidatorTests
     {
         var model = new GetFilteredOrdersModel
         {
-            CustomerEmails = ["gmail.com"]
+            CustomerEmails = ["test@gmail.com"]
         };
 
         var result = _validator.TestValidate(model);
@@ -47,6 +48,6 @@ public class GetFilteredOrdersValidatorTests
 
         result.Errors.Should().ContainSingle(e =>
             e.PropertyName == "CustomerEmails[0]" &&
-            e.ErrorMessage == "Invalid email characters.");
+            e.ErrorMessage == ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
     }
 }

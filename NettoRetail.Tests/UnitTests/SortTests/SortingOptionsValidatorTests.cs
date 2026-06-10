@@ -24,6 +24,6 @@ public class SortingOptionsValidatorTests
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Field)
-            .WithErrorMessage(ValidationErrorMessages.Sort.SortingFieldRequiredMessage);
+            .WithErrorMessage(ValidationErrorMessages.Sort.InvalidSortFieldErrorMessage);
     }
 }

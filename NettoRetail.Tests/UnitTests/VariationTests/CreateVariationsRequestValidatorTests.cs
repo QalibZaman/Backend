@@ -1,6 +1,7 @@
 ﻿using FluentValidation.TestHelper;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.Models.Request.Variation;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace NettoRetail.Tests.UnitTests.VariationTests;
 
@@ -24,7 +25,7 @@ public class CreateVariationsRequestValidatorTests
         var result = _validator.TestValidate(model);
 
         result.ShouldHaveValidationErrorFor(x => x.Variations)
-            .WithErrorMessage("Variation UPCs must be unique within the request.");
+            .WithErrorMessage("Variation UPC values must be unique when provided."); 
     }
 
     [Fact]

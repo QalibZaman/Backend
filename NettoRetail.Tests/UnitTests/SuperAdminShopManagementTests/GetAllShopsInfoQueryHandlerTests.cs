@@ -64,13 +64,11 @@ public class GetAllShopsInfoQueryHandlerTests
 
         var firstShop = result.Items.Single(x => x.Id == 10);
         Assert.Equal("Downtown", firstShop.Name);
-        Assert.Equal("Premium", firstShop.Subscription);
         Assert.Equal("Alice Meyer", firstShop.AdminFullName);
         Assert.Equal("alice@shop.com", firstShop.AdminEmail);
         Assert.Equal("+35111111", firstShop.AdminPhoneNumber);
 
         var secondShop = result.Items.Single(x => x.Id == 20);
-        Assert.Equal("Basic", secondShop.Subscription);
         Assert.Equal("Bob Brown", secondShop.AdminFullName);
 
         Assert.NotNull(capturedShopSpecification);

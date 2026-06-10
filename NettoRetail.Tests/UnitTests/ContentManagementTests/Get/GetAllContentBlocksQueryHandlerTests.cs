@@ -100,7 +100,7 @@ public class GetAllContentBlocksQueryHandlerTests
                 Id = 1,
                 ShopId = shopId,
                 Content = "<p><br></p>",
-                IsVisible = true,
+                IsVisible = false,
                 LastUpdated = DateTime.UtcNow,
                 SectionType = SectionTypeEnum.OurStory,
                 UpdatedBy = "TestUser",

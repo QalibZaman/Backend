@@ -68,7 +68,7 @@ public class InventoryItemCsvValidator : AbstractValidator<InventoryItemCsvModel
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0)
-            .PrecisionScale(2, 18, true)
+            .PrecisionScale(18, 2, true)
             .WithMessage("Price must have up to 2 decimal places.");
 
         RuleFor(x => x.Status)

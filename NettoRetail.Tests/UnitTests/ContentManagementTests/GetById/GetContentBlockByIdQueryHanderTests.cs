@@ -93,7 +93,7 @@ public class GetContentBlockByIdQueryHanderTests
             Id = id,
             ShopId = shopId,
             Content = "<p><br></p>",
-            IsVisible = true,
+            IsVisible = false,
             LastUpdated = DateTime.UtcNow,
             SectionType = SectionTypeEnum.PrivacyPolicy,
             UpdatedBy = "TestUser",

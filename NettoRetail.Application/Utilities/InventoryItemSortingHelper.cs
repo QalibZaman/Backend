@@ -5,8 +5,12 @@ using NettoRetail.Domain.Entities;
 namespace NettoRetail.Application.Utilities;
 public static class InventoryItemSortingHelper
 {
-    public static Expression<Func<InventoryItemEntity, object>> GetSortingExpression(string fieldName) =>
-        fieldName.ToLower() switch
+    public static Expression<Func<InventoryItemEntity, object>> GetSortingExpression(string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(fieldName))
+            return item => item.Id;
+
+        return fieldName.Trim().ToLowerInvariant() switch
         {
             "productname" => item => item.ProductName,
             "productupc" => item => item.ProductUpc,
@@ -19,6 +23,7 @@ public static class InventoryItemSortingHelper
             "onhandamount" => item => item.OnHandAmount,
             "status" => item => item.Status,
             "lastupdateddate" => item => item.LastUpdatedDate,
-            _ => throw new BadRequestException($"Unknown sorting field: {fieldName}")
+            _ => item => item.Id
         };
+    }
 }

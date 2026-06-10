@@ -32,7 +32,7 @@ namespace NettoRetail.API.Infrastructure.Validators
 
             if (!itemExists)
             {
-                throw new NotFoundException(ValidationErrorMessages.Inventory.ItemNotFoundErrorMessage);
+                context.AddFailure(ValidationErrorMessages.Inventory.ItemNotFoundErrorMessage);
             }
         }
     }

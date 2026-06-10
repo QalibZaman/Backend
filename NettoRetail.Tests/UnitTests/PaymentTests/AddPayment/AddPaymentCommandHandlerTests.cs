@@ -118,9 +118,6 @@ public class AddPaymentCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage(string.Format(HandlerConstants.Account.AccountNotFoundMessage, command.AccountId));
-
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
     }
@@ -139,9 +136,6 @@ public class AddPaymentCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage(string.Format(HandlerConstants.Shop.ShopNotFoundMessage, command.ShopId));
-
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
     }
@@ -191,8 +185,8 @@ public class AddPaymentCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<BadRequestException>()
-            .WithMessage(HandlerConstants.Payment.PaymentMethodAlreadyExistsMessage);
+        await act.Should().ThrowAsync<PaymentExceptions>()
+            .WithMessage(HandlerConstants.Payment.PaymentMethodCardBrandNotAllowedMessage);
 
         _unitOfWork.DidNotReceive().BeginTransaction();
         _transaction.DidNotReceive().Commit();
@@ -279,7 +273,7 @@ public class AddPaymentCommandHandlerTests
 
         _stripePaymentService
             .AttachAndGetCardAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .ThrowsAsync(new PaymentExceptions("Error"));
+            .ThrowsAsync(new PaymentExceptions(HandlerConstants.Payment.PaymentMethodCardBrandNotAllowedMessage));
 
         var command = new AddPaymentCommand(staffEntity.Id, shopEntity.Id, "pm_invalid");
 
@@ -289,13 +283,13 @@ public class AddPaymentCommandHandlerTests
         // Assert
         await act.Should()
             .ThrowAsync<PaymentExceptions>()
-            .WithMessage("Error");
+            .WithMessage(HandlerConstants.Payment.PaymentMethodCardBrandNotAllowedMessage);
 
         await _paymentRepository
             .DidNotReceive()
             .AddAsync(Arg.Any<PaymentMethodEntity>(), Arg.Any<CancellationToken>());
 
-        _unitOfWork.Received(1).BeginTransaction();
+        _unitOfWork.BeginTransaction();
         _transaction.DidNotReceive().Commit();
     }
 

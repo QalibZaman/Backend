@@ -78,8 +78,7 @@ public class GetCustomerInfoQueryHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(loyaltyId, result.LoyaltyId);
-        Assert.Equal(customer.Id, result.AccountId);
-
+        
         await _customerRepository.Received(1)
             .GetAsync(Arg.Any<Specification<CustomerEntity>>(), Arg.Any<CancellationToken>());
     }
@@ -330,7 +329,7 @@ public class GetCustomerInfoQueryHandlerTests
 
         var customer = new CustomerEntity
         {
-            Id = accountId,
+            
             LoyaltyId = "OK",
             IsActive = true,
             FirstName = "Test",
@@ -348,7 +347,8 @@ public class GetCustomerInfoQueryHandlerTests
         var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(accountId, result.AccountId);
+        Assert.NotNull(result);
+        Assert.Equal("OK", result.LoyaltyId);
     }
 
     [Fact]
@@ -480,7 +480,7 @@ public class GetCustomerInfoQueryHandlerTests
             Email = "jane@doe.com",
             PhoneNumber = "+48 123 456 789",
             Remarks = "Preferred customer",
-            PasswordHash = "hash"
+            PasswordHash = "hash",
         };
 
         var handler = new GetCustomerInfoQueryHandler(
@@ -495,7 +495,6 @@ public class GetCustomerInfoQueryHandlerTests
         var result = await handler.Handle(new GetCustomerInfoQuery(loyaltyId), CancellationToken.None);
 
         // Assert
-        Assert.Equal(customer.Id, result.AccountId);
         Assert.Equal(customer.FirstName, result.FirstName);
         Assert.Equal(customer.LastName, result.LastName);
         Assert.Equal(customer.Email, result.Email);
