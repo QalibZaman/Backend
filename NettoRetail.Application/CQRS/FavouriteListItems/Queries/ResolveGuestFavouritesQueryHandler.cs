@@ -25,8 +25,6 @@ public sealed class ResolveGuestFavouritesQueryHandler(
             return new GetFavouriteResponse
             {
                 Items = Array.Empty<InventoryItemCardResponse>(),
-                AvailableItemCount = 0,
-                TotalPriceAvailable = 0m
             };
         }
 
@@ -42,19 +40,10 @@ public sealed class ResolveGuestFavouritesQueryHandler(
             .DistinctBy(ii => ii.Id)
             .ToList();
 
-        var items = mapper.Map<List<InventoryItemCardResponse>>(distinctItems);
-
-        var total = items
-            .Where(i => !i.IsOutOfStock)
-            .Select(i => i.PromotionPrice ?? i.Price)
-            .DefaultIfEmpty(0m)
-            .Sum();
-
+       
         return new GetFavouriteResponse
         {
-            Items = items,
-            AvailableItemCount = items.Count(i => !i.IsOutOfStock),
-            TotalPriceAvailable = total
+            Items = mapper.Map<List<InventoryItemCardResponse>>(distinctItems),
         };
     }
 }
