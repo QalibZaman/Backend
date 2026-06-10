@@ -30,20 +30,16 @@ public sealed class GetFavouriteListQueryHandler(
             .Select(x => x.InventoryItem!)
             .DistinctBy(ii => ii.Id)
             .ToList();
+        var availableItemCount = distinctItems.Count(ii => !ii.IsOutOfStock);
+        var totalPriceAvailable = distinctItems
+            .Where(ii => !ii.IsOutOfStock)
+            .Sum(ii => ii.Price);
 
         var items = mapper.Map<List<InventoryItemCardResponse>>(distinctItems);
 
-        var total = items
-            .Where(i => !i.IsOutOfStock)
-            .Select(i => i.PromotionPrice ?? i.Price)
-            .DefaultIfEmpty(0m)
-            .Sum();
-
         return new GetFavouriteResponse
         {
-            Items = items,
-            AvailableItemCount = items.Count(i => !i.IsOutOfStock),
-            TotalPriceAvailable = total
+            Items=mapper.Map<List<InventoryItemCardResponse>>(distinctItems),
         };
     }
 }

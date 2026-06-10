@@ -41,6 +41,7 @@ public class InventoryItemEntity
     public DateOnly? PromotionStartDate { get; set; }
     public DateOnly? PromotionEndDate { get; set; }
     public int IncomingAmount { get; set; }
+    public bool IsOutOfStock { get; set; }
 
     public void UpdateStatus()
     {
