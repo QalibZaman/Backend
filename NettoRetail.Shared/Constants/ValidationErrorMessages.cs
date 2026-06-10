@@ -16,7 +16,7 @@ public static class ValidationErrorMessages
         public const int ProductNameMinLength = 2;
         public const int ProductNameMaxLength = 50;
 
-        public const string ProductNameRegex = @"^[a-zA-Z0-9_\- ]+$";
+        public const string ProductNameRegex = @"^[a-zA-Z0-9_\-]+$";
         public const string UpcCodeRegex = @"^\d{12}$";
         public const string ProductLocationRegex = @"^(?! )[a-zA-Z0-9,\- ]*(?<! )$";
 
@@ -24,7 +24,7 @@ public static class ValidationErrorMessages
         public const string IsRequired = "Product name is required";
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
-        public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
+        public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, '-' and '_'.";
         public const string UpcNotEmpty = "Product UPC is required.";
         public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
         public const string UpcNotEmptyErrorMessage = UpcNotEmpty;
