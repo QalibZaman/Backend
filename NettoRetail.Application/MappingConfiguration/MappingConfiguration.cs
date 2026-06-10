@@ -25,6 +25,7 @@ using NettoRetail.Domain.Entities.JunctionEntities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Response.AdminProductReview;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -440,5 +441,13 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.VariantInfo, src => src.VariantInfo)
             .Map(dest => dest.PhotoUrls, src => src.PhotoUrls)
             .Map(dest => dest.ReviewText, src => src.ReviewText);
-     }
+
+        config.NewConfig<ProductReviewEntity, AdminProductReviewResponse>()
+            .Map(dest => dest.Rating, src => src.Rating)
+            .Map(dest => dest.CustomerName, src => src.Customer.FullName)
+            .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
+            .Map(dest => dest.DateSubmitted, src => src.DateSubmitted)
+            .Map(dest => dest.ReviewText, src => src.ReviewText == null ? (char?)null : src.ReviewText[50])
+            .Map(dest => dest.ReviewStatus, src => src.ReviewStatus);
+    }
 }
