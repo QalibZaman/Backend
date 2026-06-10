@@ -22,7 +22,7 @@ public class DeleteBrandCommandHandler(IBrandRepository brandRepository,
 
         var itemsSpecification = new GetInventoryItemByBrandIdSpecification(request.Id);
 
-        var associatedItemsExists = await inventoryItemRepository.Exists(itemsSpecification, cancellationToken);
+        var associatedItemsExists = await inventoryItemRepository.ExistsAsync(itemsSpecification, cancellationToken);
         if (associatedItemsExists)
             throw new ConflictException("Cannot delete brand because associated inventory items exist");
 

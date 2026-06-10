@@ -39,7 +39,7 @@ public class GetShopProductDetailsQueryHandlerTests
         var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+        _shopRepo.ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
         // Act & Assert
@@ -56,7 +56,7 @@ public class GetShopProductDetailsQueryHandlerTests
         var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+        _shopRepo.ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
@@ -100,7 +100,7 @@ public class GetShopProductDetailsQueryHandlerTests
         var handler = new GetShopProductDetailsQueryHandler(_shopRepo, _itemsRepo, _categoryRepo, _inventoryService);
         var query = new GetShopProductDetailsQuery(shopId, productId);
 
-        _shopRepo.Exists(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
+        _shopRepo.ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         _itemsRepo.GetAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())

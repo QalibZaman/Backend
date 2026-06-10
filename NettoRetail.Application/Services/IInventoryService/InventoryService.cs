@@ -160,7 +160,7 @@ public class InventoryService(
     private async Task ValidateCategoryExists(int categoryId, int shopId, CancellationToken ct)
     {
         var spec = new GetCategoryByIdAndShopIdSpecification(categoryId, shopId);
-        if (!await categoryRepository.Exists(spec, ct))
+        if (!await categoryRepository.ExistsAsync(spec, ct))
             throw new NotFoundException("There is no category with such id.");
     }
     public async Task<bool> AreAllItemsBelongToShopAsync(int shopId, IEnumerable<Guid> inventoryItemsIds, CancellationToken cancellationToken)
@@ -298,7 +298,7 @@ public class InventoryService(
     private async Task ValidateBrandExists(int brandId, int shopId, CancellationToken ct)
     {
         var spec = new GetBrandByIdAndShopIdSpecification(brandId, shopId);
-        if (!await brandRepository.Exists(spec, ct))
+        if (!await brandRepository.ExistsAsync(spec, ct))
             throw new NotFoundException("There is no brand with such id.");
     }
 
@@ -307,7 +307,7 @@ public class InventoryService(
         if (!string.IsNullOrWhiteSpace(model.ProductUpc) && inventoryItem.ProductUpc != model.ProductUpc)
         {
             var spec = new GetProductByUpcSpecification(model.ProductUpc);
-            if (await inventoryItemRepository.Exists(spec, cancellationToken))
+            if (await inventoryItemRepository.ExistsAsync(spec, cancellationToken))
                 throw new ConflictException("This product UPC is already registered.");
         }
     }
@@ -317,7 +317,7 @@ public class InventoryService(
         if (model.CategoryId is null) return;
 
         var spec = new GetCategoryByIdAndShopIdSpecification(model.CategoryId.Value, shopId);
-        if (!await categoryRepository.Exists(spec, cancellationToken))
+        if (!await categoryRepository.ExistsAsync(spec, cancellationToken))
             throw new NotFoundException("There is no category with such id.");
     }
     private async Task ValidateBrand(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)
@@ -325,7 +325,7 @@ public class InventoryService(
         if (model.BrandId is null) return;
 
         var spec = new GetBrandByIdAndShopIdSpecification(model.BrandId.Value, shopId);
-        if (!await brandRepository.Exists(spec, cancellationToken))
+        if (!await brandRepository.ExistsAsync(spec, cancellationToken))
             throw new NotFoundException("There is no brand with such id.");
     }
     private void ValidatePromotionPrice(UpdateInventoryItemModel model, int shopId, Guid id, InventoryItemEntity inventoryItem, CancellationToken cancellationToken)

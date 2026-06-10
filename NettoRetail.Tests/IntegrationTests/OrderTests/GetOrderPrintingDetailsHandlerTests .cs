@@ -194,7 +194,7 @@ public class GetOrderPrintingDetailsHandlerTests : IClassFixture<CustomWebApplic
         public Task<IEnumerable<OrderEntity>> GetAllBySpecAsync(Specification<OrderEntity> specification,
             CancellationToken cancellationToken) => throw new NotImplementedException();
 
-        public Task<bool> Exists(Specification<OrderEntity> specification, CancellationToken cancellationToken) =>
+        public Task<bool> ExistsAsync(Specification<OrderEntity> specification, CancellationToken cancellationToken) =>
             throw new NotImplementedException();
 
         public Task AddRangeAsync(IEnumerable<OrderEntity> entities, CancellationToken cancellationToken) =>

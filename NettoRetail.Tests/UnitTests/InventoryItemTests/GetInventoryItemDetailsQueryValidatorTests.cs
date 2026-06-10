@@ -1,6 +1,7 @@
 ﻿using FluentValidation.TestHelper;
 using NettoRetail.API.Infrastructure.Validators;
 using NettoRetail.Application.CQRS.InventoryItems.Queries;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Inventory;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -23,7 +24,7 @@ public class GetInventoryItemDetailsQueryValidatorTests
     {
         var query = new GetInventoryItemDetailsQuery(Guid.NewGuid());
 
-        _inventoryItemRepository.Exists(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
+        _inventoryItemRepository.ExistsAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
 
         var result = await _validator.TestValidateAsync(query);
 
@@ -37,12 +38,9 @@ public class GetInventoryItemDetailsQueryValidatorTests
     {
         var query = new GetInventoryItemDetailsQuery(Guid.NewGuid());
 
-        _inventoryItemRepository.Exists(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository.ExistsAsync(Arg.Any<GetItemByIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
-        var result = await _validator.TestValidateAsync(query);
-        Assert.False(result.IsValid);
-        result.ShouldHaveValidationErrorFor(x => x.Id)
-            .WithErrorMessage(ValidationErrorMessages.Inventory.ItemNotFoundErrorMessage);
+        await Assert.ThrowsAsync<NotFoundException>(() => _validator.TestValidateAsync(query));
     }
 }

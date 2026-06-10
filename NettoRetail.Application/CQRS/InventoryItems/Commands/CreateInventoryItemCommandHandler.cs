@@ -42,7 +42,7 @@ public class CreateInventoryItemCommandHandler(
     public async Task<(string CategoryName, string BrandName)> CheckForConflictsAsync(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var productByUpcSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
-        var productExists = await inventoryItemRepository.Exists(productByUpcSpecification, cancellationToken);
+        var productExists = await inventoryItemRepository.ExistsAsync(productByUpcSpecification, cancellationToken);
 
         if (productExists)
             throw new ConflictException("This product UPC is already registered.");

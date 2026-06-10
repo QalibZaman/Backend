@@ -35,8 +35,8 @@ public class GetFilteredStaffRequestValidator : AbstractValidator<GetFilteredSta
             .Matches(@"^\S.*\S$|^\S$").WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage);
 
         RuleFor(x => x.Email)
-            .MaximumLength(EmailMaxLength).WithMessage(string.Format(ValidationErrorMessages.Common.InvalidEmailLengthErrorMessage, EmailMaxLength))
-            .EmailAddress().WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+            .MaximumLength(EmailMaxLength).WithMessage(string.Format(ValidationErrorMessages.Email.TooLongErrorMessage, EmailMaxLength))
+            .EmailAddress().WithMessage(ValidationErrorMessages.Email.PatternErrorMessage);
 
         RuleFor(x => x.Status)
             .MustBeAValidAccountStatus().WithMessage(ValidationErrorMessages.Staff.InvalidStatusErrorMessage);

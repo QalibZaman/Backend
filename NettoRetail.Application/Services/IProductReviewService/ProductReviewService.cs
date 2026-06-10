@@ -27,12 +27,12 @@ namespace NettoRetail.Application.Services.IProductReviewService
             ?? throw new NotFoundException("Product not found.");
 
             var hasCustomerReviewedProductSpecification = new HasCustomerReviewedProductSpecification(customerId, inventoryItemId);
-            var alreadyReviewed = await productReviewRepository.Exists(hasCustomerReviewedProductSpecification, cancellationToken);
+            var alreadyReviewed = await productReviewRepository.ExistsAsync(hasCustomerReviewedProductSpecification, cancellationToken);
             if (alreadyReviewed)
                 throw new ConflictException("You have already reviewed this product.");
 
             var isVerifiedPurchaseSpecification = new IsVerifiedPurchaseSpecification(customerId, inventoryItemId);
-            var isVerifiedPurchase = await orderRepository.Exists(isVerifiedPurchaseSpecification, cancellationToken);
+            var isVerifiedPurchase = await orderRepository.ExistsAsync(isVerifiedPurchaseSpecification, cancellationToken);
 
             if (!isVerifiedPurchase)
                 throw new BadRequestException("You can only review products you have purchased.");

@@ -67,7 +67,7 @@ public class CreateCurrentDeliveryCommandHandler(
 
     private async Task EnsureCustomerExistsAsync(Guid customerId, CancellationToken cancellationToken)
     {
-        var exists = await customerRepository.Exists(new GetCustomerByIdSpecification(customerId), cancellationToken);
+        var exists = await customerRepository.ExistsAsync(new GetCustomerByIdSpecification(customerId), cancellationToken);
         if (!exists)
         {
             throw new NotFoundException(ValidationErrorMessages.Customer.CustomerNotFoundErrorMessage);

@@ -20,14 +20,14 @@ public class AddToFavouriteListCommandHandler(
     public async Task<AddToFavouritesResponse> Handle(AddToFavouriteListCommand request, CancellationToken cancellationToken)
     {
         var inventoryItemSpec = new GetInventoryItemByIdSpecification(request.InventoryItemId);
-        var inventoryItemExists = await inventoryItemRepository.Exists(inventoryItemSpec, cancellationToken);
+        var inventoryItemExists = await inventoryItemRepository.ExistsAsync(inventoryItemSpec, cancellationToken);
         if (!inventoryItemExists)
         {
             throw new NotFoundException($"No inventory item with Id: {request.InventoryItemId}");
         }
 
         var favouriteListItemSpec = new GetFavouriteListItemByAccountAndItemId(request.UserId, request.InventoryItemId);
-        var favouriteItemExists = await favouriteListItemRepository.Exists(favouriteListItemSpec, cancellationToken);
+        var favouriteItemExists = await favouriteListItemRepository.ExistsAsync(favouriteListItemSpec, cancellationToken);
         if (favouriteItemExists)
         {
             throw new BadRequestException("Item is already in favourites");

@@ -53,7 +53,7 @@ public class CreateCustomerCommandHandler(
         }
 
         var emailSpecification = new GetCustomerByEmailSpecification(request.Model.Email);
-        var account = await customerRepository.Exists(emailSpecification, cancellationToken);
+        var account = await customerRepository.ExistsAsync(emailSpecification, cancellationToken);
 
         if (account)
         {
@@ -95,7 +95,7 @@ public class CreateCustomerCommandHandler(
         var loyaltyId = UserUtility.GenerateLoyaltyId();
 
         var specification = new GetCustomerByLoyaltyIdSpecification(loyaltyId);
-        var exists = await customerRepository.Exists(specification, cancellationToken);
+        var exists = await customerRepository.ExistsAsync(specification, cancellationToken);
 
         if (exists)
         {

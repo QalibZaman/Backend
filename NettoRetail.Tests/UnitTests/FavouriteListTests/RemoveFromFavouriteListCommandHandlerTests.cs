@@ -24,7 +24,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new RemoveFromFavouriteListCommandHandler(_repo);
             var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _repo.Exists(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
+            _repo.ExistsAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(true);
 
             // Act
@@ -43,7 +43,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new RemoveFromFavouriteListCommandHandler(_repo);
             var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _repo.Exists(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
+            _repo.ExistsAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(false);
 
             // Act
@@ -65,14 +65,14 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var cts = new CancellationTokenSource();
             var command = new RemoveFromFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _repo.Exists(Arg.Any<Specification<FavouriteListItemEntity>>(), cts.Token)
+            _repo.ExistsAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), cts.Token)
                 .Returns(true);
 
             // Act
             await handler.Handle(command, cts.Token);
 
             // Assert
-            await _repo.Received(1).Exists(Arg.Any<Specification<FavouriteListItemEntity>>(), cts.Token);
+            await _repo.Received(1).ExistsAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), cts.Token);
             await _repo.Received(1).DeleteAsync(Arg.Any<Specification<FavouriteListItemEntity>>(), cts.Token);
         }
     }

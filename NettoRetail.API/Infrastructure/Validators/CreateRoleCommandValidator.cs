@@ -46,14 +46,14 @@ public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
 
     private async Task ValidateShopExistence(int shopId, ValidationContext<CreateRoleCommand> context, CancellationToken cancellationToken)
     {
-        var shopExists = await _shopRepository.Exists(new GetShopByIdSpecification(shopId), cancellationToken);
+        var shopExists = await _shopRepository.ExistsAsync(new GetShopByIdSpecification(shopId), cancellationToken);
         if (!shopExists)
             throw new NotFoundException(string.Format(ValidationErrorMessages.Shop.ShopDoesntExistErrorMessage, shopId));
     }
 
     private async Task ValidateRoleNameUniqueness(CreateRoleCommand command, ValidationContext<CreateRoleCommand> context, CancellationToken cancellationToken)
     {
-        var roleExists = await _roleRepository.Exists(new GetRoleByNameAndShopIdSpecification(command.Model.Name, command.ShopId), cancellationToken);
+        var roleExists = await _roleRepository.ExistsAsync(new GetRoleByNameAndShopIdSpecification(command.Model.Name, command.ShopId), cancellationToken);
         if (roleExists)
             throw new ConflictException(ValidationErrorMessages.Role.RoleExistsErrorMessage);
     }

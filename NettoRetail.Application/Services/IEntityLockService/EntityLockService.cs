@@ -49,7 +49,7 @@ public class EntityLockService(
                     entityType: typeof(RoleEntity),
                     ttl: LockConstants.RoleTtl,
                     existsFunc: (resourceId, shopId, ct) =>
-                        roleRepository.Exists(new GetRoleByIdandShopIdSpecification(int.Parse(resourceId), shopId), ct))
+                        roleRepository.ExistsAsync(new GetRoleByIdandShopIdSpecification(int.Parse(resourceId), shopId), ct))
             }
 
             // Example

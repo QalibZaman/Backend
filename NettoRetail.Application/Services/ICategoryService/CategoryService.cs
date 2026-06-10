@@ -59,7 +59,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ILogger<Cat
             ?? throw new NotFoundException($"There is no category with Id: {id}");
 
         var conflictModelSpecification = new GetCategoriesOfParentByIdSpecification(id);
-        var subcategoryExists = await categoryRepository.Exists(conflictModelSpecification, cancellationToken);
+        var subcategoryExists = await categoryRepository.ExistsAsync(conflictModelSpecification, cancellationToken);
 
         if (subcategoryExists)
         {

@@ -237,7 +237,7 @@ namespace NettoRetail.Tests.UnitTests
             var blobService = Substitute.For<IAzureBlobService>();
             var inventoryItemId = Guid.NewGuid();
 
-            inventoryRepo.Exists(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            inventoryRepo.ExistsAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(false);
 
             var handler = new AddInventoryItemBannerCommandHandler(bannerRepo, inventoryRepo, blobService);
@@ -670,7 +670,7 @@ namespace NettoRetail.Tests.UnitTests
         private static IInventoryItemRepository CreateInventoryItemRepository()
         {
             var inventoryRepo = Substitute.For<IInventoryItemRepository>();
-            inventoryRepo.Exists(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
+            inventoryRepo.ExistsAsync(Arg.Any<Specification<InventoryItemEntity>>(), Arg.Any<CancellationToken>())
                 .Returns(true);
             return inventoryRepo;
         }

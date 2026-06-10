@@ -25,7 +25,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
         RuleFor(x => x.ShopId)
             .CustomAsync(async (shopId, context, ct) =>
             {
-                var exists = await shopRepository.Exists(new GetShopByIdSpecification(shopId), ct);
+                var exists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(shopId), ct);
 
                 if (!exists)
                     throw new NotFoundException($"Shop with id {shopId} does not exist.");
@@ -35,7 +35,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
         RuleFor(x => x)
             .CustomAsync(async (command, context, ct) =>
             {
-                var exists = await roleRepository.Exists(
+                var exists = await roleRepository.ExistsAsync(
                     new GetRoleByIdAndShopIdSpecification(
                         command.Id,
                         command.ShopId),
@@ -49,7 +49,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
         RuleFor(x => x)
             .CustomAsync(async (command, context, ct) =>
             {
-                var exists = await roleRepository.Exists(
+                var exists = await roleRepository.ExistsAsync(
                     new GetRoleByNameExcludingCurrentSpecification(
                         command.Model.Name,
                         command.Id,

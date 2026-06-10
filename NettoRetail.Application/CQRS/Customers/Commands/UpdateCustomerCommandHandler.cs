@@ -112,7 +112,7 @@ public class UpdateCustomerCommandHandler(
         var specification = new GetCustomerByEmailSpecification(email);
         var existing = await customerRepository.GetAsync(specification, cancellationToken);
         if (existing is not null && existing.Id != customerId)
-            throw new ConflictException(ValidationErrorMessages.Common.EmailAlreadyExistsErrorMessage);
+            throw new ConflictException(ValidationErrorMessages.Email.AlreadyExistsErrorMessage);
     }
 
     private async Task ApplyActiveStatusChangeAsync(CustomerEntity customer, bool isActive, CancellationToken cancellationToken)

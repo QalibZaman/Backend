@@ -54,7 +54,7 @@ public class UpdateStaffCommandHandlerTests
             .Returns(staff);
 
         _roleRepository
-            .Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         var command = BuildCommand(staffId, shopid, roleId);
@@ -80,7 +80,7 @@ public class UpdateStaffCommandHandlerTests
             .Returns(staffFromAnotherShop);
 
         _roleRepository
-            .Exists(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
+            .ExistsAsync(Arg.Any<GetRoleByShopIdOrAdminIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
 
         // Act
