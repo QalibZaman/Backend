@@ -89,6 +89,7 @@ public static class ValidationErrorMessages
         public const int DescriptionMaxLength = 500;
 
         public const string CannotDeleteAdminRoleErrorMessage = "The admin role cannot be deleted.";
+        public const string CannotEditAdminRoleErrorMessage = "The admin role cannot be edited.";
         public const string RoleInUseErrorMessage = "Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.";
         public const string RoleExistsErrorMessage = "Role with such name already exists in your shop";
         public const string RoleNotFoundErrorMessage = "There is no such role with this Id";
@@ -106,6 +107,8 @@ public static class ValidationErrorMessages
         public const string PermissionListUniqueIdsErrorMessage = "Permission IDs must be unique.";
         public const string PermissionsListNullErrorMessage = "Permissions list cannot be null";
         public const string PermissionsListEmptyErrorMessage = "At least one permission must be enabled";
+        
+        
     }
 
     public static class Shop

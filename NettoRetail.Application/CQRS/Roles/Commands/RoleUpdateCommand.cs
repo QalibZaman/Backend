@@ -15,11 +15,11 @@ public class RoleUpdateCommandHandler(IRoleRepository roleRepository, IMapper ma
     public async Task<Unit> Handle(RoleUpdateCommand request, CancellationToken cancellationToken)
     {
         if (request.Id == RoleConstants.Admin)
-            throw new ConflictException("The admin role cannot be edited.");
+            throw new ConflictException(ValidationErrorMessages.Role.CannotEditAdminRoleErrorMessage);
 
         var spec = new GetRoleByIdAndShopIdSpecification(request.Id, request.ShopId);
         var role = await roleRepository.GetAsync(spec, cancellationToken)
-            ?? throw new NotFoundException("Role not found.");
+            ?? throw new NotFoundException(ValidationErrorMessages.Role.RoleNotFoundErrorMessage);
 
         var permissionsIds = request.Model.PermissionIds?.Distinct().ToArray() ?? [];
 
