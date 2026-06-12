@@ -93,7 +93,9 @@ public static class ValidationErrorMessages
         public const string RoleInUseErrorMessage = "Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.";
         public const string RoleExistsErrorMessage = "Role with such name already exists in your shop";
         public const string RoleNotFoundErrorMessage = "There is no such role with this Id";
-
+        public const string RoleNotFoundWithShopIdErrorMessage =
+            "Role with Id {0} and ShopId {1} does not exist.";
+            
         public const string NameLengthErrorMessage = "Role name length must be more than 2 and  less than 50 characters long.";
         public const string NameAllowedCharactersRegex = "Role name must only contain letters, digits, '-' and '_'.";
         public const string NameAllowedCharactersPattern = @"^[a-zA-Z0-9-_]*$";
@@ -107,8 +109,8 @@ public static class ValidationErrorMessages
         public const string PermissionListUniqueIdsErrorMessage = "Permission IDs must be unique.";
         public const string PermissionsListNullErrorMessage = "Permissions list cannot be null";
         public const string PermissionsListEmptyErrorMessage = "At least one permission must be enabled";
-        
-        
+
+        public const string CannotAssignSystemPermissionErrorMessage = "System permissions cannot be assigned";
     }
 
     public static class Shop
