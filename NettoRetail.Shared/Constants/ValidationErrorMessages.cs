@@ -6,7 +6,14 @@ public static class ValidationErrorMessages
 
     public static class Common
     {
-        public const string InvalidDateRangeErrorMessage = "Start date must be before or equal to end date.";
+        public const string InvalidDateRangeErrorMessage = "Start date must be earlier than or equal to end date.";
+    }
+
+    public static class Account
+    {
+        public const string FirstNameRequiredErrorMessage = "First name is required";
+        public const string LastNameRequiredErrorMessage = "Last name is required";
+        public const string AccountNotFoundErrorMessage = "There is no such account.";
     }
 
     public static class Inventory
@@ -49,7 +56,6 @@ public static class ValidationErrorMessages
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
     }
-    
 
     public static class Password
     {
@@ -159,11 +165,7 @@ public static class ValidationErrorMessages
         public const string InvalidStatusErrorMessage = "Invalid status value provided.";
         public const string AtLeastOneFieldErrorMessage = "At least one field must be provided to update.";
         public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
-    }
-
-    public static class Account
-    {
-        public const string AccountNotFoundErrorMessage = "There is no such account.";
+        public const string CannotEditDeactivatedStaffMemberErrorMessage = "You cannot edit a deactivated staff member unless you are reactivating them.";
     }
 
     public static class Sort
@@ -197,6 +199,11 @@ public static class ValidationErrorMessages
 
         public const string RoleRequired = "Role is required.";
         public const string RoleInvalid = "Role must be a valid role id.";
+
+        public const string InvalidRoleIdFormatMessage = "Row {0}: Invalid role ID format.";
+        public const string AccountWithEmailAlreadyExistsMessage = "Row {0}: Account with email '{1}' already exists.";
+        public const string RoleWithIdNotFoundMessage = "Row {0}: Role with id '{1}' was not found.";
+
     }
 
     public static class Brand
@@ -219,6 +226,7 @@ public static class ValidationErrorMessages
 
     public static class Email
     {
+        public const string EmailRequiredErrorMessage = "Email is required.";
         public const string TooLongErrorMessage = "Email must be no more than {0} characters.";
         public const string PatternErrorMessage = "Must be a valid email address like name@domain.com.";
         public const string AlreadyExistsErrorMessage = "Another account with this email is already exists";
