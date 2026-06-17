@@ -11,5 +11,6 @@ public class GetProductReviewsByInventoryItemIdSpecificationWithPagination : Spe
     {
         Skip = skip;
         Take = take;
+        AddOrderByDescending(x => x.DateSubmitted);
     }
 }

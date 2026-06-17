@@ -23,13 +23,13 @@ public class AdminProductReviewController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<PaginatedResponse<ProductReviewEntity>>> GetProductReviews(
+    public async Task<IActionResult> GetProductReviews(
         [FromQuery] PaginationRequest pagination,
         Guid inventoryItemId,
         CancellationToken cancellationToken)
     {
         var query = new GetProductReviewsQuery(pagination, inventoryItemId);
         var response = await mediator.Send(query, cancellationToken);
-        return Ok(response);
+        return Ok(new ApiResponse<PaginatedResponse<AdminProductReviewResponse>>(response));
     }
 }

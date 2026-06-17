@@ -447,7 +447,7 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.CustomerName, src => src.Customer.FullName)
             .Map(dest => dest.ProductName, src => src.InventoryItem.ProductName)
             .Map(dest => dest.DateSubmitted, src => src.DateSubmitted)
-            .Map(dest => dest.ReviewText, src => src.ReviewText == null ? (char?)null : src.ReviewText[50])
+            .Map(dest => dest.ReviewText, src => src.ReviewText != null && src.ReviewText.Length >= 50 ? src.ReviewText.Substring(0, 50) : src.ReviewText)
             .Map(dest => dest.ReviewStatus, src => src.ReviewStatus);
     }
 }

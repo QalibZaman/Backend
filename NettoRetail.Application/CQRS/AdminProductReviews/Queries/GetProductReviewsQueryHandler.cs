@@ -15,8 +15,7 @@ public class GetProductReviewsQueryHandler(IProductReviewRepository productRevie
    public async Task<PaginatedResponse<AdminProductReviewResponse>> Handle(GetProductReviewsQuery request, CancellationToken cancellationToken)
    {
       var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
-      var specs = new GetProductReviewsByInventoryItemIdSpecificationWithPagination(request.InventoryItemId, skip, request.Model.PageSize)
-         .AddOrderByDescending(x => x.DateSubmitted);
+      var specs = new GetProductReviewsByInventoryItemIdSpecificationWithPagination(request.InventoryItemId, skip, request.Model.PageSize);
       var (items, totalCount) = await productReviewRepository.GetAllPaginatedAsync(specs, cancellationToken);
       var productReviews = mapper.Map<ICollection<AdminProductReviewResponse>>(items);
       return new PaginatedResponse<AdminProductReviewResponse>()
