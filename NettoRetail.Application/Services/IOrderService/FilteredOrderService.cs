@@ -37,7 +37,7 @@ public class FilteredOrderService : IFilteredOrderService
         ApplyDateFilter(builder, model.StartDate, model.EndDate);
         ApplyEnumFilters(builder, model);
 
-        if (string.IsNullOrEmpty(searchTerm))
+        if (!string.IsNullOrEmpty(searchTerm))
             builder.Add<GetOrderSearchSpecification>(searchTerm);
 
         ApplySorting(builder, model.SortingOptions);
