@@ -1134,18 +1134,18 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("ItemId")
+                    b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("InventoryItemId")
+                    b.Property<Guid>("ItemId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.HasKey("OrderId", "ItemId");
+                    b.HasKey("OrderId", "InventoryItemId");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("InventoryItemId");
 
                     b.ToTable("Order_Item", (string)null);
                 });
@@ -2446,7 +2446,7 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
                         .WithMany("OrderItems")
-                        .HasForeignKey("ItemId")
+                        .HasForeignKey("InventoryItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

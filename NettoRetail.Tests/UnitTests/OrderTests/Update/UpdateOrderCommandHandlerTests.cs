@@ -185,7 +185,7 @@ public class UpdateOrderCommandHandlerTests
             }, 10, Guid.NewGuid(), 100);
 
         var order = CreateDefaultOrder(command.Model.CustomerId);
-        order.OrderItems.Add(new OrderItemEntity { ItemId = itemId, Quantity = 4 });
+        order.OrderItems.Add(new OrderItemEntity { InventoryItemId = itemId, Quantity = 4 });
         var stockItem = CreateDefaultInventoryItem(itemId, command.ShopId);
         stockItem.AvailableAmount = 100;
         stockItem.ReservedAmount = 10;
@@ -221,7 +221,7 @@ public class UpdateOrderCommandHandlerTests
             10, Guid.NewGuid(), 100);
 
         var order = CreateDefaultOrder(Guid.NewGuid());
-        order.OrderItems.Add(new OrderItemEntity { ItemId = itemId, Quantity = 5 });
+        order.OrderItems.Add(new OrderItemEntity { InventoryItemId = itemId, Quantity = 5 });
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>()).Returns(order);
 
@@ -233,7 +233,7 @@ public class UpdateOrderCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        order.OrderItems.Should().NotContain(x => x.ItemId == itemId);
+        order.OrderItems.Should().NotContain(x => x.InventoryItemId == itemId);
 
         _unitOfWork.Received(1).BeginTransaction();
         _transaction.Received(1).Commit();
@@ -339,7 +339,7 @@ public class UpdateOrderCommandHandlerTests
         {
             order.OrderItems.Add(new OrderItemEntity
             {
-                ItemId = existingItemId.Value,
+                InventoryItemId = existingItemId.Value,
                 Quantity = 2,
                 OrderId = 100
             });

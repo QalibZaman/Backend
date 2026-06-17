@@ -10,7 +10,7 @@ namespace NettoRetail.DataAccess.Configurations
         {
             builder.ToTable("Order_Item");
 
-            builder.HasKey(p => new { p.OrderId, p.ItemId });
+            builder.HasKey(p => new { p.OrderId, p.InventoryItemId });
 
             builder.HasOne(p => p.Order)
                 .WithMany(p => p.OrderItems)
@@ -18,7 +18,7 @@ namespace NettoRetail.DataAccess.Configurations
 
             builder.HasOne(p => p.InventoryItem)
                 .WithMany(p => p.OrderItems)
-                .HasForeignKey(p => p.ItemId);
+                .HasForeignKey(p => p.InventoryItemId);
         }
     }
 }

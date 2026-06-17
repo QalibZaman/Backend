@@ -9,4 +9,6 @@ public class OrderItemResponse
     public bool IsOnSale { get; set; }
     public decimal Sale { get; set; } = 0.0m;
     public decimal Total { get;  set; }
+    public Guid InventoryItemId { get; set; }
+    public bool AlreadyReviewed { get; set; }
 }

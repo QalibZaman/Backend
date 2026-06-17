@@ -157,7 +157,7 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder
 
             var orderItem = new OrderItemEntity
             {
-                ItemId = inventoryItem.Id,
+                InventoryItemId = inventoryItem.Id,
                 InventoryItem = inventoryItem,
                 Quantity = 2
             };
