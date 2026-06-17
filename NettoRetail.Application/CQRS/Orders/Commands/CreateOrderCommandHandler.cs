@@ -132,7 +132,8 @@ public class CreateOrderCommandHandler(
         order.Creator = creator.FullName;
 
         var orderItems = requestedQuantities.Select(item =>
-            new OrderItemEntity { OrderId = order.Id, InventoryItemId = item.Key, Quantity = item.Value }).ToList();
+            new OrderItemEntity
+            {Id = Guid.NewGuid(), OrderId = order.Id, InventoryItemId = item.Key, Quantity = item.Value }).ToList();
         order.OrderItems = orderItems;
 
         var result = await orderRepository.AddAsync(order, cancellationToken);

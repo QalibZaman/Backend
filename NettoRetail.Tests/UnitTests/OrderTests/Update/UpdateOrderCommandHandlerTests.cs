@@ -185,7 +185,8 @@ public class UpdateOrderCommandHandlerTests
             }, 10, Guid.NewGuid(), 100);
 
         var order = CreateDefaultOrder(command.Model.CustomerId);
-        order.OrderItems.Add(new OrderItemEntity { InventoryItemId = itemId, Quantity = 4 });
+        order.OrderItems.Add(new OrderItemEntity
+        { Id = Guid.NewGuid(), InventoryItemId = itemId, Quantity = 4 });
         var stockItem = CreateDefaultInventoryItem(itemId, command.ShopId);
         stockItem.AvailableAmount = 100;
         stockItem.ReservedAmount = 10;
@@ -221,7 +222,7 @@ public class UpdateOrderCommandHandlerTests
             10, Guid.NewGuid(), 100);
 
         var order = CreateDefaultOrder(Guid.NewGuid());
-        order.OrderItems.Add(new OrderItemEntity { InventoryItemId = itemId, Quantity = 5 });
+        order.OrderItems.Add(new OrderItemEntity { Id = Guid.NewGuid(), InventoryItemId = itemId, Quantity = 5 });
 
         _orderRepository.GetAsync(Arg.Any<Specification<OrderEntity>>(), Arg.Any<CancellationToken>()).Returns(order);
 
@@ -339,6 +340,7 @@ public class UpdateOrderCommandHandlerTests
         {
             order.OrderItems.Add(new OrderItemEntity
             {
+                Id = Guid.NewGuid(),
                 InventoryItemId = existingItemId.Value,
                 Quantity = 2,
                 OrderId = 100

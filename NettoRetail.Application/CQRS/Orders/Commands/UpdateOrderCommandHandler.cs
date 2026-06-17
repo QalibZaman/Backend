@@ -97,7 +97,9 @@ public class UpdateOrderCommandHandler(
             {
                 if (quantity > 0)
                 {
-                    order.OrderItems.Add(new OrderItemEntity { InventoryItemId = itemId, Quantity = quantity, OrderId = order.Id });
+                    order.OrderItems.Add(new OrderItemEntity
+                    {
+                        Id = Guid.NewGuid(), InventoryItemId = itemId, Quantity = quantity, OrderId = order.Id});
                 }
             }
             else if (existingItem != null)

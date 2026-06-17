@@ -102,6 +102,7 @@ public class GetOrderProductsQueryHandlerTest
 
         var orderItem = new OrderItemEntity
         {
+            Id = Guid.NewGuid(),
             InventoryItemId = inventoryItem.Id,
             InventoryItem = inventoryItem,
             Quantity = 2,
