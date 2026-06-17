@@ -11,22 +11,23 @@ using NSubstitute;
 
 namespace NettoRetail.Tests.UnitTests.CategoryTests.Get;
 
-public class GetCategoriesQueryHandlerTest
+public class GetCategoriesQueryHandlerTests
 {
-    private readonly ICategoryRepository _categoryRepositor;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
     private readonly GetCategoriesQueryHandler _handler;
 
-    public GetCategoriesQueryHandlerTest()
+    public GetCategoriesQueryHandlerTests()
     {
-        _categoryRepositor = Substitute.For<ICategoryRepository>();
+        _categoryRepository = Substitute.For<ICategoryRepository>();
         _mapper = Substitute.For<IMapper>();
-        _handler = new GetCategoriesQueryHandler(_categoryRepositor, _mapper);
+        _handler = new GetCategoriesQueryHandler(_categoryRepository, _mapper);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnAllCategoriesByShopId()
     {
+        // Arrange
         int shopId = 1;
         var model = new PaginationRequest
         {
@@ -96,12 +97,16 @@ public class GetCategoriesQueryHandlerTest
             },
 
         };
-        _categoryRepositor.GetAllPaginatedAsync(Arg.Any<Specification<CategoryEntity>>(), Arg.Any<CancellationToken>())
+        _categoryRepository.GetAllPaginatedAsync(Arg.Any<Specification<CategoryEntity>>(), Arg.Any<CancellationToken>())
             .Returns((categoryEntites: categoryEntities, categoryEntities.Count));
         _mapper
             .Map<List<CategoryResponse>>(categoryEntities)
             .Returns(expectedResponse);
+        
+        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
+        
+        // Assert
         result.TotalAmount.Should().Be(3);
         result.Categories.Should().BeEquivalentTo(expectedResponse);
     }
@@ -109,6 +114,7 @@ public class GetCategoriesQueryHandlerTest
     [Fact]
     public async Task Handle_ShouldReturnEmptyListOfCategories_WhenCategoriesNotExist()
     {
+        // Arrange
         int shopId = 1;
         var model = new PaginationRequest
         {
@@ -119,12 +125,16 @@ public class GetCategoriesQueryHandlerTest
         
         var categoryEntities = new List<CategoryEntity>();
         var  expectedResponse = new List<CategoryResponse>();
-        _categoryRepositor.GetAllPaginatedAsync(Arg.Any<Specification<CategoryEntity>>(), Arg.Any<CancellationToken>())
+        _categoryRepository.GetAllPaginatedAsync(Arg.Any<Specification<CategoryEntity>>(), Arg.Any<CancellationToken>())
             .Returns((categoryEntities, categoryEntities.Count));
         _mapper
             .Map<List<CategoryResponse>>(categoryEntities)
             .Returns(expectedResponse);
+        
+        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
+        
+        // Assert
         result.TotalAmount.Should().Be(0);
         result.Categories.Should().BeEmpty();
 
