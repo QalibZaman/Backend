@@ -247,7 +247,9 @@ public class MappingConfiguration : IRegister
                 dest => dest.Permissions,
                 src => src.Role != null && src.Role.PermissionRoles != null
                     ? src.Role.PermissionRoles.Select(p => p.PermissionId).ToList()
-                    : new List<int>());
+                    : new List<int>())
+            .Map(dest => dest.FullName,
+            src => $"{src.FirstName} {src.LastName}");
 
         config.NewConfig<FavouriteListItemEntity, AddToFavouritesResponse>();
 
