@@ -112,10 +112,8 @@ public class CreateRoleCommandValidatorTests
             Name = "ValidName",
             PermissionIds = new[] { 1, 2 }
         }, 10);
-        _shopRepository.ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
-        _roleRepository.ExistsAsync(Arg.Any<GetRoleByNameSpecification>(), Arg.Any<CancellationToken>()).Returns(false);
-
         var validPermissions = new List<int> { 1, 2 };
+        _shopRepository.ExistsAsync(Arg.Any<GetShopByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
 
         _permissionRepository.GetIdsBySpecAsync(Arg.Any<GetValidPermissionsSpecification>(), Arg.Any<CancellationToken>()).Returns(validPermissions);
 
