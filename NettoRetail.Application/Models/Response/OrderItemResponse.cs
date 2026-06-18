@@ -11,4 +11,6 @@ public class OrderItemResponse
     public decimal Total { get;  set; }
     public Guid InventoryItemId { get; set; }
     public bool AlreadyReviewed { get; set; }
+    public bool IsVerifiedPurchase { get; set; }
+
 }

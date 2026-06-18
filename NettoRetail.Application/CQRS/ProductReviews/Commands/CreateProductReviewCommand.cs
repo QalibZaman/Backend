@@ -1,13 +1,6 @@
 ﻿using MediatR;
-using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Services.IProductReviewService;
-using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NettoRetail.Application.CQRS.ProductReviews
 {
