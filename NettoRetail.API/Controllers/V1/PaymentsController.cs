@@ -64,13 +64,13 @@ namespace NettoRetail.API.Controllers.V1
             var userId = HttpContext.GetUserId();
 
             if (model.StripePaymentMethodId == string.Empty)
-                return BadRequest(new ApiResponse<string>("Invalid payment method ID."));
+                return BadRequest(new ApiResponse<string>(HandlerConstants.Payment.InvalidPaymentMethodIdMessage));
 
             var command = new EditPaymentCommand(userId, model);
 
-            var result = await mediator.Send(command, cancellationToken);
+            await mediator.Send(command, cancellationToken);
 
-            return Ok(result);
+            return NoContent();
         }
 
         [Authorize]
