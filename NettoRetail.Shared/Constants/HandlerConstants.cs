@@ -97,5 +97,12 @@
         {
             public const string CategoryNotFoundMessage = "Category with such Id does not exist.";
         }
+
+        public static class Admin 
+        {
+            public const string CannotEditOwnAccountMessage = "You cannot edit your own account.";
+            public const string PlatformAdminNotFoundMessage = "Platform admin with such Id does not exist.";
+            public const string NoChangesToSaveMessage = "No changes to save.";
+        }
     }
 }
