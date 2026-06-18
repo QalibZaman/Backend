@@ -18,6 +18,7 @@ public sealed class GetCustomerBySearchSpecification(string? search) : Specifica
             (c.LastName != null && c.LastName.ToLower().Contains(term)) ||
             (((c.FirstName ?? string.Empty) + " " + (c.LastName ?? string.Empty)).ToLower().Contains(term)) ||
             (c.Email != null && c.Email.ToLower().Contains(term)) ||
-            (c.LoyaltyId != null && c.LoyaltyId.ToLower().Contains(term));
+            (c.LoyaltyId != null && c.LoyaltyId.ToLower().Contains(term)) ||
+            (c.PhoneNumber != null && c.PhoneNumber.Contains(term));
     }
 }
