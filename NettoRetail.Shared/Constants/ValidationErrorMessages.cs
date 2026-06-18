@@ -267,6 +267,52 @@ public static class ValidationErrorMessages
     public static class File
     {
         public const string InvalidFileSizeErrorMessage = "File size must be 5MB or less.";
+
+        public const string UnsupportedFileFormatErrorMessage =
+            "Unsupported file format. Only JPG, JPEG or PNG allowed.";
+    }
+
+    public static class Category
+    {
+        public const string InvalidCategoryIdErrorMessage = "Category id must be greater than 0.";
+
+        public const string MaxSelectionErrorMessage =
+            "Maximum {0} categories allowed. Please remove one to add another.";
+
+        public const string DuplicateCategoriesErrorMessage = "Duplicate categories are not allowed.";
+
+        public const string InvalidCategoriesErrorMessage =
+            "Selected categories must be level 1, visible, and belong to your shop.";
+
+        public const string NullCategoryErrorMessage = "Category selection is required";
+        public const string AtLeastOneCategoryErrorMessage = "At least one category must be selected.";
+        // For Section
+        public const string EmptySectionNameErrorMessage = "Name of the section cannot be empty.";
+
+        public const string InvalidSectionNameLenghtErrorMessage =
+            "The name must be between {0} and {1} characters long.";
+
+        public const string SectionNamePatternErrorMessage =
+            "The field contains invalid characters or spaces at the beginning/end.";
+    }
+
+    public static class TeaserSection
+    {
+        public const string TeaserSectionNotFoundErrorMessage = "Teaser section not found for shop {0}";
+
+        public const string HeadingEmptyErrorMessage = "Heading is required";
+        public const string HeadingMinimumLengthErrorMessage = "Heading must be at least {0} characters.";
+        public const string HeadingMaximumLengthErrorMessage = "Heading must be at most {0} characters.";
+        public const string HeadingInvalidFormatErrorMessage = "Heading can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input";
+
+        public const string AdditionalTextMinimumLengthErrorMessage = "Additional text must be at least {0} characters.";
+        public const string AdditionalTextMaximumLengthErrorMessage = "Additional text must be at most {0} characters.";
+        public const string AdditionalTextInvalidFormatErrorMessage = "Additional text can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input";
+
+        public const string LinkInvalidFormatErrorMessage = "Website URL must be a valid URL including protocol (e.g., https://)";
+        public const string LinkMaximumLengthErrorMessage = "Website URL must be at most {0} characters.";
+
+        public const string ColorInvalidFormatErrorMessage = "Color must be a valid hex code (e.g. #0000FF).";
         public const string UnsupportedFileFormatErrorMessage = "Unsupported file format. Only JPG, JPEG or PNG allowed.";
     }
 }

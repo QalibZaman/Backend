@@ -3,13 +3,12 @@ using NettoRetail.Domain.Enums;
 
 namespace NettoRetail.Application.Requests.TeaserSection;
 
-public class TeaserSectionRequest
+public class CreateTeaserSectionRequest : ITeaserSectionUpsertRequest
 {
     public bool IsVisible { get; set; }
 
-    public string Heading { get; set; } = default!;
+    public string Heading { get; set; }
     public string? AdditionalText { get; set; }
-
     public string? Link { get; set; }
 
     public IFormFile? TeaserImage { get; set; }

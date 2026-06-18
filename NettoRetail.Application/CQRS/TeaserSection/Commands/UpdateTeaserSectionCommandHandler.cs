@@ -13,10 +13,10 @@ using NettoRetail.Infrastructure.Services.IImageValidatorService;
 namespace NettoRetail.Application.CQRS.TeaserSection.Commands;
 
 public record UpdateTeaserSectionCommand(
-    TeaserSectionRequest Model,
+    Guid Id,
+    UpdateTeaserSectionRequest Model,
     int ShopId,
-    string UpdatedBy
-) : IRequest<TeaserSectionResponse>;
+    string UpdatedBy) : IRequest<TeaserSectionResponse>;
 
 public class UpdateTeaserSectionCommandHandler(
     ITeaserSectionRepository teaserSectionRepository,
@@ -27,12 +27,13 @@ public class UpdateTeaserSectionCommandHandler(
 {
     public async Task<TeaserSectionResponse> Handle(UpdateTeaserSectionCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetTeaserSectionByShopIdSpecification(request.ShopId);
+        var spec = new GetTeaserSectionByIdAndShopIdSpecification(request.Id, request.ShopId);
         var teaser = await teaserSectionRepository.GetAsync(spec, cancellationToken);
 
-        var isNew = teaser is null;
-
-        teaser ??= new TeaserSectionEntity { ShopId = request.ShopId };
+        if (teaser == null)
+        {
+            throw new NotFoundException("Teaser not found");
+        }
 
         mapper.Map(request.Model, teaser);
 
@@ -40,14 +41,7 @@ public class UpdateTeaserSectionCommandHandler(
 
         await UploadTeaserImageAsync(request, teaser, cancellationToken);
 
-        if (isNew)
-        {
-            await teaserSectionRepository.AddAsync(teaser, cancellationToken);
-        }
-        else
-        {
-            await teaserSectionRepository.UpdateAsync(teaser, cancellationToken);
-        }
+        await teaserSectionRepository.UpdateAsync(teaser, cancellationToken);
 
         return mapper.Map<TeaserSectionResponse>(teaser);
     }
@@ -60,7 +54,7 @@ public class UpdateTeaserSectionCommandHandler(
         await imageValidatorService.ValidateImage(request.Model.TeaserImage);
 
         if (entity.TeaserImageUrl != null)
-            await azureBlobService.DeleteByUrlAsync(entity.TeaserImageUrl);
+            await azureBlobService.DeleteByUrlAsync(entity.TeaserImageUrl, cancellationToken);
 
         await imageValidatorService.ValidateBannerImageAsync(request.Model.TeaserImage, cancellationToken);
 
