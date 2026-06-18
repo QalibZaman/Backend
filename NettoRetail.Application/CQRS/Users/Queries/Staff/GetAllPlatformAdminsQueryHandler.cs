@@ -11,7 +11,7 @@ namespace NettoRetail.Application.CQRS.Users.Queries.Staff;
 public record GetAllPlatformAdminsQuery() : IRequest<List<PlatformAdminResponse>>;
 
 public class GetAllPlatformAdminsQueryHandler(
-    IStaffRepository accountRepo,
+    IStaffRepository staffRepository,
     IMapper mapper)
     : IRequestHandler<GetAllPlatformAdminsQuery, List<PlatformAdminResponse>>
 {
@@ -22,11 +22,11 @@ public class GetAllPlatformAdminsQueryHandler(
             .AddCriteria(
                 a => a.Role.Name.StartsWith(PlatformAdminConstants.PlatformAdminPrefix))
             .AddInclude(a => a.Sessions!)
-            .AddInclude(a => a.Role)
             .AddInclude(a => a.Role.PermissionRoles)
             .Build();
 
-        var accounts = await accountRepo.GetAllBySpecAsync(specification, cancellationToken);
+
+        var accounts = await staffRepository.GetAllBySpecAsync(specification, cancellationToken);
 
         var response = mapper.Map<List<PlatformAdminResponse>>(accounts);
 
