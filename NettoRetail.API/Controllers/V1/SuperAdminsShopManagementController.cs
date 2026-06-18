@@ -268,7 +268,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     }
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [Authorize]
+    [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
