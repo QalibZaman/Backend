@@ -132,8 +132,6 @@ public static class AuthenticationExtensions
                         var roleId = context.User.FindFirst(ClaimTypes.Role)?.Value;
                         return roleId == SuperAdminConstants.SuperAdminRoleId;
                     }));
-
-
         });
 
         return services;

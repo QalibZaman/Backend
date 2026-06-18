@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using MapsterMapper;
 using NettoRetail.Application.CQRS.Shops.Queries;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Shop;
@@ -14,6 +15,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
     {
         private readonly IInventoryItemRepository _itemsRepo;
         private readonly IInventoryService _inventoryService;
+        private readonly IMapper _mapper;
         private readonly Fixture _fixture;
         private readonly int _shopId = 1;
 
@@ -24,6 +26,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
 
             _itemsRepo = Substitute.For<IInventoryItemRepository>();
             _inventoryService = Substitute.For<IInventoryService>();
+            _mapper = Substitute.For<IMapper>();
         }
 
         [Fact]
@@ -39,7 +42,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
                 _fixture.Build<InventoryItemEntity>().With(x => x.ShopId, _shopId).With(x => x.Category, category).OmitAutoProperties().Create()
             };
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService, _mapper);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -70,7 +73,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
             // Arrange
             var itemsList = new List<InventoryItemEntity>();
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService, _mapper);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -100,7 +103,7 @@ namespace NettoRetail.Tests.UnitTests.ShopTests
             // Arrange
             var itemsList = new List<InventoryItemEntity>();
 
-            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(_itemsRepo, _inventoryService, _mapper);
 
             var request = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel(),
