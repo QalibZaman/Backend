@@ -7,6 +7,7 @@ using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
+using MapsterMapper;
 
 namespace NettoRetail.Tests.IntegrationTests.ShopTests
 {
@@ -29,9 +30,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel(),
@@ -55,9 +57,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -83,9 +86,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -111,9 +115,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -139,9 +144,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -167,9 +173,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -202,9 +209,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -231,9 +239,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel
@@ -264,9 +273,10 @@ namespace NettoRetail.Tests.IntegrationTests.ShopTests
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             var repository = new InventoryItemRepository(context);
-            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService);
+            var handler = new GetShopFilteredCatalogHandler(repository, inventoryService, mapper);
 
             var query = new GetShopFilteredCatalogQuery(
                 new GetFilteredCatalogModel

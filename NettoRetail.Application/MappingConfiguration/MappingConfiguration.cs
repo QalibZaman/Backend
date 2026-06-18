@@ -218,6 +218,18 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<ShopEntity, AllShopsInfoResponse>();
 
+        config.NewConfig<InventoryItemEntity, InventoryItemCardResponse>()
+            .Map(dest => dest.CategoryName, src => src.Category.Name)
+            .Map(dest => dest.BrandName, src => src.Brand != null ? src.Brand.Name : null)
+            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.ThumbnailUrl, src =>
+                src.Images != null
+                    ? src.Images.OrderBy(i => i.Order).Select(i => i.BlobUrl).FirstOrDefault() ?? string.Empty
+                    : string.Empty)
+            .Map(dest => dest.MediaUrls, src => 
+            src.Images != null 
+            ? src.Images.OrderBy(i => i.Order).Select(i => i.BlobUrl) : new List<string>());
+
         config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponse>()
             .Map(dest => dest.Name, src => src.Name);
 

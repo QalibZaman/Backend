@@ -119,6 +119,7 @@ public class ShopsController(IMediator mediator) : ControllerBase
         return Ok("Shop successfully deactivated.");
     }
 
+    [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<InventoryItemCardResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

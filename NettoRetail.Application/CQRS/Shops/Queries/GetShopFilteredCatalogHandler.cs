@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using MapsterMapper;
+using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
@@ -16,43 +17,31 @@ namespace NettoRetail.Application.CQRS.Shops.Queries;
 
 public record GetShopFilteredCatalogQuery(GetFilteredCatalogModel FilteredCatalogModel, int ShopId, PaginationRequest PageModel) : IRequest<PaginatedResponse<InventoryItemCardResponse>>;
 
-public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository, IInventoryService inventoryService) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemCardResponse>>
+public class GetShopFilteredCatalogHandler(IInventoryItemRepository itemsRepository, IInventoryService inventoryService, IMapper mapper) : IRequestHandler<GetShopFilteredCatalogQuery, PaginatedResponse<InventoryItemCardResponse>>
 {
-    public async Task<PaginatedResponse<InventoryItemCardResponse>> Handle(GetShopFilteredCatalogQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<InventoryItemCardResponse>> Handle(
+        GetShopFilteredCatalogQuery request,
+        CancellationToken cancellationToken)
     {
         var specification = BuildInventoryItemSpecification(request);
 
         var (items, totalAmount) = await itemsRepository.GetAllPaginatedAsync(specification, cancellationToken);
 
-        var responseItems = items.Select(i =>
+        var responseItems = mapper.Map<List<InventoryItemCardResponse>>(items);
+
+        foreach (var (entity, response) in items.Zip(responseItems))
         {
-            var imgs = i.Images.OrderBy(im => im.Order).ToList();
+            response.IsOnSale = inventoryService.IsItemOnSale(entity);
+            response.IsOutOfStock = inventoryService.IsItemOutOfStock(entity);
+            response.IsNew = inventoryService.IsItemNew(entity);
+        }
 
-            return new InventoryItemCardResponse
-            {
-                Id = i.Id,
-                ProductName = i.ProductName,
-                CategoryName = i.Category.Name,
-                BrandName = i.Brand?.Name ?? string.Empty,
-                Status = i.Status.ToString(),
-                MediaUrls = imgs.Select(im => im.BlobUrl),
-                ThumbnailUrl = imgs.FirstOrDefault()?.BlobUrl ?? ImagePlaceholdersConstants.InventoryItem,
-                Price = i.Price,
-                PromotionPrice = i.PromotionPrice,
-                AvailableAmount = i.AvailableAmount,
-                IsOnSale = inventoryService.IsItemOnSale(i),
-                IsOutOfStock = inventoryService.IsItemOutOfStock(i),
-                IsNew = inventoryService.IsItemNew(i),
-                LastUpdatedDate = i.LastUpdatedDate
-            };
-        }).ToList();
-
-        var response = new PaginatedResponse<InventoryItemCardResponse>
+        var paginatedResponse = new PaginatedResponse<InventoryItemCardResponse>
         {
             Items = responseItems,
             TotalAmount = totalAmount
         };
-        return response;
+        return paginatedResponse;
     }
 
     private Specification<InventoryItemEntity> BuildInventoryItemSpecification(GetShopFilteredCatalogQuery request)
