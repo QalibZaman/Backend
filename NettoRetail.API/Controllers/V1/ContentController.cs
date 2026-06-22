@@ -59,6 +59,7 @@ public class ContentController(IMediator mediator) : Controller
     [HttpGet("{shopId:int}")]
     [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<List<ContentBlockResponse>>), StatusCodes.Status500InternalServerError)]

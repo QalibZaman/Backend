@@ -3,8 +3,8 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Customer;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -24,7 +24,7 @@ public class LoginCommandHandler(IStaffRepository staffRepository,
     {
         var specification = new GetStaffByEmailSpecification(request.Model.Email);
         var user = await staffRepository.GetAsync(specification, cancellationToken)
-            ?? throw new MyUnauthorizedException("User was not found");
+            ?? throw new BadRequestException("Invalid email or password.");
 
         var loginSpecification = new GetFailedAuthAttemptByAccountIdSpecification(user.Id);
         var loginAttempt = await loginAttemptRepository.GetAsync(loginSpecification, cancellationToken);
@@ -52,7 +52,7 @@ public class LoginCommandHandler(IStaffRepository staffRepository,
         if (!PasswordHasher.VerifyPassword(request.Model.Password, user.PasswordHash))
         {
             await loginAttemptService.IncrementFailedAttemptsAsync(loginAttempt!, user.Id, cancellationToken);
-            throw new MyUnauthorizedException("Invalid email or password.");
+            throw new BadRequestException("Invalid email or password.");
         }
 
         if (loginAttempt != null)

@@ -10,6 +10,7 @@ using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
+using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Utilities;
 
 namespace NettoRetail.Application.Services.IStaffService;
@@ -20,75 +21,92 @@ public class StaffService(
     IEmailSender emailSender,
     IEmailBuilderService emailBuilderService,
     ISessionTerminationService sessionTerminationService,
-    IMapper mapper) : IStaffService
+    IMapper mapper,
+    IUnitOfWork unitOfWork) : IStaffService
 {
-    public async Task CreateStaffAsync(StaffCsvModel staffCsvModel, int shopId, CancellationToken cancelletionToken = default)
+    public async Task CreateStaffAsync(
+        StaffCsvModel staffCsvModel,
+        int shopId,
+        CancellationToken cancellationToken = default)
     {
-        var role = await GetRoleAsync(int.Parse(staffCsvModel.Role), shopId, cancelletionToken);
-        await EnsureEmailAvailableAsync(staffCsvModel.Email, cancelletionToken);
+        if (!int.TryParse(staffCsvModel.Role, out var roleId))
+            throw new BadRequestException(string.Format(ValidationErrorMessages.StaffCsv.InvalidRoleIdFormatMessage, 0));
 
-        var account = mapper.Map<StaffEntity>(staffCsvModel);
-        PrepareAccount(account, shopId, role.Id);
-
-        await accountRepository.AddAsync(account, cancelletionToken);
-        await SendResetPasswordEmailAsync(account);
+        await CreateSingleStaffCoreAsync(staffCsvModel, staffCsvModel.Email, roleId, shopId, cancellationToken);
     }
 
     public async Task<StaffEntity> CreateStaffAsync(
         CreateStaffRequest request,
         int shopId,
-        CancellationToken token = default)
+        CancellationToken cancellationToken = default)
     {
-        var role = await GetRoleAsync(request.RoleId, shopId, token);
-        await EnsureEmailAvailableAsync(request.Email, token);
-
-        var account = mapper.Map<StaffEntity>(request);
-        PrepareAccount(account, shopId, role.Id);
-
-        await accountRepository.AddAsync(account, token);
-        await SendResetPasswordEmailAsync(account);
-
-        return account;
+        return await CreateSingleStaffCoreAsync(request, request.Email, request.RoleId, shopId, cancellationToken);
     }
 
     public async Task CreateStaffAsync(
         IReadOnlyCollection<StaffCsvModel> staffCsvModels,
         int shopId,
-        CancellationToken token = default)
+        CancellationToken cancellationToken = default)
     {
-        if (staffCsvModels.Count == 0)
+        if (staffCsvModels == null || staffCsvModels.Count == 0)
             return;
 
-        var rolesById = await GetImportRolesByIdAsync(staffCsvModels, shopId, token);
+        var rolesById = await ValidateCsvAndGetRolesAsync(staffCsvModels, shopId, cancellationToken);
 
-        var accounts = new List<StaffEntity>(staffCsvModels.Count);
-        foreach (var staffCsvModel in staffCsvModels)
+        var accounts = staffCsvModels.Select(model =>
         {
-            var account = mapper.Map<StaffEntity>(staffCsvModel);
-            PrepareAccount(account, shopId, rolesById[int.Parse(staffCsvModel.Role)].Id);
-            accounts.Add(account);
-        }
+            var account = mapper.Map<StaffEntity>(model);
+            PrepareAccount(account, shopId, rolesById[int.Parse(model.Role)].Id);
+            return account;
+        }).ToList();
 
-        await accountRepository.AddRangeAsync(accounts, token);
+        await accountRepository.AddRangeAsync(accounts, cancellationToken);
 
-        foreach (var account in accounts)
-        {
-            await SendResetPasswordEmailAsync(account);
-        }
+        var emailTasks = accounts.Select(SendResetPasswordEmailAsync);
+        await Task.WhenAll(emailTasks);
     }
 
     public async Task UpdateStaffAsync(
         UpdateStaffRequest request,
         StaffEntity staff,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         CheckIfDeactivated(request, staff);
-
         await UpdateEmailAsync(request, staff, cancellationToken);
-
         await UpdateActiveStatusAsync(request, staff, cancellationToken);
 
         mapper.Map(request, staff);
+    }
+
+    private static void PrepareAccount(StaffEntity account, int shopId, int roleId)
+    {
+        account.ShopId = shopId;
+        account.RoleId = roleId;
+        account.Status = StaffStatusEnum.CreatePassword;
+        account.PasswordHash = PasswordHasher.HashPassword(Guid.NewGuid().ToString());
+    }
+
+    private async Task<StaffEntity> CreateSingleStaffCoreAsync<T>(
+        T source,
+        string email,
+        int roleId,
+        int shopId,
+        CancellationToken cancellationToken)
+    {
+        var role = await GetRoleAsync(roleId, shopId, cancellationToken);
+        await EnsureEmailAvailableAsync(email, cancellationToken);
+
+        var account = mapper.Map<StaffEntity>(source);
+        PrepareAccount(account, shopId, role.Id);
+
+        using var transaction = unitOfWork.BeginTransaction();
+
+        await accountRepository.AddAsync(account, cancellationToken);
+        await SendResetPasswordEmailAsync(account);
+
+        transaction.Commit();
+
+        return account;
     }
 
     private async Task UpdateActiveStatusAsync(
@@ -97,15 +115,13 @@ public class StaffService(
         CancellationToken cancellationToken)
     {
         if (!request.IsActive.HasValue)
-        {
             return;
-        }
 
         if (request.IsActive.Value)
         {
             staff.Status = StaffStatusEnum.Active;
         }
-        else if (!request.IsActive.Value && staff.Status != StaffStatusEnum.Deactivated)
+        else if (staff.Status != StaffStatusEnum.Deactivated)
         {
             staff.Status = StaffStatusEnum.Deactivated;
             await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
@@ -117,96 +133,101 @@ public class StaffService(
         StaffEntity staff,
         CancellationToken cancellationToken)
     {
-        if (request.Email == null || staff.Email == request.Email)
+        if (string.IsNullOrWhiteSpace(request.Email) || staff.Email == request.Email)
             return;
 
         var emailConflictSpec = new GetStaffByEmailSpecification(request.Email);
-        var existingWithEmail = await accountRepository.Exists(emailConflictSpec, cancellationToken);
+        var existingWithEmail = await accountRepository.ExistsAsync(emailConflictSpec, cancellationToken);
         if (existingWithEmail)
-            throw new ConflictException("Another account with this email already exists.");
+            throw new ConflictException(ValidationErrorMessages.Email.AlreadyExistsErrorMessage);
 
         await sessionTerminationService.TerminateSessionsAsync(staff.Id, cancellationToken);
     }
 
-    private void CheckIfDeactivated(
-        UpdateStaffRequest request,
-        StaffEntity staff)
+    private void CheckIfDeactivated(UpdateStaffRequest request, StaffEntity staff)
     {
-        if (staff.Status == StaffStatusEnum.Deactivated &&
-                (!request.IsActive.HasValue || request.IsActive.Value == false))
+        if (staff.Status == StaffStatusEnum.Deactivated && request.IsActive is not true)
         {
-            throw new BadRequestException("You cannot edit a deactivated staff member unless you are reactivating them.");
+            throw new BadRequestException(ValidationErrorMessages.Staff.CannotEditDeactivatedStaffMemberErrorMessage);
         }
     }
 
-    private async Task<Dictionary<int, RoleEntity>> GetImportRolesByIdAsync(
+    private async Task<Dictionary<int, RoleEntity>> ValidateCsvAndGetRolesAsync(
         IReadOnlyCollection<StaffCsvModel> staffCsvModels,
         int shopId,
         CancellationToken cancellationToken)
     {
         var validationErrors = new List<string>();
-        var requestedEmails = staffCsvModels.Select(staff => staff.Email.Trim()).ToList();
-        var existingAccounts = await accountRepository.GetAllBySpecAsync(
-            new GetStaffByEmailsSpecification(requestedEmails),
-            cancellationToken);
-        var existingEmails = existingAccounts
-            .Select(account => account.Email)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var requestedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var requestedRoleIds = new HashSet<int>();
+        var rowData = new List<(int Index, string Email, int RoleId)>();
 
-        foreach (var (staff, index) in staffCsvModels.Select((staff, index) => (staff, index + 2)))
+        int index = CsvConstants.CsvDataStartRow;
+        foreach (var staff in staffCsvModels)
         {
-            if (existingEmails.Contains(staff.Email))
-                validationErrors.Add($"Row {index}: Account with email '{staff.Email}' already exists.");
+            var email = staff.Email?.Trim() ?? string.Empty;
+            requestedEmails.Add(email);
+
+            if (!int.TryParse(staff.Role, out var roleId))
+            {
+                validationErrors.Add(string.Format(ValidationErrorMessages.StaffCsv.InvalidRoleIdFormatMessage, index));
+            }
+            else
+            {
+                requestedRoleIds.Add(roleId);
+                rowData.Add((index, email, roleId));
+            }
+
+            index++;
         }
 
-        var requestedRoleIds = staffCsvModels.Select(staff => int.Parse(staff.Role)).Distinct().ToList();
-        var roles = await roleRepository.GetAllBySpecAsync(
-            new GetRolesByIdsAndShopIdSpecification(requestedRoleIds, shopId),
-            cancellationToken);
-        var existingRoleIds = roles.Select(role => role.Id).ToHashSet();
+        var existingAccounts = await accountRepository.GetAllBySpecAsync(
+            new GetStaffByEmailsSpecification(requestedEmails.ToList()), cancellationToken);
 
-        foreach (var (staff, index) in staffCsvModels.Select((staff, index) => (staff, index + 2)))
+        var existingEmails = existingAccounts
+            .Select(a => a.Email)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var roles = requestedRoleIds.Count > 0
+            ? await roleRepository.GetAllBySpecAsync(new GetRolesByIdsAndShopIdSpecification(requestedRoleIds.ToList(), shopId), cancellationToken)
+            : new List<RoleEntity>();
+
+        var rolesById = roles.ToDictionary(role => role.Id);
+
+        foreach (var row in rowData)
         {
-            var roleId = int.Parse(staff.Role);
-            if (!existingRoleIds.Contains(roleId))
-                validationErrors.Add($"Row {index}: Role with id '{roleId}' was not found.");
+            if (existingEmails.Contains(row.Email))
+                validationErrors.Add(string.Format(ValidationErrorMessages.StaffCsv.AccountWithEmailAlreadyExistsMessage, row.Index, row.Email));
+
+            if (!rolesById.ContainsKey(row.RoleId))
+                validationErrors.Add(string.Format(ValidationErrorMessages.StaffCsv.RoleWithIdNotFoundMessage, row.Index, row.RoleId));
         }
 
         if (validationErrors.Count > 0)
             throw new BadRequestException($"{CsvUploadErrors.StaffListValidationFailed}\n{string.Join("\n", validationErrors)}");
 
-        return roles.ToDictionary(role => role.Id);
+        return rolesById;
     }
 
     private async Task EnsureEmailAvailableAsync(string email, CancellationToken cancellationToken)
     {
-        var accountSpecification = new GetStaffByEmailSpecification(email);
-        var existingAccount = await accountRepository.GetAsync(accountSpecification, cancellationToken);
+        var emailConflictSpec = new GetStaffByEmailSpecification(email);
+        var exists = await accountRepository.ExistsAsync(emailConflictSpec, cancellationToken);
 
-        if (existingAccount != null)
-            throw new ConflictException("An account with this email already exists.");
+        if (exists)
+            throw new ConflictException(ValidationErrorMessages.Email.AlreadyExistsErrorMessage);
     }
 
     private async Task<RoleEntity> GetRoleAsync(int roleId, int shopId, CancellationToken cancellationToken)
     {
         var roleSpecification = new GetRoleByShopIdOrAdminIdSpecification(roleId, shopId);
         return await roleRepository.GetAsync(roleSpecification, cancellationToken)
-            ?? throw new NotFoundException("Role not found");
-    }
-
-    private static void PrepareAccount(StaffEntity account, int shopId, int roleId)
-    {
-        account.ShopId = shopId;
-        account.RoleId = roleId;
-        account.Status = StaffStatusEnum.CreatePassword;
-        account.PasswordHash = PasswordHasher.HashPassword(Guid.NewGuid().ToString());
+            ?? throw new NotFoundException(ValidationErrorMessages.Role.RoleNotFoundErrorMessage);
     }
 
     private async Task SendResetPasswordEmailAsync(StaffEntity account)
     {
-        var emailModel = await emailBuilderService
-            .BuildResetPasswordEmailAsync(account.Email, account.FirstName);
-
+        var emailModel = await emailBuilderService.BuildResetPasswordEmailAsync(account.Email, account.FirstName);
         await emailSender.SendAsync(emailModel, account.Id);
     }
 }

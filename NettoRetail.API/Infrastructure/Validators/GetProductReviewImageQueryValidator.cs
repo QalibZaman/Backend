@@ -36,7 +36,7 @@ public class GetProductReviewImageQueryValidator : AbstractValidator<GetProductR
         CancellationToken cancellationToken)
     {
         var spec = new GetProductReviewByBlobNameAndCustomerIdSpecification(query.ProductReviewImage, query.CustomerId);
-        var exists = await _productReviewRepository.Exists(spec, cancellationToken);
+        var exists = await _productReviewRepository.ExistsAsync(spec, cancellationToken);
         if (!exists)
         {
             throw new NotFoundException("Product review image not found.");

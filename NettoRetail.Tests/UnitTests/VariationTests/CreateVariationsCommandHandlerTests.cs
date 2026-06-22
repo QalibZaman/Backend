@@ -54,7 +54,7 @@ public class CreateVariationsCommandHandlerTests
 
         _inventoryItemRepository.GetAsync(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(parent);
-        _inventoryItemRepository.Exists(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetProductByUpcSpecification>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository.ExistsAsync(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetProductByUpcSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         var command = new CreateVariationsCommand(request, 7);
@@ -74,7 +74,7 @@ public class CreateVariationsCommandHandlerTests
 
         _inventoryItemRepository.GetAsync(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetInventoryItemByIdAndShopIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(parent);
-        _inventoryItemRepository.Exists(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetProductByUpcSpecification>(), Arg.Any<CancellationToken>())
+        _inventoryItemRepository.ExistsAsync(Arg.Any<NettoRetail.DataAccess.Specifications.Inventory.GetProductByUpcSpecification>(), Arg.Any<CancellationToken>())
             .Returns(false);
         _inventoryService.BuildVariationInventoryItemEntities(request.Variations, parent)
             .Returns(builtVariations);

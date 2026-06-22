@@ -175,7 +175,7 @@ public class GetFilteredStaffRequestValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Email)
-            .WithErrorMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+            .WithErrorMessage(ValidationErrorMessages.Email.PatternErrorMessage);
     }
 
     [Fact]

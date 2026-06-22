@@ -25,6 +25,24 @@ public class GetAllShopsInfoQueryHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldReturnEmphtyPaginetedResponse_WhenNoShopsExist() 
+    {
+        _shopRepository
+            .GetAllPaginatedAsync(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>())
+            .Returns((new List<ShopEntity>(), 0));
+
+        var handler = new GetAllShopsInfoQueryHandler(_shopRepository, _staffRepository, _mapper);
+        var query = new GetAllShopsInfoQuery(new PaginationRequest { PageNumber = 1, PageSize = 10 });
+
+        // Act
+        var result = await handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalAmount);
+    }
+
+    [Fact]
     public async Task Handle_ShouldReturnPaginatedShops_WithAdminAndSubscriptionData()
     {
         // Arrange

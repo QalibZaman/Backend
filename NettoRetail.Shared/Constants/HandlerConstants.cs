@@ -42,6 +42,10 @@
             public const string PaymentMethodDoesntBelongMessage = "Payment method does not belong to this account.";
             public const string AtLeastTwoPaymentMethodsRequiredMessage = "At least two payment methods are required to change default.";
             public const string PaymentMethodExpiredMessage = "Payment method is expired.";
+            public const string AccountNotFoundMessage = "Account {0} not found.";
+            public const string AccountIsEmptyMessage = "AccountId {0} is empty.";
+            public const string InvalidPaymentMethodIdMessage = "Invalid payment method ID.";
+            public const string ErrorOccuredWhenProcessingPaymentMessage = "An error occurred while processing the payment.";
             public const string PaymentMethodCardBrandNotAllowedMessage = "Only mastercard and visa cards are supported.";
         }
 
@@ -96,6 +100,13 @@
         public static class Category
         {
             public const string CategoryNotFoundMessage = "Category with such Id does not exist.";
+        }
+
+        public static class Admin 
+        {
+            public const string CannotEditOwnAccountMessage = "You cannot edit your own account.";
+            public const string PlatformAdminNotFoundMessage = "Platform admin with such Id does not exist.";
+            public const string NoChangesToSaveMessage = "No changes to save.";
         }
     }
 }

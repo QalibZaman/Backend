@@ -18,38 +18,38 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
             .Custom((roleId, context) =>
             {
                 if (roleId == RoleConstants.Admin)
-                    throw new ConflictException("The admin role cannot be edited.");
+                    throw new ConflictException(ValidationErrorMessages.Role.CannotEditAdminRoleErrorMessage);
             });
 
         // Shop existence validation
         RuleFor(x => x.ShopId)
             .CustomAsync(async (shopId, context, ct) =>
             {
-                var exists = await shopRepository.Exists(new GetShopByIdSpecification(shopId), ct);
+                var exists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(shopId), ct);
 
                 if (!exists)
-                    throw new NotFoundException($"Shop with id {shopId} does not exist.");
+                    throw new NotFoundException(string.Format(ValidationErrorMessages.Shop.ShopDoesntExistErrorMessage,  shopId));
             });
 
         // Role existence validation
         RuleFor(x => x)
             .CustomAsync(async (command, context, ct) =>
             {
-                var exists = await roleRepository.Exists(
+                var exists = await roleRepository.ExistsAsync(
                     new GetRoleByIdAndShopIdSpecification(
                         command.Id,
                         command.ShopId),
                     ct);
 
                 if (!exists)
-                    throw new NotFoundException($"Role with Id {command.Id} and ShopId {command.ShopId} does not exist.");
+                    throw new NotFoundException(string.Format(ValidationErrorMessages.Role.RoleNotFoundWithShopIdErrorMessage, command.Id, command.ShopId));
             });
 
         // Unique role name validation
         RuleFor(x => x)
             .CustomAsync(async (command, context, ct) =>
             {
-                var exists = await roleRepository.Exists(
+                var exists = await roleRepository.ExistsAsync(
                     new GetRoleByNameExcludingCurrentSpecification(
                         command.Model.Name,
                         command.Id,
@@ -57,7 +57,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
                     ct);
 
                 if (exists)
-                    throw new ConflictException("Role with such name already exists.");
+                    throw new ConflictException(ValidationErrorMessages.Role.RoleExistsErrorMessage);
             });
 
         // Permission existence batch validation
@@ -72,7 +72,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
                         ct);
 
                 if (existingPermissionIds.Count() != distinctIds.Length)
-                    throw new BadRequestException("One or more PermissionIds do not exist.");
+                    throw new BadRequestException(ValidationErrorMessages.Role.PermissionsDontExistErrorMessage);
             });
 
         RuleFor(x => x.Model.PermissionIds)
@@ -84,7 +84,7 @@ public class RoleUpdateCommandValidator : AbstractValidator<RoleUpdateCommand>
                     .Select(p => p.Id);
 
                 if (ids.Intersect(systemPermissionIds).Any())
-                    throw new ForbiddenException("System permissions cannot be assigned.");
+                    throw new ForbiddenException(ValidationErrorMessages.Role.CannotAssignSystemPermissionErrorMessage);
             });
     }
 }

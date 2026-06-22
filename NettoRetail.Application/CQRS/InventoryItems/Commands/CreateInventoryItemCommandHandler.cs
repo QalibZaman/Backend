@@ -42,16 +42,16 @@ public class CreateInventoryItemCommandHandler(
     public async Task<(string CategoryName, string BrandName)> CheckForConflictsAsync(CreateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var productByUpcSpecification = new GetProductByUpcSpecification(request.Model.ProductUpc);
-        var productExists = await inventoryItemRepository.Exists(productByUpcSpecification, cancellationToken);
+        var productExists = await inventoryItemRepository.ExistsAsync(productByUpcSpecification, cancellationToken);
 
         if (productExists)
             throw new ConflictException("This product UPC is already registered.");
 
         var categoryName = await categoryRepository.GetCategoryNameAsync(request.Model.CategoryId, request.ShopId, cancellationToken)
-            ?? throw new NotFoundException($"There is no category with Id: {request.Model.CategoryId}");
+            ?? throw new NotFoundException($"Category with Id {request.Model.CategoryId} was not found for the current shop.");
 
         var brandName = await brandRepository.GetBrandNameAsync(request.Model.BrandId, request.ShopId, cancellationToken)
-            ?? throw new NotFoundException($"There is no brand with Id: {request.Model.BrandId}");
+              ?? throw new NotFoundException($"Brand with Id {request.Model.BrandId} was not found for the current shop.");
 
         return (categoryName, brandName);
     }

@@ -1,3 +1,4 @@
+using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
@@ -15,7 +16,7 @@ public interface IBaseRepository<TEntity>
     Task<TEntity> UpdateAsync(TEntity model, CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
     Task<IEnumerable<TEntity>> GetAllBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
-    Task<bool> Exists(Specification<TEntity> specification, CancellationToken cancellationToken);
+    Task<bool> ExistsAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task AddBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task<int> GetAmountBySpecAsync(Specification<TEntity> specification, CancellationToken cancellationToken);

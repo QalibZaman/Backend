@@ -15,7 +15,7 @@ public class RemoveFromFavouriteListCommandHandler(
     {
         var spec = new GetFavouriteListItemByAccountAndItemId(request.UserId, request.InventoryItemId);
 
-        var favouriteItemExists = await favouriteListItemRepository.Exists(spec, cancellationToken);
+        var favouriteItemExists = await favouriteListItemRepository.ExistsAsync(spec, cancellationToken);
         if (!favouriteItemExists)
             throw new NotFoundException("Item is not in your favourites");
 

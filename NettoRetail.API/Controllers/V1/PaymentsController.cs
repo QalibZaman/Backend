@@ -18,7 +18,7 @@ namespace NettoRetail.API.Controllers.V1
     [Route("/api/v{version:apiVersion}/[controller]")]
     public class PaymentsController(IMediator mediator) : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
         [HttpGet("history")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<PaymentHistoryResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -29,14 +29,7 @@ namespace NettoRetail.API.Controllers.V1
             [FromQuery] bool? sortDescending,
             CancellationToken cancellationToken)
         {
-            var roleId = HttpContext.GetRoleId().ToString();
-
-            if (roleId != SuperAdminConstants.SuperAdminRoleId)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
-
-            var query = new GetPaymentHistoryQuery(pageModel, accountId, sortDescending);
+            var query = new GetPaymentHistoryQuery(pageModel, accountId, sortDescending.GetValueOrDefault(true));
 
             var result = await mediator.Send(query, cancellationToken);
 
@@ -71,13 +64,13 @@ namespace NettoRetail.API.Controllers.V1
             var userId = HttpContext.GetUserId();
 
             if (model.StripePaymentMethodId == string.Empty)
-                return BadRequest(new ApiResponse<string>("Invalid payment method ID."));
+                return BadRequest(new ApiResponse<string>(HandlerConstants.Payment.InvalidPaymentMethodIdMessage));
 
             var command = new EditPaymentCommand(userId, model);
 
-            var result = await mediator.Send(command, cancellationToken);
+            await mediator.Send(command, cancellationToken);
 
-            return Ok(result);
+            return NoContent();
         }
 
         [Authorize]

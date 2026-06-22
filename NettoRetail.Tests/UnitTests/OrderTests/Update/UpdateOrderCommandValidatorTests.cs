@@ -39,7 +39,7 @@ public class UpdateOrderCommandValidatorTests
     {
         var command = SetupUpdateOrderCommand();
 
-        _customerRepository.Exists(Arg.Any<GetCustomerByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(false);
+        _customerRepository.ExistsAsync(Arg.Any<GetCustomerByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(false);
 
         var result = async () => await _validator.TestValidateAsync(command);
 
@@ -59,7 +59,7 @@ public class UpdateOrderCommandValidatorTests
             Guid.NewGuid(),
             23);
 
-        _customerRepository.Exists(Arg.Any<GetCustomerByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
+        _customerRepository.ExistsAsync(Arg.Any<GetCustomerByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(true);
 
         return command;
     }

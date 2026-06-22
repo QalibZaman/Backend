@@ -79,7 +79,7 @@ public class ChangeSubscriptionCommandValidator : AbstractValidator<ChangeSubscr
         ValidationContext<ChangeSubscriptionCommand> context,
         CancellationToken cancellationToken)
     {
-        var paymentMethodExists = await _paymentRepository.Exists(
+        var paymentMethodExists = await _paymentRepository.ExistsAsync(
             new GetPaymentMethodByIdSpecification(command.UserId, command.ChangeSubscriptionRequest.StripePaymentMethodId), cancellationToken);
 
         if (!paymentMethodExists)

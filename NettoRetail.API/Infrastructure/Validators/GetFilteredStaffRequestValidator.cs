@@ -8,7 +8,6 @@ namespace NettoRetail.API.Infrastructure.Validators;
 
 public class GetFilteredStaffRequestValidator : AbstractValidator<GetFilteredStaffRequest>
 {
-    private const int EmailMaxLength = 256;
 
     private readonly IValidator<SortingOption> _validator;
 
@@ -35,8 +34,8 @@ public class GetFilteredStaffRequestValidator : AbstractValidator<GetFilteredSta
             .Matches(@"^\S.*\S$|^\S$").WithMessage(ValidationErrorMessages.Staff.InvalidLastNameErrorMessage);
 
         RuleFor(x => x.Email)
-            .MaximumLength(EmailMaxLength).WithMessage(string.Format(ValidationErrorMessages.Common.InvalidEmailLengthErrorMessage, EmailMaxLength))
-            .EmailAddress().WithMessage(ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+            .MaximumLength(256)
+            .EmailAddress().WithMessage(ValidationErrorMessages.Email.PatternErrorMessage);
 
         RuleFor(x => x.Status)
             .MustBeAValidAccountStatus().WithMessage(ValidationErrorMessages.Staff.InvalidStatusErrorMessage);

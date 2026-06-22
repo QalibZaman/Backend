@@ -31,7 +31,7 @@ public class UpdateOrderCommandValidator : AbstractValidator<UpdateOrderCommand>
     private async Task CustomerExistsAsync(Guid customerId, ValidationContext<UpdateOrderCommand> context, CancellationToken cancellationToken)
     {
         var customerSpecification = new GetCustomerByIdSpecification(customerId);
-        var customerExists = await _customerRepository.Exists(customerSpecification, cancellationToken);
+        var customerExists = await _customerRepository.ExistsAsync(customerSpecification, cancellationToken);
         if (!customerExists)
             throw new NotFoundException(ValidationErrorMessages.Customer.CustomerNotFoundErrorMessage);
     }

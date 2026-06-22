@@ -23,6 +23,7 @@ public class UpdateStaffServiceTests
     private readonly IEmailSender _emailSender;
     private readonly ISessionTerminationService _sessionTerminationService;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateStaffServiceTests()
     {
@@ -32,13 +33,15 @@ public class UpdateStaffServiceTests
         _emailSender = Substitute.For<IEmailSender>();
         _sessionTerminationService = Substitute.For<ISessionTerminationService>();
         _mapper = MapperFactory.Create();
+        _unitOfWork = Substitute.For<IUnitOfWork>();
         _staffService = new StaffService(
             _accountRepository,
             _roleRepository,
             _emailSender,
             _emailBuilderService,
             _sessionTerminationService,
-            _mapper);
+            _mapper,
+            _unitOfWork);
 
     }
 
@@ -65,7 +68,7 @@ public class UpdateStaffServiceTests
 
         var userId = Guid.NewGuid();
 
-        _accountRepository.Exists(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
+        _accountRepository.ExistsAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
         await Assert.ThrowsAsync<ConflictException>(() =>

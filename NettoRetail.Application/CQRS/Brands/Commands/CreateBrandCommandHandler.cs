@@ -33,7 +33,7 @@ public class CreateBrandCommandHandler(
         {
             var specification = new GetBrandsByWebsiteUrlSpecification(request.Model.WebsiteUrl);
 
-            if (await brandRepository.Exists(specification, cancellationToken))
+            if (await brandRepository.ExistsAsync(specification, cancellationToken))
             {
                 throw new BadRequestException(HandlerConstants.Brand.WebsiteUrlUniqueMessage);
             }

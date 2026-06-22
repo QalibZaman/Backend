@@ -268,7 +268,7 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     }
 
     [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [Authorize]
+    [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -321,14 +321,14 @@ public class SuperAdminsShopManagementController(IMediator mediator) : Controlle
     /// <response code="401">User is not authenticated.</response>
     /// <response code="403">User does not have required permissions.</response>
     /// <response code="500">Unexpected server error.</response>
-    [RequiresPermission(Permissions.ADMINS_MANAGEMENT)]
-    [Authorize]
+    
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("platform-admins")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<PlatformAdminResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllPlatformAdminList(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllPlatformAdmins(CancellationToken cancellationToken)
     {
         var data = await mediator.Send(new GetAllPlatformAdminsQuery(), cancellationToken);
 

@@ -6,10 +6,14 @@ public static class ValidationErrorMessages
 
     public static class Common
     {
-        public const string EmailAlreadyExistsErrorMessage = "An account with this email already exists.";
         public const string InvalidDateRangeErrorMessage = "Start date must be earlier than or equal to end date.";
-        public const string InvalidEmailFormatErrorMessage = "Invalid email format.";
-        public const string InvalidEmailLengthErrorMessage = "Email must be no more than {0} characters.";
+    }
+
+    public static class Account
+    {
+        public const string FirstNameRequiredErrorMessage = "First name is required";
+        public const string LastNameRequiredErrorMessage = "Last name is required";
+        public const string AccountNotFoundErrorMessage = "There is no such account.";
     }
 
     public static class Inventory
@@ -19,7 +23,7 @@ public static class ValidationErrorMessages
         public const int ProductNameMinLength = 2;
         public const int ProductNameMaxLength = 50;
 
-        public const string ProductNameRegex = @"^[a-zA-Z0-9_\- ]+$";
+        public const string ProductNameRegex = @"^[a-zA-Z0-9_\-]+$";
         public const string UpcCodeRegex = @"^\d{12}$";
         public const string ProductLocationRegex = @"^(?! )[a-zA-Z0-9,\- ]*(?<! )$";
 
@@ -27,7 +31,7 @@ public static class ValidationErrorMessages
         public const string IsRequired = "Product name is required";
         public const string NameMinLength = "Product name length must be greater than {MinLength} characters long.";
         public const string NameMaxLength = "Product name length must be less than {MaxLength} characters long.";
-        public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, spaces, '-' and '_'.";
+        public const string ProductNameAllowedCharactersRegex = "Product name must only contain letters, digits, '-' and '_'.";
         public const string UpcNotEmpty = "Product UPC is required.";
         public const string UpcMinLength = "Product UPC must be exactly 12 digits long.";
         public const string UpcNotEmptyErrorMessage = UpcNotEmpty;
@@ -52,7 +56,6 @@ public static class ValidationErrorMessages
     {
         public const string PasswordSize = "Password must contain at least 8 characters";
     }
-    
 
     public static class Password
     {
@@ -75,7 +78,7 @@ public static class ValidationErrorMessages
 
     public static class Content
     {
-        public const int MaxContentLength = 50 * 1024; // 50 KB
+        public const int MaxContentLength = 50000;
         public const string IsRequired = "Content is required.";
         public const string MaxContentLengthMessage = "Content cannot exceed {MaxLength} characters.";
         public const string ContentVisibilityRequiredMessage = "Visibility must be false when content is empty or whitespace.";
@@ -92,10 +95,13 @@ public static class ValidationErrorMessages
         public const int DescriptionMaxLength = 500;
 
         public const string CannotDeleteAdminRoleErrorMessage = "The admin role cannot be deleted.";
+        public const string CannotEditAdminRoleErrorMessage = "The admin role cannot be edited.";
         public const string RoleInUseErrorMessage = "Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.";
         public const string RoleExistsErrorMessage = "Role with such name already exists in your shop";
         public const string RoleNotFoundErrorMessage = "There is no such role with this Id";
-
+        public const string RoleNotFoundWithShopIdErrorMessage =
+            "Role with Id {0} and ShopId {1} does not exist.";
+            
         public const string NameLengthErrorMessage = "Role name length must be more than 2 and  less than 50 characters long.";
         public const string NameAllowedCharactersRegex = "Role name must only contain letters, digits, '-' and '_'.";
         public const string NameAllowedCharactersPattern = @"^[a-zA-Z0-9-_]*$";
@@ -109,6 +115,8 @@ public static class ValidationErrorMessages
         public const string PermissionListUniqueIdsErrorMessage = "Permission IDs must be unique.";
         public const string PermissionsListNullErrorMessage = "Permissions list cannot be null";
         public const string PermissionsListEmptyErrorMessage = "At least one permission must be enabled";
+
+        public const string CannotAssignSystemPermissionErrorMessage = "System permissions cannot be assigned";
     }
 
     public static class Shop
@@ -162,6 +170,7 @@ public static class ValidationErrorMessages
         public const string InvalidStatusErrorMessage = "Invalid status value provided.";
         public const string AtLeastOneFieldErrorMessage = "At least one field must be provided to update.";
         public const string ActivationStatusRequired = "Activation status must be provided when updating staff.";
+        public const string CannotEditDeactivatedStaffMemberErrorMessage = "You cannot edit a deactivated staff member unless you are reactivating them.";
     }
 
     public static class Sort
@@ -195,6 +204,11 @@ public static class ValidationErrorMessages
 
         public const string RoleRequired = "Role is required.";
         public const string RoleInvalid = "Role must be a valid role id.";
+
+        public const string InvalidRoleIdFormatMessage = "Row {0}: Invalid role ID format.";
+        public const string AccountWithEmailAlreadyExistsMessage = "Row {0}: Account with email '{1}' already exists.";
+        public const string RoleWithIdNotFoundMessage = "Row {0}: Role with id '{1}' was not found.";
+
     }
 
     public static class Brand
@@ -218,8 +232,10 @@ public static class ValidationErrorMessages
 
     public static class Email
     {
+        public const string EmailRequiredErrorMessage = "Email is required.";
         public const string TooLongErrorMessage = "Email must be no more than {0} characters.";
         public const string PatternErrorMessage = "Must be a valid email address like name@domain.com.";
+        public const string AlreadyExistsErrorMessage = "Another account with this email is already exists";
     }
 
     public static class Country
@@ -252,6 +268,52 @@ public static class ValidationErrorMessages
     public static class File
     {
         public const string InvalidFileSizeErrorMessage = "File size must be 5MB or less.";
+
+        public const string UnsupportedFileFormatErrorMessage =
+            "Unsupported file format. Only JPG, JPEG or PNG allowed.";
+    }
+
+    public static class Category
+    {
+        public const string InvalidCategoryIdErrorMessage = "Category id must be greater than 0.";
+
+        public const string MaxSelectionErrorMessage =
+            "Maximum {0} categories allowed. Please remove one to add another.";
+
+        public const string DuplicateCategoriesErrorMessage = "Duplicate categories are not allowed.";
+
+        public const string InvalidCategoriesErrorMessage =
+            "Selected categories must be level 1, visible, and belong to your shop.";
+
+        public const string NullCategoryErrorMessage = "Category selection is required";
+        public const string AtLeastOneCategoryErrorMessage = "At least one category must be selected.";
+        // For Section
+        public const string EmptySectionNameErrorMessage = "Name of the section cannot be empty.";
+
+        public const string InvalidSectionNameLenghtErrorMessage =
+            "The name must be between {0} and {1} characters long.";
+
+        public const string SectionNamePatternErrorMessage =
+            "The field contains invalid characters or spaces at the beginning/end.";
+    }
+
+    public static class TeaserSection
+    {
+        public const string TeaserSectionNotFoundErrorMessage = "Teaser section not found for shop {0}";
+
+        public const string HeadingEmptyErrorMessage = "Heading is required";
+        public const string HeadingMinimumLengthErrorMessage = "Heading must be at least {0} characters.";
+        public const string HeadingMaximumLengthErrorMessage = "Heading must be at most {0} characters.";
+        public const string HeadingInvalidFormatErrorMessage = "Heading can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input";
+
+        public const string AdditionalTextMinimumLengthErrorMessage = "Additional text must be at least {0} characters.";
+        public const string AdditionalTextMaximumLengthErrorMessage = "Additional text must be at most {0} characters.";
+        public const string AdditionalTextInvalidFormatErrorMessage = "Additional text can only contain letters, numbers, hyphens, underscores and not start or end with a space. Please check your input";
+
+        public const string LinkInvalidFormatErrorMessage = "Website URL must be a valid URL including protocol (e.g., https://)";
+        public const string LinkMaximumLengthErrorMessage = "Website URL must be at most {0} characters.";
+
+        public const string ColorInvalidFormatErrorMessage = "Color must be a valid hex code (e.g. #0000FF).";
         public const string UnsupportedFileFormatErrorMessage = "Unsupported file format. Only JPG, JPEG or PNG allowed.";
     }
 }

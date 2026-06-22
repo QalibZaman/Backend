@@ -33,7 +33,7 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.ExistsAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                  .Returns(false);
 
             // Act & Assert
@@ -47,9 +47,9 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.ExistsAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(true);
-            _favouriteListItemRepository.Exists(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
+            _favouriteListItemRepository.ExistsAsync(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
                 .Returns(true);
 
             // Act & Assert
@@ -63,9 +63,9 @@ namespace NettoRetail.Tests.UnitTests.FavouriteListTests
             var handler = new AddToFavouriteListCommandHandler(_favouriteListItemRepository, _inventoryItemRepository, _accountRepository, _mapper);
             var command = new AddToFavouriteListCommand(Guid.NewGuid(), Guid.NewGuid());
 
-            _inventoryItemRepository.Exists(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
+            _inventoryItemRepository.ExistsAsync(Arg.Any<GetInventoryItemByIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(true);
-            _favouriteListItemRepository.Exists(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
+            _favouriteListItemRepository.ExistsAsync(Arg.Any<GetFavouriteListItemByAccountAndItemId>(), Arg.Any<CancellationToken>())
                 .Returns(false);
 
             var favouriteEntity = new FavouriteListItemEntity

@@ -30,7 +30,7 @@ namespace NettoRetail.Application.CQRS.ProductBanners.Commands
                 return new List<GetInventoryItemBannerResponse>();
 
             var itemSpec = new GetItemByIdSpecification(request.InventoryItemId);
-            if (!await inventoryItemRepository.Exists(itemSpec, cancellationToken))
+            if (!await inventoryItemRepository.ExistsAsync(itemSpec, cancellationToken))
             {
                 throw new NotFoundException("The product does not exist.");
             }

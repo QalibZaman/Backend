@@ -34,7 +34,7 @@ public class SignUpCustomerCommandHandler(
     {
         var emailSpecification = new GetCustomerByEmailAndShopIdSpecification(request.Model.Email, request.ShopId);
 
-        if (await customerRepository.Exists(emailSpecification, cancellationToken))
+        if (await customerRepository.ExistsAsync(emailSpecification, cancellationToken))
            throw new ConflictException("This email address is already signed up. Please Sign in");
 
         if (!string.IsNullOrEmpty(request.Model.PhoneNumber))

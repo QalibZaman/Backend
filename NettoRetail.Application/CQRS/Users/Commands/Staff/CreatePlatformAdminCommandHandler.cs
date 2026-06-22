@@ -45,7 +45,7 @@ public class CreatePlatformAdminCommandHandler (
             if (string.IsNullOrWhiteSpace(activationLinkTemplate))
                 throw new BadRequestException("PlatformAdminActivationOptions:ActivationLink is not configured.");
 
-            if (await accountRepo.Exists(new GetStaffByEmailSpecification(request.Model.Email), cancellationToken))
+            if (await accountRepo.ExistsAsync(new GetStaffByEmailSpecification(request.Model.Email), cancellationToken))
                 throw new ConflictException("A platform admin with this email already exists");
 
             var model = new CreatePlatformAdminModel(request.Model);

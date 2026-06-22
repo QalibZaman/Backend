@@ -26,21 +26,12 @@ public class DeleteStaffCommandHandler(IStaffRepository staffRepository,
         if (account.ShopId != request.ShopId)
             throw new ForbiddenException(StaffConstants.StaffMemberAccessDenied);
 
-        await DeleteStaffAsync(account, cancellationToken);
-    }
-
-    private async Task DeleteStaffAsync(
-        StaffEntity account,
-        CancellationToken cancellationToken)
-    {
         var isOnline = account.IsOnline();
 
         using var transaction = unitOfWork.BeginTransaction();
 
         await TerminateSessionsIfOnlineAsync(isOnline, account.Id, cancellationToken);
-
-        await staffRepository.DeleteAsync(account, cancellationToken);
-
+        await staffRepository.DeleteAsync(account, cancellationToken); 
         transaction.Commit();
 
         await NotifyIfOnlineAsync(isOnline, account.Id, cancellationToken);
