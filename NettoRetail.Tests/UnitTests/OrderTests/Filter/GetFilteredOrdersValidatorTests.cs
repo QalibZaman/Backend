@@ -48,6 +48,6 @@ public class GetFilteredOrdersValidatorTests
 
         result.Errors.Should().ContainSingle(e =>
             e.PropertyName == "CustomerEmails[0]" &&
-            e.ErrorMessage == ValidationErrorMessages.Common.InvalidEmailFormatErrorMessage);
+            e.ErrorMessage == ValidationErrorMessages.Search.InvalidEmailFormat);
     }
 }
