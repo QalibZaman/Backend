@@ -551,7 +551,8 @@ public class ChangeOrderStatusActionMethodTests : IClassFixture<CustomWebApplica
         };
         var orderItem = new OrderItemEntity
         {
-            ItemId = inventoryItems[1].Id,
+            Id = Guid.NewGuid(),
+            InventoryItemId = inventoryItems[1].Id,
             InventoryItem = inventoryItems[1],
             Quantity = 2
         };

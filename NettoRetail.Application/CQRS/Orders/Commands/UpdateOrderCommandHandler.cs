@@ -78,7 +78,7 @@ public class UpdateOrderCommandHandler(
                 throw new NotFoundException(string.Format(HandlerConstants.Inventory.InventoryItemNotFoundMessage, itemId));
             }
 
-            var existingItem = order.OrderItems.FirstOrDefault(oi => oi.ItemId == itemId);
+            var existingItem = order.OrderItems.FirstOrDefault(oi => oi.InventoryItemId == itemId);
             int currentQuantity = existingItem?.Quantity ?? 0;
             int delta = quantity - currentQuantity;
 
@@ -97,7 +97,9 @@ public class UpdateOrderCommandHandler(
             {
                 if (quantity > 0)
                 {
-                    order.OrderItems.Add(new OrderItemEntity { ItemId = itemId, Quantity = quantity, OrderId = order.Id });
+                    order.OrderItems.Add(new OrderItemEntity
+                    {
+                        Id = Guid.NewGuid(), InventoryItemId = itemId, Quantity = quantity, OrderId = order.Id});
                 }
             }
             else if (existingItem != null)
@@ -122,7 +124,7 @@ public class UpdateOrderCommandHandler(
     {
         foreach (var itemId in itemsToDelete)
         {
-            var itemToRemove = order.OrderItems.FirstOrDefault(x => x.ItemId == itemId)
+            var itemToRemove = order.OrderItems.FirstOrDefault(x => x.InventoryItemId == itemId)
                 ?? throw new NotFoundException(string.Format(HandlerConstants.Inventory.InventoryItemNotFoundMessage, itemId));
 
             if (inventory.TryGetValue(itemId, out var stockItem))

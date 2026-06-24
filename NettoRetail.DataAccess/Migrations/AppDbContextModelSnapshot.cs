@@ -1134,21 +1134,25 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
                 {
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ItemId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.HasKey("OrderId", "ItemId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("InventoryItemId");
+
+                    b.HasIndex("OrderId", "InventoryItemId")
+                        .IsUnique();
 
                     b.ToTable("Order_Item", (string)null);
                 });
@@ -2449,7 +2453,7 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
                         .WithMany("OrderItems")
-                        .HasForeignKey("ItemId")
+                        .HasForeignKey("InventoryItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

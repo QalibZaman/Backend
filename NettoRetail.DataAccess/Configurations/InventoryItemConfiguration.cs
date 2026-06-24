@@ -43,7 +43,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
 
         builder.HasMany(p => p.OrderItems)
             .WithOne(p => p.InventoryItem)
-            .HasForeignKey(p => p.ItemId);
+            .HasForeignKey(p => p.InventoryItemId);
 
         builder.HasOne(p => p.Brand)
             .WithMany(b => b.InventoryItems)

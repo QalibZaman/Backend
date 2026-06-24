@@ -103,7 +103,8 @@ public class GetOrderPrintingDetailsHandlerTests : IClassFixture<CustomWebApplic
 
         var orderItem = new OrderItemEntity
         {
-            ItemId = inventoryItem.Id,
+            Id = Guid.NewGuid(),
+            InventoryItemId = inventoryItem.Id,
             InventoryItem = inventoryItem,
             Quantity = 2
         };

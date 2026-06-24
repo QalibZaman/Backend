@@ -15,18 +15,32 @@ namespace NettoRetail.Tests.UnitTests.OrderTests.GetOrder;
 
 public class GetOrderProductsQueryHandlerTest
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly GetOrderProductsQueryHandler _handler;
-    private readonly IMapper _mapper;
+    
+        private readonly IOrderRepository _orderRepository;
+        private readonly IProductReviewRepository _productReviewRepository;
+        private readonly GetOrderProductsQueryHandler _handler;
+        private readonly IMapper _mapper;
 
-    public GetOrderProductsQueryHandlerTest()
-    {
-        _orderRepository = Substitute.For<IOrderRepository>();
-        _mapper = MapperFactory.Create();
-        _handler = new GetOrderProductsQueryHandler(_orderRepository, _mapper);
-    }
+        public GetOrderProductsQueryHandlerTest()
+        {
+            _orderRepository = Substitute.For<IOrderRepository>();
+            _productReviewRepository = Substitute.For<IProductReviewRepository>();
 
-    [Fact]
+            _productReviewRepository
+                .Exists(
+                    Arg.Any<Specification<ProductReviewEntity>>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(false);
+
+            _mapper = MapperFactory.Create();
+
+            _handler = new GetOrderProductsQueryHandler(
+                _orderRepository,
+                _productReviewRepository,
+                _mapper);
+        }
+
+        [Fact]
     public async Task Handler_ShouldThrownNotFoundException_WhenOrderNotFound()
     {
         // Arrange
@@ -102,7 +116,8 @@ public class GetOrderProductsQueryHandlerTest
 
         var orderItem = new OrderItemEntity
         {
-            ItemId = inventoryItem.Id,
+            Id = Guid.NewGuid(),
+            InventoryItemId = inventoryItem.Id,
             InventoryItem = inventoryItem,
             Quantity = 2,
             OrderId = id,

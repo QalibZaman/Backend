@@ -27,7 +27,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
             using var tx = unitOfWork.BeginTransaction();
             try
             {
-                var itemIds = order.OrderItems.Select(i => i.ItemId);
+                var itemIds = order.OrderItems.Select(i => i.InventoryItemId);
                 var spec = new GetItemsByIdsSpecification(itemIds);
                 var inventoryItems = await itemRepository.GetAllBySpecAsync(spec, cancellation);
 
@@ -79,7 +79,7 @@ namespace NettoRetail.Application.Services.IOrderService.OrderStatusService
         {
             foreach (var item in orderItems)
             {
-                var inventoryItem = inventoryItems.First(i => i.Id == item.ItemId);
+                var inventoryItem = inventoryItems.First(i => i.Id == item.InventoryItemId);
                 if (newStatus == OrderStatusEnum.InProgress)
                 {
                     inventoryItem.ReservedAmount -= item.Quantity;
