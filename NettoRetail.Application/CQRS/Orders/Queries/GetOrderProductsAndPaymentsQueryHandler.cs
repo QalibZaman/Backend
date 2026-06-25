@@ -41,7 +41,7 @@ public class GetOrderProductsQueryHandler(
                 item.InventoryItemId);
 
             item.AlreadyReviewed =
-                await productReviewRepository.Exists(
+                await productReviewRepository.ExistsAsync(
                     reviewSpec,
                     cancellationToken);
 
