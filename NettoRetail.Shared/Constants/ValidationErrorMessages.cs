@@ -130,6 +130,28 @@ public static class ValidationErrorMessages
         public const string CustomerNotFoundErrorMessage = "There is no such customer.";
         public const string CannotEditDeactivatedCustomerErrorMessage = "You cannot edit a deactivated customer unless you are reactivating them";
         public const string CustomerHasOrdersErrorMessage = "This customer has active orders. Please complete or cancel them before deactivating";
+
+        public const string FirstNameRequiredErrorMessage = "First name is required.";
+        public const string FirstNameLengthErrorMessage = "First name must be between {0} and {1} characters long.";
+        public const string FirstNameIsInvalidErrorMessage = "First name must contain only Latin letters and single spaces between words.";
+
+        public const string FirstNameStartsWithWhitespacesErrorMessage =
+            "First name must not start or end with spaces.";
+
+        public const string LastNameRequiredErrorMessage = "Last name is required.";
+        public const string LastNameLengthErrorMessage = "Last name must be between {0} and {1} characters long.";
+        public const string LastNameIsInvalidErrorMessage = "Last name must contain only Latin letters and single spaces between words.";
+        public const string LastNameStartsWithWhitespacesErrorMessage = "Last name must not start or end with spaces.";
+
+        public const string EmailRequiredErrorMessage = "Email is required.";
+        public const string EmailLengthErrorMessage = "Email must be 256 characters long.";
+        public const string EmailInvalidErrorMessage = "Email must be in a valid format.";
+
+        public const string PhoneNumberRequiredErrorMessage = "Phone number can't be empty if country id is being provided";
+        public const string CountryIdRequiredErrorMessage = "CountryId is required when PhoneNumber is provided.";
+
+        public const string RemarksLengthErrorMessage = "Remarks length must be between {0} and {1} characters.";
+        public const string RemarksAreInvalidErrorMessage = "Remarks must contain only Latin letters, digits, and allowed special characters.";
     }
 
     public static class Order
