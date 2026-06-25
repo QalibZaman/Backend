@@ -7,6 +7,8 @@
             public const string CustomerNotFoundMessage = "Customer {0} not found.";
             public const string CustomerHasActiveOrdersMessage = "Cannot delete the customer with orders in progress, close the orders first.";
             public const string CannotDeleteCustomerFromAnotherShopMessage = "Cannot delete customer from another shop.";
+            public const string EmailIsAlreadyUsedMessage = "Account with this email already exists";
+            public const string GeneratedLoyaltyIdAlreadyExistMessage = "Generated Loyalty ID already exists.";
         }
 
         public static class Staff
