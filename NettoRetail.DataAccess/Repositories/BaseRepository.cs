@@ -141,7 +141,7 @@ public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRep
             Specification<TEntity> specification,
             CancellationToken cancellationToken)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.AsNoTracking().AsQueryable();
 
         if (specification.Criteria != null)
         {

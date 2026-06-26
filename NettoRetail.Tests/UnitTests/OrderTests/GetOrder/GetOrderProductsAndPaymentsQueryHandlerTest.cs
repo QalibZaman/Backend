@@ -27,7 +27,7 @@ public class GetOrderProductsQueryHandlerTest
             _productReviewRepository = Substitute.For<IProductReviewRepository>();
 
             _productReviewRepository
-                .Exists(
+                .ExistsAsync(
                     Arg.Any<Specification<ProductReviewEntity>>(),
                     Arg.Any<CancellationToken>())
                 .Returns(false);
