@@ -78,6 +78,19 @@ public class CreateCustomerCommandHandlerTests
     {
         var request = CreateValidCustomerRequest();
         var command = new CreateCustomerCommand(1, request);
+        var role = new RoleEntity
+        {
+            Id = RoleConstants.Customer,
+            Name = "RoleName"
+        };
+        var customer = new CustomerEntity
+        {
+            FirstName = "CustomerFirstName",
+            LastName = "CustomerLastName",
+            Email = "test@gmail.com",
+            PasswordHash = "hashpassword",
+            Role = role
+        };
         
         _customerRepository
             .ExistsAsync(Arg.Any<GetCustomerByEmailSpecification>(), Arg.Any<CancellationToken>())
@@ -86,6 +99,12 @@ public class CreateCustomerCommandHandlerTests
         _customerRepository
             .ExistsAsync(Arg.Any<GetCustomerByLoyaltyIdSpecification>(), Arg.Any<CancellationToken>())
             .Returns(true);
+        
+        _roleRepository
+            .GetAsync(Arg.Any<GetRoleByIdSpecification>(), Arg.Any<CancellationToken>())
+            .Returns(role);
+        
+        _mapper.Map<CustomerEntity>(request).Returns(customer);
         
             var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             _handler.Handle(command, CancellationToken.None));
