@@ -63,6 +63,7 @@
             public const string AtLeastTwoPaymentMethodsRequiredMessage = "At least two payment methods are required to change default.";
             public const string CannotDeleteOwnAccountMessage = "You cannot delete your own account.";
             public const string CannotDeletePlatformAdminMessage = "Only deactivated or pending platform admins can be deleted.";
+            public const string ChangePasswordFailed = "Current password is incorrect.";
         }
 
         public static class Stripe

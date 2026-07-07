@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Services.IPasswordService;
+using NettoRetail.Shared.Constants;
+using Stripe.BillingPortal;
+using System.Collections.Concurrent;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 
@@ -12,6 +15,14 @@ public class ChangePasswordCommandHandler(
 {
     public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
+        var isCurrentPasswordValid = await passwordService.ValidatePasswordAsync(
+            request.UserId,
+            request.Model.CurrentPassword,
+            cancellationToken);  
+
+        if (!isCurrentPasswordValid)
+            throw new InvalidOperationException(HandlerConstants.Account.ChangePasswordFailed);
+
         await passwordService.ChangePasswordAsync(
             request.UserId,
             request.Model.CurrentPassword,

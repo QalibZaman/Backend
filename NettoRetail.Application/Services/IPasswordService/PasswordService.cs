@@ -123,4 +123,10 @@ public class PasswordService(
             logger.LogWarning(ex, "Password changed successfully, but email failed to send to {Email}", email);
         }
     }
+
+    public async Task<bool> ValidatePasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
+    {
+       var customer = await GetCustomerUserAsync(userId, cancellationToken);
+       return PasswordHasher.VerifyPassword(password, customer.PasswordHash);
+    }
 }
