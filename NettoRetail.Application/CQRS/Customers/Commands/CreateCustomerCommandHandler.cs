@@ -57,7 +57,7 @@ public class CreateCustomerCommandHandler(
 
         if (account)
         {
-            throw new ConflictException("Account with this email already exists");
+            throw new ConflictException(HandlerConstants.Customer.EmailIsAlreadyUsedMessage);
         }
 
         var roleSpecification = new GetRoleByIdSpecification(RoleConstants.Customer);
@@ -99,7 +99,7 @@ public class CreateCustomerCommandHandler(
 
         if (exists)
         {
-            throw new ConflictException("Generated Loyalty ID already exists.");
+            throw new ConflictException(HandlerConstants.Customer.GeneratedLoyaltyIdAlreadyExistMessage);
         }
 
         return loyaltyId;
