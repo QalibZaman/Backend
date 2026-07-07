@@ -21,8 +21,26 @@ public static class RuleBuilderOptionsExtensions
     {
         return ruleBuilder.Must(url =>
         {
-            return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-                   && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uriResult))
+                return false;
+
+            if (uriResult.Scheme != Uri.UriSchemeHttp && uriResult.Scheme != Uri.UriSchemeHttps)
+                return false;
+
+            var host = uriResult.Host;
+
+            if (string.IsNullOrEmpty(host))
+                return false;
+
+            var dotIndex = host.LastIndexOf('.');
+            if (dotIndex < 0 || dotIndex == host.Length - 1)
+                return false;
+
+            var tld = host.Substring(dotIndex + 1);
+            if (tld.Length < 2)
+                return false;
+
+            return true;
         });
     }
 
