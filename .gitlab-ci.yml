@@ -1,0 +1,5 @@
+include:
+  - project: 'Andersen/netto-retailtech/v1/devops-work/ci-cd'
+    ref: main
+    file:
+      - '.gitlab-ci-net.yml'
