@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.DataAccess.UOW;
+using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
 namespace NettoRetail.DataAccess.Extensions;
@@ -50,7 +52,7 @@ public static class ServiceExtensions
         });
 
         // Repositories
-      
+        services.AddScoped<IStaffRepository, StaffRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

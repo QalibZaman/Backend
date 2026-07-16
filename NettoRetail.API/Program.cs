@@ -10,9 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Host.UseSerilog((context, configuration) =>
    // configuration.ReadFrom.Configuration(context.Configuration));
 
-
+builder.Services.ConfigureSwagger();
+builder.Services.ConfigureAuthentication();
+builder.Services.ConfigureValidation();
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
-
+builder.Services.AddApplicationServiceExtensions(builder.Configuration);
+builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
+builder.Services.AddSharedServiceExtensions(builder.Configuration);
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>()
@@ -26,6 +31,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+
 
 builder.Services.AddMemoryCache();
 
@@ -47,6 +54,8 @@ await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
 //app.UseSerilogRequestLogging();
+app.UseGlobalExceptionHandling();
+app.UseConfiguredSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

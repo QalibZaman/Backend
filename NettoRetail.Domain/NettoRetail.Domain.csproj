@@ -14,9 +14,4 @@
       </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Entities\JunctionEntities\" />
-      <Folder Include="Enums\" />
-    </ItemGroup>
-
 </Project>

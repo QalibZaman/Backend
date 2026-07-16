@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoHealth.Infrastructure.Services;
+using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
@@ -14,9 +16,14 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddInfrastructureExtensions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IAzureBlobService, AzureBlobService>();
-        services.AddScoped<IImageValidatorService, ImageValidatorService>();
+
+        services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+        services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
+        services.Configure<AzureBlobStorageOptions>(configuration.GetSection(nameof(AzureBlobStorageOptions)));
         
+        // services.AddScoped<IAzureBlobService, AzureBlobService>();
+        services.AddScoped<IImageValidatorService, ImageValidatorService>();
+
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {
             client.BaseAddress = new Uri(configuration.GetSection("IpInfo").GetValue<string>("BaseUrl") ?? "https://ipinfo.io/");
@@ -38,8 +45,8 @@ public static class ServiceExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-        services.AddScoped<IStripeService, StripeService>();
-
+        // services.AddScoped<IStripeService, StripeService>();
+        services.AddDbContext<AppDbContext>();
         return services;
     }
 }

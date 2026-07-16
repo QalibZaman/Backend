@@ -32,13 +32,10 @@
     <ItemGroup>
       <Folder Include="BusinessRules\Categories\" />
       <Folder Include="BusinessRules\Roles\" />
-      <Folder Include="CQRS\" />
-      <Folder Include="Exceptions\" />
-      <Folder Include="Interfaces\" />
-      <Folder Include="MappingConfiguration\" />
+      <Folder Include="CQRS\Sessions\Commands\" />
+      <Folder Include="CQRS\Users\Commands\" />
       <Folder Include="Models\Request\Feedback\" />
       <Folder Include="Models\Request\Shop\" />
-      <Folder Include="Utilities\" />
     </ItemGroup>
 
     <ItemGroup>
