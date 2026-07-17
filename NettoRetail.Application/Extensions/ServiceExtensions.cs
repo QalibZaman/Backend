@@ -13,6 +13,8 @@ using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ISessionModelFactory;
+using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
@@ -70,6 +72,8 @@ public static class ServiceExtensions
         services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
         
 
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();

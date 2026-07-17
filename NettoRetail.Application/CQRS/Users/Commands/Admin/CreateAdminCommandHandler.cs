@@ -56,9 +56,6 @@ public class CreateAdminCommandHandler(
         admin.Id = id;
         admin.RoleId = adminOptions.Value.RoleId;
         admin.Status = StaffStatusEnum.Active;
-        admin.CommunicationPreference =
-            CommunicationPreferencesSetter.SetCommunicationPreferences(admin);
-
         var user = await staffRepository.AddAsync(admin, cancellationToken);
 
         var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), null);

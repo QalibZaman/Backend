@@ -16,6 +16,8 @@ public class AppDbContext(
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> ApplicationRoles { get; set; }
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
+    public DbSet<CustomerEntity> Customers { get; set; }
+    public DbSet<SessionEntity> Sessions { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
@@ -24,6 +26,10 @@ public class AppDbContext(
     {
         // IMPORTANT: call the base implementation first
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<BaseUserEntity>().UseTpcMappingStrategy();
+
+        modelBuilder.Entity<StaffEntity>().ToTable("Staff");
+        modelBuilder.Entity<CustomerEntity>().ToTable("Customers");
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
