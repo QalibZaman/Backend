@@ -30,14 +30,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="BusinessRules\Categories\" />
+      <Folder Include="BusinessRules\Roles\" />
+      <Folder Include="CQRS\" />
+      <Folder Include="Exceptions\" />
+      <Folder Include="Interfaces\" />
+      <Folder Include="MappingConfiguration\" />
       <Folder Include="Models\Request\Feedback\" />
       <Folder Include="Models\Request\Shop\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Services\IPdfGenerator\Utilities\Fonts\*.ttf">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      <Folder Include="Utilities\" />
     </ItemGroup>
 
     <ItemGroup>
