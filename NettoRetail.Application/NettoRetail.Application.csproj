@@ -30,11 +30,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Request\Feedback\" />
-      <Folder Include="Models\Request\Shop\" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <Content Include="CQRS\.DS_Store" />
+      <Content Include="Services\.DS_Store" />
       <Content Include="Services\IPdfGenerator\Utilities\Fonts\*.ttf">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>

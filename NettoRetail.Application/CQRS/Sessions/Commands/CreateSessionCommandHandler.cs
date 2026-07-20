@@ -3,9 +3,9 @@ using MediatR;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.PermissionRole;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Interfaces;
@@ -53,13 +53,13 @@ public class CreateSessionCommandHandler(
 
         if (request.UserType == UserTypeEnum.Admin)
         {
-            var accSpecification = new GetStaffByIdSpecification(session.AccountId);
+            var accSpecification = new GetStaffByIdSpecification(session.StaffId);
             account = await adminRepository.GetAsync(accSpecification, cancellationToken)
                 ?? throw new NotFoundException("Account not found");
         }
         else
         {
-            var customerSpec = new GetCustomerByIdSpecification(session.AccountId);
+            var customerSpec = new GetCustomerByIdSpecification(session.StaffId);
             account = await customerRepository.GetAsync(customerSpec, cancellationToken)
                 ?? throw new NotFoundException("Account not found");
         }

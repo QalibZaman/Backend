@@ -12,7 +12,7 @@ public class SessionEntity
     public DateTime StartTime { get; set; }
     public DateTime LastActivityTime { get; set; }
     public DateTime ExpiresAt { get; set; }
-    public Guid AccountId { get; set; } // currently fk to staff
-    public required BaseUserEntity Account { get; set; }
+    public Guid StaffId { get; set; }
+    public StaffEntity Staff { get; set; } = null!;
     public bool IsActive { get; set; } = true;
 }

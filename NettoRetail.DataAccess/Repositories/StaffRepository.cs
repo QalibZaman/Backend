@@ -30,17 +30,17 @@ public class StaffRepository : BaseRepository<StaffEntity>,
             accountsWithoutCustomers = accountsWithoutCustomers.Include(include);
         }
 
-        accountsWithoutCustomers = accountsWithoutCustomers
-            .GroupJoin(
-                _dbContext.Customers,
-                account => account.Id,
-                customer => customer.Id,
-                (account, customers) => new { account, customers })
-            .SelectMany(
-                ac => ac.customers.DefaultIfEmpty(),
-                (ac, customer) => new { ac.account, customer })
-            .Where(x => x.customer == null)
-            .Select(x => x.account);
+        // accountsWithoutCustomers = accountsWithoutCustomers
+        //     .GroupJoin(
+        //         _dbContext.Customers,
+        //         account => account.Id,
+        //         customer => customer.Id,
+        //         (account, customers) => new { account, customers })
+        //     .SelectMany(
+        //         ac => ac.customers.DefaultIfEmpty(),
+        //         (ac, customer) => new { ac.account, customer })
+        //     .Where(x => x.customer == null)
+        //     .Select(x => x.account);
 
         return await accountsWithoutCustomers.ToListAsync(cancellationToken);
     }
@@ -56,17 +56,17 @@ public class StaffRepository : BaseRepository<StaffEntity>,
             query = query.Where(specification.Criteria);
         }
 
-        query = query
-            .GroupJoin(
-                _dbContext.Customers,
-                account => account.Id,
-                customer => customer.Id,
-                (account, customers) => new { account, customers })
-            .SelectMany(
-                ac => ac.customers.DefaultIfEmpty(),
-                (ac, customer) => new { ac.account, customer })
-            .Where(x => x.customer == null)
-            .Select(x => x.account);
+        // query = query
+        //     .GroupJoin(
+        //         _dbContext.Customers,
+        //         account => account.Id,
+        //         customer => customer.Id,
+        //         (account, customers) => new { account, customers })
+        //     .SelectMany(
+        //         ac => ac.customers.DefaultIfEmpty(),
+        //         (ac, customer) => new { ac.account, customer })
+        //     .Where(x => x.customer == null)
+        //     .Select(x => x.account);
 
         foreach (var include in specification.Includes)
         {

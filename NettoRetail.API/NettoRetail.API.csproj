@@ -18,9 +18,9 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.29" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
           <PrivateAssets>all</PrivateAssets>
@@ -38,6 +38,10 @@
     <ItemGroup>
       <ProjectReference Include="..\NettoRetail.Application\NettoRetail.Application.csproj" />
       <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controllers\V1\" />
     </ItemGroup>
 
 </Project>
