@@ -6,6 +6,7 @@ using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Interfaces.Services;
+using NettoRetail.Shared.Options;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -16,7 +17,8 @@ public static class ServiceExtensions
     {
         services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
-        
+        services.AddScoped<ILockProvider, HardLockWithTtlProviderService>();
+
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {
             client.BaseAddress = new Uri(configuration.GetSection("IpInfo").GetValue<string>("BaseUrl") ?? "https://ipinfo.io/");
@@ -24,6 +26,7 @@ public static class ServiceExtensions
 
         services.Configure<PlatformAdminActivationOptions>(configuration.GetSection(nameof(PlatformAdminActivationOptions)));
         services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
+        services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
         services.Configure<CustomerPasswordResetOptions>(configuration.GetSection(nameof(CustomerPasswordResetOptions)));
         services.Configure<CorsOptions>(configuration.GetSection(nameof(CorsOptions)));
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));

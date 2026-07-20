@@ -21,9 +21,4 @@
       <ProjectReference Include="..\NettoRetail.Domain\NettoRetail.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Constants\" />
-      <Folder Include="Options\" />
-    </ItemGroup>
-
 </Project>
