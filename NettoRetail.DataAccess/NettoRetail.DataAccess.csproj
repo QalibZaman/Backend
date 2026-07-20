@@ -32,4 +32,8 @@
         <ProjectReference Include="..\NettoRetail.Shared\NettoRetail.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Configurations\" />
+    </ItemGroup>
+
 </Project>
