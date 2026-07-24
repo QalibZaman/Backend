@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Failed login</title>
+</head>
+<body>
+<p>Hello {{ user_name }},</p>
+<p>Somebody tried to access your account and failded all available attemps. If it was you - use the following link to restore login function:</p>
+<p>
+    <a href="{{activation_link}}"
+       style="
+       display: inline-block;
+       padding: 12px 24px;
+       font-size: 16px;
+       color: #ffffff;
+       background-color: #4F46E5;
+       text-decoration: none;
+       border-radius: 6px;
+       font-weight: bold;
+     ">
+        Restore Login
+    </a>
+</p>
+
+<p>If it wasn't you - ignore the message.</p>
+</body>
+</html>

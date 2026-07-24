@@ -13,6 +13,7 @@ using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ILinkService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
@@ -74,8 +75,10 @@ public static class ServiceExtensions
         services.AddScoped<CustomerService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
-        
-
+        services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
+        services.AddScoped<IActivationEmailAttemptService, ActivationEmailAttemptAttemptService>();
+        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
 

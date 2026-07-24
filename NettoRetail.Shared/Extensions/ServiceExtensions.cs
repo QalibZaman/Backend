@@ -10,6 +10,8 @@ public static class ServiceExtensions
     {
         services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
         services.Configure<AdminRoleOptions>(configuration.GetSection(nameof(AdminRoleOptions)));
+        services.Configure<UserBlockOptions>(configuration.GetSection(nameof(UserBlockOptions)));
+        services.Configure<EmailSendBlockOptions>(configuration.GetSection(nameof(EmailSendBlockOptions)));
         return services;
     }
 }

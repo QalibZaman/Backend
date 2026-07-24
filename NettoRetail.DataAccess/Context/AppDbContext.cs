@@ -18,6 +18,8 @@ public class AppDbContext(
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
+    public DbSet<FailedAuthAttemptEntity> FailedAuthAttempts { get; set; }
+    public DbSet<ActivationEmailAttemptEntity> ActivationEmailEntity { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
