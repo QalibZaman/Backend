@@ -1,4 +1,3 @@
-
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
@@ -15,7 +14,7 @@ public class LinkService(IJwtManager jwtManager, IOptions<LockedAccountActivatio
         var claims = new List<Claim>
         {
             new(ClaimTypes.Email, email),
-            new("account_id", accountId.ToString()),
+            new(AuthClaims.AccountId, accountId.ToString()),
             new(AuthClaims.TokenType, AuthTokenTypes.EmailVerification)
         };
 

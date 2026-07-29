@@ -1,5 +1,3 @@
-namespace NettoRetail.API.Controllers.V1;
-
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +8,8 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
+
+namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -32,14 +32,14 @@ public class StaffController(
         return Ok(response);
     }
 
-    [HttpPost("resend-locked-account-activation-link")]
+    [HttpPost("locked-account-activation")]
     public async Task<IActionResult> ResendActivationEmail([FromBody] ActivationEmailAttemptRequest model)
     {
         var emailCommand = new ResendActivationEmailCommand(model);
         await mediator.Send(emailCommand);
         return Ok(new
         {
-            message = "If an account with that email exists, an activation email has been sent."
+            message = "If an account with that email exists, an activation email has been sent.",
         });
     }
 }

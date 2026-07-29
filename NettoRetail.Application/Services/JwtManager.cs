@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
@@ -11,7 +12,7 @@ using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.Services;
 
-public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
+public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> logger) : IJwtManager
 {
     private readonly byte[] _key = Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey);
     private readonly string _algorithm = SecurityAlgorithms.HmacSha512;
@@ -399,25 +400,30 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
 
             return principal;
         }
-        catch (SecurityTokenExpiredException)
+        catch (SecurityTokenExpiredException ex)
         {
+            logger.LogWarning(ex, "Expired account activation token.");
             throw new BadRequestException("Token has expired.");
         }
-        catch (SecurityTokenMalformedException)
+        catch (SecurityTokenMalformedException ex)
         {
+            logger.LogWarning(ex, "Malformed account activation token.");
             throw new BadRequestException("Token format is invalid.");
         }
-        catch (SecurityTokenException)
+        catch (SecurityTokenException ex)
         {
+            logger.LogWarning(ex, "Invalid account activation token.");
             throw new BadRequestException("Invalid token.");
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
-            throw new NotFoundException("Invalid token.");
+            logger.LogWarning(ex, "Token has an invalid format.");
+            throw new BadRequestException("Invalid token.");
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
-            throw new NotFoundException("Invalid token.");
+            logger.LogWarning(ex, "Invalid token argument.");
+            throw new BadRequestException("Invalid token.");
         }
     }
 }
