@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11222.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NettoRetail.API", "NettoRetail.API\NettoRetail.API.csproj", "{E4813A07-99DA-46AD-AB9B-D352263085DC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NettoRetail.Application", "NettoRetail.Application\NettoRetail.Application.csproj", "{EC28FBC3-0C08-451A-91D3-37CA86B4BB41}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NettoRetail.DataAccess", "NettoRetail.DataAccess\NettoRetail.DataAccess.csproj", "{A7714F76-7ACB-4C8A-821B-90B5C31D0FF6}"
@@ -29,16 +27,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NettoRetail.Tests", "NettoR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NettoRetail.SeederApp", "NettoRetail.SeederApp\NettoRetail.SeederApp.csproj", "{49F66734-C44C-4F5C-8338-B3562ED90ACA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NettoRetail.API", "NettoRetail.API\NettoRetail.API.csproj", "{1D0AF262-6E5E-1CF7-191B-2509E27E8E63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E4813A07-99DA-46AD-AB9B-D352263085DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4813A07-99DA-46AD-AB9B-D352263085DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4813A07-99DA-46AD-AB9B-D352263085DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4813A07-99DA-46AD-AB9B-D352263085DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC28FBC3-0C08-451A-91D3-37CA86B4BB41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC28FBC3-0C08-451A-91D3-37CA86B4BB41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC28FBC3-0C08-451A-91D3-37CA86B4BB41}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -67,12 +63,15 @@ Global
 		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F66734-C44C-4F5C-8338-B3562ED90ACA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D0AF262-6E5E-1CF7-191B-2509E27E8E63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D0AF262-6E5E-1CF7-191B-2509E27E8E63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D0AF262-6E5E-1CF7-191B-2509E27E8E63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D0AF262-6E5E-1CF7-191B-2509E27E8E63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E4813A07-99DA-46AD-AB9B-D352263085DC} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{EC28FBC3-0C08-451A-91D3-37CA86B4BB41} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{A7714F76-7ACB-4C8A-821B-90B5C31D0FF6} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{E8A2D658-A490-4280-BB78-16CFFADFA21A} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
@@ -80,6 +79,7 @@ Global
 		{0A60FFA4-62E2-48FD-B2AC-A246B8908716} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 		{E459B376-49A1-4E00-9436-DD14AE4583C0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{49F66734-C44C-4F5C-8338-B3562ED90ACA} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
+		{1D0AF262-6E5E-1CF7-191B-2509E27E8E63} = {2A741BB7-2DFB-48B0-9AF8-D7799CBEE1D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5937772A-BE82-4FD7-ADBC-0CBB0AFE2E9E}
