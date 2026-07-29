@@ -1,5 +1,6 @@
+namespace NettoRetail.API.Controllers.V1;
+
 using Asp.Versioning;
-using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
@@ -9,9 +10,6 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
-
-namespace NettoRetail.API.Controllers.V1;
-
 
 [ApiController]
 [ApiVersion(1)]

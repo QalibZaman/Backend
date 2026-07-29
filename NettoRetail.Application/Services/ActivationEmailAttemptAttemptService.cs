@@ -37,8 +37,8 @@ public class ActivationEmailAttemptAttemptService(IActivationEmailAttemptReposit
 
     public bool HasAttemptsRemaining(ActivationEmailAttemptEntity? activationEmailEntity)
     {
-        return activationEmailEntity != null &&
-               activationEmailEntity.SendCount >= _emailOptions.SentEmailsThreshold;
+        return activationEmailEntity == null ||
+               activationEmailEntity.SendCount < _emailOptions.SentEmailsThreshold;
     }
 
     public async Task ResetAttemptsAsync(ActivationEmailAttemptEntity activationEmailEntity, CancellationToken cancellationToken)
