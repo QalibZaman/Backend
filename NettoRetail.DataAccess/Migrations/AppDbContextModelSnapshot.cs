@@ -281,6 +281,27 @@ namespace NettoRetail.DataAccess.Migrations
                     b.UseTpcMappingStrategy();
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("BlacklistedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlacklistedTokens");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
                     b.Property<Guid>("Id")
