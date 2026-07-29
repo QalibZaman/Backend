@@ -14,7 +14,5 @@ public class SessionEntity
     public DateTime ExpiresAt { get; set; }
     public Guid StaffId { get; set; }
     public StaffEntity Staff { get; set; } = null!;
-    public Guid AccountId { get; set; }
-    public required BaseUserEntity Account { get; set; }
     public bool IsActive { get; set; } = true;
 }
