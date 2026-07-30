@@ -74,8 +74,8 @@ public static class ServiceExtensions
         services.AddScoped<CustomerService>();
         services.AddScoped<ISessionModelFactory, SessionModelFactory>();
         services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
-        
-
+        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
 
