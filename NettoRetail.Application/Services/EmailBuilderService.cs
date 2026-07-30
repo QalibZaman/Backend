@@ -22,4 +22,17 @@ public class EmailBuilderService(ILinkService linkService, IEmailTemplateService
             Message = emailBody
         };
     }
+
+    public async Task<EmailModel> BuildNewsletterUnsubscribedEmailAsync(string email, string fullName, int year)
+    {
+        var model = new { full_name = fullName, current_year = year };
+        var emailBody =
+            await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.UnsubscriptionConfirmation, model);
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.UnsubscriptionConfirmation,
+            Message = emailBody
+        };
+    }
 }

@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
-using NettoRetail.Shared.Constants;
-
-namespace NettoRetail.API.Controllers.V1;
-
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
+namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -17,12 +14,21 @@ public class StaffController(
     IMediator mediator) : ControllerBase
 {
     [HttpPost("subscribe-to-newsletter")]
-    //[Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+    [Authorize]
     public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
     {
-        //var accountId = HttpContext.GetUserId();
-        var accountId = new Guid("5ba00984-d376-45f6-86ed-bc1430be2016");
+        var accountId = HttpContext.GetUserId();
         var command = new SubscribeToNewsletterCommand(accountId);
+        await mediator.Send(command, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("unsubscribe-to-newsletter")]
+    [Authorize]
+    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetUserId();
+        var command = new UnsubscribeToNewsletterCommand(accountId);
         await mediator.Send(command, cancellationToken);
         return Ok();
     }
