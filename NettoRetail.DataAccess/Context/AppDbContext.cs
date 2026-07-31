@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Identity;
-using NettoRetail.DataAccess.Options;
 using NettoRetail.Domain.Entities;
-
 
 namespace NettoRetail.DataAccess.Context;
 
@@ -15,6 +12,8 @@ public class AppDbContext(
 {
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> ApplicationRoles { get; set; }
+    public DbSet<CountryEntity> Countries { get; set; }
+    public DbSet<AddressEntity> Addresses { get; set; }
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
@@ -24,15 +23,11 @@ public class AppDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // IMPORTANT: call the base implementation first
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<BaseUserEntity>().UseTpcMappingStrategy();
 
-        modelBuilder.Entity<StaffEntity>().ToTable("Staff");
-        modelBuilder.Entity<CustomerEntity>().ToTable("Customers");
+        modelBuilder.Entity<BaseUserEntity>()
+            .UseTpcMappingStrategy();
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
-
-
 }
