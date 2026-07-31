@@ -57,6 +57,8 @@ public static class ServiceExtensions
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IPermissionRoleRepository, PermissionRoleRepsitory>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
+        services.AddScoped<IActivationEmailAttemptRepository, ActivationEmailAttemptRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
 
         //UnitOfWork

@@ -1,4 +1,4 @@
-﻿    <Project Sdk="Microsoft.NET.Sdk.Web">
+    <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -39,9 +39,8 @@
       <ProjectReference Include="..\NettoRetail.Application\NettoRetail.Application.csproj" />
       <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
       <Folder Include="Controllers\V1\" />
     </ItemGroup>
-
 </Project>
