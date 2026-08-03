@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using NettoRetail.Application.CQRS.Users.Queries.Onboarding;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 public class GetOnboardingQueryHandler(
@@ -43,23 +44,23 @@ public class GetOnboardingQueryHandler(
         {
             OnboardingSeen = false,
             Slides =
-            [
-                new OnboardingSlideResponse
-                {
-                    SlideId = 1,
-                    Title = "Onboarding",
-                    ImageUrl = "netto.com/onboarding/images/1",
-                    Headline = "Welcome",
-                    DetailedText = "The RetailTech application is a comprehensive and user-friendly platform that empowers retailers by providing efficient inventory management,\r\n sales tracking, customer relationship management, and analytics capabilities. It aims to revolutionize the way retailers operate by providing a comprehensive set of features\r\n and tools that cater to their specific needs. With this application, RetailTech Inc. empowers retailers to enhance their operational efficiency, improve customer satisfaction,\r\n and drive business growth."
-                },
-                new OnboardingSlideResponse
-                {
-                    SlideId = 2,
-                    Title = "Navigation",
-                    ImageUrl = "netto.com/onboarding/images/2",
-                    Headline = "Navigation",
-                    DetailedText = "Walls achieving strength di planes clicking junior statements behaviour cm overnight genres rpg band european modem heavy aggregate lanka\r\n therapeutic judgment syracuse airfare accent headquarters privilege nation hull informational upset hood intellectual shape crucial poverty facts"
-                }
+        [
+            new OnboardingSlideResponse
+        {
+            SlideId = 1,
+            Title = OnboardingConstants.Welcome.Title,
+            ImageUrl = OnboardingConstants.Welcome.ImageUrl,
+            Headline = OnboardingConstants.Welcome.Headline,
+            DetailedText = OnboardingConstants.Welcome.DetailedText
+        },
+        new OnboardingSlideResponse
+        {
+            SlideId = 2,
+            Title = OnboardingConstants.Navigation.Title,
+            ImageUrl = OnboardingConstants.Navigation.ImageUrl,
+            Headline = OnboardingConstants.Navigation.Headline,
+            DetailedText = OnboardingConstants.Navigation.DetailedText
+        }
             ]
         };
     }
