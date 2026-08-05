@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,9 @@ namespace NettoRetail.API.Controllers.V1;
 [ApiController]
 [ApiVersion(1)]
 [Route("/api/v{version:ApiVersion}/[controller]")]
-public class StaffController(IMediator mediator) : ControllerBase
+public class StaffController(
+    IMediator mediator,
+    IMapper mapper) : ControllerBase
 {
     [HttpPost("log-in")]
     public async Task<IActionResult> LogIn([FromBody] LoginModel model)
