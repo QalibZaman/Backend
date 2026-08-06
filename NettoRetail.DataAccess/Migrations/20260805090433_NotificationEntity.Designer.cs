@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NettoRetail.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260728060732_Initial")]
-    partial class Initial
+    [Migration("20260805090433_NotificationEntity")]
+    partial class NotificationEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -220,6 +220,28 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ActivationEmailAttemptEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastSentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SendCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("ActivationEmailEntity");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -284,6 +306,27 @@ namespace NettoRetail.DataAccess.Migrations
                     b.UseTpcMappingStrategy();
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("BlacklistedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlacklistedTokens");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -337,6 +380,31 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("CommunicationPreferences");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastFailedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LockoutEndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("FailedAuthAttempts");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
                 {
                     b.Property<int>("PermissionId")
@@ -350,6 +418,39 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Permission_Role", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.NotificationEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -544,6 +645,17 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ActivationEmailAttemptEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
@@ -553,6 +665,17 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
@@ -572,6 +695,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.NotificationEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
