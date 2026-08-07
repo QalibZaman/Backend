@@ -34,7 +34,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
