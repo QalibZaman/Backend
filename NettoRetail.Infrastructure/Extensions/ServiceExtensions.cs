@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoHealth.Infrastructure.Services;
+using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Options;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Interfaces.Services;
-using NettoRetail.Shared.Options;
 using Stripe;
 
 namespace NettoRetail.Infrastructure.Extensions;
@@ -15,9 +16,13 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddInfrastructureExtensions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IAzureBlobService, AzureBlobService>();
+
+        services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+        services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
+        services.Configure<AzureBlobStorageOptions>(configuration.GetSection(nameof(AzureBlobStorageOptions)));
+        
+        // services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
-        services.AddScoped<ILockProvider, HardLockWithTtlProviderService>();
 
         services.AddHttpClient<IIpInfoService, IpInfoService>(client =>
         {
@@ -26,7 +31,6 @@ public static class ServiceExtensions
 
         services.Configure<PlatformAdminActivationOptions>(configuration.GetSection(nameof(PlatformAdminActivationOptions)));
         services.Configure<FrontendOptions>(configuration.GetSection("Frontend"));
-        services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
         services.Configure<CustomerPasswordResetOptions>(configuration.GetSection(nameof(CustomerPasswordResetOptions)));
         services.Configure<CorsOptions>(configuration.GetSection(nameof(CorsOptions)));
         services.Configure<EmailOptions>(configuration.GetSection(nameof(EmailOptions)));
@@ -41,8 +45,8 @@ public static class ServiceExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-        services.AddScoped<IStripeService, StripeService>();
-
+        // services.AddScoped<IStripeService, StripeService>();
+        services.AddDbContext<AppDbContext>();
         return services;
     }
 }

@@ -2,9 +2,12 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Identity;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
 using NettoRetail.Shared.Utilities;
@@ -133,6 +136,12 @@ public static class AuthenticationExtensions
                         return roleId == SuperAdminConstants.SuperAdminRoleId;
                     }));
         });
+        services
+            .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+            {
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
         return services;
     }

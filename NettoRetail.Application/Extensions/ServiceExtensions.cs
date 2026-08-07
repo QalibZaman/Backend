@@ -12,38 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
-using NettoRetail.Application.Services.BackgroundServices;
-using NettoRetail.Application.Services.FavouriteListItems;
 using NettoRetail.Application.Services.IBlobNameGenerator;
-using NettoRetail.Application.Services.IBrandService;
-using NettoRetail.Application.Services.ICartCalculatorService;
-using NettoRetail.Application.Services.ICartService;
-using NettoRetail.Application.Services.ICategoryService;
-using NettoRetail.Application.Services.ICountryCacheService;
-using NettoRetail.Application.Services.ICountryValidationService;
-using NettoRetail.Application.Services.IEntityLockService;
-using NettoRetail.Application.Services.IFeedbackService;
-using NettoRetail.Application.Services.IInventoryItemQueryService;
-using NettoRetail.Application.Services.IInventoryService;
 using NettoRetail.Application.Services.ILinkService;
-using NettoRetail.Application.Services.ImageUploadService;
-using NettoRetail.Application.Services.INewsletterService;
-using NettoRetail.Application.Services.INotificationService;
-using NettoRetail.Application.Services.IOrderService;
-using NettoRetail.Application.Services.IOrderService.OrderStatusService;
-using NettoRetail.Application.Services.IPasswordService;
-using NettoRetail.Application.Services.IPdfGenerator;
-using NettoRetail.Application.Services.IRecentlyViewedService;
-using NettoRetail.Application.Services.IRoleService;
-using NettoRetail.Application.Services.ISessionCleanupService;
 using NettoRetail.Application.Services.ISessionModelFactory;
-using NettoRetail.Application.Services.IShopSubscriptionService;
-using NettoRetail.Application.Services.IShopValidationService;
-using NettoRetail.Application.Services.IStaffCsvExportService;
-using NettoRetail.Application.Services.IStaffService;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.Application.Services.VariationService;
-using NettoRetail.Application.Services.IProductReviewService;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
@@ -80,8 +52,8 @@ public static class ServiceExtensions
         services.AddScoped<IMapper, ServiceMapper>();
 
         //Background
-        services.AddHostedService<SessionCleanupService>();
-        services.AddHostedService<TokenCleanupService>();
+        // services.AddHostedService<SessionCleanupService>();
+        // services.AddHostedService<TokenCleanupService>();
 
         //Hangfire
         services.AddHangfire(config =>
@@ -98,68 +70,18 @@ public static class ServiceExtensions
         services.AddHangfireServer();
 
         //Services
-        services.AddScoped<IStripePaymentService, StripePaymentService>();
-        services.AddScoped<ILinkService, LinkService>();
-        services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
-        services.AddScoped<ISessionModelFactory, SessionModelFactory>();
-        services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
-        services.AddScoped<ICountryDetailsValidationService, CountryDetailsValidationService>();
-        services.AddScoped<ICategoryLevelManagementService, CategoryLevelManagementService>();
-        services.AddScoped<ICategoriesSectionService, CategoriesSectionService>();
-        services.AddScoped<ICartService, CartService>();
-        services.AddScoped<ICartCalculatorService, CartCalculatorService>();
-        services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
-        services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IJwtManager, JwtManager>();
-        services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
-        services.AddScoped<ITotpService, TotpService>();
-        services.AddScoped<ICsvFileService, CsvFileService>();
-        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
-        services.AddScoped<IInventoryItemQueryService, InventoryItemQueryService>();
-        services.AddScoped<ISessionTerminationService, SessionTerminationService>();
-        services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<PaymentMethodService>();
         services.AddScoped<CustomerService>();
-        services.AddScoped<IPdfGenerator, PdfGenerator>();
-        services.AddScoped<INewsletterService, NewsletterService>();
-        services.AddScoped<IPriceHistoryService, PriceHistoryService>();
-        services.AddScoped<ISubscriptionNotificationService, SubscriptionNotificationService>();
-        services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IImageUploadService, ImageUploadService>();
-        services.AddScoped<IShopValidationService, ShopValidationService>();
-        services.AddScoped<IInventoryService, InventoryService>();
-        services.AddScoped<IBrandService, BrandService>();
-        services.AddScoped<IOrderService, OrderService>();
-        services.AddScoped<IFavouriteListItemsService, FavouriteListItemsService>();
-        services.AddScoped<IStaffCsvExportService, StaffCsvExportService>();
-        services.AddScoped<IStaffService, StaffService>();
-        services.AddScoped<IFilteredOrderService, FilteredOrderService>();
-        services.AddScoped<IFilteredFeedbackService, FilteredFeedbackService>();
-        services.AddScoped<IShopSubscriptionService, ShopSubscriptionService>();
-        services.AddScoped<IOrderStatusService, OrderStatusService>();
-        services.AddScoped<IRoleService, RoleService>();
-        services.AddScoped<IStripePaymentService, StripePaymentService>();
+        services.AddScoped<ISessionModelFactory, SessionModelFactory>();
+        services.AddSingleton<IPermissionCacheService, PermissionCacheService>();
+        services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
+        services.AddScoped<IActivationEmailAttemptService, ActivationEmailAttemptAttemptService>();
+        services.AddScoped<IEmailBuilderService, EmailBuilderService>();
         services.AddScoped<ILinkService, LinkService>();
-        services.AddScoped<IVariationService, VariationService>();
-        services.AddScoped<IEntityLockService, EntityLockService>();
-        services.AddScoped<IProductReviewService, ProductReviewService>();
-      
-
-        var featureToggleOptions = configuration
-            .GetSection(nameof(FeatureToggleOptions))
-            .Get<FeatureToggleOptions>();
-
-        if (featureToggleOptions != null && featureToggleOptions.Redis)
-        {
-            services.AddSingleton<ICountryCacheService, RedisCountryCacheService>();
-        }
-        else
-        {
-            services.AddSingleton<ICountryCacheService, CountryCacheService>();
-        }
-
+        services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
-        services.AddHostedService<PromotionCleanupService>();
+
     }
 }

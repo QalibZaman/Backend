@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NettoRetail.API\NettoRetail.API.csproj" />
     <ProjectReference Include="..\NettoRetail.Application\NettoRetail.Application.csproj" />
     <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
     <ProjectReference Include="..\NettoRetail.Domain\NettoRetail.Domain.csproj" />
@@ -38,6 +37,13 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="IntegrationTests\" />
+    <Folder Include="RepositoryTests\" />
+    <Folder Include="UnitTests\" />
   </ItemGroup>
 
 </Project>

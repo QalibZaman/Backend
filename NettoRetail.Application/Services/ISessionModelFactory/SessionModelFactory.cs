@@ -69,7 +69,7 @@ public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRe
             StartTime = DateTime.UtcNow,
             LastActivityTime = DateTime.UtcNow,
             ExpiresAt = expiresAt,
-            AccountId = accountGuid,
+            StaffId = accountGuid,
         };
     }
 

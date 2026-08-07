@@ -17,106 +17,226 @@ namespace NettoRetail.DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
-                {
-                    b.Property<int>("FeaturesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SubscriptionPlansId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("FeaturesId", "SubscriptionPlansId");
-
-                    b.HasIndex("SubscriptionPlansId");
-
-                    b.ToTable("FeatureSubscriptionPlans", (string)null);
-                });
-
-            modelBuilder.Entity("InventoryItemImageEntity", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("BlobUrl")
-                        .IsRequired()
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InventoryItemId");
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("InventoryItemImages");
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("ApartmentNumber")
                         .HasColumnType("integer");
 
-                    b.Property<string>("BuildingNumber")
-                        .IsRequired()
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
                         .HasColumnType("text");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(90)
-                        .HasColumnType("character varying(90)");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
 
-                    b.Property<int>("CountryId")
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("Entrance")
-                        .HasColumnType("integer");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Floor")
-                        .HasColumnType("integer");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
 
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("OfficeNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasMaxLength(90)
-                        .HasColumnType("character varying(90)");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.DataAccess.Identity.ApplicationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ActivationEmailAttemptEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastSentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SendCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("ActivationEmailEntity");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
@@ -126,21 +246,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -160,18 +269,11 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<DateTime?>("PasswordUpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProfileImageUrl")
                         .HasColumnType("text");
@@ -180,44 +282,25 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ShippingAddress")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<int?>("ShopId")
-                        .HasColumnType("integer");
+                        .HasColumnType("text");
 
                     b.Property<string>("State")
                         .HasColumnType("text");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("StripeCustomerId")
                         .HasColumnType("text");
 
                     b.Property<string>("ZipCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.ToTable((string)null);
 
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Users_Email_StaffOnly")
-                        .HasFilter("\"Discriminator\" = 'StaffEntity'");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("Users", (string)null);
-
-                    b.HasDiscriminator().HasValue("BaseUserEntity");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTpcMappingStrategy();
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BlacklistedTokenEntity", b =>
@@ -241,160 +324,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("BlacklistedTokens");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("LogoImageUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("WebsiteUrl")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("ShopId");
-
-                    b.HasIndex("WebsiteUrl")
-                        .IsUnique();
-
-                    b.ToTable("Brands");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ItemsDeletionJobId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastUpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
-
-                    b.ToTable("Carts");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CartItemEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CartId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DeletionJobId")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProductUpc")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("PromotionPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CartId");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("CartItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CategoriesSectionOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("URL")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Visibility")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("Categories");
-                });
-
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -409,6 +338,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<bool>("CommunicationPreferenceSms")
                         .HasColumnType("boolean");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("OrderUpdateEmail")
                         .HasColumnType("boolean");
@@ -437,394 +369,18 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("ShipmentUpdateSms")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("CommunicationPreferences");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ContentEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .HasMaxLength(50000)
-                        .HasColumnType("character varying(50000)");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SectionType")
-                        .HasMaxLength(30)
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SectionType", "ShopId")
-                        .IsUnique();
-
-                    b.ToTable("Contents", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("PhoneCode")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("character varying(4)");
-
-                    b.Property<string>("PhoneMask")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("ZipCodeMask")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("PhoneCode")
-                        .IsUnique();
-
-                    b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Austria",
-                            PhoneCode = "+43",
-                            PhoneMask = "^\\d{3} \\d{7}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Belgium",
-                            PhoneCode = "+32",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Bulgaria",
-                            PhoneCode = "+359",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Croatia",
-                            PhoneCode = "+385",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Cyprus",
-                            PhoneCode = "+357",
-                            PhoneMask = "^\\d{2} \\d{6}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Czech Republic",
-                            PhoneCode = "+420",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Denmark",
-                            PhoneCode = "+45",
-                            PhoneMask = "^\\d{2} \\d{2} \\d{2} \\d{2}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Estonia",
-                            PhoneCode = "+372",
-                            PhoneMask = "^\\d{4} \\d{4}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Finland",
-                            PhoneCode = "+358",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "France",
-                            PhoneCode = "+33",
-                            PhoneMask = "^\\d \\d{2} \\d{2} \\d{2} \\d{2}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Germany",
-                            PhoneCode = "+49",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Greece",
-                            PhoneCode = "+30",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^\\d{3} \\d{2}$"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Hungary",
-                            PhoneCode = "+36",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Ireland",
-                            PhoneCode = "+353",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^[A-Z]\\d{2}$"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Italy",
-                            PhoneCode = "+39",
-                            PhoneMask = "^\\d{2} \\d{4} \\d{4}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Latvia",
-                            PhoneCode = "+371",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^LV-\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Lithuania",
-                            PhoneCode = "+370",
-                            PhoneMask = "^\\d{3} \\d{5}$",
-                            ZipCodeMask = "^LT-\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Luxembourg",
-                            PhoneCode = "+352",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Malta",
-                            PhoneCode = "+356",
-                            PhoneMask = "^\\d{4} \\d{4}$",
-                            ZipCodeMask = "^[A-Z]{3} \\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Netherlands",
-                            PhoneCode = "+31",
-                            PhoneMask = "^\\d \\d{4} \\d{4}$",
-                            ZipCodeMask = "^\\d{4} [A-Z]{2}$"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Name = "Poland",
-                            PhoneCode = "+48",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{2}-\\d{3}$"
-                        },
-                        new
-                        {
-                            Id = 22,
-                            Name = "Portugal",
-                            PhoneCode = "+351",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}-\\d{3}$"
-                        },
-                        new
-                        {
-                            Id = 23,
-                            Name = "Romania",
-                            PhoneCode = "+40",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{6}$"
-                        },
-                        new
-                        {
-                            Id = 24,
-                            Name = "Slovakia",
-                            PhoneCode = "+421",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{3} \\d{2}$"
-                        },
-                        new
-                        {
-                            Id = 25,
-                            Name = "Slovenia",
-                            PhoneCode = "+386",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{4}$"
-                        },
-                        new
-                        {
-                            Id = 26,
-                            Name = "Spain",
-                            PhoneCode = "+34",
-                            PhoneMask = "^\\d{3} \\d{3} \\d{3}$",
-                            ZipCodeMask = "^\\d{5}$"
-                        },
-                        new
-                        {
-                            Id = 27,
-                            Name = "Sweden",
-                            PhoneCode = "+46",
-                            PhoneMask = "^\\d{2} \\d{3} \\d{4}$",
-                            ZipCodeMask = "^\\d{3} \\d{2}$"
-                        });
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.DeliveryEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AddressId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("DeliveryFee")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("DeliveryType")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("PaymentTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("CustomerId")
                         .IsUnique();
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Deliveries");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
-                {
-                    b.Property<string>("ResourceType")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("ResourceId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("LockedAtUtc")
-                        .HasColumnType("timestamptz");
-
-                    b.Property<Guid>("LockedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ResourceType", "ResourceId", "ShopId");
-
-                    b.HasIndex("LockedByUserId");
-
-                    b.HasIndex("ResourceType", "ResourceId", "ShopId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_EntityLocks_Resource");
-
-                    b.ToTable("EntityLocks");
+                    b.ToTable("CommunicationPreferences");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("FailedAttempts")
@@ -836,325 +392,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime?>("LockoutEndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId")
-                        .IsUnique();
-
-                    b.ToTable("FailedAuthAttempt");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FavouriteListItemEntity", b =>
-                {
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("AccountId", "InventoryItemId");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("FavouriteListItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Features", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateSubmitted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("ShopName")
-                        .IsRequired()
-                        .HasMaxLength(90)
-                        .HasColumnType("character varying(90)");
-
-                    b.Property<string>("StaffName")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("character varying(60)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Pending");
-
-                    b.Property<string>("Text")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(60)
-                        .HasColumnType("character varying(60)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("Feedbacks");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemBannerEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ContentType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileIdentifier")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InventoryItemBanners");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AvailableAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("BrandId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("Exists")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("HasVariations")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("IncomingAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsOutOfStock")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPromoted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsVariation")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("OnHandAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("ParentItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("ProductLocation")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("ProductUpc")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("character varying(12)");
-
-                    b.Property<DateOnly?>("PromotionEndDate")
-                        .HasColumnType("date");
-
-                    b.Property<decimal?>("PromotionPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<DateOnly?>("PromotionStartDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("ReservedAmount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ParentItemId");
-
-                    b.HasIndex("ProductUpc")
-                        .IsUnique();
-
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("InventoryItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("StaffId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("StaffId");
 
-                    b.ToTable("ItemComparison");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
-                {
-                    b.Property<Guid>("ComparisonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ComparisonId", "InventoryItemId");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("ItemComparison_Item", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SectionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.HasIndex("SectionId");
-
-                    b.ToTable("NewProductsSectionProducts", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.HasIndex("OrderId", "InventoryItemId")
-                        .IsUnique();
-
-                    b.ToTable("Order_Item", (string)null);
+                    b.ToTable("FailedAuthAttempts");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
@@ -1170,428 +415,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Permission_Role", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            PermissionId = 1,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            PermissionId = 2,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            PermissionId = 3,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            PermissionId = 4,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            PermissionId = 5,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            PermissionId = 1,
-                            RoleId = 99
-                        },
-                        new
-                        {
-                            PermissionId = 2,
-                            RoleId = 99
-                        },
-                        new
-                        {
-                            PermissionId = 3,
-                            RoleId = 99
-                        },
-                        new
-                        {
-                            PermissionId = 4,
-                            RoleId = 99
-                        },
-                        new
-                        {
-                            PermissionId = 5,
-                            RoleId = 99
-                        },
-                        new
-                        {
-                            PermissionId = 6,
-                            RoleId = 99
-                        });
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.NewProductsSectionEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int>("SelectionType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("NewProductsSections", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OfferEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int>("SelectionType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OfferSections", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OffersProductEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("OfferId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.HasIndex("OfferId");
-
-                    b.ToTable("OfferSectionProducts", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OnboardingSlideDraftEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("DateSaved")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("SlideId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SlideId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("OnboardingSlideDrafts", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OnboardingSlideEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Order");
-
-                    b.ToTable("OnboardingSlides", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Creator")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderStatusHistoryEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("text");
-
-                    b.Property<int>("NewStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OldStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("OrderStatusHistories");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("HashedPassword")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("PasswordHistories");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentHistoryEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("AmountCharged")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("BillingPeriod")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("CustomerName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("PlanName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("TransactionId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("TransactionId")
-                        .IsUnique();
-
-                    b.ToTable("PaymentHistories");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CardBrand")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<long>("CardExpMonth")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CardExpYear")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FourLastCardNumbers")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("character varying(4)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("StripePaymentMethodId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -1604,202 +427,11 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("PermissionEntity");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Title = "Inventory management"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Title = "Customers management"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Title = "Orders management"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Title = "Admins management"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Title = "System settings"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Title = "SuperAdmins management"
-                        });
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductDetailEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TypeEnum")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("Unit")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("ProductDetails");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductReviewEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateSubmitted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PhotoUrls")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("ProductUpc")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReviewStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReviewText")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("VariantInfo")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.HasIndex("ProductUpc")
-                        .IsUnique();
-
-                    b.ToTable("ProductReviews", (string)null);
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
-                {
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ViewedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("AccountId", "InventoryItemId");
-
-                    b.HasIndex("InventoryItemId");
-
-                    b.ToTable("RecentlyViewedProducts");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateSubmitted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<int>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("ReviewText")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("ShopName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("StaffName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StaffId");
-
-                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
@@ -1811,51 +443,21 @@ namespace NettoRetail.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("ShopId")
-                        .HasColumnType("integer");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ShopId");
-
-                    b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Has full access to the system",
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Has access to only what the customer can do",
-                            Name = "Customer"
-                        },
-                        new
-                        {
-                            Id = 99,
-                            Description = "System-level admin from RetailTech with full access across tenants",
-                            Name = "SuperAdmin"
-                        });
+                    b.ToTable("ApplicationRoles");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Browser")
@@ -1895,12 +497,13 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.HasIndex("Jwt")
                         .IsUnique();
@@ -1908,213 +511,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RefreshToken")
                         .IsUnique();
 
+                    b.HasIndex("StaffId");
+
                     b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(90)
-                        .HasColumnType("character varying(90)");
-
-                    b.Property<string>("CategoriesSectionName")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("CategoriesSectionVisibility")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("DeactivationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DeactivationReason")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(90)
-                        .HasColumnType("character varying(90)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<decimal>("StandardDeliveryFee")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("State")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("StripeCustomerId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StripeSubscriptionId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("SubscriptionPlanId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("ZipCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("PhoneNumber")
-                        .IsUnique();
-
-                    b.HasIndex("SubscriptionPlanId");
-
-                    b.ToTable("Shops");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("MonthlyPrice")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Moto")
-                        .IsRequired()
-                        .HasMaxLength(70)
-                        .HasColumnType("character varying(70)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)");
-
-                    b.Property<string>("SubscriptionId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SubscriptionPlans");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.TeaserSectionEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AdditionalText")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AdditionalTextAlignment")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("AdditionalTextColor")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Heading")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("HeadingAlignment")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("HeadingColor")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Link")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ShopId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TeaserImageUrl")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TeaserSection");
-                });
-
-            modelBuilder.Entity("PriceHistoryEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("EndDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SubscriptionPlanId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriptionPlanId");
-
-                    b.ToTable("PriceHistories");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
@@ -2133,15 +532,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
-                    b.HasDiscriminator().HasValue("Customer");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
                     b.HasBaseType("NettoRetail.Domain.Entities.BaseUserEntity");
-
-                    b.Property<string>("EncryptedTotpSecret")
-                        .HasColumnType("text");
 
                     b.Property<DateTime?>("InvitationTokenIssuedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2149,323 +550,96 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<bool>("IsOnboardingCompleted")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
-                    b.HasDiscriminator().HasValue("Admin");
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Staff", (string)null);
                 });
 
-            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.FeatureEntity", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
-                        .HasForeignKey("FeaturesId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", null)
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("NettoRetail.DataAccess.Identity.ApplicationUser", null)
                         .WithMany()
-                        .HasForeignKey("SubscriptionPlansId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("InventoryItemImageEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("Images")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
-                        .WithMany("Addresses")
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
-                        .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Country");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
-                        .WithMany("Accounts")
-                        .HasForeignKey("CountryId");
-
-                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
-                        .WithMany("Accounts")
-                        .HasForeignKey("RoleId");
-
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("Account")
-                        .HasForeignKey("ShopId");
-
-                    b.Navigation("Country");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("Brands")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
-                        .WithOne("Cart")
-                        .HasForeignKey("NettoRetail.Domain.Entities.CartEntity", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CartItemEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.CartEntity", "Cart")
-                        .WithMany("Items")
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                    b.HasOne("NettoRetail.DataAccess.Identity.ApplicationUser", null)
                         .WithMany()
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("InventoryItem");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "ParentCategory")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
                         .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("Categories")
-                        .HasForeignKey("ShopId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ParentCategory");
+                    b.HasOne("NettoRetail.DataAccess.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Shop");
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("NettoRetail.DataAccess.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ActivationEmailAttemptEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
-                        .WithOne("CommunicationPreference")
-                        .HasForeignKey("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.DeliveryEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.AddressEntity", "Address")
-                        .WithMany("Deliveries")
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
-                        .WithOne("Delivery")
-                        .HasForeignKey("NettoRetail.Domain.Entities.DeliveryEntity", "CustomerId")
+                        .WithOne("CommunicationPreference")
+                        .HasForeignKey("NettoRetail.Domain.Entities.CommunicationPreferenceEntity", "CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
-                        .WithOne("Delivery")
-                        .HasForeignKey("NettoRetail.Domain.Entities.DeliveryEntity", "OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Address");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.EntityLock", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "LockedByUser")
-                        .WithMany("Locks")
-                        .HasForeignKey("LockedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LockedByUser");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithOne("FailedAuthAttempt")
-                        .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FavouriteListItemEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("FavouriteListItems")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("FavouriteListItems")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.FeedbackEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BrandEntity", "Brand")
-                        .WithMany("InventoryItems")
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("NettoRetail.Domain.Entities.CategoryEntity", "Category")
-                        .WithMany("InventoryItems")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "ParentItem")
-                        .WithMany("ChildItems")
-                        .HasForeignKey("ParentItemId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("InventoryItems")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("ParentItem");
-
-                    b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "User")
-                        .WithOne("ComparedItems")
-                        .HasForeignKey("NettoRetail.Domain.Entities.ItemComparisonEntity", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.ItemComparisonItemEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.ItemComparisonEntity", "Comparison")
-                        .WithMany("ComparisonItems")
-                        .HasForeignKey("ComparisonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("ComparisonItems")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Comparison");
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.NewProductsProductEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
                         .WithMany()
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.NewProductsSectionEntity", "Section")
-                        .WithMany("Products")
-                        .HasForeignKey("SectionId")
+                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InventoryItem");
-
-                    b.Navigation("Section");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.OrderItemEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
-
-                    b.Navigation("Order");
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
@@ -2487,287 +661,37 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OffersProductEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany()
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.OfferEntity", "Offer")
-                        .WithMany("Products")
-                        .HasForeignKey("OfferId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
-
-                    b.Navigation("Offer");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.CustomerEntity", "Customer")
-                        .WithMany("Order")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderStatusHistoryEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.OrderEntity", "Order")
-                        .WithMany("StatusHistory")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Order");
-
-                    b.Navigation("UpdatedBy");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("PasswordHistories")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentHistoryEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("PaymentMethods")
-                        .HasForeignKey("AccountId");
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductDetailEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("ProductDetails")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ProductReviewEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_ProductReviews_Accounts_CustomerId");
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany()
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.RecentlyViewedProductEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("RecentlyViewedProducts")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NettoRetail.Domain.Entities.InventoryItemEntity", "InventoryItem")
-                        .WithMany("RecentlyViewedByUsers")
-                        .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ReviewEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
-                        .WithMany("Reviews")
+                        .WithMany("Sessions")
                         .HasForeignKey("StaffId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Staff");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
-                        .WithMany("Roles")
-                        .HasForeignKey("ShopId");
-
-                    b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
-                        .WithMany("Sessions")
-                        .HasForeignKey("AccountId")
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany("Customers")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
+            modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
-                        .WithMany("Shops")
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
-                        .WithMany("Shops")
-                        .HasForeignKey("SubscriptionPlanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Country");
-
-                    b.Navigation("SubscriptionPlan");
-                });
-
-            modelBuilder.Entity("PriceHistoryEntity", b =>
-                {
-                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
-                        .WithMany()
-                        .HasForeignKey("SubscriptionPlanId")
+                    b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
+                        .WithMany("StaffMembers")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SubscriptionPlan");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.AddressEntity", b =>
-                {
-                    b.Navigation("Deliveries");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
-                {
-                    b.Navigation("Addresses");
-
-                    b.Navigation("CommunicationPreference");
-
-                    b.Navigation("ComparedItems");
-
-                    b.Navigation("FailedAuthAttempt")
-                        .IsRequired();
-
-                    b.Navigation("FavouriteListItems");
-
-                    b.Navigation("Feedbacks");
-
-                    b.Navigation("PasswordHistories");
-
-                    b.Navigation("PaymentMethods");
-
-                    b.Navigation("RecentlyViewedProducts");
-
-                    b.Navigation("Sessions");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.BrandEntity", b =>
-                {
-                    b.Navigation("InventoryItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CartEntity", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CategoryEntity", b =>
-                {
-                    b.Navigation("InventoryItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.CountryEntity", b =>
-                {
-                    b.Navigation("Accounts");
-
-                    b.Navigation("Addresses");
-
-                    b.Navigation("Shops");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.InventoryItemEntity", b =>
-                {
-                    b.Navigation("ChildItems");
-
-                    b.Navigation("ComparisonItems");
-
-                    b.Navigation("FavouriteListItems");
-
-                    b.Navigation("Images");
-
-                    b.Navigation("OrderItems");
-
-                    b.Navigation("ProductDetails");
-
-                    b.Navigation("RecentlyViewedByUsers");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ItemComparisonEntity", b =>
-                {
-                    b.Navigation("ComparisonItems");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.NewProductsSectionEntity", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OfferEntity", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.OrderEntity", b =>
-                {
-                    b.Navigation("Delivery");
-
-                    b.Navigation("OrderItems");
-
-                    b.Navigation("StatusHistory");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -2777,44 +701,21 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.RoleEntity", b =>
                 {
-                    b.Navigation("Accounts");
+                    b.Navigation("Customers");
 
                     b.Navigation("PermissionRoles");
-                });
 
-            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
-                {
-                    b.Navigation("Account");
-
-                    b.Navigation("Brands");
-
-                    b.Navigation("Categories");
-
-                    b.Navigation("InventoryItems");
-
-                    b.Navigation("Roles");
-                });
-
-            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
-                {
-                    b.Navigation("Shops");
+                    b.Navigation("StaffMembers");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
                 {
-                    b.Navigation("Cart")
-                        .IsRequired();
-
-                    b.Navigation("Delivery");
-
-                    b.Navigation("Order");
+                    b.Navigation("CommunicationPreference");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.StaffEntity", b =>
                 {
-                    b.Navigation("Locks");
-
-                    b.Navigation("Reviews");
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

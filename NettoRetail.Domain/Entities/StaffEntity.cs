@@ -1,11 +1,8 @@
-namespace NettoRetail.Domain.Entities;
+﻿namespace NettoRetail.Domain.Entities;
 
 public class StaffEntity : BaseUserEntity
 {
-    public bool TwoFactorEnabled { get; set; }
-    public string? EncryptedTotpSecret { get; set; }
-    public bool IsOnboardingCompleted { get; set; } = false;
+    public bool IsOnboardingCompleted { get; set; }
     public DateTime? InvitationTokenIssuedAt { get; set; }
-    public ICollection<ReviewEntity> Reviews { get; set; } = [];
-    public ICollection<EntityLock> Locks { get; set; } = [];
+    public ICollection<SessionEntity> Sessions { get; set; } = [];
 }
