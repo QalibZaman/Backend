@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NettoRetail.DataAccess.Context;
+using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.SeederApp.Services;
@@ -13,10 +15,14 @@ var config = new ConfigurationBuilder()
     .Build();
 
 var services = new ServiceCollection();
-
+services.AddLogging();
 services.AddSingleton<IConfiguration>(config);
-services.Configure<ConnectionStrings>(config.GetSection("ConnectionStrings"));
 
+services.Configure<ConnectionStrings>(config.GetSection("ConnectionStrings"));
+services
+    .AddIdentity<ApplicationUser, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString = config.GetConnectionString("DefaultConnection");

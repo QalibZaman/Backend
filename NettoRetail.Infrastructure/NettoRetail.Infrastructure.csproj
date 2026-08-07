@@ -9,9 +9,9 @@
 
     <ItemGroup>
       <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
-	  <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
       <PackageReference Include="QuestPDF" Version="2025.7.3" />
       <PackageReference Include="Scriban" Version="6.0.0" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
@@ -25,6 +25,7 @@
 		<EmbeddedResource Include="EmailTemplates\**\*.html" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\NettoRetail.DataAccess\NettoRetail.DataAccess.csproj" />
 	  <ProjectReference Include="..\NettoRetail.Shared\NettoRetail.Shared.csproj" />
 	</ItemGroup>
 

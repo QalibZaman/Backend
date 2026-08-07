@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using NettoRetail.Application.Exceptions;
+using Microsoft.Extensions.Options;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
@@ -10,46 +9,48 @@ namespace NettoRetail.Application.Services;
 public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAttemptRepository, IOptions<UserBlockOptions> userBlockOptions) : IFailedAuthAttemptService
 {
     private readonly UserBlockOptions _userBlockOptions = userBlockOptions.Value;
-    private IFailedAuthAttemptRepository _loginAttemptRepository = failedAuthAttemptRepository;
 
-    public bool IsAccountLocked(FailedAuthAttemptEntity attempt)
+    public bool IsAccountLocked(FailedAuthAttemptEntity? attempt)
     {
-        return attempt != null &&
-            attempt.LockoutEndTime.HasValue &&
-            attempt.LockoutEndTime > DateTime.UtcNow;
+        return attempt is { LockoutEndTime: not null } &&
+               attempt.LockoutEndTime > DateTime.UtcNow;
     }
 
-    public async Task IncrementFailedAttemptsAsync(FailedAuthAttemptEntity attempt, Guid staffId, CancellationToken cancellationToken)
+    public async Task<FailedAuthAttemptEntity> IncrementFailedAttemptsAsync(FailedAuthAttemptEntity? attempt, Guid staffId, CancellationToken cancellationToken)
     {
         if (attempt == null)
         {
-            attempt = new FailedAuthAttemptEntity { AccountId = staffId };
-            await _loginAttemptRepository.AddAsync(attempt, cancellationToken);
+            attempt = new FailedAuthAttemptEntity { StaffId = staffId };
+            await failedAuthAttemptRepository.AddAsync(attempt, cancellationToken);
         }
 
         attempt.FailedAttempts++;
         attempt.LastFailedTime = DateTime.UtcNow;
         if (attempt.FailedAttempts >= _userBlockOptions.FailedAttemptThreshold)
         {
-            attempt.LockoutEndTime = DateTime.UtcNow.AddMinutes(_userBlockOptions.LockoutDurationInMinutes);
+            attempt.LockoutEndTime =
+                DateTime.UtcNow.AddMinutes(_userBlockOptions.LockoutDurationInMinutes);
         }
 
-        await _loginAttemptRepository.UpdateAsync(attempt, cancellationToken);
+        await failedAuthAttemptRepository.UpdateAsync(attempt, cancellationToken);
+        return attempt;
     }
 
     public async Task ResetFailedAttemptsAsync(FailedAuthAttemptEntity attempt, CancellationToken cancellationToken)
     {
-        if (attempt != null)
-        {
-            attempt.FailedAttempts = 0;
-            attempt.LockoutEndTime = null;
-            await _loginAttemptRepository.UpdateAsync(attempt, cancellationToken);
-        }
+        attempt.FailedAttempts = 0;
+        attempt.LockoutEndTime = null;
+        await failedAuthAttemptRepository.UpdateAsync(attempt, cancellationToken);
     }
 
-    public bool HasBlockDurationElapsed(FailedAuthAttemptEntity attempt)
+    public bool HasBlockDurationElapsed(FailedAuthAttemptEntity? attempt)
     {
         return attempt != null &&
                attempt.LastFailedTime.AddHours(_userBlockOptions.BlockDurationInHours) < DateTime.UtcNow;
+    }
+
+    public int AvailableAttempts(FailedAuthAttemptEntity attempt)
+    {
+        return _userBlockOptions.FailedAttemptThreshold - attempt.FailedAttempts;
     }
 }

@@ -12,5 +12,5 @@ public class SessionModel
     public DateTime StartTime { get; set; }
     public DateTime LastActivityTime { get; set; }
     public DateTime ExpiresAt { get; set; }
-    public Guid AccountId { get; set; }
+    public Guid StaffId { get; set; }
 }

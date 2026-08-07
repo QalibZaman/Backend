@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.Exceptions;
@@ -11,7 +12,7 @@ using NettoRetail.Shared.Options;
 
 namespace NettoRetail.Application.Services;
 
-public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
+public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> logger) : IJwtManager
 {
     private readonly byte[] _key = Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey);
     private readonly string _algorithm = SecurityAlgorithms.HmacSha512;
@@ -363,6 +364,66 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions) : IJwtManager
         catch (FormatException)
         {
             throw new NotFoundException("Invalid token.");
+        }
+    }
+
+    public ClaimsPrincipal ValidateActivateLockedAccountToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(jwtOptions.Value.SecretKey);
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(
+                token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                },
+                out _);
+
+            var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
+
+            if (tokenType != AuthTokenTypes.CustomerEmailChange)
+            {
+                throw new BadRequestException("Invalid token type.");
+            }
+
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                throw new BadRequestException("Email claim is missing in token.");
+
+            return principal;
+        }
+        catch (SecurityTokenExpiredException ex)
+        {
+            logger.LogWarning(ex, "Expired account activation token.");
+            throw new BadRequestException("Token has expired.");
+        }
+        catch (SecurityTokenMalformedException ex)
+        {
+            logger.LogWarning(ex, "Malformed account activation token.");
+            throw new BadRequestException("Token format is invalid.");
+        }
+        catch (SecurityTokenException ex)
+        {
+            logger.LogWarning(ex, "Invalid account activation token.");
+            throw new BadRequestException("Invalid token.");
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Token has an invalid format.");
+            throw new BadRequestException("Invalid token.");
+        }
+        catch (FormatException ex)
+        {
+            logger.LogWarning(ex, "Invalid token argument.");
+            throw new BadRequestException("Invalid token.");
         }
     }
 }

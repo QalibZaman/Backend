@@ -17,4 +17,5 @@ public interface IJwtManager
     ClaimsPrincipal ValidatePlatformAdminResetPasswordToken(string resetToken);
     TokenResponse GetTokenResponse(string userId, string userEmail, string userRoleId, int? shopId);
     ClaimsPrincipal ValidateCustomerResetPasswordToken(string customerResetPasswordToken);
+    ClaimsPrincipal ValidateActivateLockedAccountToken(string activationToken);
 }

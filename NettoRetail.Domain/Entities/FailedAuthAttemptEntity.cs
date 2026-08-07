@@ -3,11 +3,11 @@
 public class FailedAuthAttemptEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid AccountId { get; set; }
+    public Guid StaffId { get; set; }
 
     public int FailedAttempts { get; set; } = 0;
     public DateTime? LockoutEndTime { get; set; }
     public DateTime LastFailedTime { get; set; } = DateTime.UtcNow;
 
-    public BaseUserEntity Account { get; set; } = null!;
+    public StaffEntity Staff { get; set; } = null!;
 }

@@ -5,9 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NettoRetail.Application.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using NettoRetail.DataAccess.Context;
-using NettoRetail.Shared.Interfaces.Services;
 using Testcontainers.PostgreSql;
 
 namespace NettoRetail.Tests;

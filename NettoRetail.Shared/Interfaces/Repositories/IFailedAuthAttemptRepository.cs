@@ -1,5 +1,4 @@
-﻿using NettoRetail.Domain.Entities;
-using NettoRetail.Shared.Specifications;
+using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.Shared.Interfaces.Repositories;
 

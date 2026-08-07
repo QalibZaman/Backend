@@ -14,12 +14,10 @@ builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication();
 builder.Services.ConfigureValidation();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-
+builder.Services.AddInfrastructureExtensions(builder.Configuration);
 builder.Services.AddApplicationServiceExtensions(builder.Configuration);
 builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
-builder.Services.AddInfrastructureExtensions(builder.Configuration);
-
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>()
@@ -34,6 +32,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+
 builder.Services.AddMemoryCache();
 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -41,7 +41,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
 });
 
-builder.Services.AddCachingServices(builder.Configuration);
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -54,14 +53,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
-app.UseTracing();
 //app.UseSerilogRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSessionActivity();
-app.UsePermissionHandling();
 app.MapControllers();
 
 app.MapHub<NotificationHub>("/notifications");
