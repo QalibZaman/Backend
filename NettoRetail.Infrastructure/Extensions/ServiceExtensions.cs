@@ -38,6 +38,7 @@ public static class ServiceExtensions
         services.Configure<EmailVerificationOptions>(configuration.GetSection(nameof(EmailVerificationOptions)));
         services.Configure<CustomerEmailChangeOptions>(configuration.GetSection(nameof(CustomerEmailChangeOptions)));
         services.Configure<StripeOptions>(configuration.GetSection(nameof(StripeOptions)));
+        services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
         StripeConfiguration.ApiKey = configuration.GetSection(nameof(StripeOptions))["SecretKey"];
 
         services.AddSingleton<CustomerService>();

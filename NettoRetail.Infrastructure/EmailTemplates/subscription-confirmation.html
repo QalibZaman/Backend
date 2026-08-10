@@ -1,12 +1,147 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Reset Password</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YOU'RE SUBSCRIBED!</title>
+    <style>
+        .email-body {
+            margin: 0;
+            padding: 20px 0;
+            background-color: #f3f4f6;
+            font-family: Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .card-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 0px;
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .header-box {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            padding: 44px 32px 44px 32px;
+            margin: 0px;
+        }
+
+        .logo-icon {
+            font-size: 14px;
+        }
+
+        .brand-name {
+            font-family: 'urbanist';
+            margin: 0;
+            font-size: 19.4px;
+            font-weight: 700;
+            color: #6941c6;
+        }
+
+        .title {
+            margin: 0 0 16px 0;
+            color: #111827;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: 'urbanist';
+            text-align: center;
+        }
+
+        .text {
+            margin: 0 0 12px 0;
+            color: #525252;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .text-spaced {
+            margin-bottom: 24px;
+        }
+
+        .subtext {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .subtext a {
+            color: #6941c6;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .footer-box {
+            padding: 40px;
+            text-align: center;
+            background-color: #f7f7f7;
+        }
+
+        .copyright {
+            font-family: 'urbanist';
+            font-weight: 400;
+            font-size: 16px;
+            margin: 0;
+            color: #525252;
+        }
+
+        .content-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 0px 32px 64px 32px;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .card-container {
+                width: 100%;
+                padding: 20px;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
-<body>
-    <p>Dear {{ full_name }},</p>
-    <p>Thanks for subscribing to our Newsletter!</p>
-    <p>If you want to unsubscribe, please click here <a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+<body class="email-body">
+<div class="wrapper">
+    <div class="card-container">
+        <div class="header-box">
+            <img class="logo-icon" src="/assets/icons/logomark.svg" alt="logo img" />
+            <p class="brand-name">RetailTech Inc.</p>
+        </div>
+
+        <div class="content-box">
+            <h2 class="title">YOU'RE SUBSCRIBED!</h2>
+
+            <p class="text">Dear {{full_name}},</p>
+
+            <p class="text text-spaced">
+                Thanks for subscribing to our Newsletter!
+            </p>
+
+            <p class="subtext">
+                If you want to unsubscribe, please click here <a href="{{ unsubscribe_url }}" target="_blank" rel="noopener noreferrer">Unsubscribe</a>
+            </p>
+        </div>
+
+        <div class="footer-box">
+            <p class="copyright">© 2026 RetailTech Inc. All rights reserved.</p>
+        </div>
+    </div>
+</div>
 </body>
 </html>

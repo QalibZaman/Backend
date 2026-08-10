@@ -1,10 +1,11 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
@@ -57,11 +58,32 @@ public class StaffController(
 
         return NoContent();
     }
+
     [HttpGet("activate")]
     public async Task<IActionResult> Activate([FromQuery] string token)
     {
         var activateLockedAccountCommand = new ActivateLockedAccountCommand(token);
         await mediator.Send(activateLockedAccountCommand);
+        return Ok();
+    }
+
+    [HttpPost("subscribe-to-newsletter")]
+    [Authorize]
+    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetUserId();
+        var command = new SubscribeToNewsletterCommand(accountId);
+        await mediator.Send(command, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("unsubscribe-to-newsletter")]
+    [Authorize]
+    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetUserId();
+        var command = new UnsubscribeToNewsletterCommand(accountId);
+        await mediator.Send(command, cancellationToken);
         return Ok();
     }
 }
