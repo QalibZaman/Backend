@@ -1,4 +1,4 @@
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -8,13 +8,10 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
-using NettoRetail.Application.Models.Authentication;
+using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
-
-namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -23,23 +20,16 @@ public class StaffController(
     IMediator mediator,
     IMapper mapper) : ControllerBase
 {
-    [HttpPost("log-in")]
-    public async Task<IActionResult> LogIn([FromBody] LoginModel model)
+    [Authorize]
+    [HttpGet("personal-information")]
+    public async Task<IActionResult> GetPersonalInformation(CancellationToken cancellationToken)
     {
-        var loginCommand = new LoginCommand(model);
-        var data = await mediator.Send(loginCommand);
-        var response = new ApiResponse<TokenResponse>(data);
+        var userId = HttpContext.GetUserId();
 
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(
-            ipAddress,
-            Request.Headers["User-Agent"].ToString(),
-            data.AccessToken,
-            data.RefreshToken,
-            UserTypeEnum.Admin);
+        var query = new GetPersonalInfoQuery(userId);
+        var data = await mediator.Send(query, cancellationToken);
 
-        await mediator.Send(sessionCreateCommand);
-
+        var response = new ApiResponse<AccountDetailsResponse>(data);
         return Ok(response);
     }
 
