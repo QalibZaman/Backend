@@ -32,9 +32,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {

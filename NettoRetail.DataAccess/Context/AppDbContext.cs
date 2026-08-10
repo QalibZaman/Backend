@@ -6,18 +6,20 @@ using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Domain.Entities;
 
-
 namespace NettoRetail.DataAccess.Context;
 
 public class AppDbContext(
     DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
 {
+    public DbSet<BlacklistedTokenEntity> BlacklistedTokens { get; set; }
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<RoleEntity> ApplicationRoles { get; set; }
     public DbSet<CommunicationPreferenceEntity> CommunicationPreferences { get; set; }
     public DbSet<CustomerEntity> Customers { get; set; }
     public DbSet<SessionEntity> Sessions { get; set; }
+    public DbSet<FailedAuthAttemptEntity> FailedAuthAttempts { get; set; }
+    public DbSet<ActivationEmailAttemptEntity> ActivationEmailEntity { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
