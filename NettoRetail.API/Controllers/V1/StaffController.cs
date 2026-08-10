@@ -10,8 +10,10 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Queries.Account;
+using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
 
 [ApiController]
@@ -31,6 +33,26 @@ public class StaffController(
         var data = await mediator.Send(query, cancellationToken);
 
         var response = new ApiResponse<AccountDetailsResponse>(data);
+        return Ok(response);
+    }
+
+    [HttpPost("log-in")]
+    public async Task<IActionResult> LogIn([FromBody] LoginModel model)
+    {
+        var loginCommand = new LoginCommand(model);
+        var data = await mediator.Send(loginCommand);
+        var response = new ApiResponse<TokenResponse>(data);
+
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var sessionCreateCommand = new CreateSessionCommand(
+            ipAddress,
+            Request.Headers["User-Agent"].ToString(),
+            data.AccessToken,
+            data.RefreshToken,
+            UserTypeEnum.Admin);
+
+        await mediator.Send(sessionCreateCommand);
+
         return Ok(response);
     }
 
