@@ -1,11 +1,8 @@
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
+
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Email;
-using NettoRetail.Application.Services.ILinkService;
-using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Email;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Interfaces;

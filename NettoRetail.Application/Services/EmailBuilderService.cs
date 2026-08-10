@@ -11,7 +11,8 @@ namespace NettoRetail.Application.Services;
 public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
-    IOptions<ResetPasswordOptions> passwordOptions) : IEmailBuilderService
+    IOptions<ResetPasswordOptions> passwordOptions,
+    ILinkService linkService) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildActivateLockedAccountEmailAsync(string email, string firstName, string activationLink)
     {
@@ -33,6 +34,7 @@ public class EmailBuilderService(
             Message = body
         };
     }
+
     public async Task<EmailModel> BuildNewsletterSubscribedEmailAsync(string email, string fullName, Guid accountId)
     {
         var url = linkService.BuildNewsletterUnsubscribeUrl(accountId);
@@ -59,4 +61,5 @@ public class EmailBuilderService(
             Subject = EmailSubjects.UnsubscriptionConfirmation,
             Message = emailBody
         };
+    }
 }
