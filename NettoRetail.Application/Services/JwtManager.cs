@@ -389,7 +389,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
 
             var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
 
-            if (tokenType != AuthTokenTypes.CustomerEmailChange)
+            if (tokenType != AuthTokenTypes.LockedAccountActivation)
             {
                 throw new BadRequestException("Invalid token type.");
             }
