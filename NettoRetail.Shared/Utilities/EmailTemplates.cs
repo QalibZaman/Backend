@@ -13,4 +13,6 @@ public class EmailTemplates
     public const string ActivateCustomerAccount = "customer-activation.html";
     public const string CustomerPasswordReset = "customer-password-reset.html";
     public const string CustomerEmailChangeConfirmation = "customer-email-change-confirmation.html";
+    public const string AccountDeleted = "account-deleted.html";
+    public const string FailedDeletionAttempts = "failed-deletion-attempts.html";
 }

@@ -33,4 +33,36 @@ public class EmailBuilderService(
             Message = body
         };
     }
+
+    public async Task<EmailModel> BuildAccountDeletedEmailAsync(string email, string firstName)
+    {
+        var templateModel = new { first_name = firstName, current_year = DateTime.UtcNow.Year };
+
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.AccountDeleted,
+            templateModel);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.AccountDeleted,
+            Message = body
+        };
+    }
+
+    public async Task<EmailModel> BuildFailedDeletionAttemptsEmailAsync(string email, string firstName)
+    {
+        var templateModel = new { first_name = firstName, current_year = DateTime.UtcNow.Year };
+
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.FailedDeletionAttempts,
+            templateModel);
+
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.FailedDeletionAttempts,
+            Message = body
+        };
+    }
 }

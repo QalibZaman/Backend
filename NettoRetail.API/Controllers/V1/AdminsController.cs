@@ -4,7 +4,7 @@ using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
-using NettoRetail.Shared.Constants;
+using NettoRetail.Application.Models.Staff;
 
 namespace NettoRetail.API.Controllers.V1;
 
@@ -12,6 +12,11 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Users.Commands.Staff;
+using NettoRetail.API.Infrastructure.Extensions;
+using NettoRetail.Shared.Constants;
+
+
 
 [ApiController]
 [ApiVersion(1)]
@@ -39,5 +44,15 @@ public class AdminsController(IMediator mediator) : ControllerBase
         await mediator.Send(sessionCreateCommand);
 
         return Created("", response);
+    }
+
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountRequest request, CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new DeleteStaffCommand(userId, request.Password);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 }
