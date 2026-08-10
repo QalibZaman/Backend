@@ -13,15 +13,6 @@ public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
         builder.HasIndex(x => x.Email)
             .IsUnique();
 
-        builder.Property(x => x.FirstName)
-            .HasMaxLength(30);
-
-        builder.Property(x => x.LastName)
-            .HasMaxLength(30);
-
-        builder.Property(x => x.Email)
-            .HasMaxLength(256);
-
         builder.HasOne(x => x.Role)
             .WithMany(r => r.StaffMembers)
             .HasForeignKey(x => x.RoleId);

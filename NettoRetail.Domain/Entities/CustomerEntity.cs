@@ -6,6 +6,6 @@ public class CustomerEntity : BaseUserEntity
     public bool IsDeleted { get; set; }
     public string? LoyaltyId { get; set; }
     public string? Remarks { get; set; }
+    public AddressEntity? Address { get; set; }
     public CommunicationPreferenceEntity? CommunicationPreference { get; set; }
-
 }

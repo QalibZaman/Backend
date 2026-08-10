@@ -11,16 +11,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<CustomerEntity>
         builder.ToTable("Customers");
 
         builder.HasIndex(x => x.Email)
-            .IsUnique(); // if customers must have unique emails
-
-        builder.Property(x => x.FirstName)
-            .HasMaxLength(30);
-
-        builder.Property(x => x.LastName)
-            .HasMaxLength(30);
-
-        builder.Property(x => x.Email)
-            .HasMaxLength(256);
+            .IsUnique();
 
         builder.HasOne(x => x.Role)
             .WithMany(r => r.Customers)
