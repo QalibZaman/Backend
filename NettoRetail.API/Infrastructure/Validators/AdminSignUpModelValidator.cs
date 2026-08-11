@@ -1,29 +1,25 @@
 ﻿namespace NettoRetail.API.Infrastructure.Validators;
 
-using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.Admin;
 
-public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
+public class AdminSignUpModelValidator : AbstractValidator<AdminSignUpModel>
 {
     public AdminSignUpModelValidator()
     {
-        RuleFor(x => x.FirstName).NotEmpty().WithMessage("Invalid First Name. Please check format or length.")
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("Invalid First Name. Please check format or length.")
             .NotNull().WithMessage("Invalid First Name. Please check format or length.")
             .MinimumLength(2).WithMessage("Invalid First Name. Please check format or length.")
             .MaximumLength(30).WithMessage("Invalid First Name. Please check format or length.")
-            .Matches("^[A-Za-z]+$").WithMessage("Invalid First Name. Please check format or length.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Invalid First Name. Please check format or length.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid First Name. Please check format or length.");
+            .Matches(@"^[A-Z][a-zA-Z]*(?:\s[A-Z][a-zA-Z]*)*$").WithMessage("Invalid First Name. Please check format or length.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Invalid Last Name. Please check format or length.")
             .NotNull().WithMessage("Invalid Last Name. Please check format or length.")
             .MinimumLength(2).WithMessage("Invalid Last Name. Please check format or length.")
             .MaximumLength(30).WithMessage("Invalid Last Name. Please check format or length.")
-            .Matches("^[A-Za-z]+$").WithMessage("Invalid Last Name. Please check format or length.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Invalid Last Name. Please check format or length.")
-            .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid Last Name. Please check format or length.");
+            .Matches(@"^[A-Z][a-zA-Z]*(?:\s[A-Z][a-zA-Z]*)*$").WithMessage("Invalid Last Name. Please check format or length.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Invalid Email. Please check format or length.")
@@ -64,6 +60,5 @@ public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
             .Matches("[a-z]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
             .Matches("[0-9]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
             .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.");
-
     }
 }
