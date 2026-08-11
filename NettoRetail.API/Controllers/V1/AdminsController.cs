@@ -20,7 +20,7 @@ using NettoRetail.API.Models.Response;
 public class AdminsController(IMediator mediator) : ControllerBase
 {
     [HttpPost("sign-up")]
-    [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
+    // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
