@@ -52,7 +52,8 @@ public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
             .WithMessage(
                 "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
             .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage(
-                "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.");
+                "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
+            .Must(x => !x.Any(char.IsWhiteSpace)).WithMessage("Password cannot contain spaces.");
 
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty().WithMessage("Password is required.")
