@@ -37,7 +37,6 @@ public class AdminSignUpModelValidator : AbstractValidator<AdminSignUpModel>
             .MaximumLength(20)
             .WithMessage(
                 "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .Equal(x => x.ConfirmPassword).WithMessage("\t\nPasswords do not match. Please try again.")
             .Matches("[A-Z]")
             .WithMessage(
                 "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
