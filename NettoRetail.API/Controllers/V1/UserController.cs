@@ -13,7 +13,7 @@ namespace NettoRetail.API.Controllers
     [ApiController]
     [ApiVersion(1)]
     [Authorize]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("/api/v{version:apiVersion}/[controller]")]
     public class UserController(IMediator mediator) : ControllerBase
     {
         [HttpGet("personal-information")]

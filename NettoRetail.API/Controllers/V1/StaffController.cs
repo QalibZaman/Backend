@@ -5,15 +5,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
+using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
+using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
+using NettoRetail.Application.CQRS.Users.Queries.Account;
+using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
-
-namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -22,6 +24,19 @@ public class StaffController(
     IMediator mediator,
     IMapper mapper) : ControllerBase
 {
+    [Authorize]
+    [HttpGet("personal-information")]
+    public async Task<IActionResult> GetPersonalInformation(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+
+        var query = new GetPersonalInfoQuery(userId);
+        var data = await mediator.Send(query, cancellationToken);
+
+        var response = new ApiResponse<AccountDetailsResponse>(data);
+        return Ok(response);
+    }
+
     [HttpPost("log-in")]
     public async Task<IActionResult> LogIn([FromBody] LoginModel model)
     {
@@ -65,5 +80,55 @@ public class StaffController(
         await mediator.Send(logoutCommand);
 
         return NoContent();
+    }
+
+    [HttpGet("activate")]
+    public async Task<IActionResult> Activate([FromQuery] string token)
+    {
+        var activateLockedAccountCommand = new ActivateLockedAccountCommand(token);
+        await mediator.Send(activateLockedAccountCommand);
+        return Ok();
+    }
+
+    [HttpPost("subscribe-to-newsletter")]
+    [Authorize]
+    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetUserId();
+        var command = new SubscribeToNewsletterCommand(accountId);
+        await mediator.Send(command, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("unsubscribe-to-newsletter")]
+    [Authorize]
+    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetUserId();
+        var command = new UnsubscribeToNewsletterCommand(accountId);
+        await mediator.Send(command, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPost("sign-up")]
+    // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public async Task<IActionResult> SignUp(AdminSignUpModel model)
+    {
+        var adminCreationCommand = new CreateAdminCommand(model);
+        var data = await mediator.Send(adminCreationCommand);
+        var response = new ApiResponse<TokenResponse>(data);
+
+        // for session
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
+        await mediator.Send(sessionCreateCommand);
+
+        return Created("", response);
     }
 }
