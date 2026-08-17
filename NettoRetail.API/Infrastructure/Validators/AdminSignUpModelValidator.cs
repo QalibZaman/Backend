@@ -49,16 +49,5 @@ public class AdminSignUpModelValidator : AbstractValidator<AdminSignUpModel>
                 "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
             .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage(
                 "Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.");
-
-        RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage("Password is required.")
-            .NotNull().WithMessage("Password is required.")
-            .MinimumLength(8).WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .MaximumLength(20).WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .Equal(x => x.Password).WithMessage("Passwords do not match. Please try again.")
-            .Matches("[A-Z]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .Matches("[a-z]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .Matches("[0-9]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.")
-            .Matches(@"[!""#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]").WithMessage("Password must contain between 8-20 characters, include at least one uppercase letter, one lowercase letter, one number and one special character.");
     }
 }
