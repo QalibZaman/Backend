@@ -79,6 +79,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<IActivationEmailAttemptService, ActivationEmailAttemptAttemptService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();

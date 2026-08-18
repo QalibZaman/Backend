@@ -73,7 +73,16 @@ public static class ApiExceptionHandler
 
     private static ApiExceptionHandlerResponse HandleMyUnauthorizedException(MyUnauthorizedException ex)
     {
-        return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message));
+        Dictionary<string, string>? meta = null;
+        if (ex.LockoutEndTime.HasValue)
+        {
+            meta = new Dictionary<string, string>
+            {
+                ["lockoutEndTime"] = ex.LockoutEndTime.Value.ToString("O")
+            };
+        }
+
+        return new ApiExceptionHandlerResponse((int)HttpStatusCode.Unauthorized, GenerateResponse(ex.Message, meta));
     }
 
     private static ApiExceptionHandlerResponse HandlePaymentExceptions(PaymentExceptions ex)
