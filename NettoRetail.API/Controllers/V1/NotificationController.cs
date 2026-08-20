@@ -6,6 +6,7 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Notifications.Command;
 using NettoRetail.Application.CQRS.Notifications.Queries;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -45,15 +46,15 @@ public class NotificationController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("get-all")]
-    [ProducesResponseType(typeof(ApiResponse<NotificationResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<NotificationResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest pagination)
     {
         var staffId = HttpContext.GetUserId();
-        var data = new GetAllNotificationsQuery(staffId);
+        var data = new GetAllNotificationsQuery(pagination, staffId);
         var response = await mediator.Send(data);
         return Ok(new ApiResponse<PaginatedResponse<NotificationResponse>>(response));
     }

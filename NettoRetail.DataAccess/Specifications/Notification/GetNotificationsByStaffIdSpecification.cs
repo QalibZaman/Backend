@@ -4,11 +4,13 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Notification;
 
-public class GetNotificationsByStaffIdSpecification: Specification<NotificationEntity>
+public class GetNotificationsByStaffIdSpecificationWithPagination: Specification<NotificationEntity>
 {
-    public GetNotificationsByStaffIdSpecification(Guid id)
+    public GetNotificationsByStaffIdSpecificationWithPagination(Guid id, int skip, int take)
         : base(model => model.StaffId == id)
     {
+        Skip = skip;
+        Take = take;
         AddOrderBy(model => model.CreatedAt, true);
     }
 }
