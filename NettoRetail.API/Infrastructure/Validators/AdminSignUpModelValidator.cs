@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.API.Infrastructure.Validators;
+namespace NettoRetail.API.Infrastructure.Validators;
 
 using FluentValidation;
 using NettoRetail.Application.Models.Admin;
