@@ -39,8 +39,10 @@ public class ImageValidatorService : IImageValidatorService
 
         try
         {
+            await using var stream = file.OpenReadStream();
+
             using var image = await Image.LoadAsync(
-                file.OpenReadStream(),
+                stream,
                 cancellationToken);
 
             if (image.Width < MinBannerWidth ||
@@ -84,8 +86,10 @@ public class ImageValidatorService : IImageValidatorService
 
         try
         {
+            await using var stream = file.OpenReadStream();
+
             using var image = await Image.LoadAsync(
-                file.OpenReadStream(),
+                stream,
                 cancellationToken);
 
             if (image.Width < ProfilePictureConstants.MinWidth ||
