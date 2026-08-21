@@ -47,7 +47,6 @@ namespace NettoRetail.Application.CQRS.Users.Commands
                     cancellationToken);
 
                 await customerRepository.UpdateAsync(customer, cancellationToken);
-                await customerRepository.CommitAsync(cancellationToken);
 
                 return;
             }
@@ -63,7 +62,6 @@ namespace NettoRetail.Application.CQRS.Users.Commands
                     cancellationToken);
 
                 await staffRepository.UpdateAsync(staff, cancellationToken);
-                await staffRepository.CommitAsync(cancellationToken);
 
                 return;
             }
