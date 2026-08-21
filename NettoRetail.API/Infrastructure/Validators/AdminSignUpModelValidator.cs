@@ -1,10 +1,8 @@
 ﻿namespace NettoRetail.API.Infrastructure.Validators;
-
-using System.Text.RegularExpressions;
 using FluentValidation;
 using NettoRetail.Application.Models.Admin;
 
-public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
+public class AdminSignUpModelValidator : AbstractValidator<AdminSignUpModel>
 {
     public AdminSignUpModelValidator()
     {
@@ -13,7 +11,6 @@ public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
             .MinimumLength(2).WithMessage("Invalid First Name. Please check format or length.")
             .MaximumLength(30).WithMessage("Invalid First Name. Please check format or length.")
             .Matches("^[A-Za-z]+$").WithMessage("Invalid First Name. Please check format or length.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Invalid First Name. Please check format or length.")
             .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid First Name. Please check format or length.");
 
         RuleFor(x => x.LastName)
@@ -22,7 +19,6 @@ public class AdminSignUpModelValidator: AbstractValidator<AdminSignUpModel>
             .MinimumLength(2).WithMessage("Invalid Last Name. Please check format or length.")
             .MaximumLength(30).WithMessage("Invalid Last Name. Please check format or length.")
             .Matches("^[A-Za-z]+$").WithMessage("Invalid Last Name. Please check format or length.")
-            .Matches("^[A-Z][a-z]*$").WithMessage("Invalid Last Name. Please check format or length.")
             .Matches(@"^[^\s].*[^\s]$").WithMessage("Invalid Last Name. Please check format or length.");
 
         RuleFor(x => x.Email)
