@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Domain.Entities;
+namespace NettoRetail.Domain.Entities;
 
 public class SessionEntity
 {
@@ -14,5 +14,7 @@ public class SessionEntity
     public DateTime ExpiresAt { get; set; }
     public Guid StaffId { get; set; }
     public StaffEntity Staff { get; set; } = null!;
+    public Guid AccountId { get; set; } // currently fk to staff
+    public required BaseUserEntity Account { get; set; }
     public bool IsActive { get; set; } = true;
 }

@@ -9,12 +9,16 @@ using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
+using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
+using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
+
+namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -57,7 +61,8 @@ public class StaffController(
     }
 
     [HttpPost("locked-account-activation")]
-    public async Task<IActionResult> ResendActivationEmail([FromBody] ActivationEmailAttemptRequest model)
+    public async Task<IActionResult> ResendActivationEmail(
+        [FromBody] ActivationEmailAttemptRequest model)
     {
         var emailCommand = new ResendActivationEmailCommand(model);
         await mediator.Send(emailCommand);
@@ -86,26 +91,53 @@ public class StaffController(
     {
         var activateLockedAccountCommand = new ActivateLockedAccountCommand(token);
         await mediator.Send(activateLockedAccountCommand);
+
         return Ok();
     }
 
     [HttpPost("subscribe-to-newsletter")]
     [Authorize]
-    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    public async Task<IActionResult> SubscribeToNewsletter(
+        CancellationToken cancellationToken)
     {
         var accountId = HttpContext.GetUserId();
+
         var command = new SubscribeToNewsletterCommand(accountId);
         await mediator.Send(command, cancellationToken);
+
         return Ok();
     }
 
     [HttpPost("unsubscribe-to-newsletter")]
     [Authorize]
-    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    public async Task<IActionResult> UnsubscribeToNewsletter(
+        CancellationToken cancellationToken)
     {
         var accountId = HttpContext.GetUserId();
+
         var command = new UnsubscribeToNewsletterCommand(accountId);
         await mediator.Send(command, cancellationToken);
+
         return Ok();
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request)
+    {
+        var command = new ForgotPasswordCommand(request.Email);
+        await mediator.Send(command);
+
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest model)
+    {
+        var resetPasswordCommand = new ResetPasswordCommand(model);
+        await mediator.Send(resetPasswordCommand);
+
+        return NoContent();
     }
 }

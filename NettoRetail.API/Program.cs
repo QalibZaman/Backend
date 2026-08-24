@@ -8,7 +8,7 @@ using NettoRetail.Shared.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 //builder.Host.UseSerilog((context, configuration) =>
-   // configuration.ReadFrom.Configuration(context.Configuration));
+// configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureAuthentication();
@@ -18,6 +18,14 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 builder.Services.AddApplicationServiceExtensions(builder.Configuration);
 builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+builder.Services.AddInfrastructureExtensions(builder.Configuration);
+builder.Services.AddApplicationServiceExtensions(builder.Configuration);
+builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
+builder.Services.AddInfrastructureExtensions(builder.Configuration);
+builder.Services.AddSharedServiceExtensions(builder.Configuration);
+
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>()
@@ -56,6 +64,7 @@ app.UseCors("CorsPolicy");
 app.UseGlobalExceptionHandling();
 app.UseConfiguredSwagger();
 app.UseAuthentication();
+app.UseConfiguredSwagger();
 app.UseAuthorization();
 app.MapControllers();
 
