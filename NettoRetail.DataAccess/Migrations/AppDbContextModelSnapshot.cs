@@ -269,6 +269,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("PasswordUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -417,6 +421,31 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Permission_Role", (string)null);
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PasswordHistories");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -458,6 +487,9 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Browser")
@@ -504,6 +536,8 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("Jwt")
                         .IsUnique();
@@ -661,13 +695,32 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PasswordHistoryEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
+                        .WithMany("PasswordHistories")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.SessionEntity", b =>
                 {
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
                         .WithMany("Sessions")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
 
                     b.Navigation("Staff");
                 });
@@ -692,6 +745,11 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
+                {
+                    b.Navigation("PasswordHistories");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>

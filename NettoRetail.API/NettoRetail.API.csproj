@@ -42,5 +42,8 @@
     
     <ItemGroup>
       <Folder Include="Controllers\V1\" />
+      <Folder Include="Controllers\V1\NewFolder\" />
+      <Folder Include="Infrastructure\Swagger\" />
+      <Folder Include="Infrastructure\Validators\UpdateProductValidator\InnerValidators\" />
     </ItemGroup>
 </Project>
