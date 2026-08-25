@@ -4,6 +4,9 @@ using NettoRetail.Application.Hubs.NotificationHub;
 using NettoRetail.Application.Interfaces.Services.UserService;
 using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
+using NettoRetail.Infrastructure.Interfaces;
+using NettoRetail.Infrastructure.Services;
+using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,7 @@ builder.Services.AddInfrastructureExtensions(builder.Configuration);
 builder.Services.AddApplicationServiceExtensions(builder.Configuration);
 builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
+
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
@@ -26,6 +30,9 @@ builder.Services.AddApplicationServiceExtensions(builder.Configuration);
 builder.Services.AddDataAccessServiceExtensions(builder.Configuration);
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
 builder.Services.AddSharedServiceExtensions(builder.Configuration);
+
+builder.Services.AddScoped<IAzureBlobService, AzureBlobService>();
+builder.Services.AddScoped<IImageValidatorService, ImageValidatorService>();
 
 builder.Services.AddCors(options =>
 {
