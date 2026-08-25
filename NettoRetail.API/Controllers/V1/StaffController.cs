@@ -11,6 +11,7 @@ using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.CQRS.Users.Queries.Account;
+using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Request.Password;
@@ -139,5 +140,27 @@ public class StaffController(
         await mediator.Send(resetPasswordCommand);
 
         return NoContent();
+    }
+
+    [HttpPost("sign-up")]
+    // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
+    [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public async Task<IActionResult> SignUp(AdminSignUpModel model)
+    {
+        var adminCreationCommand = new CreateAdminCommand(model);
+        var data = await mediator.Send(adminCreationCommand);
+        var response = new ApiResponse<TokenResponse>(data);
+
+        // for session
+        string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
+        await mediator.Send(sessionCreateCommand);
+
+        return Created("", response);
     }
 }

@@ -6,5 +6,8 @@ namespace NettoRetail.DataAccess.Specifications.Customer;
 public class GetCustomerByIdSpecification : Specification<CustomerEntity>
 {
     public GetCustomerByIdSpecification(Guid id)
-        : base(customer => customer.Id == id) { }
+        : base(customer => customer.Id == id)
+    {
+        AddInclude(customer => customer.Address);
+    }
 }

@@ -10,10 +10,6 @@ public abstract class BaseUserEntity
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
     public string? PhoneNumber { get; set; }
-    public string? ShippingAddress { get; set; }
-    public string? City { get; set; }
-    public string? State { get; set; }
-    public string? ZipCode { get; set; }
     public int RoleId { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public string? ProfileImageUrl { get; set; }
@@ -25,11 +21,9 @@ public abstract class BaseUserEntity
 
     public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
 
-    public string FullName => FirstName + " " + LastName;
-
+    public string FullName => $"{FirstName} {LastName}";
     public bool IsOnline()
     {
-        if (Status == StaffStatusEnum.Online) return true;
-        return false;
+        return Status == StaffStatusEnum.Online;
     }
 }

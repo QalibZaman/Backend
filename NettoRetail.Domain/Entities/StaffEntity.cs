@@ -3,6 +3,7 @@
     public class StaffEntity : BaseUserEntity
     {
     public bool IsOnboardingCompleted { get; set; }
+    public AddressEntity? Address { get; set; }
     public DateTime? InvitationTokenIssuedAt { get; set; }
     public ICollection<SessionEntity> Sessions { get; set; } = [];
 }

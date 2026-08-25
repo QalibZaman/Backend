@@ -15,5 +15,6 @@ public class BaseUserConfiguration : IEntityTypeConfiguration<BaseUserEntity>
         builder.Property(x => x.FirstName).HasMaxLength(30);
         builder.Property(x => x.LastName).HasMaxLength(30);
         builder.Property(x => x.Email).HasMaxLength(256);
+        builder.Property(x => x.PhoneNumber).HasMaxLength(30);
     }
 }
