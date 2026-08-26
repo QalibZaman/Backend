@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.DataAccess.UOW;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
@@ -60,6 +59,7 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<IActivationEmailAttemptRepository, ActivationEmailAttemptRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

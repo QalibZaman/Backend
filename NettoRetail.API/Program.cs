@@ -1,7 +1,9 @@
+using Hangfire;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
 using NettoRetail.Application.Interfaces.Services.UserService;
+using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Extensions;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Infrastructure.Interfaces;
@@ -68,6 +70,8 @@ app.UseConfiguredSwagger();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseHangfireDashboard();
+app.RegisterRecurringJobs();
 
 app.MapHub<NotificationHub>("/notifications");
 

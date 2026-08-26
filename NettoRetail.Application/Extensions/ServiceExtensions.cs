@@ -84,6 +84,7 @@ public static class ServiceExtensions
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
+        services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
 
     }
 }
