@@ -61,6 +61,7 @@ public static class ServiceExtensions
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -89,5 +89,6 @@ public static class ServiceExtensions
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
+        services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
     }
 }
