@@ -135,6 +135,8 @@ namespace NettoRetail.Tests.UnitTests.AuthTests
 
         private static SessionEntity CreateActiveSession()
         {
+            var staffId = Guid.NewGuid();
+
             return new SessionEntity
             {
                 Id = Guid.NewGuid(),
@@ -147,7 +149,16 @@ namespace NettoRetail.Tests.UnitTests.AuthTests
                 StartTime = DateTime.UtcNow.AddHours(-1),
                 LastActivityTime = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
-                StaffId = Guid.NewGuid(),
+                StaffId = staffId,
+                AccountId = staffId,
+                Account = new StaffEntity
+                {
+                    Id = staffId,
+                    FirstName = "Test",
+                    LastName = "Testtest",
+                    Email = "test@gmail.com",
+                    PasswordHash = "test_hash",
+                },
                 IsActive = true
             };
         }

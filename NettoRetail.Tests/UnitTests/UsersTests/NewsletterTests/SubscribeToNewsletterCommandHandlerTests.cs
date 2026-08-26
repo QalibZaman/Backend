@@ -151,6 +151,7 @@ public class SubscribeToNewsletterCommandHandlerTests
             FirstName = "Test",
             LastName = "Testtest",
             Email = "test@gmail.com",
+            PasswordHash = "test_hash",
             IsSubscribedToNewsletter = isSubscribed,
         };
     }
