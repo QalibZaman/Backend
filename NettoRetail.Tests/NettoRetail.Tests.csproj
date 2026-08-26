@@ -41,7 +41,6 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
-    <Folder Include="IntegrationTests\" />
     <Folder Include="RepositoryTests\" />
   </ItemGroup>
 
