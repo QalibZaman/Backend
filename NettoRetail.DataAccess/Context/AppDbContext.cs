@@ -20,6 +20,8 @@ public class AppDbContext(
     public DbSet<SessionEntity> Sessions { get; set; }
     public DbSet<FailedAuthAttemptEntity> FailedAuthAttempts { get; set; }
     public DbSet<ActivationEmailAttemptEntity> ActivationEmailEntity { get; set; }
+    public DbSet<PasswordHistoryEntity> PasswordHistories { get; set; }
+    public DbSet<NotificationEntity> Notifications { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }

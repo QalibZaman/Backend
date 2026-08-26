@@ -12,4 +12,6 @@ public static class EmailSubjects
     public const string PlatformAdminActivated = "Your account has been activated";
     public const string ActivateCustomerAccount = "NettoRetail account acivation";
     public const string CustomerEmailChangeConfirmation = "Confirm your new email for {0}";
+    public const string AccountDeleted = "Your account has been deleted";
+    public const string FailedDeletionAttempts = "Failed account deletion attempts";
 }

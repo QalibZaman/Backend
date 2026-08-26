@@ -18,6 +18,7 @@ using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
+using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
 using Stripe;
@@ -28,6 +29,9 @@ public static class ServiceExtensions
 {
     public static void AddApplicationServiceExtensions(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IAzureBlobService, AzureBlobService>();
+        services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+
         services.AddDbContext<AppDbContext>(options =>
         {
             var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("DefaultConnection");
@@ -79,10 +83,12 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
         services.AddScoped<IActivationEmailAttemptService, ActivationEmailAttemptAttemptService>();
         services.AddScoped<IEmailBuilderService, EmailBuilderService>();
+        services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
-
+        services.AddScoped<ISessionTerminationService, SessionTerminationService>();
+        services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
     }
 }
