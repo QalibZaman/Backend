@@ -296,7 +296,7 @@ namespace NettoRetail.DataAccess.Migrations
                         {
                             t.HasCheckConstraint("CK_Address_OnlyOneOwner", "(\"CustomerId\" IS NOT NULL AND \"StaffId\" IS NULL) OR (\"CustomerId\" IS NULL AND \"StaffId\" IS NOT NULL)");
                         });
-                });
+                }));
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
