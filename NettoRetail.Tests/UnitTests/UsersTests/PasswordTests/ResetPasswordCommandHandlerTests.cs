@@ -1,19 +1,19 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications.PasswordHistory;
-using NettoRetail.Shared.Utilities;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using Xunit;
 using System.Data;
 
 namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
@@ -27,13 +27,16 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtManager _jwtManager;
         private readonly IDbTransaction _transaction;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
 
         private readonly ResetPasswordCommandHandler _handler;
 
         private const string ValidToken = "valid-reset-token";
         private const string ValidEmail = "user@example.com";
-        private const string CurrentPassword = "OldP@ssword1";
+        private const string CurrentPasswordHash = "current-hashed-password";
         private const string NewPassword = "NewP@ssword1";
+        private const string NewPasswordHash = "new-hashed-password";
 
         public ResetPasswordCommandHandlerTests()
         {
@@ -44,6 +47,18 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             _jwtManager = Substitute.For<IJwtManager>();
             _transaction = Substitute.For<IDbTransaction>();
 
+            // UserManager<T> is a concrete class, not an interface - NSubstitute can still
+            // mock it because its members are virtual. Only IUserStore is required to
+            // construct it; the rest of the constructor parameters can be null for testing.
+            var userStore = Substitute.For<IUserStore<ApplicationUser>>();
+            _userManager = Substitute.For<UserManager<ApplicationUser>>(
+                userStore, null, null, null, null, null, null, null, null);
+
+            // PasswordHasher has a public setter on UserManager, so we can swap in our own mock
+            // instead of relying on the real Identity password hashing implementation.
+            _passwordHasher = Substitute.For<IPasswordHasher<ApplicationUser>>();
+            _userManager.PasswordHasher = _passwordHasher;
+
             _unitOfWork.BeginTransaction().Returns(_transaction);
 
             _handler = new ResetPasswordCommandHandler(
@@ -51,23 +66,33 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 _passwordHistoryRepository,
                 _sessionTerminationService,
                 _unitOfWork,
-                _jwtManager);
+                _jwtManager,
+                _userManager);
         }
 
         [Fact]
         public async Task Handle_ShouldUpdatePasswordAndActivateAccount_WhenStatusWasCreatePassword()
         {
             // Arrange - a first-time password setup flow (account still pending activation)
-            SetValidToken();
             var staff = CreateStaff(status: StaffStatusEnum.CreatePassword);
+            var identityUser = CreateIdentityUser(staff.Id);
 
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(staff);
 
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Failed);
+
             _passwordHistoryRepository
                 .GetAllBySpecAsync(Arg.Any<GetPasswordHistoryByAccountIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(Enumerable.Empty<PasswordHistoryEntity>());
+
+            _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
+            _userManager.UpdateAsync(identityUser).Returns(IdentityResult.Success);
 
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
@@ -77,6 +102,9 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             // Assert
             await _passwordHistoryRepository.Received(1)
                 .AddAsync(Arg.Is<PasswordHistoryEntity>(h => h.AccountId == staff.Id), Arg.Any<CancellationToken>());
+
+            Assert.Equal(NewPasswordHash, identityUser.PasswordHash);
+            await _userManager.Received(1).UpdateAsync(identityUser);
 
             await _accountRepository.Received(1).UpdateAsync(
                 Arg.Is<StaffEntity>(u => u.Status == StaffStatusEnum.Active && u.PasswordUpdatedAt != default),
@@ -93,16 +121,25 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
         {
             // Arrange - a regular password reset for an already-active account:
             // status must stay Active, not be changed by the reset itself.
-            SetValidToken();
             var staff = CreateStaff(status: StaffStatusEnum.Active);
+            var identityUser = CreateIdentityUser(staff.Id);
 
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(staff);
 
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Failed);
+
             _passwordHistoryRepository
                 .GetAllBySpecAsync(Arg.Any<GetPasswordHistoryByAccountIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(Enumerable.Empty<PasswordHistoryEntity>());
+
+            _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
+            _userManager.UpdateAsync(identityUser).Returns(IdentityResult.Success);
 
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
@@ -130,14 +167,12 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var command = new ResetPasswordCommand(new ResetPasswordRequest("expired-token", NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             await Assert.ThrowsAsync<SecurityTokenExpiredException>(act);
 
-            // Nothing past token validation should have run
-            await _accountRepository.DidNotReceiveWithAnyArgs()
-                .GetAsync(default!, default);
+            await _userManager.DidNotReceiveWithAnyArgs().FindByEmailAsync(default!);
             _unitOfWork.DidNotReceive().BeginTransaction();
         }
 
@@ -151,21 +186,43 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             var exception = await Assert.ThrowsAsync<BadRequestException>(act);
             Assert.Equal("Invalid token payload.", exception.Message);
 
-            await _accountRepository.DidNotReceiveWithAnyArgs().GetAsync(default!, default);
+            await _userManager.DidNotReceiveWithAnyArgs().FindByEmailAsync(default!);
         }
 
         [Fact]
-        public async Task Handle_ShouldThrowNotFoundException_WhenUserDoesNotExist()
+        public async Task Handle_ShouldThrowNotFoundException_WhenIdentityUserDoesNotExist()
         {
-            // Arrange - token is valid but no staff account matches the email
+            // Arrange - token is valid but no Identity user matches the email
             SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns((ApplicationUser?)null);
 
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+
+            // Act
+            Task act() => _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            var exception = await Assert.ThrowsAsync<NotFoundException>(act);
+            Assert.Equal("User not found.", exception.Message);
+
+            await _accountRepository.DidNotReceiveWithAnyArgs().GetAsync(default!, default);
+            _unitOfWork.DidNotReceive().BeginTransaction();
+        }
+
+        [Fact]
+        public async Task Handle_ShouldThrowNotFoundException_WhenStaffAccountDoesNotExist()
+        {
+            // Arrange - Identity user exists, but there is no matching StaffEntity
+            var identityUser = CreateIdentityUser(Guid.NewGuid());
+
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns((StaffEntity?)null);
@@ -173,7 +230,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             var exception = await Assert.ThrowsAsync<NotFoundException>(act);
@@ -185,22 +242,28 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
         [Fact]
         public async Task Handle_ShouldThrowBadRequestException_WhenNewPasswordMatchesCurrentPassword()
         {
-            // Arrange - new password is identical to the one currently set
-            SetValidToken();
+            // Arrange - new password verifies successfully against the current hash
             var staff = CreateStaff(status: StaffStatusEnum.Active);
+            var identityUser = CreateIdentityUser(staff.Id);
 
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(staff);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, CurrentPassword, CurrentPassword));
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Success);
+
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             var exception = await Assert.ThrowsAsync<BadRequestException>(act);
-            Assert.Equal("New password cannot be the same as the current password", exception.Message);
+            Assert.Equal("New password cannot be the same as the current password.", exception.Message);
 
             _unitOfWork.DidNotReceive().BeginTransaction();
         }
@@ -209,17 +272,23 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
         public async Task Handle_ShouldThrowBadRequestException_WhenNewPasswordWasUsedBefore()
         {
             // Arrange - new password matches an entry in the account's password history
-            SetValidToken();
             var staff = CreateStaff(status: StaffStatusEnum.Active);
+            var identityUser = CreateIdentityUser(staff.Id);
 
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(staff);
 
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Failed);
+
             var previouslyUsedHistory = new PasswordHistoryEntity
             {
                 AccountId = staff.Id,
-                HashedPassword = PasswordHasher.HashPassword(NewPassword),
+                HashedPassword = "old-hashed-password",
                 CreatedAt = DateTime.UtcNow.AddDays(-30)
             };
 
@@ -227,10 +296,14 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .GetAllBySpecAsync(Arg.Any<GetPasswordHistoryByAccountIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(new[] { previouslyUsedHistory });
 
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, previouslyUsedHistory.HashedPassword, NewPassword)
+                .Returns(PasswordVerificationResult.Success);
+
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             var exception = await Assert.ThrowsAsync<BadRequestException>(act);
@@ -240,19 +313,67 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
         }
 
         [Fact]
-        public async Task Handle_ShouldRollbackAndRethrow_WhenSessionTerminationFails()
+        public async Task Handle_ShouldThrowBadRequestException_WhenIdentityUpdateFails()
         {
-            // Arrange - simulate an unexpected failure mid-transaction
-            SetValidToken();
+            // Arrange - Identity's UpdateAsync reports validation errors (e.g. password policy)
             var staff = CreateStaff(status: StaffStatusEnum.Active);
+            var identityUser = CreateIdentityUser(staff.Id);
 
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
             _accountRepository
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(staff);
 
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Failed);
+
             _passwordHistoryRepository
                 .GetAllBySpecAsync(Arg.Any<GetPasswordHistoryByAccountIdSpecification>(), Arg.Any<CancellationToken>())
                 .Returns(Enumerable.Empty<PasswordHistoryEntity>());
+
+            _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
+
+            var identityError = IdentityResult.Failed(new IdentityError { Description = "Password is too weak." });
+            _userManager.UpdateAsync(identityUser).Returns(identityError);
+
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+
+            // Act
+            var act = () => _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            var exception = await Assert.ThrowsAsync<BadRequestException>(act);
+            Assert.Equal("Password is too weak.", exception.Message);
+
+            _transaction.Received(1).Rollback();
+            _transaction.DidNotReceive().Commit();
+        }
+
+        [Fact]
+        public async Task Handle_ShouldRollbackAndRethrow_WhenSessionTerminationFails()
+        {
+            // Arrange - simulate an unexpected failure mid-transaction
+            var staff = CreateStaff(status: StaffStatusEnum.Active);
+            var identityUser = CreateIdentityUser(staff.Id);
+
+            SetValidToken();
+            _userManager.FindByEmailAsync(ValidEmail).Returns(identityUser);
+            _accountRepository
+                .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(staff);
+
+            _passwordHasher
+                .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
+                .Returns(PasswordVerificationResult.Failed);
+
+            _passwordHistoryRepository
+                .GetAllBySpecAsync(Arg.Any<GetPasswordHistoryByAccountIdSpecification>(), Arg.Any<CancellationToken>())
+                .Returns(Enumerable.Empty<PasswordHistoryEntity>());
+
+            _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
+            _userManager.UpdateAsync(identityUser).Returns(IdentityResult.Success);
 
             _sessionTerminationService
                 .TerminateSessionsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
@@ -261,7 +382,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
 
             // Act
-            var act = () => _handler.Handle(command, CancellationToken.None);
+            Task act() => _handler.Handle(command, CancellationToken.None);
 
             // Assert
             await Assert.ThrowsAsync<InvalidOperationException>(act);
@@ -281,7 +402,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             _jwtManager.ValidateResetToken(ValidToken).Returns(claimsPrincipal);
         }
 
-        // Builds a staff account whose current password is CurrentPassword
+        // Builds a staff account (no password hash stored here anymore - Identity owns it)
         private static StaffEntity CreateStaff(StaffStatusEnum status)
         {
             return new StaffEntity
@@ -290,8 +411,19 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 FirstName = "First",
                 LastName = "Last",
                 Email = ValidEmail,
-                PasswordHash = PasswordHasher.HashPassword(CurrentPassword),
                 Status = status
+            };
+        }
+
+        // Builds the Identity-side user record, sharing the same Id as the StaffEntity
+        private static ApplicationUser CreateIdentityUser(Guid id)
+        {
+            return new ApplicationUser
+            {
+                Id = id,
+                Email = ValidEmail,
+                UserName = ValidEmail,
+                PasswordHash = CurrentPasswordHash
             };
         }
     }

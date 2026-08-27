@@ -1,17 +1,16 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Identity;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Request.Password;
+using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications.PasswordHistory;
-using NettoRetail.Shared.Utilities;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using NettoRetail.DataAccess.Identity;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password
 {
