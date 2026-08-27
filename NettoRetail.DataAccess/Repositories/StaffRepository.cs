@@ -7,16 +7,14 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Repositories;
 
-public class StaffRepository : BaseRepository<StaffEntity>,
-    IStaffRepository
+public class StaffRepository(AppDbContext dbContext) : BaseRepository<StaffEntity>(dbContext), IStaffRepository
 {
-    public StaffRepository(AppDbContext dbContext)
-        : base(dbContext)
-    { }
-
     public async Task<IEnumerable<string>> GetAccountEmailsAsync(Specification<StaffEntity> specification, CancellationToken cancellationToken)
     {
-        var emails = await _dbSet.Where(specification.Criteria).Select(x => x.Email).ToListAsync(cancellationToken);
+        var emails = await _dbSet
+            .Where(specification.Criteria)
+            .Select(x => x.Email)
+            .ToListAsync(cancellationToken);
 
         return emails;
     }
@@ -29,18 +27,6 @@ public class StaffRepository : BaseRepository<StaffEntity>,
         {
             accountsWithoutCustomers = accountsWithoutCustomers.Include(include);
         }
-
-        // accountsWithoutCustomers = accountsWithoutCustomers
-        //     .GroupJoin(
-        //         _dbContext.Customers,
-        //         account => account.Id,
-        //         customer => customer.Id,
-        //         (account, customers) => new { account, customers })
-        //     .SelectMany(
-        //         ac => ac.customers.DefaultIfEmpty(),
-        //         (ac, customer) => new { ac.account, customer })
-        //     .Where(x => x.customer == null)
-        //     .Select(x => x.account);
 
         return await accountsWithoutCustomers.ToListAsync(cancellationToken);
     }
@@ -55,18 +41,6 @@ public class StaffRepository : BaseRepository<StaffEntity>,
         {
             query = query.Where(specification.Criteria);
         }
-
-        // query = query
-        //     .GroupJoin(
-        //         _dbContext.Customers,
-        //         account => account.Id,
-        //         customer => customer.Id,
-        //         (account, customers) => new { account, customers })
-        //     .SelectMany(
-        //         ac => ac.customers.DefaultIfEmpty(),
-        //         (ac, customer) => new { ac.account, customer })
-        //     .Where(x => x.customer == null)
-        //     .Select(x => x.account);
 
         foreach (var include in specification.Includes)
         {
