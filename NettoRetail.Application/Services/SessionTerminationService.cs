@@ -14,9 +14,7 @@ public class SessionTerminationService(
         var sessions = await sessionRepository.GetAllBySpecAsync(spec, cancellationToken);
 
         if (!sessions.Any())
-        {
             return;
-        }
 
         foreach (var session in sessions)
         {

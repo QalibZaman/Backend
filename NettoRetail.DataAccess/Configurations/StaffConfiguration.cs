@@ -4,10 +4,10 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations;
 
-    public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
+public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
+{
+    public void Configure(EntityTypeBuilder<StaffEntity> builder)
     {
-        public void Configure(EntityTypeBuilder<StaffEntity> builder)
-        {
         builder.ToTable("Staff");
 
         builder.HasIndex(x => x.Email)

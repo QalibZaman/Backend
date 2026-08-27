@@ -20,6 +20,7 @@ public static class ServiceExtensions
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
         services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
         services.Configure<AzureBlobStorageOptions>(configuration.GetSection(nameof(AzureBlobStorageOptions)));
+        
         // services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
 
@@ -45,10 +46,8 @@ public static class ServiceExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-
         // services.AddScoped<IStripeService, StripeService>();
         services.AddDbContext<AppDbContext>();
-
         return services;
     }
 }

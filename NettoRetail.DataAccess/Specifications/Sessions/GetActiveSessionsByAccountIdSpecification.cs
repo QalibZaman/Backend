@@ -1,13 +1,7 @@
 ﻿using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.DataAccess.Specifications.Sessions
+namespace NettoRetail.DataAccess.Specifications.Sessions;
+public class GetActiveSessionsByAccountIdSpecification(Guid staffId) : Specification<SessionEntity>(s => s.StaffId == staffId && s.ExpiresAt > DateTime.UtcNow && s.IsActive == true)
 {
-    public class GetActiveSessionsByAccountIdSpecification : Specification<SessionEntity>
-    {
-        public GetActiveSessionsByAccountIdSpecification(Guid accountId)
-            : base(s => s.AccountId == accountId && s.ExpiresAt > DateTime.UtcNow && s.IsActive == true)
-{
-}
-    }
 }

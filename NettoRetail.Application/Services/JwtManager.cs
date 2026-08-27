@@ -1,3 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,15 +9,11 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace NettoRetail.Application.Services;
 
 public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> logger) : IJwtManager
 {
-    private readonly ILogger<JwtManager> _logger = logger;
     private readonly byte[] _key = Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey);
     private readonly string _algorithm = SecurityAlgorithms.HmacSha512;
 
