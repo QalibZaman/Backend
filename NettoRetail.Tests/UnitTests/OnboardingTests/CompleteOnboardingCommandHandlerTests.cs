@@ -148,7 +148,8 @@ namespace NettoRetail.Tests.UnitTests.OnboardingTests
                 Id = userId,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com"
+                Email = "john.doe@example.com",
+                PasswordHash = "test_hash"
             };
         }
     }
