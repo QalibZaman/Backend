@@ -10,63 +10,108 @@ using NettoRetail.Shared.Interfaces.Utilities;
 using NettoRetail.Shared.Specifications.PasswordHistory;
 using NettoRetail.Shared.Utilities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using NettoRetail.DataAccess.Identity;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password
 {
     public record ResetPasswordCommand(ResetPasswordRequest Model) : IRequest;
+
     public class ResetPasswordCommandHandler(
         IStaffRepository accountRepository,
         IPasswordHistoryRepository passwordHistoryRepository,
         ISessionTerminationService sessionTerminationService,
         IUnitOfWork unitOfWork,
-        IJwtManager jwtManager)
+        IJwtManager jwtManager,
+        UserManager<ApplicationUser> userManager)
         : IRequestHandler<ResetPasswordCommand>
     {
-        public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+        public async Task Handle(
+            ResetPasswordCommand request,
+            CancellationToken cancellationToken)
         {
             var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
 
-            var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value ??
-                throw new BadRequestException("Invalid token payload.");
+            var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value
+                        ?? throw new BadRequestException("Invalid token payload.");
+
+            var identityUser = await userManager.FindByEmailAsync(email)
+                               ?? throw new NotFoundException("User not found.");
 
             var specification = new GetStaffByEmailSpecification(email);
-            var user = await accountRepository.GetAsync(specification, cancellationToken) ??
-                throw new NotFoundException("User not found.");
 
-            var isNewPasswordSameAsCurrent = PasswordHasher.VerifyPassword(
-                request.Model.NewPassword,
-                user.PasswordHash);
+            var user = await accountRepository.GetAsync(
+                           specification,
+                           cancellationToken)
+                       ?? throw new NotFoundException("User not found.");
 
-            if (isNewPasswordSameAsCurrent)
+            var passwordHasher = userManager.PasswordHasher;
+
+            // Check if new password is the same as current password
+            var currentPasswordResult = passwordHasher.VerifyHashedPassword(
+                identityUser,
+                identityUser.PasswordHash!,
+                request.Model.NewPassword);
+
+            if (currentPasswordResult == PasswordVerificationResult.Success)
             {
                 throw new BadRequestException(
-                    "New password cannot be the same as the current password");
+                    "New password cannot be the same as the current password.");
             }
 
-            var passwordHistorySpec = new GetPasswordHistoryByAccountIdSpecification(user.Id);
-            var passwordHistories = await passwordHistoryRepository.GetAllBySpecAsync(passwordHistorySpec, cancellationToken);
+            // Get password history
+            var passwordHistorySpec =
+                new GetPasswordHistoryByAccountIdSpecification(user.Id);
 
-            var isPasswordUsedBefore = passwordHistories
-                .Any(ph => PasswordHasher.VerifyPassword(request.Model.NewPassword, ph.HashedPassword));
+            var passwordHistories =
+                await passwordHistoryRepository.GetAllBySpecAsync(
+                    passwordHistorySpec,
+                    cancellationToken);
+
+            // Check password history
+            var isPasswordUsedBefore = passwordHistories.Any(ph => passwordHasher.VerifyHashedPassword(
+                                                                       identityUser,
+                                                                       ph.HashedPassword,
+                                                                       request.Model.NewPassword)
+                                                                   == PasswordVerificationResult.Success);
 
             if (isPasswordUsedBefore)
             {
-                throw new BadRequestException("New password cannot match any previously used passwords.");
+                throw new BadRequestException(
+                    "New password cannot match any previously used passwords.");
             }
 
             var transaction = unitOfWork.BeginTransaction();
+
             try
             {
+                // Store current password in history
                 await passwordHistoryRepository.AddAsync(
                     new PasswordHistoryEntity
                     {
                         AccountId = user.Id,
-                        HashedPassword = user.PasswordHash,
+                        HashedPassword = identityUser.PasswordHash!,
                         CreatedAt = DateTime.UtcNow
                     },
                     cancellationToken);
 
-                user.PasswordHash = PasswordHasher.HashPassword(request.Model.NewPassword);
+                // Hash the new password using Identity's hasher
+                identityUser.PasswordHash = passwordHasher.HashPassword(
+                    identityUser,
+                    request.Model.NewPassword);
+
+                // Update Identity user
+                var updateResult = await userManager.UpdateAsync(identityUser);
+
+                if (!updateResult.Succeeded)
+                {
+                    throw new BadRequestException(
+                        string.Join(
+                            ", ",
+                            updateResult.Errors.Select(e => e.Description)));
+                }
+
+                // Update StaffEntity
                 user.PasswordUpdatedAt = DateTime.UtcNow;
 
                 if (user.Status == StaffStatusEnum.CreatePassword)
@@ -74,8 +119,13 @@ namespace NettoRetail.Application.CQRS.Users.Commands.Password
                     user.Status = StaffStatusEnum.Active;
                 }
 
-                await accountRepository.UpdateAsync(user, cancellationToken);
-                await sessionTerminationService.TerminateSessionsAsync(user.Id, cancellationToken);
+                await accountRepository.UpdateAsync(
+                    user,
+                    cancellationToken);
+
+                await sessionTerminationService.TerminateSessionsAsync(
+                    user.Id,
+                    cancellationToken);
 
                 transaction.Commit();
             }
