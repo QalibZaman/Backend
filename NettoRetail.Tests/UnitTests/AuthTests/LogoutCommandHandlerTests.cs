@@ -150,13 +150,12 @@ namespace NettoRetail.Tests.UnitTests.AuthTests
                 LastActivityTime = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
                 StaffId = Guid.NewGuid(),
-                Account = new StaffEntity
+                Staff = new StaffEntity
                 {
                     Id = staffId,
                     FirstName = "Test",
                     LastName = "Testtest",
                     Email = "test@gmail.com",
-                    PasswordHash = "test_hash",
                 },
                 IsActive = true
             };
