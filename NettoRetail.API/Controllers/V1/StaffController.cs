@@ -10,7 +10,6 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
-using NettoRetail.Application.CQRS.Users.Queries.Account;
 using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
