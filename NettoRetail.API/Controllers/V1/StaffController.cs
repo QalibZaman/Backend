@@ -10,7 +10,7 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
-using NettoRetail.Application.CQRS.Users.Queries.Account;
+using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
@@ -30,14 +30,15 @@ public class StaffController(
 {
     [Authorize]
     [HttpGet("personal-information")]
-    public async Task<IActionResult> GetPersonalInformation(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPersonalInformation(
+      CancellationToken cancellationToken)
     {
-        var userId = HttpContext.GetUserId();
+        var query = new GetPersonalInformationQuery();
 
-        var query = new GetPersonalInfoQuery(userId);
         var data = await mediator.Send(query, cancellationToken);
 
-        var response = new ApiResponse<AccountDetailsResponse>(data);
+        var response = new ApiResponse<GetPersonalInformationResponse>(data);
+
         return Ok(response);
     }
 
