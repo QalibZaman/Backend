@@ -50,6 +50,7 @@ public class RoleSeeder(IConfiguration config, IStaffRepository repository, User
                 Email = acc.Email,
                 RoleId = acc.RoleId,
                 Status = status,
+
             };
 
             var identityUser = new ApplicationUser

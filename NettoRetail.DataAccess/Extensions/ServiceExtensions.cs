@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using MapsterMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,11 +7,9 @@ using Microsoft.Extensions.Options;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.DataAccess.Repositories;
-using NettoRetail.DataAccess.Seeders.Interfaces;
 using NettoRetail.DataAccess.UOW;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
-
 
 namespace NettoRetail.DataAccess.Extensions;
 
@@ -60,12 +59,17 @@ public static class ServiceExtensions
         services.AddScoped<IFailedAuthAttemptRepository, FailedAuthAttemptRepository>();
         services.AddScoped<IActivationEmailAttemptRepository, ActivationEmailAttemptRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
+        services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Seeders
-       
+        //Mapping
+        services.AddScoped<IMapper, ServiceMapper>();
+
         // Database related
         services.AddDbContext<AppDbContext>();
     }
