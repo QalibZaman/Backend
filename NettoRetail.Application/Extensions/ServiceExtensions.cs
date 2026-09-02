@@ -88,6 +88,8 @@ public static class ServiceExtensions
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
         services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IFailedAuthAttemptService, FailedAuthAttemptService>();
+
 
 
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();

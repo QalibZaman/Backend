@@ -6,5 +6,5 @@ namespace NettoRetail.DataAccess.Specifications.Staff;
 public class GetFailedAuthAttemptByStaffIdSpecification : Specification<FailedAuthAttemptEntity>
 {
     public GetFailedAuthAttemptByStaffIdSpecification(Guid id)
-        : base(x => x.StaffId == id) { }
+        : base(x => x.AccountId == id) { }
 }
