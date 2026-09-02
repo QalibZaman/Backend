@@ -31,7 +31,7 @@ public class StaffController(
     [Authorize]
     [HttpGet("personal-information")]
     public async Task<IActionResult> GetPersonalInformation(
-      CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
         var query = new GetPersonalInformationQuery();
 
@@ -143,6 +143,16 @@ public class StaffController(
         return NoContent();
     }
 
+    [HttpGet("validate-reset-password")]
+    public async Task<IActionResult> ValidateResetPassword(
+        [FromQuery] string token)
+    {
+        var validateResetPasswordQuery = new ValidateResetPasswordQuery(token);
+        await mediator.Send(validateResetPasswordQuery);
+        return Ok();
+    }
+
+
     [HttpPost("sign-up")]
     // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
     [ProducesResponseType(typeof(ApiResponse<TokenResponse>), StatusCodes.Status201Created)]
@@ -159,7 +169,8 @@ public class StaffController(
 
         // for session
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(),
+            data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         return Created("", response);
