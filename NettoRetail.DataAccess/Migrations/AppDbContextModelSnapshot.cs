@@ -387,6 +387,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("FailedAttempts")
                         .HasColumnType("integer");
 
@@ -396,12 +399,10 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<DateTime?>("LockoutEndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("StaffId");
+                    b.HasIndex("AccountId")
+                        .IsUnique();
 
                     b.ToTable("FailedAuthAttempts");
                 });
@@ -667,13 +668,13 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", b =>
                 {
-                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffId")
+                    b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
+                        .WithOne("FailedAuthAttempt")
+                        .HasForeignKey("NettoRetail.Domain.Entities.FailedAuthAttemptEntity", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Staff");
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
@@ -749,6 +750,9 @@ namespace NettoRetail.DataAccess.Migrations
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.BaseUserEntity", b =>
                 {
+                    b.Navigation("FailedAuthAttempt")
+                        .IsRequired();
+
                     b.Navigation("PasswordHistories");
                 });
 
