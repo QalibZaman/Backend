@@ -13,6 +13,7 @@ using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.IPasswordService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
 using NettoRetail.Application.Utilities;
@@ -86,6 +87,9 @@ public static class ServiceExtensions
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<ILinkService, LinkService>();
         services.AddScoped<IBlacklistTokenService, BlacklistTokenService>();
+        services.AddScoped<IPasswordService, PasswordService>();
+
+
         services.AddScoped<IBlobNameGenerator, BlobNameGenerator>();
         services.AddScoped<ChargeService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();

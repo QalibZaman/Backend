@@ -3,6 +3,7 @@ using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
@@ -137,6 +138,18 @@ public class StaffController(
     {
         var resetPasswordCommand = new ResetPasswordCommand(model);
         await mediator.Send(resetPasswordCommand);
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var userId = HttpContext.GetUserId();
+        var changePasswordCommand = new ChangePasswordCommand(userId, request);
+
+        await mediator.Send(changePasswordCommand);
 
         return NoContent();
     }
