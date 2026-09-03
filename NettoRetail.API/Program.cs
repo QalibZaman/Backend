@@ -10,6 +10,7 @@ using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Extensions;
+using NettoRetail.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
