@@ -10,14 +10,14 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 
-public record ValidateResetPasswordQuery(ValidateResetPasswordRequest Model) : IRequest;
+public record ValidateResetPasswordQuery(string Token) : IRequest;
 
 public class ValidateResetPasswordQueryHandler(IJwtManager jwtManager, UserManager<ApplicationUser> userManager, IStaffRepository accountRepository)
     : IRequestHandler<ValidateResetPasswordQuery>
 {
     public async Task Handle(ValidateResetPasswordQuery request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
+        var claimsPrincipal = jwtManager.ValidateResetToken(request.Token);
 
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value
                     ?? throw new BadRequestException("Invalid token payload.");
