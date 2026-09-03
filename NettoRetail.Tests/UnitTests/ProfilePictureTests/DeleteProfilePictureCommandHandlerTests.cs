@@ -316,7 +316,6 @@ namespace NettoRetail.Tests.UnitTests.ProfilePictureTests
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john.doe@example.com",
-                PasswordHash = "test-password-hash",
                 ProfileImageUrl = profileImageUrl
             };
         }
@@ -330,7 +329,6 @@ namespace NettoRetail.Tests.UnitTests.ProfilePictureTests
                 FirstName = "Jane",
                 LastName = "Doe",
                 Email = "jane.doe@example.com",
-                PasswordHash = "test-password-hash",
                 ProfileImageUrl = profileImageUrl
             };
         }
