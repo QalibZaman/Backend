@@ -145,9 +145,9 @@ public class StaffController(
 
     [HttpGet("validate-reset-password")]
     public async Task<IActionResult> ValidateResetPassword(
-        [FromBody] string token)
+        [FromBody] ValidateResetPasswordRequest request)
     {
-        var validateResetPasswordQuery = new ValidateResetPasswordQuery(token);
+        var validateResetPasswordQuery = new ValidateResetPasswordQuery(request);
         await mediator.Send(validateResetPasswordQuery);
         return Ok();
     }

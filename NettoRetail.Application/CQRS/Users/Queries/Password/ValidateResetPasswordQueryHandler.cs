@@ -3,20 +3,21 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
+using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Password;
 
-public record ValidateResetPasswordQuery(string Token) : IRequest;
+public record ValidateResetPasswordQuery(ValidateResetPasswordRequest Model) : IRequest;
 
 public class ValidateResetPasswordQueryHandler(IJwtManager jwtManager, UserManager<ApplicationUser> userManager, IStaffRepository accountRepository)
     : IRequestHandler<ValidateResetPasswordQuery>
 {
     public async Task Handle(ValidateResetPasswordQuery request, CancellationToken cancellationToken)
     {
-        var claimsPrincipal = jwtManager.ValidateResetToken(request.Token);
+        var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
 
         var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value
                     ?? throw new BadRequestException("Invalid token payload.");
