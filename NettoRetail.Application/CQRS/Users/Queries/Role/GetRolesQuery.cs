@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Role
 {
-    public record GetRolesQueryPaginated(RoleSearchModel Model) : IRequest<PaginatedResponse<RoleResponse>>;
-
-    public record GetRolesQuery() : IRequest<List<RoleResponse>>;
+    public record GetRolesQueryById(int id) : IRequest<RoleResponse>;
+    public record GetRolesQueryByName(string Name) : IRequest<RoleResponse>;
+    public record GetRolesQuery(PaginationRequest Model) : IRequest<PaginatedResponse<RoleResponse>>;
 }

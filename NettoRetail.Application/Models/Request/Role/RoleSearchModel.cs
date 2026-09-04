@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace NettoRetail.Application.Models.Request.Role
 {
-    public class RoleSearchModel : PaginationRequest
+    public class RoleSearchByIdModel
     {
         public int? Id { get; init; }
+    }
+
+    public class RoleSearchByNameModel
+    {
         public string? Name { get; init; }
     }
 }

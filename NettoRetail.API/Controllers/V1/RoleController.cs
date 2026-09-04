@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Users.Queries.Role;
+using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
@@ -16,41 +17,53 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class RoleController(IMediator mediator) : ControllerBase
 {
-    /*
-    * API endpoint with 4 optional parameters: Id, Name, page, and pageSize.
-    *
-    * - If Id is not provided, no filtering by role name is applied.
-    * - If name is not provided, no filtering by role name is applied.
-    * - If page or pageSize are not provided, default page and default pageSize are applied 
-    */
-
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [HttpGet("Get-by-Id-or-Name")]
+    [HttpGet("all")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetRolesByNameOrId([FromQuery] RoleSearchModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllRoles([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
     {
-        var query = new GetRolesQueryPaginated(model);
+        var query = new GetRolesQuery(paginationRequest);
         var result = await mediator.Send(query, cancellationToken);
         var response = new ApiResponse<PaginatedResponse<RoleResponse>>(result);
         return Ok(response);
     }
 
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [HttpGet("Get-All-Roles")]
-    [ProducesResponseType(typeof(ApiResponse<List<RoleResponse>>), StatusCodes.Status200OK)]
+    [HttpGet("{id::int}")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetRolesById([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var query = new GetRolesQuery();
+        var query = new GetRolesQueryById(id);
         var result = await mediator.Send(query, cancellationToken);
-        var response = new ApiResponse<List<RoleResponse>>(result);
+        var response = new ApiResponse<RoleResponse>(result);
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+    [HttpGet("{name}")]
+    [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetRolesByName(string name, CancellationToken cancellationToken)
+    {
+        var query = new GetRolesQueryByName(name);
+        var result = await mediator.Send(query, cancellationToken);
+        if (result is null)
+        {
+            return NotFound($"Role with name {name} not found");
+        }
+
+        var response = new ApiResponse<RoleResponse>(result);
         return Ok(response);
     }
 }
