@@ -25,7 +25,12 @@ public class RoleController(IMediator mediator) : ControllerBase
     */
 
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [HttpGet("By-Id-or-Name")]
+    [HttpGet("Get-by-Id-or-Name")]
+    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetRolesByNameOrId([FromQuery] RoleSearchModel model, CancellationToken cancellationToken)
     {
         var query = new GetRolesQueryPaginated(model);
@@ -36,6 +41,11 @@ public class RoleController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("Get-All-Roles")]
+    [ProducesResponseType(typeof(ApiResponse<List<RoleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
         var query = new GetRolesQuery();
@@ -43,5 +53,4 @@ public class RoleController(IMediator mediator) : ControllerBase
         var response = new ApiResponse<List<RoleResponse>>(result);
         return Ok(response);
     }
-
 }
