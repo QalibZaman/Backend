@@ -10,6 +10,7 @@ using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
+using NettoRetail.Application.CQRS.Users.Queries.Password;
 using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
@@ -143,13 +144,28 @@ public class StaffController(
         return NoContent();
     }
 
-    [HttpGet("validate-reset-password")]
-    public async Task<IActionResult> ValidateResetPassword(
-        [FromHeader(Name = "X-Password-Reset-Token")] string token)
+    
+
+    [HttpGet("validate-reset-password-token")]
+    public async Task<IActionResult> ValidateResetPasswordToken(
+        [FromQuery] string token)
     {
-        var validateResetPasswordQuery = new ValidateResetPasswordQuery(token);
-        await mediator.Send(validateResetPasswordQuery);
+        var validateResetPasswordTokenQuery = new ValidateResetPasswordTokenQuery(token);
+        await mediator.Send(validateResetPasswordTokenQuery);
         return Ok();
+    }
+    
+    [ProducesResponseType(typeof(ApiResponse<ValidateResetPasswordResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("validate-reset-password")]
+    public async Task<IActionResult> ValidateResetPassword([FromBody] ResetPasswordRequest model)
+    {
+        var validateResetPasswordQuery = new ValidateResetPasswordQuery(model);
+        var response = await mediator.Send(validateResetPasswordQuery);
+        return Ok(response);
     }
 
 
