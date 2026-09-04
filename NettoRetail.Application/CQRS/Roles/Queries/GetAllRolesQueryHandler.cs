@@ -6,7 +6,7 @@ using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.Application.CQRS.Users.Queries.Role
+namespace NettoRetail.Application.CQRS.Roles.Queries
 {
     public class GetAllRolesQueryHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQuery, PaginatedResponse<RoleResponse>>
     {

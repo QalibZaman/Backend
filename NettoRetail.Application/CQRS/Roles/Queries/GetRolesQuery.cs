@@ -3,7 +3,7 @@ using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 
-namespace NettoRetail.Application.CQRS.Users.Queries.Role
+namespace NettoRetail.Application.CQRS.Roles.Queries
 {
     public record GetRolesQueryById(int id) : IRequest<RoleResponse>;
     public record GetRolesQueryByName(string Name) : IRequest<RoleResponse>;

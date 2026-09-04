@@ -8,7 +8,7 @@ using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Specifications;
 
-namespace NettoRetail.Application.CQRS.Users.Queries.Role
+namespace NettoRetail.Application.CQRS.Roles.Queries
 {
     public class GetRolesQueryPaginatedHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQueryById, RoleResponse>
     {

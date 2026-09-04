@@ -3,9 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Models.Response;
-using NettoRetail.Application.CQRS.Users.Queries.Role;
+using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request;
-using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
