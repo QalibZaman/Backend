@@ -144,6 +144,8 @@ public class StaffController(
         return NoContent();
     }
 
+    
+
     [HttpGet("validate-reset-password-token")]
     public async Task<IActionResult> ValidateResetPasswordToken(
         [FromQuery] string token)
@@ -152,6 +154,7 @@ public class StaffController(
         await mediator.Send(validateResetPasswordTokenQuery);
         return Ok();
     }
+    
     [ProducesResponseType(typeof(ApiResponse<ValidateResetPasswordResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
