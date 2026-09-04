@@ -33,7 +33,7 @@ public class RoleController(IMediator mediator) : ControllerBase
 
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("{id::int}")]
-    [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

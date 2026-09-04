@@ -10,7 +10,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Roles.Queries
 {
-    public class GetRolesQueryPaginatedHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQueryById, RoleResponse>
+    public class GetRolesByIdQueryHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQueryById, RoleResponse>
     {
         public async Task<RoleResponse> Handle(GetRolesQueryById request, CancellationToken cancellationToken)
         {

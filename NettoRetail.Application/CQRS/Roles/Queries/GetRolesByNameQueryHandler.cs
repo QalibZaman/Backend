@@ -8,7 +8,7 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Roles.Queries
 {
-    public class GetRolesByNameQueryPaginatedHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQueryByName, RoleResponse>
+    public class GetRolesByNameQueryHandler(IRoleRepository roleRepository) : IRequestHandler<GetRolesQueryByName, RoleResponse>
     {
         public async Task<RoleResponse> Handle(GetRolesQueryByName request, CancellationToken cancellationToken)
         {
