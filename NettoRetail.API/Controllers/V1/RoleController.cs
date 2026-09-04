@@ -57,11 +57,6 @@ public class RoleController(IMediator mediator) : ControllerBase
     {
         var query = new GetRolesQueryByName(name);
         var result = await mediator.Send(query, cancellationToken);
-        if (result is null)
-        {
-            return NotFound($"Role with name {name} not found");
-        }
-
         var response = new ApiResponse<RoleResponse>(result);
         return Ok(response);
     }
