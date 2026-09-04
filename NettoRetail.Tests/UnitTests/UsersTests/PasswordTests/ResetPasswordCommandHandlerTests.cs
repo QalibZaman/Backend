@@ -94,7 +94,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
             _userManager.UpdateAsync(identityUser).Returns(IdentityResult.Success);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             await _handler.Handle(command, CancellationToken.None);
@@ -141,7 +141,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             _passwordHasher.HashPassword(identityUser, NewPassword).Returns(NewPasswordHash);
             _userManager.UpdateAsync(identityUser).Returns(IdentityResult.Success);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             await _handler.Handle(command, CancellationToken.None);
@@ -164,7 +164,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .ValidateResetToken(Arg.Any<string>())
                 .Throws(new SecurityTokenExpiredException("Token has expired"));
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest("expired-token", NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest("expired-token", NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -183,7 +183,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var principalWithoutEmail = new ClaimsPrincipal(new ClaimsIdentity());
             _jwtManager.ValidateResetToken(Arg.Any<string>()).Returns(principalWithoutEmail);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -202,7 +202,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             SetValidToken();
             _userManager.FindByEmailAsync(ValidEmail).Returns((ApplicationUser?)null);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -227,7 +227,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .GetAsync(Arg.Any<GetStaffByEmailSpecification>(), Arg.Any<CancellationToken>())
                 .Returns((StaffEntity?)null);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -256,7 +256,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .VerifyHashedPassword(identityUser, identityUser.PasswordHash!, NewPassword)
                 .Returns(PasswordVerificationResult.Success);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -300,7 +300,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .VerifyHashedPassword(identityUser, previouslyUsedHistory.HashedPassword, NewPassword)
                 .Returns(PasswordVerificationResult.Success);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
@@ -338,7 +338,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
             var identityError = IdentityResult.Failed(new IdentityError { Description = "Password is too weak." });
             _userManager.UpdateAsync(identityUser).Returns(identityError);
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             var act = () => _handler.Handle(command, CancellationToken.None);
@@ -379,7 +379,7 @@ namespace NettoRetail.Tests.UnitTests.UsersTests.PasswordTests
                 .TerminateSessionsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
                 .ThrowsAsync(new InvalidOperationException("Session service unavailable"));
 
-            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword, NewPassword));
+            var command = new ResetPasswordCommand(new ResetPasswordRequest(ValidToken, NewPassword));
 
             // Act
             Task act() => _handler.Handle(command, CancellationToken.None);
