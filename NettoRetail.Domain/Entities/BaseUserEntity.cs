@@ -19,6 +19,8 @@ public abstract class BaseUserEntity
     public bool IsSubscribedToNewsletter { get; set; }
 
     public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
+    public int? ShopId { get; set; }
+    public ShopEntity? Shop { get; set; }
 
     public string FullName => $"{FirstName} {LastName}";
     public bool IsOnline()
