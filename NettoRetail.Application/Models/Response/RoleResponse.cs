@@ -11,5 +11,7 @@ namespace NettoRetail.Application.Models.Response
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required string Description { get; set; }
+        public required bool IsEditable { get; set; }
+        public required bool IsDeletable { get; set; }
     }
 }

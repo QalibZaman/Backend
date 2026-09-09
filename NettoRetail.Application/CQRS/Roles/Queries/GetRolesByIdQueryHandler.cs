@@ -6,6 +6,7 @@ using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.Application.CQRS.Roles.Queries
@@ -21,7 +22,9 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Description = r.Description ?? string.Empty
+                    Description = r.Description ?? string.Empty,
+                    IsEditable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin,
+                    IsDeletable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin
                 }).ToList().First();
 
             if (responseItem is not null)

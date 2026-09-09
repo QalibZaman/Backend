@@ -20,6 +20,8 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
                     Id = r.Id,
                     Name = r.Name,
                     Description = r.Description ?? string.Empty,
+                    IsEditable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin,
+                    IsDeletable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin
                 })
                 .ToList();
 
