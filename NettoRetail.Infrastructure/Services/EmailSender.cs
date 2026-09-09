@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Net.Mail;
-using System.Linq;
+using Azure;
+using Azure.Communication.Email;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NettoRetail.Infrastructure.Interfaces;
@@ -9,81 +12,93 @@ using NettoRetail.Infrastructure.Options;
 
 namespace NettoRetail.Infrastructure.Services;
 
-public class EmailSender(IOptions<EmailOptions> emailOptions,
-    ILogger<EmailSender> logger) : IEmailSender
+public class EmailSender(
+    ILogger<EmailSender> logger, IConfiguration configuration) : IEmailSender
 {
     public async Task SendAsync(EmailModel model, Guid userId)
     {
-        using var client = new SmtpClient(
-            emailOptions.Value.Host,
-            emailOptions.Value.Port)
-        {
-            EnableSsl = emailOptions.Value.EnableSsl,
-            UseDefaultCredentials = false,
-            Credentials = new NetworkCredential(
-                emailOptions.Value.Username,
-                emailOptions.Value.Password)
-        };
-
-        using var message = new MailMessage
-        {
-            From = new MailAddress(emailOptions.Value.Sender, emailOptions.Value.Username),
-            Subject = model.Subject,
-            Body = model.Message,
-            IsBodyHtml = true
-        };
-
-        message.To.Add(model.Email);
-
         try
         {
-            await client.SendMailAsync(message);
+            var connectionString = configuration["AZURE_EMAIL_CONNECTION_STRING"]
+                                   ?? throw new InvalidOperationException(
+                                       "connection_string is not configured.");
+
+            var senderAddress = configuration["AZURE_EMAIL_SENDER_ADDRESS"]
+                                ?? throw new InvalidOperationException(
+                                    "sender_address is not configured.");
+
+            var emailClient = new EmailClient(connectionString);
+
+            var emailContent = new EmailContent(model.Subject)
+            {
+                Html = model.Message
+            };
+
+            var emailMessage = new EmailMessage(
+                senderAddress,
+                model.Email,
+                emailContent);
+
+            await emailClient.SendAsync(
+                WaitUntil.Completed,
+                emailMessage);
+
+            logger.LogInformation(
+                "Email successfully sent. User id = {UserId}",
+                userId);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Failed to send email. User id = {userId}");
+            logger.LogError(
+                ex,
+                "Failed to send email. User id = {UserId}",
+                userId);
         }
-
-        logger.LogInformation($"Email succesfully sent! User id = {userId}");
     }
-
     public async Task SendBulkAsync(BulkEmailModel model)
     {
         if (model.EmailAddresses == null || !model.EmailAddresses.Any())
             return;
 
-        using var client = new SmtpClient(
-        emailOptions.Value.Host,
-        emailOptions.Value.Port)
-        {
-            EnableSsl = emailOptions.Value.EnableSsl,
-            UseDefaultCredentials = false,
-            Credentials = new NetworkCredential(
-            emailOptions.Value.Username,
-            emailOptions.Value.Password)
-        };
+        var connectionString = configuration["connection_string"]
+                               ?? throw new InvalidOperationException("connection_string is not configured.");
+
+        var senderAddress = configuration["sender_address"]
+                            ?? throw new InvalidOperationException("sender_address is not configured.");
+
+        var emailClient = new EmailClient(connectionString);
+
         foreach (var email in model.EmailAddresses)
         {
             if (string.IsNullOrWhiteSpace(email))
                 continue;
 
-            using var message = new MailMessage
-            {
-                From = new MailAddress(emailOptions.Value.Sender, emailOptions.Value.Username),
-                Subject = model.Subject,
-                Body = model.Message,
-                IsBodyHtml = true
-            };
-
-            message.To.Add(email);
-
             try
             {
-                await client.SendMailAsync(message);
+                var emailContent = new EmailContent(model.Subject)
+                {
+                    Html = model.Message
+                };
+
+                var emailMessage = new EmailMessage(
+                    senderAddress,
+                    email,
+                    emailContent);
+
+                await emailClient.SendAsync(
+                    WaitUntil.Completed,
+                    emailMessage);
+
+                logger.LogInformation(
+                    "Email successfully sent. Email = {Email}",
+                    email);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to send email. Email = {email}");
+                logger.LogError(
+                    ex,
+                    "Failed to send email. Email = {Email}",
+                    email);
             }
         }
     }
