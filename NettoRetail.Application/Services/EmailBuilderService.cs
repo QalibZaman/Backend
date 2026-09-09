@@ -16,7 +16,8 @@ public class EmailBuilderService(
     IOptions<ResetPasswordOptions> passwordOptions,
     ILinkService linkService) : IEmailBuilderService
 {
-    public async Task<EmailModel> BuildActivateLockedAccountEmailAsync(string email, string firstName, string activationLink)
+    public async Task<EmailModel> BuildActivateLockedAccountEmailAsync(string email, string firstName,
+        string activationLink)
     {
         var templateModel = new
         {
@@ -97,7 +98,7 @@ public class EmailBuilderService(
         };
     }
 
-    public Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
+    public async Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName)
     {
         var claims = new List<Claim>
         {
@@ -105,16 +106,25 @@ public class EmailBuilderService(
             new(AuthClaims.TokenType, AuthTokenTypes.Reset)
         };
 
+
         var resetToken = jwtManager.Generate(claims, TimeSpan.FromHours(passwordOptions.Value.TokenExpirationHours));
         var resetLink = string.Format(passwordOptions.Value.ResetLink, Uri.EscapeDataString(resetToken));
+        var templateModel = new
+        {
+            first_name = firstName,
+            activation_link = resetLink,
+        };
 
+        var body = await emailTemplateService.RenderEmailTemplateAsync(
+            EmailTemplates.ResetPassword,
+            templateModel);
         var emailModel = new EmailModel
         {
             Email = email,
             Subject = "Reset your password",
-            Message = $"Hello, {firstName}. Reset your password here: {resetLink}"
+            Message = body
         };
 
-        return Task.FromResult(emailModel);
+        return emailModel;
     }
 }
