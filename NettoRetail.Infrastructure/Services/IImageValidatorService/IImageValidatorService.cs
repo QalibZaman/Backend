@@ -11,6 +11,9 @@ public interface IImageValidatorService
     Task ValidateProfileImageAsync(
         IFormFile file,
         CancellationToken cancellationToken);
+    Task ValidateLogoAsync(
+        IFormFile file,
+        CancellationToken cancellationToken);
 
     Task ValidateImage(IFormFile file);
 }

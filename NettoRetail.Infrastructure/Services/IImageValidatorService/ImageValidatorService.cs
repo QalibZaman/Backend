@@ -110,6 +110,44 @@ public class ImageValidatorService : IImageValidatorService
         }
     }
 
+    public async Task ValidateLogoAsync(IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+            throw new ValidationException("File is empty");
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (!LogoConstants.AllowedExtensions.Contains(extension))
+            throw new ValidationException($"Unsupported file format: {extension}");
+
+        if (file.Length > LogoConstants.MaxFileSize)
+            throw new ValidationException("Maximum file size is 5MB");
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+
+            using var image = await Image.LoadAsync(
+                stream,
+                cancellationToken);
+
+            if (image.Width < LogoConstants.MinWidth ||
+                image.Height < LogoConstants.MinHeight)
+            {
+                throw new ValidationException(
+                    $"Image is too small. Minimum size is " +
+                    $"{LogoConstants.MinWidth}x{LogoConstants.MinHeight}");
+            }
+        }
+        catch (UnknownImageFormatException)
+        {
+            throw new ValidationException("File is not a valid image");
+        }
+        catch (ImageFormatException)
+        {
+            throw new ValidationException("Image file is corrupted or invalid");
+        }
+    }
+
     public async Task ValidateImage(IFormFile file)
     {
         if (file == null || file.Length == 0)
