@@ -16,5 +16,10 @@ public class StaffConfiguration : IEntityTypeConfiguration<StaffEntity>
         builder.HasOne(x => x.Role)
             .WithMany(r => r.StaffMembers)
             .HasForeignKey(x => x.RoleId);
+
+        builder.HasOne(x => x.Address)
+            .WithOne(x => x.Staff)
+            .HasForeignKey<AddressEntity>(x => x.StaffId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

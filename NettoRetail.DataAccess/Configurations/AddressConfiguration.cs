@@ -4,10 +4,13 @@ using NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Configurations
 {
-    public class AddressConfiguration : IEntityTypeConfiguration<AddressEntity>
+    public class AddressConfiguration
+    : IEntityTypeConfiguration<AddressEntity>
     {
         public void Configure(EntityTypeBuilder<AddressEntity> builder)
         {
+            builder.ToTable("Addresses");
+
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Street)
@@ -33,16 +36,6 @@ namespace NettoRetail.DataAccess.Configurations
                 .HasForeignKey(x => x.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(x => x.Customer)
-                .WithOne(x => x.Address)
-                .HasForeignKey<AddressEntity>(x => x.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(x => x.Staff)
-                .WithOne(x => x.Address)
-                .HasForeignKey<AddressEntity>(x => x.StaffId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasIndex(x => x.CustomerId)
                 .IsUnique();
 
@@ -53,7 +46,11 @@ namespace NettoRetail.DataAccess.Configurations
             {
                 t.HasCheckConstraint(
                     "CK_Address_OnlyOneOwner",
-                    "(\"CustomerId\" IS NOT NULL AND \"StaffId\" IS NULL) OR (\"CustomerId\" IS NULL AND \"StaffId\" IS NOT NULL)");
+                    """
+                ("CustomerId" IS NOT NULL AND "StaffId" IS NULL)
+                OR
+                ("CustomerId" IS NULL AND "StaffId" IS NOT NULL)
+                """);
             });
         }
     }
