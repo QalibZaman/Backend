@@ -10,7 +10,7 @@ public class CategoryMappingConfiguration : IRegister
     {
         config.NewConfig<CategoryEntity, CategoryResponse>()
             .Map(dest => dest.ParentName, src => src.ParentCategory != null ? src.ParentCategory.Name : null)
-            // TODO: когда появится InventoryItemEntity — заменить на реальный Count().
+            // TODO: Once InventoryItemEntity is available, replace with the actual Count().
             .Map(dest => dest.ItemsAmount, src => 0);
     }
 }
