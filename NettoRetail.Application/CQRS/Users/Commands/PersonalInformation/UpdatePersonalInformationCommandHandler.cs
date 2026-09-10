@@ -25,7 +25,10 @@ namespace NettoRetail.Application.CQRS.Users.Commands.PersonalInformation
                 .FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!Guid.TryParse(userId, out var id))
-                throw new UnauthorizedAccessException("User is not authenticated.");
+            {
+                throw new UnauthorizedAccessException(
+                    "User is not authenticated.");
+            }
 
             var customer = await customerRepository.GetWithRelatedDataAsync(
                 new GetCustomerByIdSpecification(id),
@@ -38,8 +41,8 @@ namespace NettoRetail.Application.CQRS.Users.Commands.PersonalInformation
                     request.Model,
                     cancellationToken);
 
-                await customerRepository.UpdateAsync(customer, cancellationToken);
-                await customerRepository.CommitAsync(cancellationToken);
+                await customerRepository.CommitAsync(
+                    cancellationToken);
 
                 return;
             }
@@ -55,8 +58,8 @@ namespace NettoRetail.Application.CQRS.Users.Commands.PersonalInformation
                     request.Model,
                     cancellationToken);
 
-                await staffRepository.UpdateAsync(staff, cancellationToken);
-                await staffRepository.CommitAsync(cancellationToken);
+                await staffRepository.CommitAsync(
+                    cancellationToken);
 
                 return;
             }
