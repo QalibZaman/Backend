@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Users.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.PersonalInformation;
@@ -61,7 +62,8 @@ namespace NettoRetail.API.Controllers
         public async Task<IActionResult> ChangeProfilePicture(
             [FromForm] UploadProfilePictureRequest request, CancellationToken cancellationToken)
         {
-            var command = new ChangeProfilePictureCommand(request);
+            var userId = HttpContext.GetUserId();
+            var command = new ChangeProfilePictureCommand(request, userId);
 
             await mediator.Send(command, cancellationToken);
 
