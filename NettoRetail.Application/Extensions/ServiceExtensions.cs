@@ -60,6 +60,7 @@ public static class ServiceExtensions
         //Mapping
         var typeAdapterConfig = new TypeAdapterConfig();
         typeAdapterConfig.Apply(new MappingConfiguration.MappingConfiguration());
+        typeAdapterConfig.Apply(new MappingConfiguration.CategoryMappingConfiguration());
         services.AddSingleton(typeAdapterConfig);
         services.AddScoped<IMapper, ServiceMapper>();
 
