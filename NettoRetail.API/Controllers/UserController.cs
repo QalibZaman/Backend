@@ -28,12 +28,15 @@ namespace NettoRetail.API.Controllers
         }
 
         [HttpPut("personal-information")]
-        public async Task<IActionResult> UpdatePersonalInformation(
-            [FromBody] UpdatePersonalInformationRequest request,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdatePersonalInformation([FromBody] UpdatePersonalInformationRequest request, CancellationToken cancellationToken)
         {
-            var command = new UpdatePersonalInformationCommand(request);
-            await mediator.Send(command, cancellationToken);
+            var command =
+                new UpdatePersonalInformationCommand(request);
+
+            await mediator.Send(
+                command,
+                cancellationToken);
+
             return NoContent();
         }
     }
