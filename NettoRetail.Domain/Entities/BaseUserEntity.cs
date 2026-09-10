@@ -17,6 +17,10 @@ public abstract class BaseUserEntity
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
     public string? StripeCustomerId { get; set; }
     public bool IsSubscribedToNewsletter { get; set; }
+    public int? ShopId { get; set; }
+    public ShopEntity? Shop { get; set; }
+    public ICollection<PasswordHistoryEntity> PasswordHistories { get; set; } = [];
+
     public string FullName => $"{FirstName} {LastName}";
     public bool IsOnline()
     {

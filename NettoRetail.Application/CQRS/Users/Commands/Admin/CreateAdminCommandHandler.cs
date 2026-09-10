@@ -58,7 +58,7 @@ public class CreateAdminCommandHandler(
         admin.Status = StaffStatusEnum.Active;
         var user = await staffRepository.AddAsync(admin, cancellationToken);
 
-        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), null);
+        var tokenResponse = jwtManager.GetTokenResponse(user.Id.ToString(), user.Email, user.RoleId.ToString(), user.ShopId);
         return tokenResponse;
     }
 }

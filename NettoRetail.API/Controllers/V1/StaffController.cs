@@ -9,13 +9,18 @@ using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
 using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
-using NettoRetail.Application.CQRS.Users.Queries.Account;
+using NettoRetail.Application.CQRS.Users.Commands.Password;
+using NettoRetail.Application.CQRS.Users.Queries.Password;
+using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
+using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
+
+namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
@@ -26,14 +31,15 @@ public class StaffController(
 {
     [Authorize]
     [HttpGet("personal-information")]
-    public async Task<IActionResult> GetPersonalInformation(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPersonalInformation(
+        CancellationToken cancellationToken)
     {
-        var userId = HttpContext.GetUserId();
+        var query = new GetPersonalInformationQuery();
 
-        var query = new GetPersonalInfoQuery(userId);
         var data = await mediator.Send(query, cancellationToken);
 
-        var response = new ApiResponse<AccountDetailsResponse>(data);
+        var response = new ApiResponse<GetPersonalInformationResponse>(data);
+
         return Ok(response);
     }
 
@@ -58,7 +64,8 @@ public class StaffController(
     }
 
     [HttpPost("locked-account-activation")]
-    public async Task<IActionResult> ResendActivationEmail([FromBody] ActivationEmailAttemptRequest model)
+    public async Task<IActionResult> ResendActivationEmail(
+        [FromBody] ActivationEmailAttemptRequest model)
     {
         var emailCommand = new ResendActivationEmailCommand(model);
         await mediator.Send(emailCommand);
@@ -87,28 +94,80 @@ public class StaffController(
     {
         var activateLockedAccountCommand = new ActivateLockedAccountCommand(token);
         await mediator.Send(activateLockedAccountCommand);
+
         return Ok();
     }
 
     [HttpPost("subscribe-to-newsletter")]
     [Authorize]
-    public async Task<IActionResult> SubscribeToNewsletter(CancellationToken cancellationToken)
+    public async Task<IActionResult> SubscribeToNewsletter(
+        CancellationToken cancellationToken)
     {
         var accountId = HttpContext.GetUserId();
+
         var command = new SubscribeToNewsletterCommand(accountId);
         await mediator.Send(command, cancellationToken);
+
         return Ok();
     }
 
     [HttpPost("unsubscribe-to-newsletter")]
     [Authorize]
-    public async Task<IActionResult> UnsubscribeToNewsletter(CancellationToken cancellationToken)
+    public async Task<IActionResult> UnsubscribeToNewsletter(
+        CancellationToken cancellationToken)
     {
         var accountId = HttpContext.GetUserId();
+
         var command = new UnsubscribeToNewsletterCommand(accountId);
         await mediator.Send(command, cancellationToken);
+
         return Ok();
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request)
+    {
+        var command = new ForgotPasswordCommand(request.Email);
+        await mediator.Send(command);
+
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest model)
+    {
+        var resetPasswordCommand = new ResetPasswordCommand(model);
+        await mediator.Send(resetPasswordCommand);
+
+        return NoContent();
+    }
+
+    
+
+    [HttpGet("validate-reset-password-token")]
+    public async Task<IActionResult> ValidateResetPasswordToken(
+        [FromQuery] string token)
+    {
+        var validateResetPasswordTokenQuery = new ValidateResetPasswordTokenQuery(token);
+        await mediator.Send(validateResetPasswordTokenQuery);
+        return Ok();
+    }
+    
+    [ProducesResponseType(typeof(ApiResponse<ValidateResetPasswordResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("validate-reset-password")]
+    public async Task<IActionResult> ValidateResetPassword([FromBody] ResetPasswordRequest model)
+    {
+        var validateResetPasswordQuery = new ValidateResetPasswordQuery(model);
+        var response = await mediator.Send(validateResetPasswordQuery);
+        return Ok(response);
+    }
+
 
     [HttpPost("sign-up")]
     // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]
@@ -126,7 +185,8 @@ public class StaffController(
 
         // for session
         string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(), data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
+        var sessionCreateCommand = new CreateSessionCommand(ipAddress, Request.Headers["User-Agent"].ToString(),
+            data.AccessToken, data.RefreshToken, UserTypeEnum.Admin);
         await mediator.Send(sessionCreateCommand);
 
         return Created("", response);

@@ -1,7 +1,7 @@
 ﻿namespace NettoRetail.Domain.Entities;
 
-public class StaffEntity : BaseUserEntity
-{
+    public class StaffEntity : BaseUserEntity
+    {
     public bool IsOnboardingCompleted { get; set; }
     public AddressEntity? Address { get; set; }
     public DateTime? InvitationTokenIssuedAt { get; set; }

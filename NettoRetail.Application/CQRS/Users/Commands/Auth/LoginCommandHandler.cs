@@ -6,6 +6,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Staff;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.Users.Commands.Auth;
@@ -21,7 +22,7 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
         var identityUser = await userManager.FindByEmailAsync(request.Model.Email);
         if (identityUser == null)
         {
-            throw new MyUnauthorizedException("Invalid email or password.");
+            throw new MyUnauthorizedException(ValidationErrorMessages.Staff.InvalidLoginErrorMessage);
         }
 
         var staffSpecification = new GetStaffByIdSpecification(identityUser.Id);
@@ -32,7 +33,7 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
 
         if (loginAttemptService.IsAccountLocked(loginAttempt))
         {
-            throw new MyUnauthorizedException("Account locked.");
+            throw new MyUnauthorizedException(ValidationErrorMessages.Staff.AccountLockedErrorMessage);
         }
 
         if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
@@ -47,10 +48,10 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
             var availableAttempts = loginAttemptService.AvailableAttempts(loginAttempt);
             if (availableAttempts == 0)
             {
-                throw new MyUnauthorizedException("You have entered invalid credentials 3 times in a row. We have sent the instructions on restoring access to your email. Please check you email. If you didn't receive email please check the spam folder or contact support.");
+                throw new MyUnauthorizedException(ValidationErrorMessages.Staff.LockedAccountEmailErrorMessage);
             }
 
-            throw new BadRequestException($"Invalid email or password. {availableAttempts} attempts left.");
+            throw new BadRequestException(string.Format(ValidationErrorMessages.Staff.InvalidPasswordErrorMessage, availableAttempts));
         }
 
         if (loginAttempt != null)
@@ -58,7 +59,7 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }
 
-        var tokenResponse = jwtManager.GetTokenResponse(identityUser.Id.ToString(), identityUser.Email, user.RoleId.ToString(), null);
+        var tokenResponse = jwtManager.GetTokenResponse(identityUser.Id.ToString(), identityUser.Email, user.RoleId.ToString(), user.ShopId);
 
         return tokenResponse;
     }

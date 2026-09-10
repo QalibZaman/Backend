@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using NettoRetail.Application.Models.Response;
+using System.Security.Claims;
 
 namespace NettoRetail.Application.Interfaces;
 
