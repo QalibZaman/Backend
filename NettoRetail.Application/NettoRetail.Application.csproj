@@ -34,7 +34,6 @@
       <Folder Include="BusinessRules\Roles\" />
       <Folder Include="CQRS\Categories\Commands\" />
       <Folder Include="Models\Request\Feedback\" />
-      <Folder Include="Models\Request\Shop\" />
       <Folder Include="Services\VariationService\" />
     </ItemGroup>
 
