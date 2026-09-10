@@ -40,7 +40,7 @@ public class AdminSignUpModelValidator : AbstractValidator<AdminSignUpModel>
             .WithMessage(ValidationErrorMessages.Staff.EmailIsInvalidErrorMessage)
             .MaximumLength(256)
             .WithMessage(ValidationErrorMessages.Staff.EmailIsInvalidErrorMessage)
-            .Matches(@"^(?!.*[_.]{2})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]+\.[a-zA-Z]{2,}$")
+            .Matches(@"^[^@\s]{2,}@[A-Za-z0-9-]{2,}\.[A-Za-z]{2,}$")
             .WithMessage(ValidationErrorMessages.Staff.EmailIsInvalidErrorMessage);
 
         RuleFor(x => x.Password)
