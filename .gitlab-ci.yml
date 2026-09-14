@@ -1,5 +1,5 @@
 include:
-  - project: 'Andersen/netto-retailtech/v1/devops-work/ci-cd'
+  - project: 'Andersen/netto-retailtech-v2/devops/ci-cd'
     ref: main
     file:
       - '.gitlab-ci-net.yml'

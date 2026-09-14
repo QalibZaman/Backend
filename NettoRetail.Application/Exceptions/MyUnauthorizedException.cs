@@ -1,7 +1,6 @@
 namespace NettoRetail.Application.Exceptions;
 
-public class MyUnauthorizedException : Exception
+public class MyUnauthorizedException(string message, DateTime? lockoutEndTime = null) : Exception(message)
 {
-    public MyUnauthorizedException(string message)
-        : base(message) { }
+    public DateTime? LockoutEndTime { get; } = lockoutEndTime;
 }

@@ -20,7 +20,6 @@ public static class ServiceExtensions
         services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
         services.Configure<CosmosOptions>(configuration.GetSection(nameof(CosmosOptions)));
         services.Configure<AzureBlobStorageOptions>(configuration.GetSection(nameof(AzureBlobStorageOptions)));
-        
         // services.AddScoped<IAzureBlobService, AzureBlobService>();
         services.AddScoped<IImageValidatorService, ImageValidatorService>();
 
@@ -38,6 +37,7 @@ public static class ServiceExtensions
         services.Configure<EmailVerificationOptions>(configuration.GetSection(nameof(EmailVerificationOptions)));
         services.Configure<CustomerEmailChangeOptions>(configuration.GetSection(nameof(CustomerEmailChangeOptions)));
         services.Configure<StripeOptions>(configuration.GetSection(nameof(StripeOptions)));
+        services.Configure<NewsletterOptions>(configuration.GetSection(nameof(NewsletterOptions)));
         StripeConfiguration.ApiKey = configuration.GetSection(nameof(StripeOptions))["SecretKey"];
 
         services.AddSingleton<CustomerService>();
@@ -45,8 +45,10 @@ public static class ServiceExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+
         // services.AddScoped<IStripeService, StripeService>();
         services.AddDbContext<AppDbContext>();
+
         return services;
     }
 }

@@ -1,6 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,11 +6,15 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace NettoRetail.Application.Services;
 
 public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> logger) : IJwtManager
 {
+    private readonly ILogger<JwtManager> _logger = logger;
     private readonly byte[] _key = Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey);
     private readonly string _algorithm = SecurityAlgorithms.HmacSha512;
 
@@ -88,25 +89,41 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
     public ClaimsPrincipal ValidateResetToken(string resetToken)
     {
         var handler = new JwtSecurityTokenHandler();
-        var principal = handler.ValidateToken(
-            resetToken,
-            new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
-            },
-            out _);
 
-        var tokenType = principal.FindFirst("token_type")?.Value;
-
-        if (tokenType != "reset")
+        try
         {
-            throw new BadRequestException("Invalid token type.");
-        }
+            var principal = handler.ValidateToken(
+                resetToken,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(_key),
+                },
+                out _);
 
-        return principal;
+            var tokenType = principal.FindFirst("token_type")?.Value;
+
+            if (tokenType != "reset")
+            {
+                throw new BadRequestException("Invalid token type.");
+            }
+
+            return principal;
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            throw new BadRequestException("Token has expired.");
+        }
+        catch (SecurityTokenMalformedException)
+        {
+            throw new BadRequestException("Token format is invalid.");
+        }
+        catch (SecurityTokenException)
+        {
+            throw new BadRequestException("Invalid token.");
+        }
     }
 
     public ClaimsPrincipal ValidateEmailActivation(string emailActivationToken)
@@ -116,17 +133,17 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
         try
         {
             var principal = handler.ValidateToken(
-            emailActivationToken,
-            new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
-                ClockSkew = TimeSpan.Zero
-            },
-            out _);
+                emailActivationToken,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(_key),
+                    ClockSkew = TimeSpan.Zero
+                },
+                out _);
 
             var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
 
@@ -156,13 +173,16 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
     }
 
     public ClaimsPrincipal ValidatePlatformAdminActivationToken(string activationToken)
-        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation, allowExpired: false);
+        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation,
+            allowExpired: false);
 
     public ClaimsPrincipal ValidatePlatformAdminActivationTokenAllowExpired(string activationToken)
-        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation, allowExpired: true);
+        => ValidatePlatformAdminTokenInternal(activationToken, AuthTokenTypes.PlatformAdminActivation,
+            allowExpired: true);
 
     public ClaimsPrincipal ValidatePlatformAdminResetPasswordToken(string resetToken)
-        => ValidatePlatformAdminTokenInternal(resetToken, AuthTokenTypes.PlatformAdminResetPassword, allowExpired: false);
+        => ValidatePlatformAdminTokenInternal(resetToken, AuthTokenTypes.PlatformAdminResetPassword,
+            allowExpired: false);
 
     private ClaimsPrincipal ValidatePlatformAdminTokenInternal(string token, string expectedType, bool allowExpired)
     {
@@ -265,17 +285,17 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
         try
         {
             var principal = handler.ValidateToken(
-            customerResetPasswordToken,
-            new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
-                ClockSkew = TimeSpan.Zero
-            },
-            out _);
+                customerResetPasswordToken,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(_key),
+                    ClockSkew = TimeSpan.Zero
+                },
+                out _);
 
             var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
 
@@ -389,7 +409,7 @@ public class JwtManager(IOptions<JwtOptions> jwtOptions, ILogger<JwtManager> log
 
             var tokenType = principal.FindFirst(AuthClaims.TokenType)?.Value;
 
-            if (tokenType != AuthTokenTypes.CustomerEmailChange)
+            if (tokenType != AuthTokenTypes.LockedAccountActivation)
             {
                 throw new BadRequestException("Invalid token type.");
             }

@@ -5,6 +5,7 @@ public class EmailTemplates
     public const string ResetPassword = "reset-password.html";
     public const string PasswordChange = "change-password.html";
     public const string SubscriptionConfirmation = "subscription-confirmation.html";
+    public const string UnsubscriptionConfirmation = "unsubscription-confirmation.html";
     public const string ShopDeactivationWarning = "shop-deactivation-warning.html";
     public const string PlatformAdminActivation = "platform-admin-activation.html";
     public const string ActivateLockedAccount = "activate-locked-account.html";
@@ -13,4 +14,6 @@ public class EmailTemplates
     public const string ActivateCustomerAccount = "customer-activation.html";
     public const string CustomerPasswordReset = "customer-password-reset.html";
     public const string CustomerEmailChangeConfirmation = "customer-email-change-confirmation.html";
+    public const string AccountDeleted = "account-deleted.html";
+    public const string FailedDeletionAttempts = "failed-deletion-attempts.html";
 }
