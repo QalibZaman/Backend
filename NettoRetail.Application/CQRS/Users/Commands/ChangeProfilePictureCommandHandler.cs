@@ -6,6 +6,7 @@ using NettoRetail.DataAccess.Specifications.Customer;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
+using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Enums;
 using NettoRetail.Shared.Interfaces.Repositories;
 
@@ -14,7 +15,6 @@ namespace NettoRetail.Application.CQRS.Users.Commands
     public class ChangeProfilePictureCommandHandler(
     ICustomerRepository customerRepository,
     IStaffRepository staffRepository,
-    IHttpContextAccessor httpContextAccessor,
     IAzureBlobService azureBlobService,
     IImageValidatorService imageValidatorService)
     : IRequestHandler<ChangeProfilePictureCommand>
@@ -25,25 +25,18 @@ namespace NettoRetail.Application.CQRS.Users.Commands
             ChangeProfilePictureCommand request,
             CancellationToken cancellationToken)
         {
-            var userId = httpContextAccessor.HttpContext?
-                .User
-                .FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (!Guid.TryParse(userId, out var id))
-                throw new UnauthorizedAccessException("User is not authenticated.");
-
             await imageValidatorService.ValidateProfileImageAsync(
                 request.Model.File,
                 cancellationToken);
 
             var customer = await customerRepository.GetWithRelatedDataAsync(
-                new GetCustomerByIdSpecification(id),
+                new GetCustomerByIdSpecification(request.UserId),
                 cancellationToken);
 
             if (customer is not null)
             {
                 if (string.IsNullOrWhiteSpace(customer.ProfileImageUrl))
-                    throw new BadRequestException("Profile image does not exist.");
+                    throw new BadRequestException(ValidationErrorMessages.User.ProfileImageDoesNotExistErrorMessage);
 
                 var oldProfileImageUrl = customer.ProfileImageUrl;
 
@@ -65,13 +58,13 @@ namespace NettoRetail.Application.CQRS.Users.Commands
             }
 
             var staff = await staffRepository.GetWithRelatedDataAsync(
-                new GetStaffByIdSpecification(id),
+                new GetStaffByIdSpecification(request.UserId),
                 cancellationToken);
 
             if (staff is not null)
             {
                 if (string.IsNullOrWhiteSpace(staff.ProfileImageUrl))
-                    throw new BadRequestException("Profile image does not exist.");
+                    throw new BadRequestException(ValidationErrorMessages.User.ProfileImageDoesNotExistErrorMessage);
 
                 var oldProfileImageUrl = staff.ProfileImageUrl;
 
@@ -92,7 +85,7 @@ namespace NettoRetail.Application.CQRS.Users.Commands
                 return;
             }
 
-            throw new NotFoundException("User not found.");
+            throw new NotFoundException(ValidationErrorMessages.User.UserNotFoundErrorMessage);
         }
 
         private async Task<string> UploadImageAsync(

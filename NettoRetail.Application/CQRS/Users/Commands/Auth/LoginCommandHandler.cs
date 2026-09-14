@@ -59,7 +59,7 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
             await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
         }
 
-        var tokenResponse = jwtManager.GetTokenResponse(identityUser.Id.ToString(), identityUser.Email, user.RoleId.ToString(), null);
+        var tokenResponse = jwtManager.GetTokenResponse(identityUser.Id.ToString(), identityUser.Email, user.RoleId.ToString(), user.ShopId);
 
         return tokenResponse;
     }

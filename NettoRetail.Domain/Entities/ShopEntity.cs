@@ -29,6 +29,8 @@ public class ShopEntity
     public ICollection<CategoryEntity>? Categories { get; set; }
     public CountryEntity? Country { get; set; }
     public ICollection<BaseUserEntity>? Account { get; set; }
+    public string? LogoUrl { get; set; }
+
     public void Activate()
     {
         IsActive = true;
@@ -42,5 +44,4 @@ public class ShopEntity
         DeactivationReason = reason;
         DeactivationDate = deactivationDate;
     }
-
 }

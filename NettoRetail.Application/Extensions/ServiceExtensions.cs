@@ -13,20 +13,24 @@ using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Shared.Options;
+using Npgsql;
 using Stripe;
 
 namespace NettoRetail.Application.Extensions;
 
 public static class ServiceExtensions
 {
+    private const int ApiMaximumPoolSize = 5;
+    private const int HangfireMaximumPoolSize = 2;
+
     public static void AddApplicationServiceExtensions(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IAzureBlobService, AzureBlobService>();
@@ -34,7 +38,12 @@ public static class ServiceExtensions
 
         services.AddDbContext<AppDbContext>(options =>
         {
-            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("DefaultConnection");
+            var connectionString = BuildConnectionString(
+                configuration,
+                "DefaultConnection",
+                ApiMaximumPoolSize,
+                "netto-api");
+
             options.UseNpgsql(connectionString)
                 .UseExceptionProcessor();
         });
@@ -51,6 +60,7 @@ public static class ServiceExtensions
         //Mapping
         var typeAdapterConfig = new TypeAdapterConfig();
         typeAdapterConfig.Apply(new MappingConfiguration.MappingConfiguration());
+        typeAdapterConfig.Apply(new MappingConfiguration.CategoryMappingConfiguration());
         services.AddSingleton(typeAdapterConfig);
         services.AddScoped<IMapper, ServiceMapper>();
 
@@ -61,7 +71,11 @@ public static class ServiceExtensions
         //Hangfire
         services.AddHangfire(config =>
         {
-            var connectionString = configuration.GetSection(nameof(ConnectionStrings)).GetValue<string>("HangfireConnection");
+            var connectionString = BuildConnectionString(
+                configuration,
+                "HangfireConnection",
+                HangfireMaximumPoolSize,
+                "netto-hangfire");
 
             config.UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
@@ -70,7 +84,7 @@ public static class ServiceExtensions
                     options.UseNpgsqlConnection(connectionString);
                 });
         });
-        services.AddHangfireServer();
+        services.AddHangfireServer(options => options.WorkerCount = 1);
 
         //Services
         services.AddScoped<IJwtManager, JwtManager>();
@@ -90,5 +104,29 @@ public static class ServiceExtensions
         services.AddScoped<ChargeService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
+        services.AddScoped<ICategoryUrlService, CategoryUrlService>();
+    }
+
+    private static string BuildConnectionString(
+        IConfiguration configuration,
+        string connectionName,
+        int maximumPoolSize,
+        string applicationName)
+    {
+        var connectionString = configuration
+            .GetSection(nameof(ConnectionStrings))
+            .GetValue<string>(connectionName)
+            ?? throw new InvalidOperationException(
+                $"Connection string '{connectionName}' is missing.");
+
+        var environment = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Unknown";
+        var builder = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            MinPoolSize = 0,
+            MaxPoolSize = maximumPoolSize,
+            ApplicationName = $"{applicationName}-{environment.ToLowerInvariant()}"
+        };
+
+        return builder.ConnectionString;
     }
 }
