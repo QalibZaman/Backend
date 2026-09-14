@@ -91,5 +91,24 @@ namespace NettoRetail.API.Controllers.V1
 
             return Ok(new ApiResponse<CheckCategoryNameResponse>(response));
         }
+
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
+        {
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new DeleteCategoryCommand(id, shopId);
+
+            await mediator.Send(command, cancellationToken);
+
+            return NoContent();
+        }
     }
 }
