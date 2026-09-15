@@ -1,7 +1,8 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request;
@@ -17,6 +18,20 @@ namespace NettoRetail.API.Controllers.V1;
 public class RoleController(IMediator mediator) : ControllerBase
 {
     [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteRole(int id, CancellationToken cancellationToken)
+    {
+        var command = new DeleteRoleCommand(id);
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("all")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

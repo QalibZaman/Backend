@@ -13,9 +13,9 @@ using NettoRetail.Application.Behaviors;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Services;
 using NettoRetail.Application.Services.IBlobNameGenerator;
+using NettoRetail.Application.Services.ICategoryService;
 using NettoRetail.Application.Services.ISessionModelFactory;
 using NettoRetail.Application.Services.PermissionCache;
-using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
@@ -104,6 +104,7 @@ public static class ServiceExtensions
         services.AddScoped<ChargeService>();
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
+        services.AddScoped<ICategoryUrlService, CategoryUrlService>();
     }
 
     private static string BuildConnectionString(
