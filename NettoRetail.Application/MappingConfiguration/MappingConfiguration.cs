@@ -1,7 +1,10 @@
 using Mapster;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -32,5 +35,22 @@ public class MappingConfiguration : IRegister
         config.NewConfig<UpdatePersonalInformationRequest, StaffEntity>();
 
         config.NewConfig<UpdatePersonalInformationRequest, AddressEntity>();
+
+        config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
+            .Map(dest => dest.RoleId, src => src.Id)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.RoleName, src => src.Name)
+            .AfterMapping((src, dest) =>
+            {
+                var rolePermissionTitles = src.PermissionRoles
+                    .Where(pr => pr.Permission != null)
+                    .Select(pr => pr.Permission!.Title)
+                    .ToHashSet();
+
+                foreach (var permission in PermissionProvider.All)
+                {
+                    dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
+                }
+            });
     }
 }
