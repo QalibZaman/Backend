@@ -17,7 +17,7 @@ namespace NettoRetail.Application.CQRS.Roles.Commands
                 AddCriteria((role) => role.ShopEntityId.Equals(request.shopId));
 
             var role = await roleRepository.GetAsync(specificationBuilder.Build(), cancellationToken)
-                ?? throw new NotFoundException($"Role with id = {request.id} and shopId = {request.shopId} not found");
+                ?? throw new NotFoundException("Role with provided id and shopId not found");
 
             if (role.Name.Contains("Admin")) throw new ConflictException("The admin role cannot be deleted.");
 

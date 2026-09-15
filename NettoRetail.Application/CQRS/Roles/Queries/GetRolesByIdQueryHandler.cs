@@ -21,7 +21,7 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
             var shopExists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken);
             var roleExists = await roleRepository.ExistsAsync(GetRoleFilterSpecification(request), cancellationToken);
             if (!roleExists || !shopExists)
-                throw new NotFoundException($"Role with roleId = {request.id} and shopId = {request.ShopId} not found");
+                throw new NotFoundException($"Role with provided roleId and shopId not found");
 
             var (items, totalAmount) = await roleRepository.GetAllPaginatedAsync(GetRoleFilterSpecification(request), cancellationToken);
 
