@@ -22,6 +22,6 @@ public interface IBaseRepository<TEntity>
     Task<(ICollection<TEntity> Items, int TotalCount)> GetAllPaginatedAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task UpdateBulkAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
     Task UpdateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
-    Task<TEntity> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
+    Task<TEntity?> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken);
     Task CommitAsync(CancellationToken cancellationToken = default);
 }
