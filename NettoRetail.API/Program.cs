@@ -44,7 +44,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
