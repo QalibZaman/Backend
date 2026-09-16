@@ -91,5 +91,41 @@ namespace NettoRetail.API.Controllers.V1
 
             return Ok(new ApiResponse<CheckCategoryNameResponse>(response));
         }
+
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(
+    typeof(ApiResponse<CategoryResponse>),
+    StatusCodes.Status200OK)]
+        [ProducesResponseType(
+    typeof(ApiResponse),
+    StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(
+    typeof(ApiResponse),
+    StatusCodes.Status404NotFound)]
+        [ProducesResponseType(
+    typeof(ApiResponse),
+    StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateCategory(
+    int id,
+    [FromBody] UpdateCategoryRequest model,
+    CancellationToken cancellationToken)
+        {
+            var shopId = HttpContext.GetUserShopId();
+
+            var command = new UpdateCategoryCommand(
+                id,
+                model,
+                shopId);
+
+            var response = await mediator.Send(
+                command,
+                cancellationToken);
+
+            return Ok(new ApiResponse<CategoryResponse>(response));
+        }
     }
 }
