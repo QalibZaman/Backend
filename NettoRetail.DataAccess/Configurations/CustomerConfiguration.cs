@@ -19,6 +19,12 @@ public class CustomerConfiguration : IEntityTypeConfiguration<CustomerEntity>
 
         builder.HasOne(x => x.CommunicationPreference)
             .WithOne(x => x.Customer)
-            .HasForeignKey<CommunicationPreferenceEntity>(x => x.CustomerId);
+            .HasForeignKey<CommunicationPreferenceEntity>(
+                x => x.CustomerId);
+
+        builder.HasOne(x => x.Address)
+            .WithOne(x => x.Customer)
+            .HasForeignKey<AddressEntity>(x => x.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
