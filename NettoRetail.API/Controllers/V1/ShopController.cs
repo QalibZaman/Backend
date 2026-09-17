@@ -6,7 +6,6 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.CQRS.Shops.Commands;
 
 using NettoRetail.Application.Models.Request.Shop;
->>>>>>> NettoRetail.API/Controllers/V1/ShopController.cs
 using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.API.Controllers.V1;
