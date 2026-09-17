@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Domain.Entities;
+namespace NettoRetail.Domain.Entities;
 
 public class ShopEntity
 {
