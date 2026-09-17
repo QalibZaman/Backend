@@ -7,6 +7,7 @@ using NettoRetail.Infrastructure.Options;
 using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Utilities;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace NettoRetail.Application.Services;
 
@@ -14,7 +15,8 @@ public class EmailBuilderService(
     IJwtManager jwtManager,
     IEmailTemplateService emailTemplateService,
     IOptions<ResetPasswordOptions> passwordOptions,
-    ILinkService linkService) : IEmailBuilderService
+    ILinkService linkService,
+    ILogger<EmailBuilderService> logger) : IEmailBuilderService
 {
     public async Task<EmailModel> BuildActivateLockedAccountEmailAsync(string email, string firstName,
         string activationLink)
@@ -118,6 +120,8 @@ public class EmailBuilderService(
         var body = await emailTemplateService.RenderEmailTemplateAsync(
             EmailTemplates.ResetPassword,
             templateModel);
+
+        logger.LogInformation("Rendered email body: {Body}", body);
         var emailModel = new EmailModel
         {
             Email = email,

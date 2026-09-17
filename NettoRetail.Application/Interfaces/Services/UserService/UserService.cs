@@ -17,7 +17,7 @@ namespace NettoRetail.Application.Interfaces.Services.UserService
             {
                 customer.Address = new AddressEntity
                 {
-                    Customer = customer
+                    CustomerId = customer.Id
                 };
             }
 
@@ -37,7 +37,7 @@ namespace NettoRetail.Application.Interfaces.Services.UserService
             {
                 staff.Address = new AddressEntity
                 {
-                    Staff = staff
+                    StaffId = staff.Id
                 };
             }
 

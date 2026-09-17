@@ -1,4 +1,4 @@
-﻿namespace NettoRetail.Domain.Entities;
+namespace NettoRetail.Domain.Entities;
 
 public class ShopEntity
 {
@@ -30,6 +30,7 @@ public class ShopEntity
     public CountryEntity? Country { get; set; }
     public ICollection<BaseUserEntity>? Account { get; set; }
     public string? LogoUrl { get; set; }
+
     public void Activate()
     {
         IsActive = true;
@@ -43,5 +44,4 @@ public class ShopEntity
         DeactivationReason = reason;
         DeactivationDate = deactivationDate;
     }
-
 }
