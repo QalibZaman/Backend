@@ -23,9 +23,9 @@ public class ShopEntity
 
     public bool CategoriesSectionVisibility { get; set; }
     public string? CategoriesSectionName { get; set; }
-    public DateTimeOffset? SubscriptionStartDate { get; set; }
-    public DateTimeOffset? NextRenewalDate { get; set; }
-    public bool? AutoRenewalEnabled { get; set; }
+    public DateTimeOffset SubscriptionStartDate { get; set; }
+    public DateTimeOffset NextRenewalDate { get; set; }
+    public bool AutoRenewalEnabled { get; set; }
 
     public ICollection<RoleEntity>? Roles { get; set; }
     public ICollection<CategoryEntity>? Categories { get; set; }

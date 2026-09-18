@@ -756,7 +756,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("AutoRenewalEnabled")
+                    b.Property<bool>("AutoRenewalEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("CategoriesSectionName")
@@ -794,7 +794,7 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("NextRenewalDate")
+                    b.Property<DateTimeOffset>("NextRenewalDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
@@ -819,7 +819,7 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<int>("SubscriptionPlanId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset?>("SubscriptionStartDate")
+                    b.Property<DateTimeOffset>("SubscriptionStartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
