@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,17 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("/api/v{version:apiVersion}/[controller]")]
 public class ShopController(IMediator mediator) : ControllerBase
 {
-    [HttpPost]
+    [HttpDelete("logo")]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    public async Task<IActionResult> DeleteLogo()
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var command = new DeleteLogoCommand(shopId);
+        await mediator.Send(command);
+        return Ok();
+    }
+
+    [HttpPost("logo")]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
