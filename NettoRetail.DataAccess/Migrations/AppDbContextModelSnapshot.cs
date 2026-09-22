@@ -288,9 +288,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("StaffId")
                         .IsUnique();
 
-                    b.ToTable("Addresses", t =>
+                    b.ToTable("Addresses", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Address_OnlyOneOwner", "(\"CustomerId\" IS NOT NULL AND \"StaffId\" IS NULL) OR (\"CustomerId\" IS NULL AND \"StaffId\" IS NOT NULL)");
+                            t.HasCheckConstraint("CK_Address_OnlyOneOwner", "(\"CustomerId\" IS NOT NULL AND \"StaffId\" IS NULL)\r\nOR\r\n(\"CustomerId\" IS NULL AND \"StaffId\" IS NOT NULL)");
                         });
                 });
 
@@ -604,6 +604,56 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("AccountId");
 
                     b.ToTable("PasswordHistories");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CardBrand")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<long>("CardExpMonth")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CardExpYear")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FourLastCardNumbers")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("StripePaymentMethodId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("StripePaymentMethodId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.PermissionEntity", b =>
@@ -1000,6 +1050,17 @@ namespace NettoRetail.DataAccess.Migrations
                 {
                     b.HasOne("NettoRetail.Domain.Entities.BaseUserEntity", "Account")
                         .WithMany("PasswordHistories")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.PaymentMethodEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                        .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
