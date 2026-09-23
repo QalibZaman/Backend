@@ -628,6 +628,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<long>("CardExpYear")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("CardholderName")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -837,6 +840,85 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Shops");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("NextRenewalAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SubscriptionPlanId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("PaymentMethodId");
+
+                    b.HasIndex("ShopId");
+
+                    b.HasIndex("SubscriptionPlanId");
+
+                    b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("StripePriceId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPlans");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
@@ -1095,6 +1177,41 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Country");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.StaffEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.PaymentMethodEntity", "PaymentMethod")
+                        .WithMany()
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", "SubscriptionPlan")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("SubscriptionPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("PaymentMethod");
+
+                    b.Navigation("Shop");
+
+                    b.Navigation("SubscriptionPlan");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.RoleEntity", "Role")
@@ -1148,6 +1265,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>

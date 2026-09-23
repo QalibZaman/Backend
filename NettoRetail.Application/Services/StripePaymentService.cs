@@ -8,7 +8,8 @@ namespace NettoRetail.Application.Services;
 public sealed class StripePaymentService(
     CustomerService customerService,
     PaymentMethodService paymentMethodService,
-    ILogger<StripePaymentService> logger) : IStripePaymentService
+    ILogger<StripePaymentService> logger,
+    SubscriptionService subscriptionService) : IStripePaymentService
 {
     public async Task<string> EnsureCustomerAsync(
         string? existingCustomerId,
@@ -88,6 +89,44 @@ public sealed class StripePaymentService(
         catch (StripeException ex)
         {
             logger.LogError(ex, "Stripe error while changing default payment method to {PaymentMethodId}", paymentMethodId);
+            throw new PaymentExceptions(ex.Message);
+        }
+    }
+
+    public async Task<string> CreateSubscriptionAsync(
+        string customerId,
+        string paymentMethodId,
+        string stripePriceId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var options = new SubscriptionCreateOptions
+            {
+                Customer = customerId,
+                DefaultPaymentMethod = paymentMethodId,
+                Items =
+                [
+                    new SubscriptionItemOptions
+                    {
+                        Price = stripePriceId
+                    }
+                ]
+            };
+
+            var subscription = await subscriptionService.CreateAsync(
+                options,
+                cancellationToken: cancellationToken);
+
+            return subscription.Id;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(
+                ex,
+                "Stripe error while creating subscription for customer {CustomerId}",
+                customerId);
+
             throw new PaymentExceptions(ex.Message);
         }
     }
