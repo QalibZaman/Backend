@@ -760,6 +760,41 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("Sessions");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopDocumentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("ShopDocuments");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1086,6 +1121,17 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.ShopDocumentEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.ShopEntity", "Shop")
+                        .WithMany("ShopDocuments")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.ShopEntity", b =>
                 {
                     b.HasOne("NettoRetail.Domain.Entities.CountryEntity", "Country")
@@ -1148,6 +1194,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Roles");
+
+                    b.Navigation("ShopDocuments");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
