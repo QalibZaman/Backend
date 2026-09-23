@@ -7,6 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Notifications.Command;
 using NettoRetail.Application.CQRS.Notifications.Queries;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Notification;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Shared.Constants;
 
@@ -45,7 +46,7 @@ public class NotificationController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("get-all")]
+    [HttpGet("get-all")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<NotificationResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -57,5 +58,21 @@ public class NotificationController(IMediator mediator) : ControllerBase
         var data = new GetAllNotificationsQuery(pagination, staffId);
         var response = await mediator.Send(data);
         return Ok(new ApiResponse<PaginatedResponse<NotificationResponse>>(response));
+    }
+
+    [HttpPost("add")]
+
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<NotificationResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request, CancellationToken cancellationToken)
+    {
+        var command = new CreateNotificationCommand(request);
+        var result = await mediator.Send(command);
+        var responce = new ApiResponse<AddNotificationResponce>(result);
+        return Ok(responce);
     }
 }
