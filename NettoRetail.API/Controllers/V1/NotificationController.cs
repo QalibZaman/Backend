@@ -15,7 +15,7 @@ namespace NettoRetail.API.Controllers.V1;
 
 [ApiController]
 [ApiVersion(1)]
-[Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
+[Authorize]
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class NotificationController(IMediator mediator) : ControllerBase
 {
@@ -61,7 +61,7 @@ public class NotificationController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("add")]
-
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<NotificationResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
