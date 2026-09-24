@@ -15,6 +15,7 @@ public class ShopEntity
     public string? StripeCustomerId { get; set; }
     public string? StripeSubscriptionId { get; set; }
     public int? CountryId { get; set; }
+    public ICollection<ShopLinkEntity> ShopLinks { get; set; } = [];
     public required bool IsActive { get; set; }
     public string? DeactivationReason { get; set; }
     public DateTime? DeactivationDate { get; set; }

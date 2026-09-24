@@ -23,6 +23,7 @@ public class AppDbContext(
     public DbSet<PasswordHistoryEntity> PasswordHistories { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
     public DbSet<ShopEntity> Shops { get; set; }
+    public DbSet<ShopLinkEntity> ShopLinks { get; set; }
     public DbSet<CategoryEntity> Categories { get; set; }
     public DbSet<FeatureEntity> Features { get; set; }
     public DbSet<SubscriptionPlanEntity> SubscriptionPlans { get; set; }
