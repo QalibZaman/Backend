@@ -12,6 +12,7 @@ using NettoRetail.DataAccess.Identity;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
+using NettoRetail.Shared.Specifications.PasswordHistory;
 
 namespace NettoRetail.Application.CQRS.Users.Queries.Password;
 
@@ -20,10 +21,12 @@ public record ValidateResetPasswordQuery(ResetPasswordRequest Model) : IRequest<
 public class ValidateResetPasswordQueryHandler(
     IStaffRepository accountRepository,
     IJwtManager jwtManager,
-    UserManager<ApplicationUser> userManager)
+    UserManager<ApplicationUser> userManager,
+    IPasswordHistoryRepository passwordHistoryRepository)
     : IRequestHandler<ValidateResetPasswordQuery, ValidateResetPasswordResponse>
 {
-    public async Task<ValidateResetPasswordResponse> Handle(ValidateResetPasswordQuery request, CancellationToken cancellationToken)
+    public async Task<ValidateResetPasswordResponse> Handle(ValidateResetPasswordQuery request,
+        CancellationToken cancellationToken)
     {
         if (request.Model.NewPassword.IsNullOrEmpty()) throw new BadRequestException("New password is required.");
         var claimsPrincipal = jwtManager.ValidateResetToken(request.Model.Token);
@@ -42,6 +45,29 @@ public class ValidateResetPasswordQueryHandler(
                    ?? throw new NotFoundException("User not found.");
 
         var passwordHasher = userManager.PasswordHasher;
+
+        // Get password history
+        var passwordHistorySpec =
+            new GetPasswordHistoryByAccountIdSpecification(user.Id);
+
+        var passwordHistories =
+            await passwordHistoryRepository.GetAllBySpecAsync(
+                passwordHistorySpec,
+                cancellationToken);
+
+        // Check password history
+        var isPasswordUsedBefore = passwordHistories.Any(ph => passwordHasher.VerifyHashedPassword(
+                                                                   identityUser,
+                                                                   ph.HashedPassword,
+                                                                   request.Model.NewPassword)
+                                                               == PasswordVerificationResult.Success);
+
+        if (isPasswordUsedBefore)
+        {
+            throw new BadRequestException(
+                "New password cannot match any previously used passwords.");
+        }
+
         // Check if new password is the same as current password
         var currentPasswordResult = passwordHasher.VerifyHashedPassword(
             identityUser,

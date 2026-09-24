@@ -1,8 +1,6 @@
 ﻿namespace NettoRetail.Application.Exceptions
 {
-    public class ForbiddenException : Exception
+    public class ForbiddenException(string message) : Exception(message)
     {
-        public ForbiddenException(string message)
-            : base(message) { }
     }
 }

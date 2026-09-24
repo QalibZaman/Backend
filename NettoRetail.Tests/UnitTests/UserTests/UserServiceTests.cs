@@ -62,7 +62,7 @@ namespace NettoRetail.Tests.UnitTests.UserTests
 
             // Assert
             Assert.NotNull(customer.Address);
-            Assert.Same(customer, customer.Address!.Customer);
+            Assert.Equal(customer.Id, customer.Address!.CustomerId);
 
             _mapper
                 .Received(1)
@@ -159,7 +159,7 @@ namespace NettoRetail.Tests.UnitTests.UserTests
 
             // Assert
             Assert.NotNull(staff.Address);
-            Assert.Same(staff, staff.Address!.Staff);
+            Assert.Equal(staff.Id, staff.Address!.StaffId);
 
             _mapper
                 .Received(1)

@@ -28,36 +28,36 @@ public class LoginCommandHandler(UserManager<ApplicationUser> userManager, IFail
         var staffSpecification = new GetStaffByIdSpecification(identityUser.Id);
         var user = await staffRepository.GetAsync(staffSpecification, cancellationToken);
 
-        var specification = new GetFailedAuthAttemptByStaffIdSpecification(identityUser.Id);
-        var loginAttempt = await repository.GetAsync(specification, cancellationToken);
+        //var specification = new GetFailedAuthAttemptByStaffIdSpecification(identityUser.Id);
+        //var loginAttempt = await repository.GetAsync(specification, cancellationToken);
 
-        if (loginAttemptService.IsAccountLocked(loginAttempt))
-        {
-            throw new MyUnauthorizedException(ValidationErrorMessages.Staff.AccountLockedErrorMessage);
-        }
-
-        if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
-        {
-            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt!, cancellationToken);
-        }
+        // if (loginAttemptService.IsAccountLocked(loginAttempt))
+        // {
+        //     throw new MyUnauthorizedException(ValidationErrorMessages.Staff.AccountLockedErrorMessage);
+        // }
+        //
+        // if (loginAttemptService.HasBlockDurationElapsed(loginAttempt!))
+        // {
+        //     await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt!, cancellationToken);
+        // }
 
         var result = await userManager.CheckPasswordAsync(identityUser, request.Model.Password);
         if (!result)
         {
-            loginAttempt = await loginAttemptService.IncrementFailedAttemptsAsync(loginAttempt, identityUser.Id, cancellationToken);
-            var availableAttempts = loginAttemptService.AvailableAttempts(loginAttempt);
-            if (availableAttempts == 0)
-            {
-                throw new MyUnauthorizedException(ValidationErrorMessages.Staff.LockedAccountEmailErrorMessage);
-            }
+            // loginAttempt = await loginAttemptService.IncrementFailedAttemptsAsync(loginAttempt, identityUser.Id, cancellationToken);
+            // var availableAttempts = loginAttemptService.AvailableAttempts(loginAttempt);
+            // if (availableAttempts == 0)
+            // {
+            //     throw new MyUnauthorizedException(ValidationErrorMessages.Staff.LockedAccountEmailErrorMessage);
+            // }
 
-            throw new BadRequestException(string.Format(ValidationErrorMessages.Staff.InvalidPasswordErrorMessage, availableAttempts));
+            throw new MyUnauthorizedException(ValidationErrorMessages.Staff.InvalidLoginErrorMessage);
         }
 
-        if (loginAttempt != null)
-        {
-            await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
-        }
+        // if (loginAttempt != null)
+        // {
+        //     await loginAttemptService.ResetFailedAttemptsAsync(loginAttempt, cancellationToken);
+        // }
 
         var tokenResponse = jwtManager.GetTokenResponse(identityUser.Id.ToString(), identityUser.Email, user.RoleId.ToString(), user.ShopId);
 

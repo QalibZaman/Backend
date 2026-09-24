@@ -1,0 +1,11 @@
+﻿using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
+using NettoRetail.Shared.Specifications;
+
+namespace NettoRetail.DataAccess.Specifications.Role;
+
+public class GetRolesByShopIdSpecification : Specification<RoleEntity>
+{
+    public GetRolesByShopIdSpecification(int shopId)
+        : base(model => model.ShopEntityId == shopId) { }
+}
