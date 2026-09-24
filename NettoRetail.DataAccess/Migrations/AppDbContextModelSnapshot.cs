@@ -22,6 +22,21 @@ namespace NettoRetail.DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("FeaturesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionPlansId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FeaturesId", "SubscriptionPlansId");
+
+                    b.HasIndex("SubscriptionPlansId");
+
+                    b.ToTable("FeatureEntitySubscriptionPlanEntity");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
@@ -533,6 +548,26 @@ namespace NettoRetail.DataAccess.Migrations
                     b.ToTable("FailedAuthAttempts");
                 });
 
+            modelBuilder.Entity("NettoRetail.Domain.Entities.FeatureEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Features");
+                });
+
             modelBuilder.Entity("NettoRetail.Domain.Entities.JunctionEntities.PermissionRoleEntity", b =>
                 {
                     b.Property<int>("PermissionId")
@@ -721,6 +756,9 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
+                    b.Property<bool>("AutoRenewalEnabled")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("CategoriesSectionName")
                         .HasColumnType("text");
 
@@ -756,6 +794,9 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTimeOffset>("NextRenewalDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -772,8 +813,14 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeSubscriptionId")
                         .HasColumnType("text");
 
+                    b.Property<int?>("SubscriptionPlanEntityId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SubscriptionPlanId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SubscriptionStartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -785,6 +832,8 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("SubscriptionPlanEntityId");
 
                     b.ToTable("Shops");
                 });
@@ -813,6 +862,41 @@ namespace NettoRetail.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("ShopLinks");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MonthlyPrice")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Motto")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubscriptionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionPlans");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>
@@ -855,6 +939,21 @@ namespace NettoRetail.DataAccess.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Staff", (string)null);
+                });
+
+            modelBuilder.Entity("FeatureEntitySubscriptionPlanEntity", b =>
+                {
+                    b.HasOne("NettoRetail.Domain.Entities.FeatureEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FeaturesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPlansId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -1057,6 +1156,10 @@ namespace NettoRetail.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("CountryId");
 
+                    b.HasOne("NettoRetail.Domain.Entities.SubscriptionPlanEntity", null)
+                        .WithMany("Shops")
+                        .HasForeignKey("SubscriptionPlanEntityId");
+
                     b.Navigation("Country");
                 });
 
@@ -1126,6 +1229,11 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Navigation("Roles");
 
                     b.Navigation("ShopLinks");
+                });
+
+            modelBuilder.Entity("NettoRetail.Domain.Entities.SubscriptionPlanEntity", b =>
+                {
+                    b.Navigation("Shops");
                 });
 
             modelBuilder.Entity("NettoRetail.Domain.Entities.CustomerEntity", b =>

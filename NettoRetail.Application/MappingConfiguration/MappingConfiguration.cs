@@ -1,7 +1,10 @@
 using Mapster;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Constants;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -47,7 +50,31 @@ public class MappingConfiguration : IRegister
         config.NewConfig<UpdatePersonalInformationRequest, StaffEntity>()
             .IgnoreNullValues(true);
 
+        config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponce>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.Motto, src => src.Motto)
+            .Map(dest => dest.MonthlyPrice, src => src.MonthlyPrice);
+
         config.NewConfig<UpdatePersonalInformationRequest, AddressEntity>()
             .IgnoreNullValues(true);
+
+        config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
+            .Map(dest => dest.RoleId, src => src.Id)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.RoleName, src => src.Name)
+            .AfterMapping((src, dest) =>
+            {
+                var rolePermissionTitles = src.PermissionRoles
+                    .Where(pr => pr.Permission != null)
+                    .Select(pr => pr.Permission!.Title)
+                    .ToHashSet();
+
+                foreach (var permission in PermissionProvider.All)
+                {
+                    dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
+                }
+            });
     }
 }
