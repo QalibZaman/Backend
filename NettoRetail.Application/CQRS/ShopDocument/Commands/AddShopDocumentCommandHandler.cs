@@ -42,6 +42,8 @@ namespace NettoRetail.Application.CQRS.ShopDocument.Commands
             List<ShopDocumentResponce> responces = new List<ShopDocumentResponce>();
             foreach (var (file, documentType) in documents)
             {
+                if (file is null)
+                    continue;
                 var blobName = await AddDoc(file);
 
                 var document = new ShopDocumentEntity
