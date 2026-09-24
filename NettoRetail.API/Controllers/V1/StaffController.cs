@@ -157,8 +157,6 @@ public class StaffController(
         return NoContent();
     }
 
-    
-
     [HttpGet("validate-reset-password-token")]
     public async Task<IActionResult> ValidateResetPasswordToken(
         [FromQuery] string token)

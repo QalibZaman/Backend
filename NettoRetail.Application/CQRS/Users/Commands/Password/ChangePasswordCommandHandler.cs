@@ -1,30 +1,30 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.Password;
-using NettoRetail.Application.Services.IPasswordService;
+using NettoRetail.DataAccess.Identity;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Password
+namespace NettoRetail.Application.CQRS.Users.Commands.Password;
+
+public record ChangePasswordCommand(Guid UserId, ChangePasswordRequest Model) : IRequest;
+
+public class ChangePasswordCommandHandler(UserManager<ApplicationUser> userManager)
+    : IRequestHandler<ChangePasswordCommand>
 {
-    public record ChangePasswordCommand(Guid UserId, ChangePasswordRequest Model) : IRequest;
-
-    public class ChangePasswordCommandHandler(
-        IPasswordService passwordService)
-        : IRequestHandler<ChangePasswordCommand>
+    public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+        var identityUser = await userManager.FindByIdAsync(request.UserId.ToString());
+        if (identityUser is null)
         {
-            var isCurrentPasswordValid = await passwordService.ValidatePasswordAsync(
-                request.UserId,
-                request.Model.CurrentPassword,
-                cancellationToken);
+            throw new NotFoundException("User not found.");
+        }
 
-            if (!isCurrentPasswordValid)
-                throw new InvalidOperationException("Current password is incorrect.");
-
-            await passwordService.ChangePasswordAsync(
-                request.UserId,
-                request.Model.CurrentPassword,
-                request.Model.NewPassword,
-                cancellationToken);
+        var result =
+            await userManager.ChangePasswordAsync(identityUser, request.Model.CurrentPassword,
+                request.Model.NewPassword);
+        if (!result.Succeeded)
+        {
+            throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }
 }
