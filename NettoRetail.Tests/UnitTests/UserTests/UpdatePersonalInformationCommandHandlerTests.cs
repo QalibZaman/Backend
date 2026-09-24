@@ -81,9 +81,7 @@ namespace NettoRetail.Tests.UnitTests.UserTests
 
             await _customerRepository
                 .Received(1)
-                .UpdateAsync(
-                    customer,
-                    Arg.Any<CancellationToken>());
+                .CommitAsync(Arg.Any<CancellationToken>());
 
             await _staffRepository
                 .DidNotReceive()
@@ -144,15 +142,11 @@ namespace NettoRetail.Tests.UnitTests.UserTests
 
             await _staffRepository
                 .Received(1)
-                .UpdateAsync(
-                    staff,
-                    Arg.Any<CancellationToken>());
+                .CommitAsync(Arg.Any<CancellationToken>());
 
             await _customerRepository
                 .DidNotReceive()
-                .UpdateAsync(
-                    Arg.Any<CustomerEntity>(),
-                    Arg.Any<CancellationToken>());
+                .CommitAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
