@@ -69,5 +69,13 @@ public class MappingConfiguration : IRegister
                     dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
                 }
             });
+
+        config.NewConfig<ShopDocumentEntity, ShopDocumentResponce>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.ShopId, src => src.ShopId)
+            .Map(dest => dest.DocumentType, src => src.DocumentType)
+            .Map(dest => dest.FileName, src => src.FileName)
+            .Map(dest => dest.FileSize, src => src.FileSize)
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt);
     }
 }
