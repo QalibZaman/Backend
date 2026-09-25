@@ -29,7 +29,7 @@ public static class ValidationExtensions
             });
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+        //services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
         return services;
     }
