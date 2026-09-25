@@ -3,14 +3,14 @@ using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
 using NettoRetail.Application.Interfaces.Services.UserService;
-using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Extensions;
+using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Infrastructure.Extensions;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
 using NettoRetail.Infrastructure.Services.IImageValidatorService;
 using NettoRetail.Shared.Extensions;
-using NettoRetail.DataAccess.Repositories;
+using NettoRetail.Shared.Interfaces.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +45,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
