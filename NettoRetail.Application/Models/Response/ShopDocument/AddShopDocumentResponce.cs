@@ -1,8 +1,8 @@
 ﻿using NettoRetail.Domain.Entities.Enums;
 
-namespace NettoRetail.Application.Models.Response
+namespace NettoRetail.Application.Models.Response.ShopDocument
 {
-    public class ShopDocumentResponce
+    public class AddShopDocumentResponce
     {
         public int Id { get; set; }
         public int ShopId { get; set; }

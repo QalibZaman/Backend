@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.ShopDocument;
-using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.ShopDocument;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.Enums;
@@ -14,16 +14,16 @@ using NettoRetail.Shared.Interfaces.Repositories;
 
 namespace NettoRetail.Application.CQRS.ShopDocument.Commands
 {
-    public record AddShopDocumentCommand(AddShopDocumentRequest model, int ShopId) : IRequest<List<ShopDocumentResponce>>;
+    public record AddShopDocumentCommand(AddShopDocumentRequest model, int ShopId) : IRequest<List<AddShopDocumentResponce>>;
     public class AddShopDocumentCommandHandler(
         IShopRepository shopRepository,
         IShopDocumentRepository shopDocumentRepository,
         IAzureBlobService azureBlobService,
         IMapper mapper)
-        : IRequestHandler<AddShopDocumentCommand, List<ShopDocumentResponce>>
+        : IRequestHandler<AddShopDocumentCommand, List<AddShopDocumentResponce>>
     {
         private const string ContainerName = "dot-net";
-        public async Task<List<ShopDocumentResponce>> Handle(AddShopDocumentCommand request, CancellationToken cancellationToken)
+        public async Task<List<AddShopDocumentResponce>> Handle(AddShopDocumentCommand request, CancellationToken cancellationToken)
         {
             if (request.ShopId <= 0) throw new BadRequestException("Shop Id cant be 0 or negative");
             var shopExists = await shopRepository.ExistsAsync(new GetShopByIdSpecification(request.ShopId), cancellationToken);
@@ -39,7 +39,7 @@ namespace NettoRetail.Application.CQRS.ShopDocument.Commands
             .Where(x => x.Item1 is not null)
             .ToList();
 
-            List<ShopDocumentResponce> responces = new List<ShopDocumentResponce>();
+            List<AddShopDocumentResponce> responces = new List<AddShopDocumentResponce>();
             foreach (var (file, documentType) in documents)
             {
                 if (file is null)
@@ -55,7 +55,7 @@ namespace NettoRetail.Application.CQRS.ShopDocument.Commands
                     BlobName = blobName,
                     CreatedAt = DateTime.UtcNow
                 };
-                var responce = mapper.Map<ShopDocumentResponce>(document);
+                var responce = mapper.Map<AddShopDocumentResponce>(document);
                 await shopDocumentRepository.AddAsync(document, cancellationToken);
                 responces.Add(responce);
             }
