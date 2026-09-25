@@ -24,7 +24,7 @@ namespace NettoRetail.API.Controllers.V1
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddDocument([FromBody] AddShopDocumentRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddDocument([FromQuery] AddShopDocumentRequest request, CancellationToken cancellationToken)
         {
             var shopId = HttpContext.GetUserShopId();
             var command = new AddShopDocumentCommand(request, shopId);
@@ -44,6 +44,20 @@ namespace NettoRetail.API.Controllers.V1
             var result = await mediator.Send(command, cancellationToken);
             var responce = new ApiResponse<List<GetShopDocumentResponce>>(result);
             return Ok(responce);
+        }
+
+        [HttpDelete("delete-documents")]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteDocuments([FromQuery] DeleteShopDocumentRequest request, CancellationToken cancellationToken)
+        {
+            int shopId = HttpContext.GetUserShopId();
+            var command = new DeleteShopDocumentCommand(request, shopId);
+            await mediator.Send(command, cancellationToken);
+            return Ok();
         }
     }
 }
