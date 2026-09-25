@@ -190,7 +190,7 @@ public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRep
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> GetWithRelatedDataAsync(Specification<TEntity> specification,CancellationToken cancellationToken)
+    public async Task<TEntity?> GetWithRelatedDataAsync(Specification<TEntity> specification, CancellationToken cancellationToken)
     {
         var query = _dbSet.Where(specification.Criteria);
 
@@ -202,7 +202,8 @@ public abstract class BaseRepository<TEntity>(AppDbContext dbContext) : IBaseRep
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task CommitAsync(CancellationToken cancellationToken = default)
+    public async Task CommitAsync(
+     CancellationToken cancellationToken = default)
     {
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

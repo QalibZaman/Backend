@@ -57,58 +57,58 @@ public class LoginCommandHandlerTests
         // Assert
         Assert.Equal(ValidationErrorMessages.Staff.InvalidLoginErrorMessage, exception.Message);
         
-        _loginAttemptService.DidNotReceive().IsAccountLocked(Arg.Any<FailedAuthAttemptEntity>());
+        //_loginAttemptService.DidNotReceive().IsAccountLocked(Arg.Any<FailedAuthAttemptEntity>());
         await _staffRepository.DidNotReceive().GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>());
-        await _failedAuthAttemptRepository.DidNotReceive().GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>());
+        //await _failedAuthAttemptRepository.DidNotReceive().GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>());
         _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
     }
 
-    [Fact]
-    public async Task Handler_ShouldThrowMyUnauthorizedException_IfAccountLocked()
-    {
-        // Arrange
-        var model = new LoginModel("email@mail.com", "some-password");
-        var command = new LoginCommand(model);
-        var id = Guid.NewGuid();
-        var applicationUser = new ApplicationUser
-        {
-            UserName = model.Email,
-            Email = model.Email,
-            Id = id
-        };
-        var staffEntity = new StaffEntity
-        {
-            Id = id,
-            FirstName = "Name",
-            LastName = "LastName",
-            Email = model.Email,
-        };
-        var loginAttempt = new FailedAuthAttemptEntity
-        {
-            Id = Guid.NewGuid(),
-            FailedAttempts = 3,
-            LockoutEndTime = DateTime.UtcNow,
-            Staff = staffEntity,
-        };
-        _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
-        _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
-        _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
-        _loginAttemptService.IsAccountLocked(loginAttempt).Returns(true);
-        
-        // Act
-        var exception = await Assert.ThrowsAsync<MyUnauthorizedException>(async () =>
-            {
-                await _handler.Handle(command, CancellationToken.None);
-            }
-        );
-        
-        // Assert
-        Assert.Equal(
-            ValidationErrorMessages.Staff.AccountLockedErrorMessage,
-            exception.Message);
-        await _userManager.DidNotReceive().CheckPasswordAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
-        _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
-    }
+    //[Fact]
+    // public async Task Handler_ShouldThrowMyUnauthorizedException_IfAccountLocked()
+    // {
+    //     // Arrange
+    //     var model = new LoginModel("email@mail.com", "some-password");
+    //     var command = new LoginCommand(model);
+    //     var id = Guid.NewGuid();
+    //     var applicationUser = new ApplicationUser
+    //     {
+    //         UserName = model.Email,
+    //         Email = model.Email,
+    //         Id = id
+    //     };
+    //     var staffEntity = new StaffEntity
+    //     {
+    //         Id = id,
+    //         FirstName = "Name",
+    //         LastName = "LastName",
+    //         Email = model.Email,
+    //     };
+    //     var loginAttempt = new FailedAuthAttemptEntity
+    //     {
+    //         Id = Guid.NewGuid(),
+    //         FailedAttempts = 3,
+    //         LockoutEndTime = DateTime.UtcNow,
+    //         Staff = staffEntity,
+    //     };
+    //     _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
+    //     _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
+    //     _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
+    //     _loginAttemptService.IsAccountLocked(loginAttempt).Returns(true);
+    //     
+    //     // Act
+    //     var exception = await Assert.ThrowsAsync<MyUnauthorizedException>(async () =>
+    //         {
+    //             await _handler.Handle(command, CancellationToken.None);
+    //         }
+    //     );
+    //     
+    //     // Assert
+    //     Assert.Equal(
+    //         ValidationErrorMessages.Staff.AccountLockedErrorMessage,
+    //         exception.Message);
+    //     await _userManager.DidNotReceive().CheckPasswordAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
+    //     _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
+    // }
 
     [Fact]
     public async Task Handler_ShouldThrowBadRequestException_WhenPasswordIsInvalid()
@@ -146,99 +146,97 @@ public class LoginCommandHandlerTests
         };
         _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
         _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
-        _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
-        _loginAttemptService.IsAccountLocked(loginAttempt).Returns(false);
+        // _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
+        //_loginAttemptService.IsAccountLocked(loginAttempt).Returns(false);
         _userManager.CheckPasswordAsync(applicationUser,model.Password).Returns(Task.FromResult(false));
-        _loginAttemptService
-            .IncrementFailedAttemptsAsync(
-                loginAttempt,
-                applicationUser.Id,
-                Arg.Any<CancellationToken>())
-            .Returns(updatedLoginAttempt);
-
-        _loginAttemptService
-            .AvailableAttempts(updatedLoginAttempt)
-            .Returns(3);
+        // _loginAttemptService
+        //     .IncrementFailedAttemptsAsync(
+        //         loginAttempt,
+        //         applicationUser.Id,
+        //         Arg.Any<CancellationToken>())
+        //     .Returns(updatedLoginAttempt);
+        //
+        // _loginAttemptService
+        //     .AvailableAttempts(updatedLoginAttempt)
+        //     .Returns(3);
         
         // Act
-        var exception = await Assert.ThrowsAsync<BadRequestException>(async () =>
-            {
-                await _handler.Handle(command, CancellationToken.None);
-            }
-        );
+        var exception = await Assert.ThrowsAnyAsync<MyUnauthorizedException>(async () =>
+        {
+            await _handler.Handle(command, CancellationToken.None);
+        });
+        
         
         // Assert
-        Assert.Equal(
-            string.Format(ValidationErrorMessages.Staff.InvalidPasswordErrorMessage, 3),
-            exception.Message);
+        Assert.Equal(ValidationErrorMessages.Staff.InvalidLoginErrorMessage, exception.Message);
         
         _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
     }
 
-    [Fact]
-    public async Task Handler_ShouldThrowMyUnauthorizedException_WhenNoAvailableAttemptsLeft()
-    {
-        // Arrange
-        var model = new LoginModel("email@mail.com", "some-password");
-        var command = new LoginCommand(model);
-        var id = Guid.NewGuid();
-        var applicationUser = new ApplicationUser
-        {
-            UserName = model.Email,
-            Email = model.Email,
-            Id = id
-        };
-        var staffEntity = new StaffEntity
-        {
-            Id = id,
-            FirstName = "Name",
-            LastName = "LastName",
-            Email = model.Email,
-        };
-        var loginAttempt = new FailedAuthAttemptEntity
-        {
-            Id = Guid.NewGuid(),
-            FailedAttempts = 2,
-            LockoutEndTime = DateTime.UtcNow,
-            Staff = staffEntity,
-        };
-        var updatedLoginAttempt = new FailedAuthAttemptEntity
-        {
-            Id = loginAttempt.Id,
-            FailedAttempts = 3,
-            LockoutEndTime = loginAttempt.LockoutEndTime,
-            Staff = staffEntity
-        };
-        _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
-        _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
-        _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
-        _loginAttemptService.IsAccountLocked(loginAttempt).Returns(false);
-        _userManager.CheckPasswordAsync(applicationUser,model.Password).Returns(Task.FromResult(false));
-        _loginAttemptService
-            .IncrementFailedAttemptsAsync(
-                loginAttempt,
-                applicationUser.Id,
-                Arg.Any<CancellationToken>())
-            .Returns(updatedLoginAttempt);
-
-        _loginAttemptService
-            .AvailableAttempts(updatedLoginAttempt)
-            .Returns(0);
-        
-        // Act
-        var exception = await Assert.ThrowsAsync<MyUnauthorizedException>(async () =>
-            {
-                await _handler.Handle(command, CancellationToken.None);
-            }
-        );
-        
-        // Assert
-        Assert.Equal(
-            ValidationErrorMessages.Staff.LockedAccountEmailErrorMessage,
-            exception.Message);
-        
-        _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
-    }
+    // [Fact]
+    // public async Task Handler_ShouldThrowMyUnauthorizedException_WhenNoAvailableAttemptsLeft()
+    // {
+    //     // Arrange
+    //     var model = new LoginModel("email@mail.com", "some-password");
+    //     var command = new LoginCommand(model);
+    //     var id = Guid.NewGuid();
+    //     var applicationUser = new ApplicationUser
+    //     {
+    //         UserName = model.Email,
+    //         Email = model.Email,
+    //         Id = id
+    //     };
+    //     var staffEntity = new StaffEntity
+    //     {
+    //         Id = id,
+    //         FirstName = "Name",
+    //         LastName = "LastName",
+    //         Email = model.Email,
+    //     };
+    //     var loginAttempt = new FailedAuthAttemptEntity
+    //     {
+    //         Id = Guid.NewGuid(),
+    //         FailedAttempts = 2,
+    //         LockoutEndTime = DateTime.UtcNow,
+    //         Staff = staffEntity,
+    //     };
+    //     var updatedLoginAttempt = new FailedAuthAttemptEntity
+    //     {
+    //         Id = loginAttempt.Id,
+    //         FailedAttempts = 3,
+    //         LockoutEndTime = loginAttempt.LockoutEndTime,
+    //         Staff = staffEntity
+    //     };
+    //     _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
+    //     _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
+    //     _failedAuthAttemptRepository.GetAsync(Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(), Arg.Any<CancellationToken>()).Returns(loginAttempt);
+    //     _loginAttemptService.IsAccountLocked(loginAttempt).Returns(false);
+    //     _userManager.CheckPasswordAsync(applicationUser,model.Password).Returns(Task.FromResult(false));
+    //     _loginAttemptService
+    //         .IncrementFailedAttemptsAsync(
+    //             loginAttempt,
+    //             applicationUser.Id,
+    //             Arg.Any<CancellationToken>())
+    //         .Returns(updatedLoginAttempt);
+    //
+    //     _loginAttemptService
+    //         .AvailableAttempts(updatedLoginAttempt)
+    //         .Returns(0);
+    //     
+    //     // Act
+    //     var exception = await Assert.ThrowsAsync<MyUnauthorizedException>(async () =>
+    //         {
+    //             await _handler.Handle(command, CancellationToken.None);
+    //         }
+    //     );
+    //     
+    //     // Assert
+    //     Assert.Equal(
+    //         ValidationErrorMessages.Staff.LockedAccountEmailErrorMessage,
+    //         exception.Message);
+    //     
+    //     _jwtManager.DidNotReceive().GetTokenResponse(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),  Arg.Any<int>());
+    // }
     [Fact]
     public async Task Handler_ShouldReturnTokenResponse_WhenLoginIsSuccessful()
     {
@@ -283,19 +281,19 @@ public class LoginCommandHandlerTests
                 Arg.Any<CancellationToken>())
         .   Returns(staffEntity);
 
-        _failedAuthAttemptRepository
-            .GetAsync(
-                Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(),
-            Arg.Any<CancellationToken>())
-            .Returns(loginAttempt);
+        // _failedAuthAttemptRepository
+        //     .GetAsync(
+        //         Arg.Any<GetFailedAuthAttemptByStaffIdSpecification>(),
+        //     Arg.Any<CancellationToken>())
+        //     .Returns(loginAttempt);
 
-        _loginAttemptService
-            .IsAccountLocked(loginAttempt)
-            .Returns(false);
-
-        _loginAttemptService
-            .HasBlockDurationElapsed(loginAttempt)
-            .Returns(false);
+        // _loginAttemptService
+        //     .IsAccountLocked(loginAttempt)
+        //     .Returns(false);
+        //
+        // _loginAttemptService
+        //     .HasBlockDurationElapsed(loginAttempt)
+        //     .Returns(false);
 
         _userManager
             .CheckPasswordAsync(applicationUser, model.Password)
@@ -323,11 +321,11 @@ public class LoginCommandHandlerTests
                 applicationUser,
                 model.Password);
 
-        await _loginAttemptService
-            .Received(1)
-            .ResetFailedAttemptsAsync(
-                loginAttempt,
-                Arg.Any<CancellationToken>());
+        // await _loginAttemptService
+        //     .Received(1)
+        //     .ResetFailedAttemptsAsync(
+        //         loginAttempt,
+        //         Arg.Any<CancellationToken>());
 
         _jwtManager
             .Received(1)

@@ -37,4 +37,10 @@ public static class ValidationErrorMessages
         public const string InvalidPasswordErrorMessage =
             "Invalid email or password. {0} attempts left.";
     }
+
+    public static class Shop
+    {
+        public const string InvalidUrlErrorMessage =
+            "URL is invalid";
+    }
 }
