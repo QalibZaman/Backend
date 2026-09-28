@@ -6,7 +6,7 @@ namespace NettoRetail.DataAccess.Specifications.Sessions
     public class GetSessionsByAccountIdSpecification : Specification<SessionEntity>
     {
         public GetSessionsByAccountIdSpecification(string id)
-            : base(x => x.AccountId.ToString() == id && x.IsActive) { }
+            : base(x => x.StaffId.ToString() == id && x.IsActive) { }
 
     }
 }

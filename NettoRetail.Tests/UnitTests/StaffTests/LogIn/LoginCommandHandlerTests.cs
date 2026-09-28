@@ -135,14 +135,14 @@ public class LoginCommandHandlerTests
             Id = Guid.NewGuid(),
             FailedAttempts = 0,
             LockoutEndTime = DateTime.UtcNow,
-            Staff = staffEntity,
+            Account = staffEntity,
         };
         var updatedLoginAttempt = new FailedAuthAttemptEntity
         {
             Id = loginAttempt.Id,
             FailedAttempts = 1,
             LockoutEndTime = loginAttempt.LockoutEndTime,
-            Staff = staffEntity
+            Account = staffEntity
         };
         _userManager.FindByEmailAsync(command.Model.Email).Returns(applicationUser);
         _staffRepository.GetAsync(Arg.Any<GetStaffByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(staffEntity);
@@ -266,7 +266,7 @@ public class LoginCommandHandlerTests
             Id = Guid.NewGuid(),
             FailedAttempts = 1,
             LockoutEndTime = DateTime.UtcNow,
-            Staff = staffEntity
+            Account = staffEntity
         };
 
         var tokenResponse = new TokenResponse("some-access-token", "some-refresh-token", "some-temp-token");
