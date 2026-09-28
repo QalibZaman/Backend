@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Shared.Constants;
+using System.Security.Claims;
 
 namespace NettoRetail.API.Infrastructure.Extensions;
 
