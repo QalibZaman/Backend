@@ -15,6 +15,7 @@ public class ShopEntity
     public string? StripeCustomerId { get; set; }
     public string? StripeSubscriptionId { get; set; }
     public int? CountryId { get; set; }
+    public ICollection<ShopLinkEntity> ShopLinks { get; set; } = [];
     public required bool IsActive { get; set; }
     public string? DeactivationReason { get; set; }
     public DateTime? DeactivationDate { get; set; }
@@ -23,7 +24,9 @@ public class ShopEntity
 
     public bool CategoriesSectionVisibility { get; set; }
     public string? CategoriesSectionName { get; set; }
-
+    public DateTimeOffset SubscriptionStartDate { get; set; }
+    public DateTimeOffset NextRenewalDate { get; set; }
+    public bool AutoRenewalEnabled { get; set; }
 
     public ICollection<RoleEntity>? Roles { get; set; }
     public ICollection<CategoryEntity>? Categories { get; set; }
