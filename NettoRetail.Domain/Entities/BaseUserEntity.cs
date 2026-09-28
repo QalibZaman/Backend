@@ -12,6 +12,7 @@ public abstract class BaseUserEntity
     public int RoleId { get; set; }
     public RoleEntity Role { get; set; } = null!;
     public string? ProfileImageUrl { get; set; }
+    public FailedAuthAttemptEntity FailedAuthAttempt { get; set; } = null!;
     public StaffStatusEnum Status { get; set; } = StaffStatusEnum.CreatePassword;
     public DateTime? PasswordUpdatedAt { get; set; }
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;

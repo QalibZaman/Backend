@@ -16,11 +16,11 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
                attempt.LockoutEndTime > DateTime.UtcNow;
     }
 
-    public async Task<FailedAuthAttemptEntity> IncrementFailedAttemptsAsync(FailedAuthAttemptEntity? attempt, Guid staffId, CancellationToken cancellationToken)
+    public async Task<FailedAuthAttemptEntity> IncrementFailedAttemptsAsync(FailedAuthAttemptEntity? attempt, Guid accountId, CancellationToken cancellationToken)
     {
         if (attempt == null)
         {
-            attempt = new FailedAuthAttemptEntity { StaffId = staffId };
+            attempt = new FailedAuthAttemptEntity { AccountId = accountId };
             await failedAuthAttemptRepository.AddAsync(attempt, cancellationToken);
         }
 
