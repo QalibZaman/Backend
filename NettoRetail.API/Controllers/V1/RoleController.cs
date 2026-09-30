@@ -17,7 +17,6 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class RoleController(IMediator mediator) : ControllerBase
 {
-    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -46,8 +45,7 @@ public class RoleController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [HttpGet("{id::int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -61,7 +59,6 @@ public class RoleController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpGet("{name}")]
     [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
