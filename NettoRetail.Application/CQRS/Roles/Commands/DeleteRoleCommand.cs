@@ -13,7 +13,7 @@ namespace NettoRetail.Application.CQRS.Roles.Commands
     {
         public async Task Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
         {
-            var role = await roleRepository.GetAsync(new GetRoleByIdAndShopId(request.shopId, request.id),
+            var role = await roleRepository.GetAsync(new GetRoleByIdAndShopIdSpecification(request.shopId, request.id),
                            cancellationToken)
                        ?? throw new NotFoundException("Role with provided id and shopId not found");
 

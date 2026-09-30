@@ -4,9 +4,9 @@ using NettoRetail.Shared.Specifications;
 
 namespace NettoRetail.DataAccess.Specifications.Role;
 
-public class GetRoleByIdAndShopId : Specification<RoleEntity>
+public class GetRoleByIdAndShopIdSpecification : Specification<RoleEntity>
 {
-    public GetRoleByIdAndShopId(int shopId, int id)
+    public GetRoleByIdAndShopIdSpecification(int shopId, int id)
         : base(model => model.ShopEntityId == shopId && model.Id == id)
     {
     }
