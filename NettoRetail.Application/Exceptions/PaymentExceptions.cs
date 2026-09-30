@@ -1,7 +1,5 @@
 ﻿namespace NettoRetail.Application.Exceptions;
 
-public class PaymentExceptions : Exception
+public class PaymentExceptions(string message) : Exception(message)
 {
-    public PaymentExceptions(string message)
-           : base(message) { }
 }
