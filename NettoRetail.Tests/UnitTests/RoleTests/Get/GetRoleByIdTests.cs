@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Controllers.V1;
 using NettoRetail.Application.CQRS.Roles.Queries;
@@ -55,12 +57,27 @@ public class GetRoleTests
         }
     }
 
+    private static RoleController CreateControllerWithShopContext(IMediator mediator, int shopId = 1)
+    {
+        var claims = new[] { new Claim("shop_id", shopId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var user = new ClaimsPrincipal(identity);
+
+        return new RoleController(mediator)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            }
+        };
+    }
+
     [Fact]
     public async Task GetAllRoles_ShouldReturnOkResult_WhenCalled()
     {
         // Arrange
         var fakeMediator = new FakeMediator();
-        var controller = new RoleController(fakeMediator);
+        var controller = CreateControllerWithShopContext(fakeMediator, shopId: 1);
         var paginationRequest = new PaginationRequest { PageNumber = 1, PageSize = 10 };
 
         // Act
@@ -80,7 +97,7 @@ public class GetRoleTests
     {
         // Arrange
         var fakeMediator = new FakeMediator();
-        var controller = new RoleController(fakeMediator);
+        var controller = CreateControllerWithShopContext(fakeMediator, shopId: 1);
 
         // Act
         var result = await controller.GetRolesById(roleId, CancellationToken.None);
@@ -96,7 +113,7 @@ public class GetRoleTests
     {
         // Arrange
         var fakeMediator = new FakeMediator();
-        var controller = new RoleController(fakeMediator);
+        var controller = CreateControllerWithShopContext(fakeMediator, shopId: 1);
         string roleName = "Admin";
 
         // Act

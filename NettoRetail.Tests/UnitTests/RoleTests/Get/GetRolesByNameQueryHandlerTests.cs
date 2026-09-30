@@ -1,6 +1,8 @@
 ﻿using NettoRetail.Application.CQRS.Roles.Queries;
+using NettoRetail.Application.Exceptions;
 using NettoRetail.DataAccess.Repositories;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Specifications;
 using NSubstitute;
 
@@ -9,27 +11,34 @@ namespace NettoRetail.Tests.UnitTests.RoleTests.Get;
 public class GetRolesByNameQueryHandlerTests
 {
     private readonly IRoleRepository _roleRepository;
+    private readonly IShopRepository _shopRepository;
     private readonly GetRolesByNameQueryHandler _handler;
 
     public GetRolesByNameQueryHandlerTests()
     {
         _roleRepository = Substitute.For<IRoleRepository>();
-        _handler = new GetRolesByNameQueryHandler(_roleRepository);
+        _shopRepository = Substitute.For<IShopRepository>();
+        _handler = new GetRolesByNameQueryHandler(_roleRepository, _shopRepository);
     }
 
     [Fact]
-    public async Task Handle_ShouldThrowInvalidOperationException_WhenRoleDoesNotExist()
+    public async Task Handle_ShouldThrowNotFoundException_WhenRoleDoesNotExist()
     {
         // Arrange
         string roleName = "NonExistent";
-        var query = new GetRolesQueryByName(roleName);
+        int shopId = 1;
+        var query = new GetRolesQueryByName(roleName, shopId);
+
+        _shopRepository
+            .ExistsAsync(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _roleRepository
-            .GetAllPaginatedAsync(Arg.Any<Specification<RoleEntity>>(), Arg.Any<CancellationToken>())
-            .Returns((new List<RoleEntity>(), 0));
+            .ExistsAsync(Arg.Any<Specification<RoleEntity>>(), Arg.Any<CancellationToken>())
+            .Returns(false);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<NotFoundException>(
             async () => await _handler.Handle(query, CancellationToken.None));
     }
 
@@ -38,17 +47,30 @@ public class GetRolesByNameQueryHandlerTests
     {
         // Arrange
         string roleName = "Admin";
-        var query = new GetRolesQueryByName(roleName);
-        var existingRole = new RoleEntity 
-        { 
-            Id = 1, 
+        int shopId = 1;
+        var query = new GetRolesQueryByName(roleName, shopId);
+
+        var existingRole = new RoleEntity
+        {
+            Id = 1,
             Name = roleName,
-            Description = "Admin role"
+            Description = "Admin role",
+            StaffMembers = new List<StaffEntity>()
         };
+
+        ICollection<RoleEntity> roleList = new List<RoleEntity> { existingRole };
+
+        _shopRepository
+            .ExistsAsync(Arg.Any<Specification<ShopEntity>>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        _roleRepository
+            .ExistsAsync(Arg.Any<Specification<RoleEntity>>(), Arg.Any<CancellationToken>())
+            .Returns(true);
 
         _roleRepository
             .GetAllPaginatedAsync(Arg.Any<Specification<RoleEntity>>(), Arg.Any<CancellationToken>())
-            .Returns((new List<RoleEntity> { existingRole }, 1));
+            .Returns((roleList, 1));
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);

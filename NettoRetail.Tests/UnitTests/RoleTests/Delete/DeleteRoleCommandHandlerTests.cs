@@ -23,7 +23,8 @@ public class DeleteRoleCommandHandlerTests
     {
         // Arrange
         int roleId = 99;
-        var command = new DeleteRoleCommand(roleId);
+        int shopId = 1;
+        var command = new DeleteRoleCommand(roleId, shopId);
 
         _roleRepository
             .GetAsync(Arg.Any<Specification<RoleEntity>>(), Arg.Any<CancellationToken>())
@@ -34,7 +35,7 @@ public class DeleteRoleCommandHandlerTests
             async () => await _handler.Handle(command, CancellationToken.None));
 
         // Assert
-        Assert.Equal($"Role with id = {roleId} not found", exception.Message);
+        Assert.Equal("Role with provided id and shopId not found", exception.Message);
 
         await _roleRepository
             .DidNotReceive()
@@ -46,7 +47,8 @@ public class DeleteRoleCommandHandlerTests
     {
         // Arrange
         int roleId = 1;
-        var command = new DeleteRoleCommand(roleId);
+        int shopId = 1; 
+        var command = new DeleteRoleCommand(roleId, shopId);
         var existingRole = new RoleEntity { Id = roleId, Name = "Manager" };
 
         _roleRepository

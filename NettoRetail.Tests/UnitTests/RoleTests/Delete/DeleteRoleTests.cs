@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Controllers.V1;
 using NettoRetail.Application.CQRS.Roles.Commands;
@@ -54,12 +56,27 @@ public class DeleteRoleTests
         }
     }
 
+    private static RoleController CreateControllerWithShopContext(IMediator mediator, int shopId = 1)
+    {
+        var claims = new[] { new Claim("shop_id", shopId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var user = new ClaimsPrincipal(identity);
+
+        return new RoleController(mediator)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            }
+        };
+    }
+
     [Fact]
     public async Task DeleteRole_ShouldReturnNoContent_WhenDeletionIsSuccessful()
     {
         // Arrange
         var fakeMediator = new FakeMediator();
-        var controller = new RoleController(fakeMediator);
+        var controller = CreateControllerWithShopContext(fakeMediator, shopId: 1);
         int roleId = 1;
 
         // Act
@@ -78,14 +95,13 @@ public class DeleteRoleTests
     {
         // Arrange
         var fakeMediator = new FakeMediator();
-        var controller = new RoleController(fakeMediator);
+        var controller = CreateControllerWithShopContext(fakeMediator, shopId: 1);
 
         // Act
         await controller.DeleteRole(roleId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(fakeMediator.LastSentCommand);
-        var command = Assert.IsType<DeleteRoleCommand>(fakeMediator.LastSentCommand);
-        Assert.NotNull(command);
+        Assert.IsType<DeleteRoleCommand>(fakeMediator.LastSentCommand);
     }
 }
