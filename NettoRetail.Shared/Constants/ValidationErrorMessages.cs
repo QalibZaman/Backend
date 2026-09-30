@@ -41,4 +41,10 @@ public static class ValidationErrorMessages
     {
         public const string InvalidFormatOrSize = "Please upload a PDF, DOCX, or ODT file under 20MB";
     }
+
+    public static class Shop
+    {
+        public const string InvalidUrlErrorMessage =
+            "URL is invalid";
+    }
 }
