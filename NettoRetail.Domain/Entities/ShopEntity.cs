@@ -32,6 +32,7 @@ public class ShopEntity
     public ICollection<CategoryEntity>? Categories { get; set; }
     public CountryEntity? Country { get; set; }
     public ICollection<BaseUserEntity>? Account { get; set; }
+    public ICollection<ShopDocumentEntity>? ShopDocuments { get; set; }
     public string? LogoUrl { get; set; }
 
     public void Activate()

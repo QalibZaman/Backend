@@ -28,6 +28,7 @@ public class AppDbContext(
     public DbSet<FeatureEntity> Features { get; set; }
     public DbSet<SubscriptionPlanEntity> SubscriptionPlans { get; set; }
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
+    public DbSet<ShopDocumentEntity> ShopDocuments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

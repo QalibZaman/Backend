@@ -37,6 +37,10 @@ public static class ValidationErrorMessages
         public const string InvalidPasswordErrorMessage =
             "Invalid email or password. {0} attempts left.";
     }
+    public static class ShopDocument
+    {
+        public const string InvalidFormatOrSize = "Please upload a PDF, DOCX, or ODT file under 20MB";
+    }
 
     public static class Shop
     {
