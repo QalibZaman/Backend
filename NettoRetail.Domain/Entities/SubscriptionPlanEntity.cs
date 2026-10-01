@@ -12,6 +12,5 @@ public class SubscriptionPlanEntity
     public required string Motto { get; set; }
     public required string SubscriptionId { get; set; }
 
-    public ICollection<ShopEntity> Shops { get; set; } = [];
     public ICollection<FeatureEntity>? Features { get; set; }
 }
