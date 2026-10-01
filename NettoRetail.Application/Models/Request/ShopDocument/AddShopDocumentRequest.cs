@@ -2,7 +2,7 @@
 
 namespace NettoRetail.Application.Models.Request.ShopDocument
 {
-    public class AddShopDocumentRequest
+    public class AddShopDocumentRequest : IShopDocumentRequest
     {
         public IFormFile? RefundPolicy { get; set; }
         public IFormFile? ShippingPolicy { get; set; }

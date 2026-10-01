@@ -1,11 +1,9 @@
 ﻿using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Request.ShopDocument;
 using NettoRetail.Application.Models.Response.ShopDocument;
-using NettoRetail.DataAccess.Repositories;
 using NettoRetail.DataAccess.Specifications.Shop;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Entities.Enums;
