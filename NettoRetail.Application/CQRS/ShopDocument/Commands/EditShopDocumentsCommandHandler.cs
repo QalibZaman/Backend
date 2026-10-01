@@ -36,8 +36,8 @@ namespace NettoRetail.Application.CQRS.ShopDocument.Commands
             {
                 if (file is null) continue;
                 var document = await shopDocumentRepository.GetAsync(new GetShopDocumentByShopIdandDocumentType(request.shopId, (int)documentType), cancellationToken);
-
-                if (document is not null)
+                var documentExists = await shopDocumentRepository.ExistsAsync(new GetShopDocumentByShopIdandDocumentType(request.shopId, (int)documentType), cancellationToken);
+                if (documentExists && document is not null)
                 {
                     await azureBlobService.DeleteBlobAsync(document.BlobName);
                     document.BlobName = await AddDoc(file);
@@ -48,18 +48,22 @@ namespace NettoRetail.Application.CQRS.ShopDocument.Commands
                 }
                 else
                 {
+                    Console.Write("/n/n/n [DEBUG] >>> ДОБАВЛЕНИЕ УСПЕШНО ВЫПОЛНЕНО <<< /n/n/n");
                     document = new ShopDocumentEntity
                     {
+                        ShopId = request.shopId,
+                        DocumentType = documentType,
                         BlobName = await AddDoc(file),
                         FileName = file.FileName,
                         FileSize = file.Length,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
                     };
+                    document.BlobName = await AddDoc(file);
                     await shopDocumentRepository.AddAsync(document, cancellationToken);
                 }
-
-                return;
             }
+
+            return;
         }
 
         public async Task<string> AddDoc(IFormFile file)
