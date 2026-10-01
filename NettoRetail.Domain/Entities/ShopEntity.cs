@@ -18,9 +18,7 @@ public class ShopEntity
     public required bool IsActive { get; set; }
     public string? DeactivationReason { get; set; }
     public DateTime? DeactivationDate { get; set; }
-    public required int SubscriptionPlanId { get; set; }
     public decimal StandardDeliveryFee { get; set; }
-
     public bool CategoriesSectionVisibility { get; set; }
     public string? CategoriesSectionName { get; set; }
 

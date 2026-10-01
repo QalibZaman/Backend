@@ -825,9 +825,6 @@ namespace NettoRetail.DataAccess.Migrations
                     b.Property<string>("StripeSubscriptionId")
                         .HasColumnType("text");
 
-                    b.Property<int>("SubscriptionPlanId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
@@ -852,6 +849,9 @@ namespace NettoRetail.DataAccess.Migrations
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("AutoRenewalEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("timestamp with time zone");

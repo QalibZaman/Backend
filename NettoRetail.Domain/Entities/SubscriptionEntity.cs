@@ -27,4 +27,5 @@ public class SubscriptionEntity
     public DateTime NextRenewalAt { get; set; }
 
     public DateTime? CancelledAt { get; set; }
+    public bool AutoRenewalEnabled { get; set; }
 }
