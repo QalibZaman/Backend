@@ -261,12 +261,12 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Apartment")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
 
                     b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
 
                     b.Property<int?>("CountryId")
                         .HasColumnType("integer");
@@ -275,23 +275,23 @@ namespace NettoRetail.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("HouseNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
 
                     b.Property<Guid?>("StaffId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("State")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
 
                     b.Property<string>("Street")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(90)
+                        .HasColumnType("character varying(90)");
 
                     b.Property<string>("ZipCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.HasKey("Id");
 
