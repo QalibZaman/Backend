@@ -3,14 +3,13 @@ using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Newsletters.Commands;
 using NettoRetail.Application.CQRS.Sessions.Commands;
-using NettoRetail.Application.CQRS.Users.Commands.Admin;
 using NettoRetail.Application.CQRS.Users.Commands.Auth;
 using NettoRetail.Application.CQRS.Users.Commands.Password;
+using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.CQRS.Users.Queries.Password;
 using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Admin;
@@ -18,6 +17,7 @@ using NettoRetail.Application.Models.Authentication;
 using NettoRetail.Application.Models.Email;
 using NettoRetail.Application.Models.Request.Password;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Staff;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Shared.Utilities;
 
@@ -157,6 +157,23 @@ public class StaffController(
         return NoContent();
     }
 
+    [Authorize]
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAccount(
+    [FromBody] DeleteAccountRequest request,
+    CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetUserId();
+        var command = new DeleteStaffCommand(userId, request.Password);
+        await mediator.Send(command, cancellationToken);
+
+        return NoContent();
+    }
+
     [HttpGet("validate-reset-password-token")]
     public async Task<IActionResult> ValidateResetPasswordToken(
         [FromQuery] string token)
@@ -165,7 +182,7 @@ public class StaffController(
         await mediator.Send(validateResetPasswordTokenQuery);
         return Ok();
     }
-    
+
     [ProducesResponseType(typeof(ApiResponse<ValidateResetPasswordResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -178,7 +195,6 @@ public class StaffController(
         var response = await mediator.Send(validateResetPasswordQuery);
         return Ok(response);
     }
-
 
     [HttpPost("sign-up")]
     // [Authorize(Policy = PolicyNames.SuperAdminOnlyPolicy)]

@@ -7,7 +7,6 @@ using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;
 using NettoRetail.Application.Models.Response;
-using NettoRetail.Application.Utilities;
 using NettoRetail.DataAccess.Identity;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
@@ -15,7 +14,7 @@ using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Options;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Admin;
+namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record CreateAdminCommand(AdminSignUpModel Model) : IRequest<TokenResponse>;
 public class CreateAdminCommandHandler(
