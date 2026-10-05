@@ -1,7 +1,7 @@
 ﻿using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using NettoRetail.Application.CQRS.Users.Commands.Admin;
+using NettoRetail.Application.CQRS.Users.Commands.Staff;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Interfaces;
 using NettoRetail.Application.Models.Admin;

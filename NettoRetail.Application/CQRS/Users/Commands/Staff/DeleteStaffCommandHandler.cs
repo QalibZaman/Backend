@@ -9,11 +9,11 @@ using NettoRetail.Shared.Constants;
 using NettoRetail.Shared.Interfaces.Repositories;
 using NettoRetail.Shared.Interfaces.Utilities;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Admin;
+namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
-public record DeleteAdminCommand(Guid Id, string Password) : IRequest;
+public record DeleteStaffCommand(Guid Id, string Password) : IRequest;
 
-public class DeleteAdminCommandHandler(
+public class DeleteStaffCommandHandler(
     IStaffRepository staffRepository,
     ISessionTerminationService sessionTerminationService,
     IUnitOfWork unitOfWork,
@@ -22,9 +22,9 @@ public class DeleteAdminCommandHandler(
     IFailedAuthAttemptService failedAuthAttemptService,
     IEmailBuilderService emailBuilderService,
     IEmailSender emailSender)
-    : IRequestHandler<DeleteAdminCommand>
+    : IRequestHandler<DeleteStaffCommand>
 {
-    public async Task Handle(DeleteAdminCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteStaffCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Password))
         {

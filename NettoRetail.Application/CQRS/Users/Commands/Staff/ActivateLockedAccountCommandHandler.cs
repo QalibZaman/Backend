@@ -5,8 +5,7 @@ using NettoRetail.Application.Interfaces;
 using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.Application.CQRS.Users.Commands.Admin;
-
+namespace NettoRetail.Application.CQRS.Users.Commands.Staff;
 
 public record ActivateLockedAccountCommand(string Token) : IRequest;
 public class ActivateLockedAccountCommandHandler(IJwtManager jwtManager, IStaffRepository staffRepository, IFailedAuthAttemptRepository failedAuthAttemptRepository, IFailedAuthAttemptService failedAuthAttemptService) : IRequestHandler<ActivateLockedAccountCommand>
