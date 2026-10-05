@@ -2,7 +2,6 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NettoRetail.API.Infrastructure.Attributes;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Commands;
@@ -20,7 +19,6 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class RoleController(IMediator mediator) : ControllerBase
 {
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,7 +34,6 @@ public class RoleController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("all")]
     [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<RoleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,8 +49,7 @@ public class RoleController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
-    [HttpGet("{id::int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -68,7 +64,6 @@ public class RoleController(IMediator mediator) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
     [HttpGet("{name}")]
     [ProducesResponseType(typeof(ApiResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
