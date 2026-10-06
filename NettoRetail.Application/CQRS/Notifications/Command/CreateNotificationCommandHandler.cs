@@ -26,21 +26,23 @@ namespace NettoRetail.Application.CQRS.Notifications.Command
                 StaffId = request.model.StaffId,
                 CreatedAt = DateTime.UtcNow,
                 Message = request.model.Message,
+                Topic = request.model.Topic,
                 IsRead = false
             };
 
             var newNotification = await notificationRepository.AddAsync(notification, cancellationToken);
 
-            var notificationResponse = new AddNotificationResponce
+            var notificationResponce = new AddNotificationResponce
             {
                 Id = newNotification.Id,
                 StaffId = newNotification.StaffId,
                 Message = newNotification.Message,
+                Topic = newNotification.Topic,
                 CreatedAt = newNotification.CreatedAt,
                 IsRead = false,
                 Url = newNotification.Url
             };
-            return notificationResponse;
+            return notificationResponce;
         }
     }
 }

@@ -85,10 +85,5 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.FileName, src => src.FileName)
             .Map(dest => dest.FileSize, src => src.FileSize)
             .Map(dest => dest.CreatedAt, src => src.CreatedAt);
-
-        config.NewConfig<NotificationPreferenceEntity, NotificationPreferenceResponse>()
-            .Map(dest => dest.IsEnabled, src => src.IsEnabled)
-            .Map(dest => dest.NotificationTypeId, src => src.NotificationTypeId)
-            .Map(dest => dest.NotificationTypeCode, src => src.NotificationType.Code);
     }
 }

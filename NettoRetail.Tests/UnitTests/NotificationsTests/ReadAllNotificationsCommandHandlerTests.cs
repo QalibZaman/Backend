@@ -74,6 +74,7 @@ namespace NettoRetail.Tests.UnitTests.NotificationsTests
                 StaffId = staffId,
                 CreatedAt = DateTime.UtcNow,
                 Message = "Test message",
+                Topic = "Test topic",
                 IsRead = false
             };
         }

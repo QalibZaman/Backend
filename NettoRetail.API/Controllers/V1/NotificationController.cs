@@ -68,43 +68,11 @@ public class NotificationController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> AddNotification([FromBody] CreateNotificationRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateNotificationCommand(request);
-        var result = await mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command);
         var responce = new ApiResponse<AddNotificationResponce>(result);
         return Ok(responce);
-    }
-
-    [HttpPost("NotificationPreference")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SetNotificationPreference(
-        UpdateNotificationPreferenceRequest request,
-        CancellationToken cancellationToken)
-    {
-        var userId = HttpContext.GetUserId();
-        var command = new SetNotificationPreferenceCommand(request, userId);
-        await mediator.Send(command, cancellationToken);
-        return NoContent();
-    }
-
-    [HttpGet("NotificationPreferences")]
-    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> NotificationPreferences(CancellationToken cancellationToken)
-    {
-        var staffId = HttpContext.GetUserId();
-        var query = new GetAllNotificationPreferencesQuery(staffId);
-        var response = await mediator.Send(query, cancellationToken);
-        return Ok(response);
     }
 }
