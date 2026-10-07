@@ -1,5 +1,4 @@
 using Hangfire;
-
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
@@ -57,6 +56,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 
 builder.Services.AddScoped<IShopLinkRepository, ShopLinkRepository>();
 
