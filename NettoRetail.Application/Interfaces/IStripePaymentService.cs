@@ -5,6 +5,7 @@ public interface IStripePaymentService
     Task<string> EnsureCustomerAsync(string? existingCustomerId, string fullName, string email, CancellationToken cancellationToken);
     Task<CardSnapshot> AttachAndGetCardAsync(string paymentMethodId, string customerId, CancellationToken cancellationToken);
     Task SetDefaultPaymentMethodAsync(string customerId, string paymentMethodId, CancellationToken cancellationToken);
+    Task<string> CreateSubscriptionAsync(string customerId, string paymentMethodId, string stripePriceId, CancellationToken cancellationToken);
     Task<SubscriptionSnapshot> GetSubscriptionAsync(string subscriptionId, CancellationToken cancellationToken);
     Task SetSubscriptionCancelAtPeriodEndAsync(string subscriptionId, bool cancelAtPeriodEnd, CancellationToken cancellationToken);
     Task DetachPaymentMethodAsync(string paymentMethodId, CancellationToken cancellationToken);

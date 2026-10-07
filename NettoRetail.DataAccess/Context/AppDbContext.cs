@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NettoRetail.DataAccess.Identity;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.NettoRetail.Domain.Entities;
 
 namespace NettoRetail.DataAccess.Context;
 
@@ -29,6 +30,7 @@ public class AppDbContext(
     public DbSet<SubscriptionPlanEntity> SubscriptionPlans { get; set; }
     public DbSet<PaymentMethodEntity> PaymentMethods { get; set; }
     public DbSet<ShopDocumentEntity> ShopDocuments { get; set; }
+    public DbSet<SubscriptionEntity> Subscriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

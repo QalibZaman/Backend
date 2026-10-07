@@ -2,7 +2,10 @@
 using NettoRetail.Domain.Entities;
 using NettoRetail.Shared.Interfaces.Repositories;
 
-namespace NettoRetail.DataAccess.Repositories
+namespace NettoRetail.DataAccess.Repositories;
+
+public class SubscriptionPlanRepository(AppDbContext dbContext) : BaseRepository<SubscriptionPlanEntity>(dbContext), ISubscriptionPlanRepository
 {
     public class SubscriptionPlanRepository(AppDbContext dbContext) : BaseRepository<SubscriptionPlanEntity>(dbContext), ISubscriptionPlanRepository;
+
 }

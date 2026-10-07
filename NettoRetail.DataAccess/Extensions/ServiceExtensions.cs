@@ -68,6 +68,8 @@ public static class ServiceExtensions
         services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IShopDocumentRepository, ShopDocumentRepository>();
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 
         //UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
