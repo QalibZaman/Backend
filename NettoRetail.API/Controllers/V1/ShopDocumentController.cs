@@ -59,5 +59,19 @@ namespace NettoRetail.API.Controllers.V1
             await mediator.Send(command, cancellationToken);
             return Ok();
         }
+
+        [HttpPut("update-documents")]
+        [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditDocuments([FromQuery] EditShopDocumentRequest request, CancellationToken cancellationToken)
+        {
+            int shopId = HttpContext.GetUserShopId();
+            var command = new EditShopDocumentCommand(request, shopId);
+            await mediator.Send(command, cancellationToken);
+            return Ok();
+        }
     }
 }
