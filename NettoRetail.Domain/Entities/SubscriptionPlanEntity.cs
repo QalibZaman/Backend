@@ -8,7 +8,6 @@ public class SubscriptionPlanEntity
     public SubscriptionTypeEnum Type { get; set; }
 
     public required string Name { get; set; }
-    public required string Description { get; set; }
     public required int MonthlyPrice { get; set; }
     public required string Motto { get; set; }
     public required string SubscriptionId { get; set; }
