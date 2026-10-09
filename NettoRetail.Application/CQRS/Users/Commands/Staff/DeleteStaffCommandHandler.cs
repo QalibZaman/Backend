@@ -55,6 +55,8 @@ public class DeleteStaffCommandHandler(
             {
                 var lockoutEmail = await emailBuilderService.BuildFailedDeletionAttemptsEmailAsync(account.Email, account.FirstName);
                 await emailSender.SendAsync(lockoutEmail, account.Id);
+
+                throw new MyUnauthorizedException(StaffConstants.AccountLocked, updatedAttempt.LockoutEndTime);
             }
 
             throw new BadRequestException(StaffConstants.IncorrectPassword);
