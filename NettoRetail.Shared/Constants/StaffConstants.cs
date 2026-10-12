@@ -10,4 +10,6 @@ public static class StaffConstants
 
     public const string AccountLocked = "Account locked. Try again later.";
     public const string IncorrectPassword = "Current password is incorrect";
+
+    public const int DeleteAccountLockoutMinutes = 15;
 }
