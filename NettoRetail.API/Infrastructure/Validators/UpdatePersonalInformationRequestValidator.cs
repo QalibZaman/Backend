@@ -75,19 +75,19 @@ public class UpdatePersonalInformationRequestValidator
     private void ConfigureAddressRules()
     {
         RuleFor(x => x.Street)
-            .Length(5, 90)
+            .Length(1, 90)
             .Matches(AddressPattern)
             .When(x => !string.IsNullOrWhiteSpace(x.Street))
             .WithMessage("Invalid street.");
 
         RuleFor(x => x.HouseNumber)
-            .Length(5, 90)
+            .Length(1, 90)
             .Matches(AddressPattern)
             .When(x => !string.IsNullOrWhiteSpace(x.HouseNumber))
             .WithMessage("Invalid house number.");
 
         RuleFor(x => x.Apartment)
-            .Length(5, 90)
+            .Length(1, 90)
             .Matches(AddressPattern)
             .When(x => !string.IsNullOrWhiteSpace(x.Apartment))
             .WithMessage("Invalid apartment.");

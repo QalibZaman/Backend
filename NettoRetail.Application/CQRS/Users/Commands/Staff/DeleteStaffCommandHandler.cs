@@ -46,15 +46,22 @@ public class DeleteStaffCommandHandler(
             throw new MyUnauthorizedException(StaffConstants.AccountLocked, failedAttempt.LockoutEndTime);
         }
 
+        if (failedAttempt is { LockoutEndTime: not null } && !failedAuthAttemptService.IsAccountLocked(failedAttempt))
+        {
+            await failedAuthAttemptService.ResetFailedAttemptsAsync(failedAttempt, cancellationToken);
+        }
+
         var isPasswordValid = await userManager.CheckPasswordAsync(identityUser, request.Password);
         if (!isPasswordValid)
         {
-            var updatedAttempt = await failedAuthAttemptService.IncrementFailedAttemptsAsync(failedAttempt, account.Id, cancellationToken);
+            var updatedAttempt = await failedAuthAttemptService.IncrementFailedAttemptsAsync(failedAttempt, account.Id, cancellationToken, StaffConstants.DeleteAccountLockoutMinutes);
 
             if (failedAuthAttemptService.IsAccountLocked(updatedAttempt))
             {
                 var lockoutEmail = await emailBuilderService.BuildFailedDeletionAttemptsEmailAsync(account.Email, account.FirstName);
                 await emailSender.SendAsync(lockoutEmail, account.Id);
+
+                throw new MyUnauthorizedException(StaffConstants.AccountLocked, updatedAttempt.LockoutEndTime);
             }
 
             throw new BadRequestException(StaffConstants.IncorrectPassword);
