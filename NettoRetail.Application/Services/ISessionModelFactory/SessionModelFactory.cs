@@ -1,8 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using NettoRetail.Application.Exceptions;
 using NettoRetail.Application.Models.Entities;
-using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.DataAccess.Specifications.Customer;
+using NettoRetail.DataAccess.Specifications.Staff;
 using NettoRetail.Domain.Entities;
 using NettoRetail.Domain.Enums;
 using NettoRetail.Infrastructure.Models;
@@ -26,16 +27,7 @@ public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRe
         var deviceType = GetDeviceType(userAgentString);
         var browser = GetBrowser(userAgentString);
 
-        var locationString = string.Empty;
-
-        if (location != null)
-        {
-            locationString = $"{location.Country ?? "Unknown"}, {location.City ?? "Unknown"}";
-        }
-        else
-        {
-            locationString = "Unknown, Unknown";
-        }
+        var locationString = FormatLocation(location);
 
         //Ips may come in a format of string list, e.g. "0.0.0.0, 1.1.1.1, ..."
         var ip = ips.Split(',')[0].Trim();
@@ -130,4 +122,30 @@ public class SessionModelFactory(IStaffRepository accountRepository, ICustomerRe
             _ when userAgent.Contains("MSIE") || userAgent.Contains("Trident") => "Internet Explorer",
             _ => "Unknown"
         };
+
+    private static string FormatLocation(Location? location)
+    {
+        var city = string.IsNullOrWhiteSpace(location?.City) ? "Unknown" : location.City.Trim();
+        var country = GetCountryName(location?.Country);
+
+        var result = $"{city}, {country}";
+
+        // DR-2.15: max length 100, no trailing spaces
+        return result.Length > 100 ? result[..100].TrimEnd() : result;
+    }
+
+    private static string GetCountryName(string? countryCode)
+    {
+        if (string.IsNullOrWhiteSpace(countryCode))
+            return "Unknown";
+
+        try
+        {
+            return new RegionInfo(countryCode.Trim()).EnglishName;
+        }
+        catch (ArgumentException)
+        {
+            return countryCode.Trim();
+        }
+    }
 }
