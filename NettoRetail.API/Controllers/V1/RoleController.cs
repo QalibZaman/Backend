@@ -7,6 +7,7 @@ using NettoRetail.API.Models.Response;
 using NettoRetail.Application.CQRS.Roles.Commands;
 using NettoRetail.Application.CQRS.Roles.Queries;
 using NettoRetail.Application.Models.Request;
+using NettoRetail.Application.Models.Request.Role;
 using NettoRetail.Application.Models.Response;
 using NettoRetail.Application.Models.Response.Roles;
 using NettoRetail.Shared.Constants;
@@ -19,6 +20,24 @@ namespace NettoRetail.API.Controllers.V1;
 [Route("api/v{v:ApiVersion}/[controller]")]
 public class RoleController(IMediator mediator) : ControllerBase
 {
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<CreateRoleResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<CreateRoleResponse>>> AddRole([FromBody] CreateRoleRequest model, CancellationToken cancellationToken)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var command = new CreateRoleCommand(model, shopId);
+        var result = await mediator.Send(command, cancellationToken);
+        var response = new ApiResponse<CreateRoleResponse>(result);
+        return Ok(response);
+    }
+
+    [Authorize(Policy = PolicyNames.AdminOnlyPolicy)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

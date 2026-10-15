@@ -41,7 +41,7 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
             var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
 
             return specificationBuilder
-                .AddCriteria((role) => role.ShopEntityId == request.ShopId)
+                .AddCriteria((role) => role.ShopId == request.ShopId)
                 .Skip(skip)
                 .Take(request.Model.PageSize)
                 .Build();

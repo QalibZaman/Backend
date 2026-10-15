@@ -37,6 +37,41 @@ public static class ValidationErrorMessages
         public const string InvalidPasswordErrorMessage =
             "Invalid email or password. {0} attempts left.";
     }
+
+    public static class Role
+    {
+        public const int NameMinLength = 2;
+        public const int NameMaxLength = 50;
+        public const int DescriptionMaxLength = 500;
+
+        public const string CannotDeleteAdminRoleErrorMessage = "The admin role cannot be deleted.";
+        public const string CannotEditAdminRoleErrorMessage = "The admin role cannot be edited.";
+        public const string RoleInUseErrorMessage = "Cannot delete role. This role is currently assigned to active staff. Please reassign or remove staff before deletion.";
+        public const string RoleExistsErrorMessage = "Role with such name already exists in your shop";
+        public const string RoleNotFoundErrorMessage = "There is no such role with this Id";
+        public const string RoleNotFoundWithShopIdErrorMessage =
+            "Role with Id {0} and ShopId {1} does not exist.";
+
+        public const string NameLengthErrorMessage = "Role name length must be more than 2 and  less than 50 characters long.";
+        public const string NameAllowedCharactersRegex = "Role name must only contain letters, digits, '-' and '_'.";
+        public const string NameAllowedCharactersPattern = @"^[a-zA-Z0-9-_]*$";
+
+        public const string DescriptionMaxLengthErrorMessage = "Description must be less than 500 characters long.";
+        public const string DescriptionAllowedCharactersRegex = "Description must only contain letters, digits, spaces, and common punctuation.";
+        public const string DescriptionAllowedCharactersPattern = @"^[A-Za-z0-9 ,.\-_'()]*$";
+        public const string DescriptionTrimErrorMessage = "Description must not start or end with spaces.";
+
+        public const string PermissionsDontExistErrorMessage = "Some of the permissions don't exist. Please provide valid permissions.";
+        public const string PermissionListUniqueIdsErrorMessage = "Permissions must be unique.";
+        public const string PermissionsListNullErrorMessage = "Permissions list cannot be null";
+        public const string PermissionsListEmptyErrorMessage = "At least one permission must be enabled";
+
+        public const string CannotAssignSystemPermissionErrorMessage = "System permissions cannot be assigned";
+
+        public const string PermissionNotFound = "Permission not found";
+        public const string AccessLevelNotFound = "Access level not found";
+    }
+
     public static class ShopDocument
     {
         public const string InvalidFormatOrSize = "Please upload a PDF, DOCX, or ODT file under 20MB";
@@ -44,6 +79,8 @@ public static class ValidationErrorMessages
 
     public static class Shop
     {
+        public const string ShopDoesntExistErrorMessage = "No shop with Id: {0}";
+        public const string ShopIdRequiredErrorMessage = "ShopId is required.";
         public const string InvalidUrlErrorMessage =
             "URL is invalid";
     }

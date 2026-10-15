@@ -60,6 +60,7 @@ public static class ServiceExtensions
         services.AddScoped<IActivationEmailAttemptRepository, ActivationEmailAttemptRepository>();
         services.AddScoped<IBlacklistedTokenRepository, BlacklistedTokenRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
