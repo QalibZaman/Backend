@@ -50,7 +50,7 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
 
             specificationBuilder.
                 AddCriteria((role) => role.Id.Equals(request.id))
-                .AddCriteria((role) => role.ShopEntityId == request.ShopId);
+                .AddCriteria((role) => role.ShopId == request.ShopId);
 
             return specificationBuilder
                 .Build();
