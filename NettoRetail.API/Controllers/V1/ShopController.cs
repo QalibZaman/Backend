@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.CQRS.Shops.Commands;
 using NettoRetail.Application.CQRS.Shops.Queries;
+using NettoRetail.Application.Models.Link;
 using NettoRetail.Application.Models.Request.Shop;
 using NettoRetail.Shared.Constants;
 
