@@ -16,4 +16,5 @@ public class EmailTemplates
     public const string CustomerEmailChangeConfirmation = "customer-email-change-confirmation.html";
     public const string AccountDeleted = "account-deleted.html";
     public const string FailedDeletionAttempts = "failed-deletion-attempts.html";
+    public const string ChangePasswordConfirmation = "change-password-confirmation.html";
 }

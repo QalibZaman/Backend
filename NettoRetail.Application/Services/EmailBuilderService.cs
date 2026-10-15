@@ -131,4 +131,17 @@ public class EmailBuilderService(
 
         return emailModel;
     }
+
+    public async Task<EmailModel> BuildChangePasswordEmailAsync(string email, string firstName)
+    {
+        var model = new { first_name = firstName, current_year = DateTime.UtcNow.Year };
+        var emailBody =
+            await emailTemplateService.RenderEmailTemplateAsync(EmailTemplates.ChangePasswordConfirmation, model);
+        return new EmailModel
+        {
+            Email = email,
+            Subject = EmailSubjects.ChangePasswordConfirmation,
+            Message = emailBody
+        };
+    }
 }
