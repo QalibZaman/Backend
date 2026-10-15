@@ -10,4 +10,5 @@ public interface IEmailBuilderService
     Task<EmailModel> BuildAccountDeletedEmailAsync(string email, string firstName);
     Task<EmailModel> BuildFailedDeletionAttemptsEmailAsync(string email, string firstName);
     Task<EmailModel> BuildResetPasswordEmailAsync(string email, string firstName);
+    Task<EmailModel> BuildChangePasswordEmailAsync(string email, string firstName);
 }

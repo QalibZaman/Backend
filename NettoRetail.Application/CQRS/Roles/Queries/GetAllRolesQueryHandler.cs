@@ -20,6 +20,7 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
                     Id = r.Id,
                     Name = r.Name,
                     Description = r.Description ?? string.Empty,
+                    UserCount = r.StaffMembers.Count(a => a.ShopId == request.ShopId),
                     IsEditable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin,
                     IsDeletable = r.Id != RoleConstants.Admin && r.Id != RoleConstants.SuperAdmin
                 })
@@ -40,6 +41,7 @@ namespace NettoRetail.Application.CQRS.Roles.Queries
             var skip = PaginationHelper.CalculateSkip(request.Model.PageNumber, request.Model.PageSize);
 
             return specificationBuilder
+                .AddCriteria((role) => role.ShopId == request.ShopId)
                 .Skip(skip)
                 .Take(request.Model.PageSize)
                 .Build();

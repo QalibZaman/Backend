@@ -20,7 +20,6 @@ using NettoRetail.DataAccess.Context;
 using NettoRetail.DataAccess.Options;
 using NettoRetail.Infrastructure.Interfaces;
 using NettoRetail.Infrastructure.Services;
-using NettoRetail.Shared.Options;
 using Npgsql;
 using Stripe;
 
@@ -105,6 +104,7 @@ public static class ServiceExtensions
         services.AddScoped<ISessionTerminationService, SessionTerminationService>();
         services.AddScoped<INotificationCleanupService, NotificationCleanupService>();
         services.AddScoped<ICategoryUrlService, CategoryUrlService>();
+        services.AddScoped<IStripePaymentService, StripePaymentService>();
     }
 
     private static string BuildConnectionString(

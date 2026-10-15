@@ -1,7 +1,12 @@
 using Mapster;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
+using NettoRetail.Application.Models.Response.Roles;
+using NettoRetail.Application.Models.Response.ShopDocument;
+using NettoRetail.Application.Utilities;
 using NettoRetail.Domain.Entities;
+using NettoRetail.Domain.Entities.JunctionEntities;
+using static NettoRetail.Application.Models.Response.Roles.CreateRoleResponse;
 
 namespace NettoRetail.Application.MappingConfiguration;
 
@@ -27,10 +32,61 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.State, src => src.Address == null ? null : src.Address.State)
             .Map(dest => dest.ZipCode, src => src.Address == null ? null : src.Address.ZipCode);
 
-        config.NewConfig<UpdatePersonalInformationRequest, CustomerEntity>();
+        config.NewConfig<UpdatePersonalInformationRequest, CustomerEntity>()
+            .IgnoreNullValues(true);
 
-        config.NewConfig<UpdatePersonalInformationRequest, StaffEntity>();
+        config.NewConfig<UpdatePersonalInformationRequest, StaffEntity>()
+            .IgnoreNullValues(true);
 
         config.NewConfig<UpdatePersonalInformationRequest, AddressEntity>();
+
+        config.NewConfig<RoleEntity, CreateRoleResponse>()
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.Permissions, src => src.PermissionRoles);
+
+        config.NewConfig<PermissionRoleEntity, PermissionRoleResponse>()
+            .Map(dest => dest.AccessLevel, src => src.AccessLevel)
+            .Map(dest => dest.PermissionId, src => src.PermissionId);
+
+        config.NewConfig<SubscriptionPlanEntity, SubscriptionPlanResponce>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.Motto, src => src.Motto)
+            .Map(dest => dest.MonthlyPrice, src => src.MonthlyPrice);
+
+        config.NewConfig<UpdatePersonalInformationRequest, AddressEntity>()
+            .IgnoreNullValues(true);
+
+        config.NewConfig<RoleEntity, GetRolePermissionsResponse>()
+            .Map(dest => dest.RoleId, src => src.Id)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.RoleName, src => src.Name)
+            .AfterMapping((src, dest) =>
+            {
+                var rolePermissionTitles = src.PermissionRoles
+                    .Where(pr => pr.Permission != null)
+                    .Select(pr => pr.Permission!.Title)
+                    .ToHashSet();
+
+                foreach (var permission in PermissionProvider.All)
+                {
+                    dest.Permissions[permission] = rolePermissionTitles.Contains(permission);
+                }
+            });
+
+        config.NewConfig<ShopDocumentEntity, AddShopDocumentResponce>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.ShopId, src => src.ShopId)
+            .Map(dest => dest.DocumentType, src => src.DocumentType)
+            .Map(dest => dest.FileName, src => src.FileName)
+            .Map(dest => dest.FileSize, src => src.FileSize)
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt);
+
+        config.NewConfig<NotificationPreferenceEntity, NotificationPreferenceResponse>()
+            .Map(dest => dest.IsEnabled, src => src.IsEnabled)
+            .Map(dest => dest.NotificationTypeId, src => src.NotificationTypeId)
+            .Map(dest => dest.NotificationTypeCode, src => src.NotificationType.Code);
     }
 }

@@ -14,4 +14,5 @@ public static class EmailSubjects
     public const string CustomerEmailChangeConfirmation = "Confirm your new email for {0}";
     public const string AccountDeleted = "Your account has been deleted";
     public const string FailedDeletionAttempts = "Failed account deletion attempts";
+    public const string ChangePasswordConfirmation = "Your RetailTech account password updated.";
 }

@@ -10,7 +10,7 @@ using NettoRetail.Application.CQRS.Users.Queries.PersonalInformation;
 using NettoRetail.Application.Models.Request;
 using NettoRetail.Application.Models.Response;
 
-namespace NettoRetail.API.Controllers
+namespace NettoRetail.API.Controllers.V1
 {
     [ApiController]
     [ApiVersion(1)]

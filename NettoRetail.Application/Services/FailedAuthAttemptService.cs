@@ -16,11 +16,11 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
                attempt.LockoutEndTime > DateTime.UtcNow;
     }
 
-    public async Task<FailedAuthAttemptEntity> IncrementFailedAttemptsAsync(FailedAuthAttemptEntity? attempt, Guid staffId, CancellationToken cancellationToken)
+    public async Task<FailedAuthAttemptEntity> IncrementFailedAttemptsAsync(FailedAuthAttemptEntity? attempt, Guid accountId, CancellationToken cancellationToken, int? lockoutDurationInMinutes = null)
     {
         if (attempt == null)
         {
-            attempt = new FailedAuthAttemptEntity { StaffId = staffId };
+            attempt = new FailedAuthAttemptEntity { AccountId = accountId };
             await failedAuthAttemptRepository.AddAsync(attempt, cancellationToken);
         }
 
@@ -28,8 +28,8 @@ public class FailedAuthAttemptService(IFailedAuthAttemptRepository failedAuthAtt
         attempt.LastFailedTime = DateTime.UtcNow;
         if (attempt.FailedAttempts >= _userBlockOptions.FailedAttemptThreshold)
         {
-            attempt.LockoutEndTime =
-                DateTime.UtcNow.AddMinutes(_userBlockOptions.LockoutDurationInMinutes);
+            var durationInMinutes = lockoutDurationInMinutes ?? _userBlockOptions.LockoutDurationInMinutes;
+            attempt.LockoutEndTime = DateTime.UtcNow.AddMinutes(durationInMinutes);
         }
 
         await failedAuthAttemptRepository.UpdateAsync(attempt, cancellationToken);

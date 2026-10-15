@@ -2,7 +2,7 @@
 {
     public class AddressEntity
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         public Guid? CustomerId { get; set; }
         public CustomerEntity? Customer { get; set; }
         public Guid? StaffId { get; set; }
