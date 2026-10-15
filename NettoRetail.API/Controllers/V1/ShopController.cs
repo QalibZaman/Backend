@@ -19,12 +19,18 @@ public class ShopController(IMediator mediator) : ControllerBase
 {
     [HttpDelete("logo")]
     [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteLogo()
     {
         var shopId = HttpContext.GetUserShopId();
         var command = new DeleteLogoCommand(shopId);
+
         await mediator.Send(command);
-        return Ok();
+
+        return NoContent();
     }
 
     [HttpPost("logo")]
@@ -39,8 +45,28 @@ public class ShopController(IMediator mediator) : ControllerBase
     {
         var shopId = HttpContext.GetUserShopId();
         var command = new AddLogoCommand(request, shopId);
+
         await mediator.Send(command);
-        return Ok();
+
+        return NoContent();
+    }
+
+    [HttpPatch("logo")]
+    [Authorize(Policy = PolicyNames.HasShopClaimPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ChangeLogo(AddLogoRequest request)
+    {
+        var shopId = HttpContext.GetUserShopId();
+        var command = new ChangeLogoCommand(request, shopId);
+
+        await mediator.Send(command);
+
+        return NoContent();
     }
 
     [HttpPost("social-links")]
@@ -52,10 +78,9 @@ public class ShopController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddSocialLinks(
-    AddSocialLinksRequest request)
+        AddSocialLinksRequest request)
     {
         var shopId = HttpContext.GetUserShopId();
-
         var command = new AddSocialLinksCommand(request, shopId);
 
         await mediator.Send(command);
@@ -72,7 +97,6 @@ public class ShopController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetSocialLinks()
     {
         var shopId = HttpContext.GetUserShopId();
-
         var query = new GetSocialLinksQuery(shopId);
 
         var response = await mediator.Send(query);
@@ -89,13 +113,10 @@ public class ShopController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> EditSocialLinks(
-    EditSocialLinksRequest request)
+        EditSocialLinksRequest request)
     {
         var shopId = HttpContext.GetUserShopId();
-
-        var command = new EditSocialLinksCommand(
-            request,
-            shopId);
+        var command = new EditSocialLinksCommand(request, shopId);
 
         await mediator.Send(command);
 
