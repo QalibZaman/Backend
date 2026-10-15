@@ -1,4 +1,5 @@
 using Hangfire;
+using Microsoft.AspNetCore.HttpOverrides;
 using NettoRetail.API.Infrastructure.Extensions;
 using NettoRetail.Application.Extensions;
 using NettoRetail.Application.Hubs.NotificationHub;
@@ -71,7 +72,16 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddSignalR();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 {
@@ -81,7 +91,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Local"))
 await app.UseDatabaseSeedingAsync();
 
 app.UseCors("CorsPolicy");
-
 
 //app.UseSerilogRequestLogging();
 
