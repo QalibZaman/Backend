@@ -25,7 +25,7 @@ public class IpInfoService(HttpClient httpClient, ILogger<IpInfoService> logger)
         if (ip.IsIPv4MappedToIPv6)
             ip = ip.MapToIPv4();
 
-        // Для локальных и внутренних адресов внешний API бесполезен
+        // For local and internal addresses, an external API is useless
         if (IsNonPublic(ip))
             return null;
 
